@@ -1,0 +1,10 @@
+Package: eseis
+Type: Package
+Title: Environmental seismology toolbox
+Version: 0.2.3
+Date: 2015-07-15
+Author: Michael Dietze
+Maintainer: Michael Dietze <mdietze@gfz-potsdam.de>
+Description: This package provides a set of functions for handling seismic data to monitor Earth surface processes.
+License: GPL-3
+Depends: R (>= 3.1.1), caTools, fields, RSEIS, signal, zoo, rPython
