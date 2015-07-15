@@ -158,4 +158,6 @@ structure(function(# Function to build an empty data array.
   
   ## show struture of the array
   str(array)
+  
+  ## have fun
 })
