@@ -23,9 +23,12 @@ structure(function(# Function to tilt a DEM.
   ### Numeric \code{scalar}, projection of the output DEM, same as input if
   ### omitted
   
-  shift = TRUE
+  shift = TRUE,
   ### Logical \code{scalar}, option to shift the tilted DEM to new
   ### coordinate origin after tilting and interpolation.
+  
+  reshift = TRUE
+  ### Logical \code{scalar}, option to add shift back after tilting.
   
 ){  
   
@@ -49,10 +52,16 @@ structure(function(# Function to tilt a DEM.
     if(is.matrix(points) == FALSE | ncol(points) != 3) {
       stop("Points must be given as matrix with 3 columns")
     }
-    
-    points.t <- points
   }
   
+  ## Convert angles to radians
+  if(missing(angle.x) == FALSE) {
+    angle.x <- (angle.x * pi) / 180
+  }
+  
+  if(missing(angle.y) == FALSE) {
+    angle.y <- (angle.y * pi) / 180
+  }
   ## convert DEM to SpatialPoints
   DEM.xyz <- SpatialPoints(DEM)
   
@@ -81,6 +90,7 @@ structure(function(# Function to tilt a DEM.
   
   ## tilt in x-direction
   if(missing(angle.x) == FALSE) {
+    
     ## calculate arcus tangent of DEM
     DEM.atan.x <- atan(DEM.z / DEM.x)
     
@@ -94,10 +104,10 @@ structure(function(# Function to tilt a DEM.
     DEM.z <- sqrt(DEM.x^2 + DEM.z^2) * sin((angle.x * pi) / 180 + DEM.atan.x)
     
     if(missing(points) == FALSE) {
-      points.t[,1] <- sqrt(points[,1]^2 + points[,3]^2) * 
+      points[,1] <- sqrt(points[,1]^2 + points[,3]^2) * 
         cos((angle.x * pi) / 180 + points.atan.x)
-      points.t[,2] <- points.t[,2]
-      points.t[,3] <- sqrt(points[,1]^2 + points[,3]^2) * 
+      points[,2] <- points[,2]
+      points[,3] <- sqrt(points[,1]^2 + points[,3]^2) * 
         sin((angle.x * pi) / 180 + points.atan.x)
     }
   }
@@ -119,10 +129,10 @@ structure(function(# Function to tilt a DEM.
       sin((angle.y * pi) / 180 + DEM.atan.y)
     
     if(missing(points) == FALSE) {
-      points.t[,1] <- points.t[,1]
-      points.t[,2] <- sqrt(points[,2]^2 + points[,3]^2) * 
+      points[,1] <- points[,1]
+      points[,2] <- sqrt(points[,2]^2 + points[,3]^2) * 
         cos((angle.y * pi) / 180 + points.atan.y)
-      points.t[,3] <- sqrt(points[,2]^2 + points[,3]^2) * 
+      points[,3] <- sqrt(points[,2]^2 + points[,3]^2) * 
         sin((angle.y * pi) / 180 + points.atan.y)
     }
   }
@@ -163,6 +173,18 @@ structure(function(# Function to tilt a DEM.
     shift.II.z <- 0
   }
   
+  if(reshift == TRUE) {
+    DEM.int$x <- DEM.int$x + shift.II.x + shift.I.x
+    DEM.int$y <- DEM.int$y + shift.II.y + shift.I.y
+    DEM.int$z <- DEM.int$z + shift.II.z + shift.I.z
+    
+    if(missing(points) == FALSE) {
+      points[,1] <- points[,1] + shift.II.x + shift.I.x
+      points[,2] <- points[,2] + shift.II.y + shift.I.y
+      points[,3] <- points[,3] + shift.II.z + shift.I.z
+    }
+  }
+  
   
   ## convert data set to raster
   DEM.int <- raster(DEM.int)
@@ -196,22 +218,50 @@ structure(function(# Function to tilt a DEM.
   ## environmental seismology
 }, ex = function(){
   
+
   ## load volacano data set and convert to raster
-  DEM <- raster::raster((datasets::volcano))
+  library(raster)
+  DEM <- raster(datasets::volcano)
   
   ## generate some arbitrary points in space
-  points <- cbind(c(0.2, 0.4), c(0.3, 0.5), c(140, 170))
+  points <- cbind(c(0.55, 0.4), 
+                  c(0.655, 0.45), 
+                  c(150, 175))
+  
+  ## set plot parameters
+  par(mfcol = c(1, 3))
   
   ## plot volcano DEM and points
   plot(DEM)
-  points(points)
+  points(points, 
+         pch = 20, 
+         col = 4)
+  contour(DEM, 
+          add = TRUE)
   
   ## tilt DEM and points by 0.1 rad
-  DEM.tilt.x <- tilt.DEM(DEM = DEM, points = points, angle.x = 0.1)
+  DEM.tilt.x <- tilt.DEM(DEM = DEM, 
+                         points = points, 
+                         angle.x = 10)
   plot(DEM.tilt.x$DEM)
-  points(DEM.tilt.x$points)
+  points(DEM.tilt.x$points, 
+         pch = 20, 
+         col = 4)
+  contour(DEM.tilt.x$DEM, 
+          add = TRUE)
+  
+  ## crop DEM to remove NA-values
+  DEM.tilt.x.crop <- raster::crop(x = DEM.tilt.x$DEM, 
+                                  y = extent(c(0.04, 0.96, 0, 1)))
   
   ## re-tilt DEM and points back to initial conditions
-  DEM.tilt.xy <- tilt.DEM(DEM = DEM, angle.x = 20, angle.y = -0.1)[[1]]
-  plot(DEM.tilt.xy)
+  DEM.tilt.x.back <- tilt.DEM(DEM = DEM.tilt.x.crop, 
+                              points = DEM.tilt.x$points, 
+                              angle.x = -10)
+  plot(DEM.tilt.x.back$DEM)
+  points(DEM.tilt.x.back$points, 
+         pch = 20, 
+         col = 4)
+  contour(DEM.tilt.x.back$DEM, 
+          add = TRUE)
 })
