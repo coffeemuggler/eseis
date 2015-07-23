@@ -103,13 +103,13 @@ structure(function(# Function to detect events by the STA-LTA-method.
   ID <- seq(from = 1, to = length(event.duration))
   
   ## create output matrix
-  if(length(ivent.on) > 0) {
+  if(length(event.on) > 0) {
     events <- cbind(ID,
                     time[event.on],
                     event.duration)
   } else {
     print("No events detected.")
-    events <- cbind(rep(x = NA, times = 3))
+    events <- rbind(rep(x = NA, times = 3))
     sta <- rep(x = NA, times = length(data))
     lta <- rep(x = NA, times = length(data))
   }
