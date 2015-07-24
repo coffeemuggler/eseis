@@ -23,7 +23,7 @@ structure(function(# Function to convert time units.
   
   ## convert input format to seconds
   if(unit.in == "JD") {
-    t.sec <- (t.in - floor(t.in)) * 86400
+    t.sec <- t.in * 86400
   } else if(unit.in == "day") {
     t.sec <- t.in * 86400
   } else if(unit.in == "hour") {
@@ -34,7 +34,7 @@ structure(function(# Function to convert time units.
     t.sec <- t.in
   }
   
-  ## convert time to user-defined format
+  ## convert time to day
   if(unit.out == "day") {
     t.out <- t.sec / 86400
   } else if(unit.out == "hour") {
