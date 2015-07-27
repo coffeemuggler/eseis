@@ -2,11 +2,20 @@ plot.signal <-
 structure(function(# Function to plot seismic traces.
   ### This function plots seismic traces.
   
-  time,
-  ### Numeric \code{vector} with time values.
-
   data,
   ### Numeric \code{vector} or \code{matrix} with respective seismic traces.
+  
+  time,
+  ### \code{Numeric} vector with time values.
+
+  unit,
+  ### \code{Character} scalar, time unit. One out of \code{"sec"}, 
+  ### \code{"min"}, \code{"hour"}, \code{"day"}, \code{"JD"}. If omitted,
+  ### an automatic unit is used.
+  
+  t.rel = TRUE,
+  ### \code{Logical} scalar, option to enable/disable relative time units
+  ### (i.e. x-axis begins with zero). Default is \code{TRUE}.
   
   mtext,
   ### \code{Character} scalar or vector, optional text below the plot title
@@ -36,150 +45,223 @@ structure(function(# Function to plot seismic traces.
 
   ## check/correct data structure
   if(is(data, "matrix") == FALSE) {
-    signal <- rbind(data)
+    x <- rbind(data)
   } else {
-    signal <- data
+    x <- data
   }
 
   ## check/set time vector
   if(missing(time) == TRUE) {
-    t <- seq(from = 1, to = ncol(signal))
+    
+    ## assign time vector for missing time information
+    t.plot <- c(1, ncol(x))
+    
+    ## assign time unit keyword
+    unit <- "unknown"
+    
+    ## assign x-axis label
+    x.lab <- "Time (unknown units)"
+    
   } else {
+    
+    ## assign time vector
     t <- time
+    
+    ## convert time vector to time object
+    t.time <- strptime(x = range(t), format = "%Y-%m-%d %H:%M:%S")
+
+    ## calculate cumulative time vector
+    t.cum <- (t.time$yday + 1) * 86400 + t.time$hour * 3600 + 
+      t.time$min * 60 + t.time$sec
+
+    ## calculate zero time value
+    t.cum.zero <- t.cum - min(t.cum)
+    
+    ## set time unit
+    if(missing(unit) == TRUE) {
+      
+      ## calculate time difference and infer automatically set unit
+      unit <- units(difftime(max(t, na.rm = TRUE), 
+                             min(t, na.rm = TRUE)))
+
+      ## convert units into appropriate keywords
+      if(unit == "seconds") {
+        unit <- "sec"
+      } else if(unit.t == "mins") {
+        unit <- "min"
+      } else if(unit.t == "hours") {
+        unit <- "hour"
+      } else if(unit.t == "days") {
+        unit <- "day"
+      }
+    }
+    
+    ## generate conversion factors and x-labels
+    if(unit == "sec") {
+      f <- 1
+      x.lab <- "Time (s)"
+    } else if(unit == "min") {
+      f <- 60
+      x.lab <- "Time (min)"
+    } else if(unit == "hour") {
+      f <- 3600
+      x.lab <- "Time (h)"
+    } else if(unit == "day") {
+      f <- 86400
+      x.lab <- "Time (d)"
+    } else if(unit == "day") {
+      f <- 86400
+      x.lab <- "Time (d)"
+    } else if(unit == "unknown") {
+      f <- 1
+      x.lab <- "Time (unknown units)"
+    }  else {
+      stop("Time unit not supported!")
+    }
+
+    ## optionally remove zero time
+    if(t.rel == TRUE) {
+      t.plot <- t.cum.zero / f
+    } else {
+      t.plot <- t.cum / f
+    }
   }
-   
+  
   ## check/set plot parameters
   if("xlim" %in% names(list(...))) {
     xlim <- list(...)$xlim
   } else {
-    xlim <- range(t, na.rm = TRUE)
+    xlim <- range(t.plot, na.rm = TRUE)
   }
-  
+
   ## truncate data set to plot limits
-  signal <- signal[,(t >= xlim[1] & t <= xlim[2])]
-  t <- t[(t >= xlim[1] & t <= xlim[2])]
-
+  t.ID <- seq(from = t.plot[1], to = t.plot[2], length.out = length(t))
+  x <- x[,(t.ID >= xlim[1] & t.ID <= xlim[2])]
+  t.plot <- t.ID[(t.ID >= xlim[1] & t.ID <= xlim[2])]
+  
   ## re-adjust signal data structure
-  if(is(signal, "matrix") == FALSE) {
-    signal <- rbind(signal)
+  if(is(x, "matrix") == FALSE) {
+    x <- rbind(x)
   }
 
-  if("ylim" %in% names(list(...))) {
-    ylim <- matrix(data = rep(x = list(...)$ylim, 
-                              times = nrow(signal)),
-                   nrow = nrow(signal), 
-                   byrow = TRUE)
-  } else {
-    if(missing(shared.limits) == FALSE) {
-      ylim <- matrix(data = rep(range(signal, na.rm = TRUE), 
-                                times = nrow(signal)),
-                     nrow = nrow(signal), 
-                     byrow = TRUE)
-    } else {
-      ylim <- matrix(data = t(apply(signal, 1, range, na.rm = TRUE)), 
-                     nrow = nrow(signal))
-    }
-  }
-  
-  if("xlab" %in% names(list(...))) {
-    xlab <- list(...)$xlab
-    if(length(xlab) == 1) {
-      xlab <- rep(xlab, nrow(signal))
-    }
-  } else {
-    xlab <- rep("Time", nrow(signal))
-  }
-  
   if("ylab" %in% names(list(...))) {
     ylab <- list(...)$ylab
     if(length(ylab) == 1) {
-      ylab <- rep(ylab, nrow(signal))
+      ylab <- rep(ylab, nrow(x))
     }
   } else {
-    ylab <- rep("Amplitude", nrow(signal))
+    ylab <- rep("Amplitude", nrow(x))
   }
   
   if("main" %in% names(list(...))) {
     main <- list(...)$main
     if(length(main) == 1) {
-      main <- rep(main, nrow(signal))
+      main <- rep(main, nrow(x))
     }
   } else {
-    main <- rep("", nrow(signal))
+    main <- rep("", nrow(x))
   }
   
   if(missing(mtext) == FALSE) {
     if(length(mtext) == 1) {
-      mtext <- rep(x = mtext, times = nrow(signal))
+      mtext <- rep(x = mtext, times = nrow(x))
     }
   } else {
-    mtext <- rep("", nrow(signal))
+    mtext <- rep("", nrow(x))
   }
   
   if("lty" %in% names(list(...))) {
     lty <- list(...)$lty
     if(length(lty) == 1) {
-      lty <- rep(lty, nrow(signal))
+      lty <- rep(lty, nrow(x))
     }
   } else {
-    lty <- rep(1, nrow(signal))
+    lty <- rep(1, nrow(x))
   }  
   
   if("lwd" %in% names(list(...))) {
     lwd <- list(...)$lwd
     if(length(lwd) == 1) {
-      lwd <- rep(lwd, nrow(signal))
+      lwd <- rep(lwd, nrow(x))
     }
   } else {
-    lwd <- rep(1, nrow(signal))
+    lwd <- rep(1, nrow(x))
   }
     
   if("col" %in% names(list(...))) {
     col <- list(...)$col 
     if(length(col) == 1) {
-      col <- rep(col, nrow(signal))
+      col <- rep(col, nrow(x))
     }
   } else {
-    col <- rep(x = 1, times = nrow(signal))
+    col <- rep(x = 1, times = nrow(x))
   }
   
   if("cex" %in% names(list(...))) {
     cex <- list(...)$cex
     if(length(cex) == 1) {
-      cex <- rep(cex, nrow(signal))
+      cex <- rep(cex, nrow(x))
     }
   } else {
-    cex <- rep(1, nrow(signal))
+    cex <- rep(1, nrow(x))
   }
 
-    
   ## optionally subsample data set for faster plotting
   if(dynamic.resolution > 0) {
-    dynamic.resolution <- ifelse(dynamic.resolution > length(t),
-                                 length(t), dynamic.resolution)
-    n <- seq(1, length(t), by =  round(length(t) / dynamic.resolution))
-    t <- t[n]
-    signal <- signal[,n]
+    dynamic.resolution <- ifelse(dynamic.resolution > length(t.plot),
+                                 length(t.plot), dynamic.resolution)
+    n <- seq(from = 1, 
+             to = length(t.plot), 
+             by =  round(length(t.plot) / dynamic.resolution))
+    t.plot <- t.plot[n]
+    x <- x[,n]
   }
   
   ## re-adjust signal data structure
-  if(is(signal, "matrix") == FALSE) {
-    signal <- rbind(signal)
+  if(is(x, "matrix") == FALSE) {
+    x <- rbind(x)
   }
 
   ## plot data set
   par.setting <- par()$mfcol
-  par(mfcol = c(nrow(signal), 1))
+  par(mfcol = c(nrow(x), 1))
   
-  for(i in 1:nrow(signal)) {
+  for(i in 1:nrow(x)) {
     if(plot == TRUE) {
+      
+      if("ylim" %in% names(list(...))) {
+        ylim <- matrix(data = rep(x = list(...)$ylim, 
+                                  times = nrow(x)),
+                       nrow = nrow(x), 
+                       byrow = TRUE)
+      } else {
+        if(missing(shared.limits) == FALSE) {
+          ylim <- matrix(data = rep(range(x, na.rm = TRUE), 
+                                    times = nrow(x)),
+                         nrow = nrow(x), 
+                         byrow = TRUE)
+        } else {
+          ylim <- matrix(data = t(apply(x, 1, range, na.rm = TRUE)), 
+                         nrow = nrow(x))
+        }
+      }
+      
+      ## adjust x-label
+      if("xlab" %in% names(list(...))) {
+        xlab <- list(...)$xlab
+        if(length(xlab) == 1) {
+          xlab <- rep(xlab, nrow(x))
+        }
+      } else {
+        xlab <- rep(x.lab, nrow(x))
+      }
       
       ## prepare plot area
       plot(NA, xlim = xlim, ylim = ylim[i,], xlab = xlab[i], ylab = ylab[i], 
-           cex = cex[i], main = main[i])
+           cex = cex[i], main = main[i],)
       
       ## plot signal traces
-      lines(t, signal[i,], lty = lty, lwd = lwd, col = col[i])
+      lines(t.plot, x[i,], lty = lty, lwd = lwd, col = col[i])
       
       ## add mtext
       mtext(text = mtext[i], cex = cex * 0.8)
@@ -189,7 +271,7 @@ structure(function(# Function to plot seismic traces.
   par(mfcol = par.setting)
   
   if(output == TRUE) {
-      M <- rbind(t, signal)
+      M <- rbind(t.plot, x)
       return(M)
   }
   ### A plot of an array of seismic signals through time and, optionally,
@@ -209,11 +291,12 @@ structure(function(# Function to plot seismic traces.
   ## straightforward plot of the data set
   plot.signal(data = s.1)
 
-  ## create time vector
+  ## create time and signal vector
   t <- signal.1$time$signal
+  s <- signal.1$signal$station1$x
   
   ## plot of the data set with correct time
-  plot.signal(time = t, data = s.1)
+  plot.signal(time = t, data = s)
   
   ## plot only trace 1
   plot.signal(time = t, data = s.1[1,])
