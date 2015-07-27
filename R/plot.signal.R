@@ -87,11 +87,11 @@ structure(function(# Function to plot seismic traces.
       ## convert units into appropriate keywords
       if(unit == "seconds") {
         unit <- "sec"
-      } else if(unit.t == "mins") {
+      } else if(unit == "mins") {
         unit <- "min"
-      } else if(unit.t == "hours") {
+      } else if(unit == "hours") {
         unit <- "hour"
-      } else if(unit.t == "days") {
+      } else if(unit == "days") {
         unit <- "day"
       }
     }
