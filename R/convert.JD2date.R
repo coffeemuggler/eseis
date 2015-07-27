@@ -2,7 +2,7 @@ convert.JD2date <- function(# Function to convert Julian Days to POSIXlt dates a
   ### This function converts time Julian Days to POSIXlt dates and vice versa.
   ### It uses function from the package \code{date}.
 
-  date,
+  data,
   ### \code{Numeric} vector, data set to be processed.
   
   format = "mm-dd",
@@ -38,7 +38,7 @@ convert.JD2date <- function(# Function to convert Julian Days to POSIXlt dates a
     }
     
     ## create date object
-    t <- date::as.date(x = date)
+    t <- date::as.date(x = data)
     t <- date::date.mdy(sdate = t)
     t$year <- year
     
