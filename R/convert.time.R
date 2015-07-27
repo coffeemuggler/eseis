@@ -25,7 +25,7 @@ structure(function(# Function to convert time units.
   if(unit.in == "JD") {
     t.sec <- t.in * 86400
   } else if(unit.in == "day") {
-    t.sec <- t.in * 86400
+    t.sec <- (t.in - floor(t.in)) * 86400
   } else if(unit.in == "hour") {
     t.sec <- t.in * 3600
   } else if(unit.in == "min") {
