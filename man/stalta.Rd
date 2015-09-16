@@ -20,6 +20,8 @@ appended to the data set or returned as list object.}
   \item{extended}{Logical \code{scalar}, option to return extended output (
   sta-levels, lta-levels). Output will be a list in this case. Default 
   is \code{FALSE}.}
+  \item{freeze.lta}{Logical \code{scalar}, option to freeze lta value 
+  at event onset.}
   \item{envelope = "abs"}{Character \code{scalar}, option to calculate the 
   signal envelope prior to sta and lta evaluation. Options are \code{"abs"} 
   (absolute, fastest), \code{"sqrt"} (root of the square) and \code{"hilbert"} 
