@@ -13,22 +13,12 @@ structure(function(# Function to extract GPS data from cube-files.
   ### processed, with extension. If omitted, all files in the 
   ### \code{path.cubefiles} will be processed.
   
-  path.cubetools,
-  ### \code{Character} scalar, abolute path to and name of the CUBEtools
-  ### directory.
-  
   keep.files = FALSE
   ### \code{Logical} scalar, option to delete or keep the extracted GPS files
   ### on the disk.
   
 ){
 
-  if(file.exists(paste(path.cubetools, "/bin/cubeinfo", sep = "")) == FALSE) {
-    stop("Cube-file directory does not exist!")
-  } else {
-    path.cubetools <- paste(path.cubetools, "/bin", sep = "")
-  }
-  
   ## check input data
   if(file.exists(path.cubefiles) == FALSE) {
     stop("Cube-file directory does not exist!")
@@ -111,7 +101,9 @@ structure(function(# Function to extract GPS data from cube-files.
   return(data)
   ### \code{Numeric} matrix with GPS coordinates.
   
-  ##details<<
+  ##details<< Note that the path to the CUBEtools must be globally visible. 
+  ## To make it visible edit your .bashrc file and add the following line of
+  ## code: \code{export PATH=~/somepath/CUBEtools/bin:$PATH}.
    
   ##keyword<<
   ## environmental seismology
