@@ -19,6 +19,8 @@ pass), \code{"HP"} (high pass), \code{"BP"} (band pass) and \code{"BR"}
 Butterworth).}
   \item{order}{\code{Numeric} scalar, order of the filter, default is \code{2}.}
   \item{dt}{\code{Numeric} scalar, sampling period.}
+  \item{multicore}{\code{Logical} scalar, option to perform calculations using 
+more than one CPU, default is \code{FALSE}.}
   \item{\dots}{Further arguments to pass.}
 }
 \details{At the moment, only Butterworth filters are supported. If needed, further
