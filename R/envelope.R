@@ -7,6 +7,11 @@ structure(function(# Function to create signal envelopes.
   ### Numeric \code{vector} or \code{matrix} with respective seismic traces
   ### to be used for calculating the envelope.
   
+  sum = FALSE,
+  ### Logical \code{scalar}, option to calculate vector sum of the input 
+  ### data. Only useful if \code{data} contains more than one component of 
+  ### the same record.
+  
   power = 1,
   ### Numeric \code{scalar}, power used prior to signal summation.
   
@@ -24,7 +29,13 @@ structure(function(# Function to create signal envelopes.
   
   signal.abs <- abs(signal.hilbert)^2
   
-  signal.sqrtsum <- sqrt(apply(X = signal.abs^power, MARGIN = 2, FUN = sum))
+  if(sum == TRUE) {
+    
+    signal.sqrtsum <- sqrt(apply(X = signal.abs^power, MARGIN = 2, FUN = sum))
+  } else {
+    
+    signal.sqrtsum <- signal.abs
+  }
   
   signal.taper <- spec.taper(x = signal.sqrtsum, p = p)
   
