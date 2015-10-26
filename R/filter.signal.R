@@ -32,6 +32,10 @@ structure(function(# Function to filter seismic signals
   dt,
   ### \code{Numeric} scalar, sampling period.
   
+  multicore = FALSE,
+  ### \code{Logical} scalar, option to perform calculations using more than
+  ### one CPU.
+  
   ...
   ### Further arguments to pass.
 ){
@@ -73,22 +77,49 @@ structure(function(# Function to filter seismic signals
     
     ## optionally remove mean
     if(subtract.mean == TRUE) {
-      data.mean <- rowMeans(x = data, na.rm = TRUE)
+      data.mean <- rowMeans(x = data, 
+                            na.rm = TRUE)
       data <- data - data.mean
     }
     
-    ## filter signal
-    for(i in 1:nrow(data)) {
-      data[i,] <- filter(x = data[i,], 
-                         butter(n = order,
-                                W = filter.frequencies,
-                                type = type))
+    ## define wrapper for filter functions
+    filter.butter <- function(x) {
+      filter(x = x,
+             butter(n = order, 
+                    W = filter.frequencies,
+                    type = type))
     }
+
+    if(multicore == TRUE) {
+      
+      ## detect cores
+      cores <- parallel::detectCores()
+      
+      ## initiate cluster
+      cl <- parallel::makeCluster(getOption("mc.cores", cores))
+      
+      ## run filter in parallel
+      data.f <- parallel::clusterApply(cl, filter.butter, data)
+      
+      ## stop cluster
+      parallel::stopCluster(cl)
+        
+    } else {
+      
+      ## filter signal vectorised
+      data.f <- t(apply(X = data, 
+                        MARGIN = 1, 
+                        FUN = filter.butter))
+      
+    }
+    
+    
+    
   } else {
     stop("Filter type not supported!")
   }
   
-  return(data)
+  return(data.f)
   ### A filtered data set
   
   ##details<<
