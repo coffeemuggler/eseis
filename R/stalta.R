@@ -204,6 +204,7 @@ structure(function(# Function to detect events by the STA-LTA-method.
                            duration = NA)
       sta <- rep(x = NA, times = length(data))
       lta <- rep(x = NA, times = length(data))
+      event <- rep(x = NA, times = length(data))
     }
   }
   
@@ -213,7 +214,8 @@ structure(function(# Function to detect events by the STA-LTA-method.
   } else {
     return(list(events = events,
                 sta = signal.sta,
-                lta = signal.lta))
+                lta = signal.lta,
+                event = event))
   }
   
 }, ex = function(){
