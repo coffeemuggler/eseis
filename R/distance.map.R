@@ -29,7 +29,9 @@ structure(function(# Function to calculate a distance map
   }
   
   if(missing(DEM) == FALSE) {
+    
     if(typeof(DEM) != "S4" | class(DEM) != "RasterLayer") {
+      
       stop("DEM is neither a matrix or raster data set.")
     }
   }
@@ -49,7 +51,7 @@ structure(function(# Function to calculate a distance map
   
   ## optionally assign DEM z-value to stations
   if(ncol(stations) == 2) {
-    z <- as.numeric(unlist(sp::over(x = xy, y = DEM)[,2]))
+    z <- as.numeric(sp::over(x = xy, y = DEM)[,1])
   } else {
     z <- stations(,3)
   }
