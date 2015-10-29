@@ -44,12 +44,12 @@ structure(function(# Function to calculate a distance map
   warning("JUST A NOTE: EDIT CODE TO IMPLEMENT NA-CHECK OF DEM, LINE 1279")
   
   ## convert xy-coordinates of stations to SpatialPoints
-  xy <- SpatialPoints(coords = stations[,1:2], 
-                      proj4string = CRS(projection(DEM)))
+  xy <- sp::SpatialPoints(coords = stations[,1:2], 
+                          proj4string = sp::CRS(raster::projection(DEM)))
   
   ## optionally assign DEM z-value to stations
   if(ncol(stations) == 2) {
-    z <- as.numeric(unlist(over(x = xy, y = DEM)))
+    z <- as.numeric(unlist(sp::over(x = xy, y = DEM)[,2]))
   } else {
     z <- stations(,3)
   }
@@ -64,8 +64,8 @@ structure(function(# Function to calculate a distance map
       print(paste("Processing station", i))
             
       ## calculate euclidian distances
-      dx <- coordinates(DEM)[,1] - coordinates(xy)[i,1]
-      dy <- coordinates(DEM)[,2] - coordinates(xy)[i,2]
+      dx <- sp::coordinates(DEM)[,1] - sp::coordinates(xy)[i,1]
+      dy <- sp::coordinates(DEM)[,2] - sp::coordinates(xy)[i,2]
       dt <- sqrt(dx^2 + dy^2)
 
       ## loop through all grid cells
@@ -79,32 +79,32 @@ structure(function(# Function to calculate a distance map
         n.i <- ifelse(n.i == 0, 1, n.i)
         
         ## create x-vector
-        x.i <- seq(from = coordinates(xy)[i,1], 
-                   to = coordinates(DEM)[j,1],
+        x.i <- seq(from = sp::coordinates(xy)[i,1], 
+                   to = sp::coordinates(DEM)[j,1],
                    length.out = n.i)
         
         ## create y-vector
-        y.i <- seq(from = coordinates(xy)[i,2], 
-                   to = coordinates(DEM)[j,2],
+        y.i <- seq(from = sp::coordinates(xy)[i,2], 
+                   to = sp::coordinates(DEM)[j,2],
                    length.out = n.i)
         
         ## convert x and y vector to SpatialPoints coordinates
-        xy.i <- SpatialPoints(coords = cbind(x.i, y.i), 
-                              proj4string = CRS(projection(DEM)))
+        xy.i <- sp::SpatialPoints(coords = cbind(x.i, y.i), 
+                                  proj4string = sp::CRS(raster::projection(DEM)))
         
         ## interpolate xy by DEM
-        z.i <- over(x = xy.i, y = DEM)
+        z.i <- sp::over(x = xy.i, y = DEM)[,1]
         
         ## calculate direct line elevantion
         z.d <- seq(from = z[i], 
                    to = DEM@data[[1]][j], 
-                   length.out = length(z.i[,1]))
+                   length.out = length(z.i))
         
         ## calculate difference of DEM to direct elevation change
-        d.e <- z.d - z.i[,1]
+        d.e <- z.d - z.i
         
         ## calculate elevation path
-        z.e <- ifelse(d.e < 0, z.i[,1], z.d)
+        z.e <- ifelse(d.e < 0, z.i, z.d)
         
         ## calculate path length
         l <- sqrt((x.i[length(x.i)] - x.i[1])^2 + 

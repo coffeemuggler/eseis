@@ -2,7 +2,7 @@
 \alias{convert.time}
 \title{Function to convert time units.}
 \description{This function converts time units.}
-\usage{convert.time(data, unit.in, unit.out)}
+\usage{convert.time(data, unit.in, unit.out, year)}
 \arguments{
   \item{data}{\code{List} object or \code{numeric} vector, data set to be processed.}
   \item{unit.in}{\code{Character} scalar, input date format, one out of 
@@ -10,6 +10,9 @@
 \code{"min"}, \code{"sec"}.}
   \item{unit.out}{\code{Character} scalar, output date format, one out of 
 \code{"day"} (day), \code{"hour"}, \code{"min"}, \code{"sec"}.}
+  \item{year}{\code{numeric} scalar, optional year of input data. Only relevant 
+  if non-POSIXct-data should be converted to POSIXct. If omitted, the current 
+  year is used.} 
 }
 \details{This function primarilty aids plotting purposes. to display signal
 traces in appropriate units (default would be seconds) the time units

@@ -37,32 +37,32 @@ t <- signal.1$time$signal
 x <- signal.1$signal$station1$z
 
 ## time series with generic, data array with Welch
-S <- spectrogram(time = t,
-                 data = x,
-                 dt = 1/200,
-                 unit = "hour",
-                 window = 6, 
-                 window.sub = 2, 
-                 component = "z", 
-                 method = "Welch")
+#S <- spectrogram(time = t,
+#                 data = x,
+#                 dt = 1/200,
+#                 unit = "hour",
+#                 window = 6, 
+#                 window.sub = 2, 
+#                 component = "z", 
+#                 method = "Welch")
 
 ## plot spectrogram straightforward
-plot.spectrogram(S)
+#plot.spectrogram(S)
 
 ## plot spectrogram with logarithmic y-axis
-plot.spectrogram(S, log = "y")
+#plot.spectrogram(S, log = "y")
 
 ## plot spectrogram with user-defined modifications
-plot.spectrogram(data = S,
-                 main = "PSD station 1 z-component",
-                 xlab = "Time [h]",
-                 ylab = "f [Hz]",
-                 legend = "Energy [db]",
-                 zlim = c(-120, -80),
-                 colour = rainbow(n = 200, start = 0.5, end = 0.7))
+#plot.spectrogram(data = S,
+#                 main = "PSD station 1 z-component",
+#                 xlab = "Time [h]",
+#                 ylab = "f [Hz]",
+#                 legend = "Energy [db]",
+#                 zlim = c(-120, -80),
+#                 colour = rainbow(n = 200, start = 0.5, end = 0.7))
 
 ## plot spectrograms with even more decreased resolution
-plot.spectrogram(data = S, dynamic.resolution = 100)
+#plot.spectrogram(data = S, dynamic.resolution = 100)
 
 }
 

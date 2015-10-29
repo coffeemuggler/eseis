@@ -66,19 +66,19 @@ structure(function(# Function to calculate interstation distances
     DEM <- as(DEM, "SpatialGridDataFrame")
     
     ## convert xy-coordinates of statiions to SpatialPoints
-    xy <- SpatialPoints(coords = stations[,1:2], 
-                        proj4string = CRS(projection(DEM)))
+    xy <- sp::SpatialPoints(coords = stations[,1:2], 
+                            proj4string = sp::CRS(raster::projection(DEM)))
     
     ## loop through all stations
     for(i in 1:length(xy)) {
       
       ## calculate euclidian xy-distances between stations
-      dx.stations <- coordinates(xy)[,1] - coordinates(xy)[i,1]
-      dy.stations <- coordinates(xy)[,2] - coordinates(xy)[i,2]
+      dx.stations <- sp::coordinates(xy)[,1] - sp::coordinates(xy)[i,1]
+      dy.stations <- sp::coordinates(xy)[,2] - sp::coordinates(xy)[i,2]
       dt.stations <- sqrt(dx.stations^2 + dy.stations^2)
       
       ## assign DEM z-value to stations
-      z <- over(x = xy, y = DEM)
+      z <- sp::over(x = xy, y = DEM)
       
       ## loop through all stations
       for(j in 1:length(dt.stations)) {
@@ -91,21 +91,21 @@ structure(function(# Function to calculate interstation distances
         n.i <- ifelse(n.i == 0, 1, n.i)
         
         ## create x-vector
-        x.i <- seq(from = coordinates(xy)[i,1], 
-                   to = coordinates(xy)[j,1],
+        x.i <- seq(from = sp::coordinates(xy)[i,1], 
+                   to = sp::coordinates(xy)[j,1],
                    length.out = n.i)
         
         ## create y-vector
-        y.i <- seq(from = coordinates(xy)[i,2], 
-                   to = coordinates(xy)[j,2],
+        y.i <- seq(from = sp::coordinates(xy)[i,2], 
+                   to = sp::coordinates(xy)[j,2],
                    length.out = length(x.i))
         
         ## convert x and y vector to SpatialPoints coordinates
-        xy.i <- SpatialPoints(coords = cbind(x.i, y.i), 
-                              proj4string = CRS(projection(DEM)))
+        xy.i <- sp::SpatialPoints(coords = cbind(x.i, y.i), 
+                                  proj4string = sp::CRS(raster::projection(DEM)))
         
         ## interpolate xy by DEM
-        z.i <- as.numeric(unlist(over(x = xy.i, y = DEM)))
+        z.i <- as.numeric(unlist(sp::over(x = xy.i, y = DEM)))
         
         ## calculate direct line elevantion
         z.d <- seq(from = z[i,], to = z[j,], length.out = length(z.i))

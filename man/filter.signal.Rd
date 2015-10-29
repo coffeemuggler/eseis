@@ -2,8 +2,8 @@
 \alias{filter.signal}
 \title{Function to filter seismic signals}
 \description{This function filters seismic signals.}
-\usage{\method{filter}{signal}(data, f.low, f.high, subtract.mean = TRUE, type, 
-    shape = "butter", order = 2, dt, ...)}
+\usage{filter.signal(data, f.low, f.high, subtract.mean = TRUE, type, 
+    shape = "butter", order = 2, dt, multicore = FALSE, ...)}
 \arguments{
   \item{data}{\code{Numeric} matrix or vector, data set(s) to be processed.}
   \item{f.low}{\code{Numeric} scalar, low frequency cut-off, default is zero.}

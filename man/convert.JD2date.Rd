@@ -3,10 +3,10 @@
 \title{Function to convert Julian Days to POSIXlt dates and vice versa.}
 \description{This function converts time Julian Days to POSIXlt dates and 
 vice versa. It uses function from the package \code{date}.}
-\usage{convert.JD2date(date, format = "mm-dd", year, timezone = "UTC", 
+\usage{convert.JD2date(data, format = "mm-dd", year, timezone = "UTC", 
 reverse = FALSE)}
 \arguments{
-  \item{date}{\code{Numeric} vector, data set to be processed.}
+  \item{data}{\code{Numeric} vector, data set to be processed.}
   \item{format}{\code{Character} scalar, output format. One out of 
   \code{"mm-dd"} ( month and day), \code{"POSIXct"} (a POSIXct-object). 
   Default is \code{"ddmm"}. Note that for the latter option a year must be 

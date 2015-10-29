@@ -40,15 +40,15 @@ t <- signal.1$time$signal
 x <- signal.1$signal$station1$z
 
 ## time series with generic, data array with Welch
-signal.1.Welch <- spectrogram(time = t,
-                              data = x,
-                              dt = 1/200,
-                              unit = "hour",
-                              window = 6, 
-                              window.sub = 2, 
-                              component = "z", 
-                              method = "Welch", 
-                              plot = TRUE) 
+#signal.1.Welch <- spectrogram(time = t,
+#                              data = x,
+#                              dt = 1/200,
+#                              unit = "hour",
+#                              window = 6, 
+#                              window.sub = 2, 
+#                              component = "z", 
+#                              method = "Welch", 
+#                              plot = TRUE) 
 }
 
 \keyword{environmental}

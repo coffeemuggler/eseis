@@ -62,7 +62,8 @@ structure(function(# Function to migrate signals in space
   duration <- ncol(data) / f
   
   ## create output map
-  map <- round(x = raster(d.map[[1]]) - raster(d.map[[1]]), digits = 0)
+  map <- round(x = raster::raster(d.map[[1]]) - 
+                 raster::raster(d.map[[1]]), digits = 0)
   
   ## create counter variable
   n.count <- 1
@@ -103,7 +104,8 @@ structure(function(# Function to migrate signals in space
       t.max <- t.temp[c.temp == max(c.temp)]
       
       ## calculate modelled and emprirical lag times
-      dt.model <- (raster(d.map[[i]]) - raster(d.map[[j]])) / v
+      dt.model <- (raster::raster(d.map[[i]]) - 
+                     raster::raster(d.map[[j]])) / v
       dt.empiric <-  d.stations[i,j] / v
       
       ## calculate PDF for each pixel

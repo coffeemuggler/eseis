@@ -3,7 +3,7 @@
 \title{Function to create signal envelopes.}
 \description{This function creates the signal envelopes. It returns cosine tapered
 sums of the absolute values of the hilbert-transformed signals.}
-\usage{envelope(data, power = 1, p = 0.1)}
+\usage{envelope(data, sum = FALSE, power = 1, p = 0.1)}
 \arguments{
   \item{data}{Numeric \code{vector} or \code{matrix} with respective seismic traces
 to be used for calculating the envelope.}

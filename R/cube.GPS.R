@@ -13,6 +13,10 @@ structure(function(# Function to extract GPS data from cube-files.
   ### processed, with extension. If omitted, all files in the 
   ### \code{path.cubefiles} will be processed.
   
+  path.cubetools,
+  ### \code{Character} scalar, abolute path to and name of the CUBEtools
+  ### directory.
+  
   keep.files = FALSE
   ### \code{Logical} scalar, option to delete or keep the extracted GPS files
   ### on the disk.
@@ -22,6 +26,10 @@ structure(function(# Function to extract GPS data from cube-files.
   ## check input data
   if(file.exists(path.cubefiles) == FALSE) {
     stop("Cube-file directory does not exist!")
+  }
+  
+  if(missing(path.cubetools) == TRUE) {
+    path.cubetools <- ""
   }
   
   ## fill and check file list to be processed

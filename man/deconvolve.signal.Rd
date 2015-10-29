@@ -71,17 +71,17 @@ x.decon <- deconvolve.signal(data = x,
 #            xlab = "Time (min)")
 
 ## compare spectrograms
-par(mfcol = c(1, 2))
-S.1 <- spectrogram(time = t, 
-                   data = x, 
-                   dt = 1 / 200, 
-                   method = "generic", 
-                   window = 10)
-S.2 <- spectrogram(time = t, 
-                   data = x.decon, 
-                   dt = 1 / 200, 
-                   method = "generic", 
-                   window = 10)
+#par(mfcol = c(1, 2))
+#S.1 <- spectrogram(time = t, 
+#                   data = x, 
+#                   dt = 1 / 200, 
+#                   method = "generic", 
+#                   window = 10)
+#S.2 <- spectrogram(time = t, 
+#                   data = x.decon, 
+#                   dt = 1 / 200, 
+#                   method = "generic", 
+#                   window = 10)
 
 #plot.spectrogram(data = S.1, legend = "dB")
 #plot.spectrogram(data = S.2, legend = "dB")

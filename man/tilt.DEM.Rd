@@ -3,30 +3,27 @@
 \title{Function to tilt a DEM.}
 \description{This function tilts a DEM in x- and y-direction.}
 \usage{tilt.DEM(DEM, points, angle.x, angle.y, resolution, projection, 
-    shift = TRUE)}
+    shift = TRUE, reshift = TRUE)}
 \arguments{
   \item{DEM}{Raster object, the DEM to be processed}
   \item{points}{Numeric \code{matrix}, with x-y-z-coordinates of points (e.g. 
 seismic station locations) to be tilted along.}
   \item{angle.x}{Numeric \code{scalar}, tilt angle in x-direction, in degree }
   \item{angle.y}{Numeric \code{scalar}, tilt angle in y-direction, in degree }
-  \item{resolution}{Numeric \code{scalar}, resolution of the output DEM, same as input if
-omitted}
-  \item{projection}{Numeric \code{scalar}, projection of the output DEM, same as input if
-omitted}
+  \item{resolution}{Numeric \code{scalar}, resolution of the output DEM, 
+same as input if omitted.}
+  \item{projection}{Numeric \code{scalar}, projection of the output DEM, 
+same as input if omitted}
   \item{shift}{Logical \code{scalar}, option to shift the tilted DEM to new
 coordinate origin after tilting and interpolation.}
+  \item{reshift}{Logical \code{scalar}, option to add shift back after 
+tilting.}
 }
 
 \value{List object with tilted DEM and applied parameters}
 
 \author{Michael Dietze}
-
-
-
-
 \examples{
-
 ## load volacano data set and convert to raster
 #DEM <- raster::raster((datasets::volcano))
 

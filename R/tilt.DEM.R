@@ -39,7 +39,7 @@ structure(function(# Function to tilt a DEM.
   
   ## check/set output resolution
   if(missing(resolution) == TRUE) {
-    resolution <- mean(res(DEM))
+    resolution <- mean(raster::res(DEM))
   }
   
   ## check/set output resolution
@@ -63,12 +63,12 @@ structure(function(# Function to tilt a DEM.
     angle.y <- (angle.y * pi) / 180
   }
   ## convert DEM to SpatialPoints
-  DEM.xyz <- SpatialPoints(DEM)
+  DEM.xyz <- sp::SpatialPoints(DEM)
   
   ## isolate coordinate values
   DEM.x <- DEM.xyz@coords[,1]
   DEM.y <- DEM.xyz@coords[,2]
-  DEM.z <- values(DEM)
+  DEM.z <- raster::values(DEM)
   
   ## shift DEM to new coordinate origin, obligatory shift I
   ## query minimum coordinates
@@ -187,8 +187,8 @@ structure(function(# Function to tilt a DEM.
   
   
   ## convert data set to raster
-  DEM.int <- raster(DEM.int)
-  projection(DEM.int) <- projection
+  DEM.int <- raster::raster(DEM.int)
+  raster::projection(DEM.int) <- projection
   
   if(missing(points) == TRUE) {
     return(list(
@@ -220,8 +220,7 @@ structure(function(# Function to tilt a DEM.
   
 
   ## load volacano data set and convert to raster
-  library(raster)
-  DEM <- raster(datasets::volcano)
+  DEM <- raster::raster(datasets::volcano)
   
   ## generate some arbitrary points in space
   points <- cbind(c(0.55, 0.4), 
