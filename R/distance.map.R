@@ -21,7 +21,11 @@ structure(function(# Function to calculate a distance map
   
   ## check input data
   if(is.matrix(stations) == FALSE | ncol(stations) < 2) {
-    stop("Data set stations is no matrix with two or three columns!")
+    
+    if(missing(DEM) == TRUE) {
+      
+      stop("Data set stations is no matrix with two or three columns!")
+    }
   }
   
   if(missing(DEM) == FALSE) {
@@ -37,7 +41,7 @@ structure(function(# Function to calculate a distance map
   DEM <- as(DEM, "SpatialGridDataFrame")
   
   ## check for NA values
-  warning("EDIT CODE TO IMPLEMENT NA-CHECK OF DEM, LINE 1279")
+  warning("JUST A NOTE: EDIT CODE TO IMPLEMENT NA-CHECK OF DEM, LINE 1279")
   
   ## convert xy-coordinates of stations to SpatialPoints
   xy <- SpatialPoints(coords = stations[,1:2], 
