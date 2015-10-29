@@ -38,4 +38,4 @@ appended to the data set or returned as list object.}
 
 \examples{
 ## load example data set
-data(signal.1, envir = environment())
+data(signal.1, envir = environment())}

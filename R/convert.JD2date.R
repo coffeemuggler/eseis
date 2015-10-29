@@ -33,7 +33,7 @@ convert.JD2date <- function(# Function to convert Julian Days to POSIXlt dates a
   if(reverse == FALSE) {
     
     ## check input data
-    if(sum(JD > 366) > 0) {
+    if(sum(data > 366) > 0) {
       stop("Input data is beyond Julian day 366!")
     }
     

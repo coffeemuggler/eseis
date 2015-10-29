@@ -65,10 +65,10 @@ x.decon <- deconvolve.signal(data = x,
                              bilinear = "butter")
 
 ## compare signals
-plot.signal(time = t, 
-            data = rbind(x, x.decon), 
-            main = c("Raw signal", "Deconvolved signal"),
-            xlab = "Time (min)")
+#plot.signal(time = t, 
+#            data = rbind(x, x.decon), 
+#            main = c("Raw signal", "Deconvolved signal"),
+#            xlab = "Time (min)")
 
 ## compare spectrograms
 par(mfcol = c(1, 2))
@@ -83,6 +83,6 @@ S.2 <- spectrogram(time = t,
                    method = "generic", 
                    window = 10)
 
-plot.spectrogram(data = S.1, legend = "dB")
-plot.spectrogram(data = S.2, legend = "dB")
+#plot.spectrogram(data = S.1, legend = "dB")
+#plot.spectrogram(data = S.2, legend = "dB")
 }

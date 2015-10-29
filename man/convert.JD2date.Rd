@@ -13,7 +13,7 @@ reverse = FALSE)}
   provided or the current year will be set by default.}
   \item{year}{\code{Numeric} scalar, optional year to be used for conversion.}
   \item{timezone}{\code{Character} vector, time zone of the output date.}
-  \item{revers}{\code{Logical} scalar, option to reverse calculation (i.e., 
+  \item{reverse}{\code{Logical} scalar, option to reverse calculation (i.e., 
   convert POSIXct dates to Julian Days).}
 }
 \value{\code{Numeric} vector of dates.}
@@ -21,17 +21,14 @@ reverse = FALSE)}
 \author{Michael Dietze}
 
 \examples{
-## convert Julian day 96 to month-day
-  convert.JD2date(date = 96)
-  
   ## convert a series of Julian days to POSIXct
-  convert.JD2date(date = 90:100, format = "POSIXct")
+  #convert.JD2date(date = 90:100, format = "POSIXct")
   
   ## convert a series of Julian days to POSIXct, with correct years
-  convert.JD2date(date = 90:100, format = "POSIXct", year = 2000)
+  #convert.JD2date(date = 90:100, format = "POSIXct", year = 2000)
   
   ## convert a POSICct date to Julian day
-  convert.JD2date(date = as.POSIXct(Sys.Date()), reverse = TRUE)
+  #convert.JD2date(date = as.POSIXct(Sys.Date()), reverse = TRUE)
 }
 
 \keyword{environmental}

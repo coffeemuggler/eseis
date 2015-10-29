@@ -23,30 +23,30 @@ must be converted.}
 \seealso{\code{\link{read.sac}}, \code{\link{strip.time}},\code{\link{create.ts}}}
 \examples{
 ## load example data
-data(signal.1, envir = environment())
+#data(signal.1, envir = environment())
 
 ## show time unit of example data set
-signal.1$summary$unit
+#signal.1$summary$unit
 
 ## convert hours to minutes
-signal.1.min <- convert.time(data = signal.1, 
-                             unit.in = signal.1$summary$unit,
-                             unit.out = "min")
+#signal.1.min <- convert.time(data = signal.1, 
+#                             unit.in = signal.1$summary$unit,
+#                             unit.out = "min")
 
 ## convert only time vector
-time.vector.hour <- signal.1$time$signal
-time.vector.min <- convert.time(data = time.vector.hour,
-                                unit.in = "hour",
-                                unit.out = "min")  
+#time.vector.hour <- signal.1$time$signal
+#time.vector.min <- convert.time(data = time.vector.hour,
+#                                unit.in = "hour",
+#                                unit.out = "min")  
 
 ## show summaries of the two data sets
-summary(time.vector.hour)
-summary(time.vector.min)
+#summary(time.vector.hour)
+#summary(time.vector.min)
 
 ## Nota bene, convert date from d-m-Y to Julian day
-date <- "10.10.2010"
-strptime(x = date, format = "\%d.\%d.\%Y")$yday + 1
-}
+#date <- "10.10.2010"
+#strptime(x = date, format = "\%d.\%d.\%Y")$yday + 1
+#}
 
 \keyword{environmental}
 \keyword{seismology}
