@@ -7,7 +7,7 @@ Author: Michael Dietze
 Maintainer: Michael Dietze <mdietze@gfz-potsdam.de>
 Description: This package provides a set of functions for handling seismic data to monitor Earth surface processes.
 License: GPL-3
-Depends: R (>= 3.2.2)
+Depends: R (>= 3.2.1)
 Imports:
     caTools,
     fields,
