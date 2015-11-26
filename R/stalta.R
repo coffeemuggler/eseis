@@ -112,7 +112,7 @@ structure(function(# Function to detect events by the STA-LTA-method.
       T2 <- 0
       
       ## assign event trigger
-      for(i in 1:length(event[h,])) {
+      for(i in 1:(length(event[h,]) - 1)) {
         
         ## calculate ratio and optionally remove na-value
         ratio <- signal.sta[h,i] / signal.lta[h,i]
@@ -223,11 +223,3 @@ structure(function(# Function to detect events by the STA-LTA-method.
   data(signal.1, envir = environment())
   
 })
-
-
-
-
-# mb.1 <- microbenchmark(stalta(time = t, data = s.f, ratio.on = 4, ratio.off = 1, t.sta = 2, t.lta = 50, dt = 1/200))
-# 
-# mb.2 <- microbenchmark(stalta.2(time = t, data = s.f, ratio.on = 4, ratio.off = 1, t.sta = 2, t.lta = 50, dt = 1/200))
-
