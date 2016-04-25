@@ -23,6 +23,10 @@ structure(function(# Function to plot spectrograms
   ### Character \code{vector}, colour palette to use for spectrogram plotting,
   ### e.g. \code{rainbow(n = 10, start = 0.3, end = 0.8)}
   
+  tz = "UTC",
+  ### Character \code{scalar}, time zone of the data set, default is 
+  ### \code{"UTC"}.
+  
   plot = TRUE,
   ### \code{Logical} scalar, option to prevent plot output. Only useful in
   ### combination with \code{output = TRUE}.
@@ -37,10 +41,12 @@ structure(function(# Function to plot spectrograms
   }
   
   ## extract plot data
-  t <- as.numeric(colnames(data))
+  t <- strptime(x = colnames(data), format = "%s")
+  t$hour <- t$hour - 1
+  t <- as.POSIXct(x = t, tz = tz)
   f <- as.numeric(rownames(data))
   S <- data
-  
+
   ## check/set variables
   if(sum(is.na(t)) > 0 | length(t) == 0) {
     t <- seq(from = 1, to = ncol(data))
@@ -78,7 +84,7 @@ structure(function(# Function to plot spectrograms
   } else {
     zlim <- range(S.numeric[S.numeric != -Inf], na.rm = TRUE)
   }
-  
+
   if(zlim[1] > min(S.numeric, na.rm = TRUE) | 
        zlim[1] < max(S.numeric, na.rm = TRUE)) {
     S <- S[f >= ylim[1] & f <= ylim[2],
@@ -146,7 +152,7 @@ structure(function(# Function to plot spectrograms
 #            f >= ylim[1] & f <= ylim[2]]
 #   t.2 <- t[t >= xlim[1] & t <= xlim[2]]
 #   f.2 <- f[f >= ylim[1] & f <= ylim[2]]
-  
+
   ## plot data sets, with or without legend
   if(plot == TRUE) {
     ## adjust plot margins

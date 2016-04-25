@@ -15,7 +15,7 @@ structure(function(# Function to create signal envelopes.
   power = 1,
   ### Numeric \code{scalar}, power used prior to signal summation.
   
-  p = 0.1
+  p = 10^-6
   ### Numeric \code{scalar}, proportion of the signals to be tapered.
 
   ){  
@@ -27,14 +27,14 @@ structure(function(# Function to create signal envelopes.
   
   signal.hilbert <- hilbert(data = data)
   
-  signal.abs <- abs(signal.hilbert)^2
+  signal.abs <- abs(signal.hilbert)
   
   if(sum == TRUE) {
     
-    signal.sqrtsum <- sqrt(apply(X = signal.abs^power, MARGIN = 2, FUN = sum))
+    signal.sqrtsum <- apply(X = signal.abs^power, MARGIN = 2, FUN = sum)
   } else {
     
-    signal.sqrtsum <- signal.abs
+    signal.sqrtsum <- signal.abs^power
   }
   
   signal.taper <- spec.taper(x = signal.sqrtsum, p = p)

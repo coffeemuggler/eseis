@@ -16,8 +16,8 @@ structure(function(# Function to migrate signals in space
   ### Numeric \code{scalar}, mean velocity of seismic waves in the medium,
   ### in m/s.
   
-  f,
-  ### Numeric \code{scalar}, sampling frequency in Hz
+  dt,
+  ### Numeric \code{scalar}, sampling period
   
   snr,
   ### Numeric \code{vector}, optional signal-to-noise-ratios for each signal 
@@ -59,7 +59,7 @@ structure(function(# Function to migrate signals in space
   }
   
   ## calculate signal duration
-  duration <- ncol(data) / f
+  duration <- ncol(data) * dt
   
   ## create output map
   map <- round(x = raster::raster(d.map[[1]]) - 
@@ -80,15 +80,21 @@ structure(function(# Function to migrate signals in space
                 plot = FALSE)
       
       ## assign lag times
-      lags <- cc$lag / f
+      lags <- cc$lag * dt
 
       ## assign correlation values
-      c <- cc$acf      
+      c <- cc$acf
       
       ## calculate SNR normalisation factor
-      norm <- (max(data[i,]) / mean(data[i,]) + 
-                 max(data[j,]) / mean(data[j,])) / 
-        (mean(max(data) / apply(X = data, MARGIN = 1, FUN = mean)))
+      if(normalisation == TRUE) {
+        
+        norm <- (max(data[i,]) / mean(data[i,]) + 
+                   max(data[j,]) / mean(data[j,])) / 
+          (mean(max(data) / apply(X = data, MARGIN = 1, FUN = mean)))
+      } else {
+        
+        norm <- 1
+      }
       
       ## calculate minimum and maximum possible lag times
       lag.min <- which.max(diff(lags >= -d.stations[i,j]/v))
@@ -121,8 +127,8 @@ structure(function(# Function to migrate signals in space
   }
   
   ## correct output by number of station correlations
-#  map = map / n.count
-  
+  map <- map / (n.count - 1)
+
   return(map)
   ### A SpatialGridDataFrame-object with Gaussian probability density 
   ### function values for each grid cell.

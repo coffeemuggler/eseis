@@ -3,18 +3,14 @@ structure(function( # Function to spectrograms from time series.
   ### This function creates spectrograms from a seismic trace. It supports the 
   ### standard spectrogram apporach and the Welch method. See details below.
 
-  time,
-  ### Numeric \code{vector} with time values.
-  
   data,
   ### \code{Numeric} vector, seismic trace to be processed.
 
+  time,
+  ### \code{POSIX.ct} vector with time values.
+
   dt,
   ### Numeric \code{scalar}, sampling period.
-
-  unit,
-  ### Character \code{scalar}, unit of the target time series. If omitted, the
-  ### output is in seconds.
 
   method = "generic",
   ### method used for computation of the spetrogram. One out of "generic",
@@ -45,9 +41,8 @@ structure(function( # Function to spectrograms from time series.
 ){
   ## check/set parameters
   x <- data
-  if(missing(time) == TRUE) {time <- seq(from = 1, to = length(data))}
+  if(missing(time) == TRUE) {stop("Not time POSIX.ct vector provided!")}
   if(missing(dt) == TRUE) {stop("No dt provided!")}
-  if(missing(unit) == TRUE) {unit <- "sec"}
   if(missing(window) == TRUE) {stop("window width not specified!")}
   if(missing(overlap) == TRUE) {overlap <- 0.5}
   if(missing(window.sub) == TRUE) {window.sub <- window}
@@ -108,16 +103,16 @@ structure(function( # Function to spectrograms from time series.
     }
     x.f <- x.f.2
   }
-  
   ## assign time and frequency vectors
   f <- seq(0, 1 / (2 * dt), length.out = nrow(x.f))
-  t.s <- seq(1, length(x) * dt, length.out = ncol(x.f))
-  t <- convert.time(data = t.s, unit.in = "sec", unit.out = unit)
+  t.s <- seq(from = time[1], 
+             to = time[length(time)], 
+             length.out = ncol(x.f))
   
   ## assign output to data object
   data <- x.f
   rownames(data) <- f
-  colnames(data) <- t
+  colnames(data) <- t.s
   
   ## optionally plot data set
   if(plot == TRUE) {

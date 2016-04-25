@@ -6,7 +6,7 @@ structure(function(# Function to plot seismic traces.
   ### Numeric \code{vector} or \code{matrix} with respective seismic traces.
   
   time,
-  ### \code{Numeric} vector with time values.
+  ### \code{POSIX.ct} vector with time values.
 
   unit,
   ### \code{Character} scalar, time unit. One out of \code{"sec"}, 
@@ -53,14 +53,7 @@ structure(function(# Function to plot seismic traces.
   ## check/set time vector
   if(missing(time) == TRUE) {
     
-    ## assign time vector for missing time information
-    t.plot <- c(1, ncol(x))
-    
-    ## assign time unit keyword
-    unit <- "unknown"
-    
-    ## assign x-axis label
-    x.lab <- "Time (unknown units)"
+   stop("No time vector in POSIX.ct format provided!")
     
   } else {
     
@@ -85,15 +78,9 @@ structure(function(# Function to plot seismic traces.
                              min(t, na.rm = TRUE)))
 
       ## convert units into appropriate keywords
-      if(unit == "seconds") {
-        unit <- "sec"
-      } else if(unit == "mins") {
-        unit <- "min"
-      } else if(unit == "hours") {
-        unit <- "hour"
-      } else if(unit == "days") {
-        unit <- "day"
-      }
+      unit.conversion <- cbind(c("seconds", "mins", "hours", "days"),
+                               c("sec", "min", "hour", "day"))
+      unit <- unit.conversion[unit.conversion[,1] == unit,2]
     }
     
     ## generate conversion factors and x-labels

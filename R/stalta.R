@@ -25,6 +25,12 @@ structure(function(# Function to detect events by the STA-LTA-method.
   freeze.lta = FALSE,
   ### Logical \code{scalar}, option to freeze lta value at event onset.
   
+  t.min,
+  ### Numeric \code{scalar} minimum event duration in seconds.
+  
+  t.max,
+  ### Numeric \code{scalar} maximum event duration in seconds.
+  
   extended = FALSE,
   ### Logical \code{scalar}, option to return extended output (sta levels, lta 
   ### levels). Output will be a list in this case. Default is \code{FALSE}.
@@ -70,9 +76,8 @@ structure(function(# Function to detect events by the STA-LTA-method.
               nrow = nrow(data), 
               byrow = TRUE)
   
-  n.time <- matrix(data = rep(seq(from = time[1], 
-                                  by = dt,
-                                  length.out = ncol(n)), 
+  n.time <- matrix(data = rep(seq(from = 1, 
+                                  to = ncol(n)), 
                               nrow(data)), 
                    nrow = nrow(data), 
                    byrow = TRUE)
@@ -189,13 +194,29 @@ structure(function(# Function to detect events by the STA-LTA-method.
     ## calculate event duration
     event.duration <- (event.off - event.on) * dt
     
+    ## optionally, remove events of too short duration
+    if(missing(t.min) == FALSE) {
+      
+      event.on <- event.on[event.duration >= t.min]
+      event.off <- event.off[event.duration >= t.min]
+      event.duration <- event.duration[event.duration >= t.min]
+    }
+    
+    ## optionally, remove events of too long duration
+    if(missing(t.max) == FALSE) {
+      
+      event.on <- event.on[event.duration <= t.max]
+      event.off <- event.off[event.duration <= t.max]
+      event.duration <- event.duration[event.duration <= t.max]
+    }
+    
     ## create ID vector
     ID <- seq(from = 1, to = length(event.duration))
     
     ## create output data set
     if(length(event.on) > 0) {
       events[[i]] <- data.frame(ID = ID,
-                                start = n.time[i, event.on],
+                                start = time[n.time[i, event.on]],
                                 duration = event.duration)
     } else {
       print("No events detected.")
