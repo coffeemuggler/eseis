@@ -295,6 +295,8 @@ distance.map <-
         maps[[i]] <- map.i
       }
       
+      ## stop cluster
+      parallel::stopCluster(cl)
     }
     
     ## return distance matrices
