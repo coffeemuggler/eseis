@@ -63,7 +63,8 @@ structure(function(# Function to write a sac-file.
                    rep(x = -12345, times = 5),
                    1,
                    rep(x = -12345, times = 24))
-    section.2[data[[i]]$HEAD[71:110, 1] == "leven"] <- 6
+    section.2[data[[i]]$HEAD[71:110, 1] == "leven"] <- 1
+    section.2 <- as.integer(section.2)
     
     ## fill section.3
     section.3 <- rep(format("-12345", width = 8, justify = "left"), 
