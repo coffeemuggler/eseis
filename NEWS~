@@ -34,7 +34,7 @@ Version 0.2.3 (2015-02-11)
 	- Added function: snr()
 	- Function envelope() modified, now using hilbert() and spec.taper()
 
-Version 0.3.0 (2016-06-22)
+Version 0.3.0 (2016-05-22)
 	- All functions reworked for Roxygen2
 	- Syntax changed
 	- write_sac() new defined to be without depenencies, improved handling and data input
