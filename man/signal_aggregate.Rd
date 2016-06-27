@@ -7,14 +7,15 @@
 signal_aggregate(data, n = 2)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or matrix, data set to be processed.}
+\item{data}{\code{Numeric} vector or list of vectors, data set to be 
+processed.}
 
 \item{n}{\code{Numeric} scalar, number of samples to be aggregated to one
 new data value. Must be an integer value greater than 1. Default is 
 \code{2}.}
 }
 \value{
-\code{Numeric} vector, aggregated data.
+\code{Numeric} vector or list of vectors, aggregated data.
 }
 \description{
 The time series \code{x} is aggregated by an integer factor \code{n}.

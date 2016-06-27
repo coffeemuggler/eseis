@@ -15,7 +15,10 @@ event, preceeded by an earthquake.
 \examples{
 
 ## load example data set
-data(examples)
+data(rockfall)
+
+## plot signal vector
+plot(x = t, y = rockfall, type = "l")
 
 }
 \keyword{datasets}

@@ -71,7 +71,7 @@ spatial_distance <- function(
     maps <- vector(mode = "list", length = nrow(stations))
     
     ## convert DEM to SpatialGridDataFrame
-    dem <- as(dem, "SpatialGridDataFrame")
+    dem <- methods::as(dem, "SpatialGridDataFrame")
     
     ## convert xy-coordinates of stations to SpatialPoints
     xy <- sp::SpatialPoints(coords = stations[,1:2], 

@@ -2,13 +2,14 @@
 #' 
 #' The time series \code{x} is aggregated by an integer factor \code{n}.
 #' 
-#' @param data \code{Numeric} vector or matrix, data set to be processed.
+#' @param data \code{Numeric} vector or list of vectors, data set to be 
+#' processed.
 #' 
 #' @param n \code{Numeric} scalar, number of samples to be aggregated to one
 #' new data value. Must be an integer value greater than 1. Default is 
 #' \code{2}.
 #' 
-#' @return \code{Numeric} vector, aggregated data.
+#' @return \code{Numeric} vector or list of vectors, aggregated data.
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
@@ -62,66 +63,79 @@ signal_aggregate <- function(
   n = 2
 ) {
   
-  ## check aggregation factor
-  if(signif(n) != n) {
+  ## check data structure
+  if(class(data) == "list") {
     
-    n <- round(x = n, 
-               digits = 0)
-    warning("Aggregation factor rounded to integer value!")
-  }
-  
-  if(n < 1) {
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::signal_aggregate, 
+                       n = n)
     
-    n <- 1
-    warning("Aggregation factor smaller than 1, set to 1 automatically!")
-  }
-  
-  ## check/set data structure
-  if(is.matrix(data) == FALSE) {
-    data <- rbind(data)
-  }
-  
-  ## aggregate data
-  if(n %% 2 == 0) {
-    
-    ## resample input data set
-    data_agg <- data[,seq(from = 1, 
-                          to = ncol(data), 
-                          by = n)]
-    
-    ## check/restore data structure
-    if(is.matrix(data_agg) == FALSE) {
-      data_agg <- t(as.matrix(data_agg))
-    }
-    
-    ## calculate mean input data difference
-    d_data_1 <- mean(x = apply(X = data, 
-                               MARGIN = 1, 
-                               FUN = diff), 
-                     na.rm = TRUE)
-    
-    ## calculate mean aggregated data difference
-    d_data_2 <- mean(x = apply(X = data_agg, 
-                               MARGIN = 1, 
-                               FUN = diff), 
-                     na.rm = TRUE)
-    
-    ## shift aggregated values to center of original values
-    data_agg <- data_agg - d_data_1 / 2 + d_data_2 / 2
-    
+    ## return output
+    return(data_out)
   } else {
     
-    data_agg <- data[,seq(from = ceiling(n / 2), 
-                          to = ncol(data), 
-                          by = n)]
-  }
-  
-  ## make output consistent
-  if(nrow(data) == 1) {
+    ## check aggregation factor
+    if(signif(n) != n) {
+      
+      n <- round(x = n, 
+                 digits = 0)
+      warning("Aggregation factor rounded to integer value!")
+    }
     
-    data_agg <- as.numeric(data_agg)
+    if(n < 1) {
+      
+      n <- 1
+      warning("Aggregation factor smaller than 1, set to 1 automatically!")
+    }
+    
+    ## check/set data structure
+    if(is.matrix(data) == FALSE) {
+      data <- rbind(data)
+    }
+    
+    ## aggregate data
+    if(n %% 2 == 0) {
+      
+      ## resample input data set
+      data_agg <- data[,seq(from = 1, 
+                            to = ncol(data), 
+                            by = n)]
+      
+      ## check/restore data structure
+      if(is.matrix(data_agg) == FALSE) {
+        data_agg <- t(as.matrix(data_agg))
+      }
+      
+      ## calculate mean input data difference
+      d_data_1 <- mean(x = apply(X = data, 
+                                 MARGIN = 1, 
+                                 FUN = diff), 
+                       na.rm = TRUE)
+      
+      ## calculate mean aggregated data difference
+      d_data_2 <- mean(x = apply(X = data_agg, 
+                                 MARGIN = 1, 
+                                 FUN = diff), 
+                       na.rm = TRUE)
+      
+      ## shift aggregated values to center of original values
+      data_agg <- data_agg - d_data_1 / 2 + d_data_2 / 2
+      
+    } else {
+      
+      data_agg <- data[,seq(from = ceiling(n / 2), 
+                            to = ncol(data), 
+                            by = n)]
+    }
+    
+    ## make output consistent
+    if(nrow(data) == 1) {
+      
+      data_agg <- as.numeric(data_agg)
+    }
+    
+    ## return output
+    return(data_agg) 
   }
-  
-  ## return output
-  return(data_agg)
 }

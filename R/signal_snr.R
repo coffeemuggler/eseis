@@ -3,7 +3,8 @@
 #' The function calculates the signal-to-noise ratio of an input signal 
 #' vector as the ratio between mean and max.
 #' 
-#' @param data \code{Numeric} vector, input signal vector
+#' @param data \code{Numeric} vector or list of vectors , input signal 
+#' vector.
 #' 
 #' @param detrend \code{Logical} scalar, optionally detrend data set before
 #' calcualting snr.
@@ -25,16 +26,29 @@ signal_snr <- function(
   data,
   detrend = FALSE
 ) {
-  
-  ## optionally detrend data set
-  if(detrend == TRUE) {
+
+  ## check data structure
+  if(class(data) == "list") {
     
-    data <- signal_detrend(data = data)
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::signal_snr, 
+                       detrend = detrend)
+    
+    ## return output
+    return(data_out)
+  } else {
+    
+    ## optionally detrend data set
+    if(detrend == TRUE) {
+      
+      data <- signal_detrend(data = data)
+    }
+    
+    ## calculate SNR
+    data_out <- abs(max(data, na.rm = TRUE) / mean(data, na.rm = TRUE))
+
+    ## return output
+    return(data_out)
   }
-  
-  ## calculate SNR
-  snr <- abs(max(data, na.rm = TRUE) / mean(data, na.rm = TRUE))
-  
-  ## return output
-  return(snr)
 }

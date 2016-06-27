@@ -7,10 +7,11 @@
 signal_demean(data)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
 }
 \value{
-\code{Numeric} vector, data set with mean subtracted.
+\code{Numeric} vector or list of vectors, data set with mean 
+subtracted.
 }
 \description{
 The function removes the mean from a signal vector.

@@ -7,13 +7,13 @@
 signal_envelope(data, p = 10^-6)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector.}
+\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
 
 \item{p}{\code{Numeric} scalar, proportion of the signal to be tapered,
 default is \code{10^-6}.}
 }
 \value{
-\code{Numeric} vector, signal envelope.
+\code{Numeric} vector or list of vectors, signal envelope.
 }
 \description{
 The function calculates envelopes of the input signals as 

@@ -8,7 +8,7 @@ signal_deconvolve(data, dt, output = "velocity", sensor = "TC120s",
   logger = "Cube3ext", p = 10^-6, waterlevel = 10^-6)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
 
 \item{dt}{\code{Numeric} scalar, sampling rate.}
 
@@ -31,7 +31,7 @@ is\code{10^-6}.}
 division, default is \code{10^-6}.}
 }
 \value{
-\code{Numeric} scalar, deconvolved signal.
+\code{Numeric} vector or list of vectors, deconvolved signal.
 }
 \description{
 The function removes the instrument response from a signal vector.
@@ -47,27 +47,12 @@ rockfall_decon <- signal_deconvolve(data = rockfall,
                                     sensor = "TC120s", 
                                     logger = "Cube3ext")
 
-## filter signal
-rockfall_filter <- signal_filter(data = rockfall_decon, 
-                                 dt = 1/200, 
-                                 f = c(1,90))
-
-## plot both signals
-par_original <- par(no.readonly = TRUE)
-par(mfcol = c(2, 1))
-
+## plot time series
 plot(x = t, 
-     y = rockfall, 
-     main = "Rockfall, raw signal", 
-     ylab = "Counts", 
-     type = "l")
-
-plot(x = t, 
-     y = rockfall_filter, 
-     main = "Rockfall, deconvolved and filtered signal", 
+     y = rockfall_decon, 
+     main = "Rockfall, deconvolved signal", 
      ylab = "m/s", 
      type = "l")
-par(par_original)
                      
 }
 \author{

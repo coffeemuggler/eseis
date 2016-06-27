@@ -7,10 +7,10 @@
 signal_detrend(data)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
 }
 \value{
-\code{Numeric} vector, detrended data set.
+\code{Numeric} vector or list of vectors, detrended data set.
 }
 \description{
 The function removes a linear trend from a signal vector.

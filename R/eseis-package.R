@@ -12,6 +12,7 @@
 #' @keywords package
 #' @importFrom graphics image
 #' @importFrom stats ccf spec.taper spectrum filter
+#' @importFrom methods as
 NULL
 
 #' example data
@@ -28,7 +29,10 @@ NULL
 #' @examples
 #' 
 #' ## load example data set
-#' data(examples)
+#' data(rockfall)
+#' 
+#' ## plot signal vector
+#' plot(x = t, y = rockfall, type = "l")
 #' 
 NULL
 

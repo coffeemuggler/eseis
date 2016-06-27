@@ -4,7 +4,8 @@
 \alias{write_sac}
 \title{Write seismic traces as sac-file to disk.}
 \usage{
-write_sac(data, file, time, station, network, component, dt, biglong = FALSE)
+write_sac(data, file, time, component, unit, station, location, network, dt,
+  parameters, biglong = FALSE)
 }
 \arguments{
 \item{data}{\code{Numeric} vector, seismic trace to be written.}
@@ -15,14 +16,25 @@ write_sac(data, file, time, station, network, component, dt, biglong = FALSE)
 seismic trace. Alternatively, the start time stamp can be provided as
 \code{POSIXct} value and a value for \code{dt} must be given.}
 
-\item{station}{\code{Character} scalar, station ID.}
+\item{component}{\code{Character} scalar, component ID, optional.}
 
-\item{network}{\code{Character} scalar, network ID.}
+\item{unit}{\code{Character} scalar, unit of the signal, optional. One out
+of \code{"unknown"}, \code{"displacement"}, \code{"velocity"}, 
+\code{"volts"}, \code{"acceleration"}. Default is \code{"unknown"}.}
 
-\item{component}{\code{Character} scalar, component ID.}
+\item{station}{\code{Character} scalar, station ID, optinal.}
+
+\item{location}{\code{Character} vector of length four, station location 
+data (latitude, longitude, elevation, depth), optional.}
+
+\item{network}{\code{Character} scalar, network ID, optional.}
 
 \item{dt}{\code{Numeric} scalar, sampling period. Only needed if no time
 vector is provided.}
+
+\item{parameters}{\code{Data frame} sac parameter list, as obtained from
+\code{list_sacparameters}. Allows user-specific modifications. If this 
+data frame is provided, it overrides all other arguments.}
 
 \item{biglong}{\code{Logical} scalar, biglong option, default is 
 \code{FALSE}}

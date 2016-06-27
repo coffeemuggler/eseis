@@ -12,5 +12,11 @@ Depends:
 Imports:
     sp,
     multitaper,
-    RSEIS
+    RSEIS,
+    raster,
+    rgdal,
+    caTools,
+    signal,
+    matrixStats,
+    methods
 RoxygenNote: 5.0.1

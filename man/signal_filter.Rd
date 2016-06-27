@@ -7,7 +7,7 @@
 signal_filter(data, dt, f, type, shape = "butter", order = 2, p = 0)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
 
 \item{dt}{\code{Numeric} scalar, sampling period. If omitted, \code{dt} 
 is set to 1/200.}
@@ -31,7 +31,7 @@ is \code{2}.}
 \item{p}{\code{Numeric} scalar, fraction of the signal to be tapered.}
 }
 \value{
-\code{Numeric} scalar, filtered signal vector.
+\code{Numeric} vector or list of vectors, filtered signal vector.
 }
 \description{
 The function filters the input signal vector.
