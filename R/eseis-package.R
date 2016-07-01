@@ -11,7 +11,7 @@
 #' @author Michael Dietze
 #' @keywords package
 #' @importFrom graphics image
-#' @importFrom stats ccf spec.taper spectrum filter
+#' @importFrom stats ccf spec.taper spectrum filter spec.pgram spec.ar
 #' @importFrom methods as
 NULL
 
