@@ -4,17 +4,31 @@
 \alias{signal_stalta}
 \title{Calculate stal-lta-ratio.}
 \usage{
-signal_stalta(data, sta, lta)
+signal_stalta(data, time, dt, sta, lta, freeze = FALSE, on, off)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list , input signal envelope vector(s)}
+\item{data}{\code{Numeric} vector or list, input signal envelope vector(s).}
+
+\item{time}{\code{POSIXct} vector, time vector of the signal(s). If not 
+provided, a synthetic time vector will be created.}
+
+\item{dt}{\code{Numeric} scalar, sampling period. If omitted, either 
+estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz).}
 
 \item{sta}{\code{Numeric} scalar, number of samples for short-term window.}
 
 \item{lta}{\code{Numeric} scalar, number of samples for long-term window.}
+
+\item{freeze}{\code{Logical} scalar, option to freeze lta value at start of 
+an event. Useful to avoid self-adjustment of lta for long-duration events.}
+
+\item{on}{\code{Numeric} scalar, threshold value for event onset.}
+
+\item{off}{\code{Numeric} scalar, threshold value for event end.}
 }
 \value{
-\code{Numeric} vector, sta-lta-ratio.
+\code{data frame}, detected events (ID, start time, duration in 
+seconds).
 }
 \description{
 The function calculates the ratio of the short-term-average and 
@@ -22,10 +36,27 @@ long-term-average of the input signal.
 }
 \examples{
 
-## load example data set
+## load example data
 data(rockfall)
 
-## TO BE DONE, LATER
+## filter signal
+sf <- signal_filter(data = rockfall, 
+                    dt = 1/200, 
+                    f = c(1, 90), 
+                    p = 0.05)
+                    
+## calculate signal envelope
+e <- signal_envelope(data = sf)
+
+## pick earthquake and rockfall event
+signal_stalta(data = e, 
+              time = t, 
+              sta = 100, 
+              lta = 18000, 
+              freeze = TRUE, 
+              on = 5, 
+              off = 3)
+              
                      
 }
 \author{
