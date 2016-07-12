@@ -13,6 +13,8 @@
 #' @importFrom graphics image
 #' @importFrom stats ccf spec.taper spectrum filter spec.pgram spec.ar
 #' @importFrom methods as
+#' @importFrom Rcpp evalCpp
+#' @useDynLib eseis
 NULL
 
 #' example data

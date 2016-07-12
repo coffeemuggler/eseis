@@ -9,7 +9,7 @@ Description: Environmental seismology toolbox.
 License: GPL-3
 Depends:
     R (>= 3.3.0)
-LinkingTo: Rcpp (>= 0.12.5)
+LinkingTo: Rcpp
 Imports:
     sp,
     multitaper,
@@ -19,5 +19,5 @@ Imports:
     signal,
     matrixStats,
     methods,
-    Rcpp (>= 0.12.5)
+    Rcpp
 RoxygenNote: 5.0.1

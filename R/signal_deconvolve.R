@@ -6,10 +6,6 @@
 #' 
 #' @param dt \code{Numeric} scalar, sampling rate.
 #' 
-#' @param output \code{Character} scalar, output data type. One out 
-#' of \code{"velocity"}, \code{"displacement"} or \code{"acceleration"}, 
-#' default is \code{"velocity"}. The other keywords are not yet supported.
-#' 
 #' @param sensor \code{Character} scalar, seismic sensor name. Must be 
 #' present in the sensor library (\code{list_sensor}) or parameters must be 
 #' added manually. Default is \code{"TC120s"}.
@@ -49,7 +45,6 @@
 signal_deconvolve <- function(
   data,
   dt,
-  output = "velocity",
   sensor = "TC120s",
   logger = "Cube3ext",
   p = 10^-6,
@@ -63,7 +58,6 @@ signal_deconvolve <- function(
     data_out <- lapply(X = data, 
                        FUN = eseis::signal_deconvolve, 
                        dt = dt,
-                       output = output,
                        sensor = sensor,
                        p = p,
                        waterlevel = waterlevel)
@@ -107,19 +101,13 @@ signal_deconvolve <- function(
     data_padd <- signal_padd(data = data_taper)
     
     ## make frequency vector
-    if(output == "velocity") {
-      
-      if ((length(data_padd)%%2) == 1) {
-        f <- c(seq(0, (length(data_padd) - 1) / 2), 
-               seq(-(length(data_padd) - 1) / 2, -1)) / (length(data_padd) * dt)
-      } else {
-        f = c(seq(0, length(data_padd) / 2), 
-              seq(-length(data_padd) / 2 + 1, -1)) / (length(data_padd) * dt)
-      }  
+    if ((length(data_padd)%%2) == 1) {
+      f <- c(seq(0, (length(data_padd) - 1) / 2), 
+             seq(-(length(data_padd) - 1) / 2, -1)) / (length(data_padd) * dt)
     } else {
-      
-      f <- seq(from = 1, to = length(data_padd)) * 1 / (length(data_padd) * dt)  
-    }
+      f = c(seq(0, length(data_padd) / 2), 
+            seq(-length(data_padd) / 2 + 1, -1)) / (length(data_padd) * dt)
+    }  
     
     ## calculate Fourier transform
     x_fft <- stats::fft(z = data_padd)

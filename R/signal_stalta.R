@@ -138,50 +138,13 @@ signal_stalta <- function(
     event <- rep(x = 0, 
                  times = length(data))
     
-    ## create output variables
-    T1 <- 0
-    T2 <- 0
-
     if(freeze == TRUE) {
       
-      ## assign event trigger
-      for(i in 1:(length(event) - 1)) {
-        
-        ## calculate ratio
-        ratio <- data_sta[i] / data_lta[i]
-        
-        ## optionally remove na-value
-        if(is.na(ratio) == TRUE) {
-          
-          ratio <- 0
-          
-        }
-        
-        if(ratio > on | T2 == 1) {
-          
-          data_lta[i + 1] <- data_lta[i]
-          
-          T1 <- 1
-          
-        } else {
-          
-          T1 <- 0
-          
-        }
-        
-        if(T1 == 1 & ratio > off) {
-          
-          T1 <- 1
-          T2 <- 1
-          event[i] <- 1
-          
-        } else {
-          
-          T2 <- 0
-          
-        }
-      }
-      
+      event <- .stalta_event_freeze(event_length = length(event),
+                                    data_sta = data_sta,
+                                    data_lta = data_lta,
+                                    on = on,
+                                    off = off)
     } else {
       
       ## calculate ratio
@@ -189,35 +152,15 @@ signal_stalta <- function(
       ratio[is.na(ratio)] <- 0
       
       ## assign event trigger
-      for(i in 1:length(ratio)) {
-        
-        if(ratio[i] > on | T2 == 1) {
-          
-          T1 <- 1
-          
-        } else {
-          
-          T1 <- 0
-          
-        }
-        
-        if(T1 == 1 & ratio[i] > off) {
-          
-          T1 <- 1
-          T2 <- 1
-          event[i] <- 1
-          
-        } else {
-          
-          T2 <- 0
-          
-        }
-      } 
+      event <- .stalta_event_nofreeze(event_length = length(event),
+                                      ratio = ratio,
+                                      on = on,
+                                      off = off)
     }
-    
+
     ## calculate event state switches
     event_diff <- diff(x = event)
-    
+
     ## asign on and off states
     event_on <- time[event_diff == 1]
     event_off <- time[event_diff == -1]
@@ -226,10 +169,10 @@ signal_stalta <- function(
     event_duration <- as.numeric(difftime(time1 = event_off, 
                                           time2 = event_on, 
                                           units = "sec"))
-
+    
     ## create ID vector
     ID <- seq(from = 1, 
-              to = length(event_duration))
+              along.with = event_duration)
     
     ## build output data set
     if(length(ID) > 0) {

@@ -4,17 +4,13 @@
 \alias{signal_deconvolve}
 \title{Deconvolve a signal vector.}
 \usage{
-signal_deconvolve(data, dt, output = "velocity", sensor = "TC120s",
-  logger = "Cube3ext", p = 10^-6, waterlevel = 10^-6)
+signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3ext",
+  p = 10^-6, waterlevel = 10^-6)
 }
 \arguments{
 \item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
 
 \item{dt}{\code{Numeric} scalar, sampling rate.}
-
-\item{output}{\code{Character} scalar, output data type. One out 
-of \code{"velocity"}, \code{"displacement"} or \code{"acceleration"}, 
-default is \code{"velocity"}. The other keywords are not yet supported.}
 
 \item{sensor}{\code{Character} scalar, seismic sensor name. Must be 
 present in the sensor library (\code{list_sensor}) or parameters must be 
