@@ -6,7 +6,7 @@
 #' Wildcards may be used (see details and examples).
 #' 
 #' @param append \code{Logical} scalar, option append single files to one
-#' continuous file, keeping only the heaer information of the first file.
+#' continuous file, keeping only the header information of the first file.
 #' 
 #' @param signal \code{Logical} scalar, option to import the signal vector, 
 #' default is \code{TRUE}.
@@ -14,10 +14,10 @@
 #' @param time \code{Logical} scalar, option to create the time vector. The 
 #' timezone is automatically set to \code{"UTC"}, default is \code{TRUE}.
 #' 
-#' @param header \code{Logical} scalar, option to append the header part, 
+#' @param meta \code{Logical} scalar, option to append the meta data part, 
 #' default is \code{TRUE}.
 #' 
-#' @param meta \code{Logical} scalar, option to append the meta data part, 
+#' @param header \code{Logical} scalar, option to append the header part, 
 #' default is \code{TRUE}.
 #' 
 #' @param endianness \code{Logical} scalar, endianness of the sac file. One
@@ -243,8 +243,8 @@ read_sac <- function(
     
     data_list[[j]] <- list(signal = data_sac,
                            time = time_sac,
-                           header = header,
-                           meta = meta)
+                           meta = meta,
+                           header = header)
   }
   
   

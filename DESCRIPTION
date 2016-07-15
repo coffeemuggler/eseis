@@ -19,5 +19,6 @@ Imports:
     signal,
     matrixStats,
     methods,
+    IRISSeismic,
     Rcpp (>= 0.12.5)
 RoxygenNote: 5.0.1
