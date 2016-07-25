@@ -4,7 +4,8 @@
 \alias{spatial_distance}
 \title{Calculate topography-corrected distances for seismic waves.}
 \usage{
-spatial_distance(stations, dem, topography = TRUE, cores = 1)
+spatial_distance(stations, dem, topography = TRUE, cores = 1, dmap = TRUE,
+  dstation = TRUE)
 }
 \arguments{
 \item{stations}{\code{Numeric} matrix of length two, x- and y-coordinates 
@@ -18,6 +19,12 @@ correction, default is \code{TRUE}.}
 
 \item{cores}{\code{Numeric} scalar, number of CPU cores to use, only
 relevant for multicore computers. Default is \code{1}.}
+
+\item{dmap}{\code{Logical} scalar, option to enable/disable calculation
+of distance maps. Default is \code{TRUE}.}
+
+\item{dstation}{\code{Logical} scalar, option to enable/disable calculation
+of interstation distances. Default is \code{TRUE}.}
 }
 \value{
 \code{List} object with distance maps list and station distance 

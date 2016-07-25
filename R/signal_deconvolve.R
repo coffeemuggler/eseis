@@ -92,13 +92,16 @@ signal_deconvolve <- function(
     
     ## remove mean from data set
     data_demean <- signal_demean(data = data_detrend)
+    rm(data_detrend)
     
     ## taper data set
     data_taper <- signal_taper(data = data_demean, 
                                p = p)
+    rm(data_demean)
     
     ## add zeros to reach even power of two number
     data_padd <- signal_padd(data = data_taper)
+    rm(data_taper)
     
     ## make frequency vector
     if ((length(data_padd)%%2) == 1) {
@@ -122,16 +125,19 @@ signal_deconvolve <- function(
     ## calculate transfer function
     h <- outer(w_comp, (length(zeros_poly) - 1):0, "^") %*% zeros_poly / 
       outer(w_comp, (length(poles_poly) - 1):0, "^") %*% poles_poly * s
+    rm(w_comp)
     
     ## calculate waterlevel factor
     gamma <- max(Re(h * Conj(h))) * waterlevel
     
     ## deconvolve signal  
     data_decon <- x_fft * Conj(h) / Re(h * Conj(h) + gamma)
+    rm(x_fft)
     
     ## invert deconvolved signal
     data_inverse <- Re(stats::fft(data_decon, 
                                   inverse = TRUE) / length(data_decon))
+    rm(data_decon)
     
     ## correct for A/D-ratio and sensitivity factor
     data_inverse <- (data_inverse * AD) / s
@@ -141,6 +147,10 @@ signal_deconvolve <- function(
     
     ## remove mean from output signal
     data_out <- signal_demean(data_inverse)
+    rm(data_inverse)
+    
+    ## remove garbage
+    gc()
     
     ## return output signal
     return(data_out)    
