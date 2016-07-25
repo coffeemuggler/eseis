@@ -342,6 +342,13 @@ spatial_distance <- function(
     rownames(distances) <- rownames(stations)
     colnames(distances) <- rownames(stations)
     
+    ## convert xy-coordinates of stations to SpatialPoints
+    xy <- sp::SpatialPoints(coords = stations[,1:2], 
+                            proj4string = sp::CRS(raster::projection(dem)))
+    
+    ## convert DEM to SpatialGridDataFrame
+    dem <- methods::as(dem, "SpatialGridDataFrame")
+    
     ## loop through all stations
     for(i in 1:length(xy)) {
       
