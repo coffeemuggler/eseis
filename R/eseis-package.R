@@ -15,6 +15,7 @@
 #' @importFrom methods as
 #' @importFrom Rcpp evalCpp
 #' @importFrom IRISSeismic readMiniseedFile
+#' @importFrom grDevices colorRampPalette
 #' @useDynLib eseis
 NULL
 

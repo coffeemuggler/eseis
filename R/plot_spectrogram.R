@@ -15,13 +15,33 @@
 #' @keywords eseis
 #' @examples
 #' 
-#' ## TO BE ADDED LATER
+#' ## load example data set
+#' data(rockfall)
+#' 
+#' ## calculate spectrogram
+#' PSD <- signal_spectrogram(data = rockfall, time = t, dt = 1/200)
+#' 
+#' ## plot spectrogram
+#' plot_spectrogram(data = PSD)
 #'                      
 #' @export plot_spectrogram
 plot_spectrogram <- function(
   data,
-  col = "tim.colors"
+  col = "gradient_1"
 ) {
+  
+  ## define colours
+  if(col == "gradient_1") {
+    
+    col <- colorRampPalette(colors = c("darkblue", 
+                                       "blue", 
+                                       "cyan", 
+                                       "lightgreen", 
+                                       "yellow", 
+                                       "red", 
+                                       "brown", 
+                                       "grey30"))
+    }
   
   ## check input data
   if(class(data) != "spectrogram") {

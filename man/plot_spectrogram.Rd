@@ -4,7 +4,7 @@
 \alias{plot_spectrogram}
 \title{Calculate spectrograms (power spectral density estimates) from time series.}
 \usage{
-plot_spectrogram(data, col = "tim.colors")
+plot_spectrogram(data, col = "gradient_1")
 }
 \arguments{
 \item{data}{\code{List} object, spectrogram to be plotted. Must be output
@@ -22,7 +22,14 @@ standard spectrogram apporach, multitaper, and the Welch method.
 }
 \examples{
 
-## TO BE ADDED LATER
+## load example data set
+data(rockfall)
+
+## calculate spectrogram
+PSD <- signal_spectrogram(data = rockfall, time = t, dt = 1/200)
+
+## plot spectrogram
+plot_spectrogram(data = PSD)
                      
 }
 \author{
