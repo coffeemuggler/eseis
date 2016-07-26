@@ -12,9 +12,10 @@ signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3ext",
 
 \item{dt}{\code{Numeric} scalar, sampling rate.}
 
-\item{sensor}{\code{Character} scalar, seismic sensor name. Must be 
-present in the sensor library (\code{list_sensor}) or parameters must be 
-added manually. Default is \code{"TC120s"}.}
+\item{sensor}{\code{Character} scalar or \code{list} object, 
+seismic sensor name. Must be present in the sensor library 
+(\code{list_sensor}) or parameters must be added manually (see 
+examples). Default is \code{"TC120s"}.}
 
 \item{logger}{\code{Character} scalar, seismic logger name. Must be 
 present in the logger library (\code{list_logger}) or parameters must be
@@ -49,7 +50,20 @@ plot(x = t,
      main = "Rockfall, deconvolved signal", 
      ylab = "m/s", 
      type = "l")
-                     
+ 
+## add new logger manually
+logger_new <- list_logger()[[1]]
+
+## add logger data
+logger_new$ID <- "logger_new"
+logger_new$name <- "logger_new"
+logger_new$AD <- 2.4414e-07
+
+## deconvolve signal with new logger
+rockfall_decon <- signal_deconvolve(data = rockfall,
+                                    dt = 1/200, 
+                                    sensor = "TC120s", 
+                                    logger = logger_new)                     
 }
 \author{
 Michael Dietze

@@ -6,9 +6,10 @@
 #' 
 #' @param dt \code{Numeric} scalar, sampling rate.
 #' 
-#' @param sensor \code{Character} scalar, seismic sensor name. Must be 
-#' present in the sensor library (\code{list_sensor}) or parameters must be 
-#' added manually. Default is \code{"TC120s"}.
+#' @param sensor \code{Character} scalar or \code{list} object, 
+#' seismic sensor name. Must be present in the sensor library 
+#' (\code{list_sensor}) or parameters must be added manually (see 
+#' examples). Default is \code{"TC120s"}.
 #' 
 #' @param logger \code{Character} scalar, seismic logger name. Must be 
 #' present in the logger library (\code{list_logger}) or parameters must be
@@ -40,7 +41,30 @@
 #'      main = "Rockfall, deconvolved signal", 
 #'      ylab = "m/s", 
 #'      type = "l")
-#'                      
+#'  
+#' ## add new logger manually
+#' logger_new <- list_logger()[[1]]
+#' 
+#' ## add logger data
+#' logger_new$ID <- "logger_new"
+#' logger_new$name <- "logger_new"
+#' logger_new$AD <- 2.4414e-07
+#' 
+#' ## deconvolve signal with new logger
+#' rockfall_decon <- signal_deconvolve(data = rockfall,
+#'                                     dt = 1/200, 
+#'                                     sensor = "TC120s", 
+#'                                     logger = logger_new)
+#'                                     
+#' ## Change the setup of a logger, here: Centaur AD is changed due to 
+#' ## other than default Vpp value, according to AD = V / (2^24).
+#' 
+#' ## extract default Centaur logger
+#' Centaur_10V <- list_logger()[[2]]
+#' 
+#' ## replace AD value
+#' Centaur_10V$AD <- 20/(2^24)
+#'                                     
 #' @export signal_deconvolve
 signal_deconvolve <- function(
   data,
@@ -67,10 +91,23 @@ signal_deconvolve <- function(
   } else {
     
     ## get sensor information
-    sensor <- try(list_sensor()[[sensor]], silent = TRUE)
-    
-    if(class(sensor) == "try-error") {
-      stop("Sensor keyword not in library! Consider adding manually.")
+    if(class(sensor) == "character") {
+      
+      sensor <- try(list_sensor()[[sensor]], silent = TRUE)
+      
+      if(class(sensor) == "try-error") {
+        stop("Sensor keyword not in library! Consider adding manually.")
+      }
+    } else if(class(sensor) == "list") {
+      
+      if(length(match(x = names(sensor), 
+                      table = names(list_sensor()[[1]]))) != 10) {
+        
+        stop("Sensor specification incorrect! See examples.")
+      }
+    } else {
+      
+      stop("Sensor specification incorrect! See examples.")
     }
     
     poles <- sensor$poles
@@ -79,13 +116,34 @@ signal_deconvolve <- function(
     k <- sensor$k
     
     ## get sensor information
-    logger <- try(list_logger()[[logger]], silent = TRUE)
-    
-    if(class(logger) == "try-error") {
-      stop("Logger keyword not in library! Consider adding manually.")
+    if(class(logger) == "character") {
+      
+      logger <- try(list_logger()[[logger]], silent = TRUE)
+      
+      if(class(logger) == "try-error") {
+        
+        stop("Logger keyword not in library! Consider adding manually.")
+      }      
+    } else if(class(logger) == "list") {
+      
+      if(length(match(x = names(logger), 
+                      table = names(list_logger()[[1]]))) != 7) {
+        
+        stop("Logger specification incorrect! See examples.")
+      }
+    } else {
+      
+      stop("Logger specification incorrect! See examples.")
     }
     
     AD <- logger$AD
+    
+    ## optinally, change settings if logger is Cube3ext
+    if(logger$ID == "Cube3ext") {
+      
+      s <- s / 10 # sensitivity factor (V/m/s)
+      AD <- AD * 10 # A-D-conversion factor
+    }
     
     ## detrend data set
     data_detrend <- signal_detrend(data = data)
@@ -124,7 +182,7 @@ signal_deconvolve <- function(
     
     ## calculate transfer function
     h <- outer(w_comp, (length(zeros_poly) - 1):0, "^") %*% zeros_poly / 
-      outer(w_comp, (length(poles_poly) - 1):0, "^") %*% poles_poly * s
+      outer(w_comp, (length(poles_poly) - 1):0, "^") %*% poles_poly * k
     rm(w_comp)
     
     ## calculate waterlevel factor
