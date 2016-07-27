@@ -26,6 +26,16 @@ list_logger <- function(
     AD = 2.4414e-07)
   
   ## define Cube3ext parameters
+  Cube3extBOB <- list(
+    ID = "Cube3extBOB",
+    name = "Cube 3ext with breakout box",
+    manufacturer = "Omnirecs",
+    type = "The greatest data logger in the world",
+    n_components = 3,
+    comment = "",
+    AD = 2.4414e-06)
+  
+  ## define Cube3ext parameters
   Centaur <- list(
     ID = "Centaur",
     name = "Centaur",
@@ -77,6 +87,7 @@ list_logger <- function(
   
   ## build sensor library
   loggers <- list("Cube3ext" = Cube3ext,
+                  "Cube3extBOB" = Cube3extBOB,
                   "Centaur" = Centaur,
                   "Taurus" = Taurus,
                   "Osiris" = Osiris,

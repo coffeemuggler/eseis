@@ -4,7 +4,7 @@
 \alias{signal_deconvolve}
 \title{Deconvolve a signal vector.}
 \usage{
-signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3ext",
+signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3extBOB",
   p = 10^-6, waterlevel = 10^-6)
 }
 \arguments{
@@ -63,7 +63,17 @@ logger_new$AD <- 2.4414e-07
 rockfall_decon <- signal_deconvolve(data = rockfall,
                                     dt = 1/200, 
                                     sensor = "TC120s", 
-                                    logger = logger_new)                     
+                                    logger = logger_new)
+                                    
+## Change the setup of a logger, here: Centaur AD is changed due to 
+## other than default Vpp value, according to AD = V / (2^24).
+
+## extract default Centaur logger
+Centaur_10V <- list_logger()[[2]]
+
+## replace AD value
+Centaur_10V$AD <- 20/(2^24)
+                                    
 }
 \author{
 Michael Dietze

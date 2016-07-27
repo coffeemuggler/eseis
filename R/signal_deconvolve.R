@@ -70,7 +70,7 @@ signal_deconvolve <- function(
   data,
   dt,
   sensor = "TC120s",
-  logger = "Cube3ext",
+  logger = "Cube3extBOB",
   p = 10^-6,
   waterlevel = 10^-6
 ) {
@@ -83,6 +83,7 @@ signal_deconvolve <- function(
                        FUN = eseis::signal_deconvolve, 
                        dt = dt,
                        sensor = sensor,
+                       logger = logger,
                        p = p,
                        waterlevel = waterlevel)
     
@@ -137,13 +138,6 @@ signal_deconvolve <- function(
     }
     
     AD <- logger$AD
-    
-    ## optinally, change settings if logger is Cube3ext
-    if(logger$ID == "Cube3ext") {
-      
-      s <- s / 10 # sensitivity factor (V/m/s)
-      AD <- AD * 10 # A-D-conversion factor
-    }
     
     ## detrend data set
     data_detrend <- signal_detrend(data = data)
