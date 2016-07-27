@@ -12,6 +12,10 @@
 #' @param col \code{Character} scalar, colour palette to use. Default is 
 #' \code{"gradient_1"}.
 #' 
+#' @param agg \code{Integer} vector of length two, factors of image 
+#' aggregation, i.e. in time and frequency dimension. Useful to decrease 
+#' image size. Default is \code{c(1, 1)} (no aggregation).
+#' 
 #' @param \dots Additional arguments passed to the plot function.
 #' 
 #' @return Graphic output of a spectrogram.
@@ -47,6 +51,7 @@ plot_spectrogram <- function(
   data,
   legend,
   col = "gradient_1",
+  agg = c(1, 1),
   ...
 ) {
   
@@ -76,12 +81,21 @@ plot_spectrogram <- function(
     }
   }
   
+  ## optionally decrease image quality
+  t_out <- seq(from = 1, 
+               to = length(data$t),
+               by = agg[1])
+  
+  f_out <- seq(from = 1, 
+               to = length(data$f),
+               by = agg[2])
+  
   if(missing(legend) == TRUE) {
     
     ## plot image map of PSD
-    image(x = data$t, 
-          y = data$f, 
-          z = t(data$S), 
+    image(x = data$t[t_out], 
+          y = data$f[f_out], 
+          z = t(data$S[f_out, t_out]), 
           col = do.call(what = col, 
                         args = list(200)),
           ...)
@@ -117,9 +131,9 @@ plot_spectrogram <- function(
     graphics::par(mai = mai_new)
     
     ## plot image map of PSD
-    image(x = data$t, 
-          y = data$f, 
-          z = t(data$S), 
+    image(x = data$t[t_out], 
+          y = data$f[f_out], 
+          z = t(data$S[f_out, t_out]), 
           col = do.call(what = col, 
                         args = list(200)),
           ...)

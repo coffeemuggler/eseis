@@ -156,7 +156,7 @@ signal_spectrogram <- function(
     
     if(length(data) != length(data_trunc)) {
       
-      print("Time series truncated to n times the window length.")
+      #print("Time series truncated to n times the window length.")
     }
     
     ## get overlap length

@@ -4,7 +4,7 @@
 \alias{plot_spectrogram}
 \title{Calculate spectrograms (power spectral density estimates) from time series.}
 \usage{
-plot_spectrogram(data, legend, col = "gradient_1", ...)
+plot_spectrogram(data, legend, col = "gradient_1", agg = c(1, 1), ...)
 }
 \arguments{
 \item{data}{\code{List} object, spectrogram to be plotted. Must be output
@@ -15,6 +15,10 @@ When omitted, no legend is plotted.}
 
 \item{col}{\code{Character} scalar, colour palette to use. Default is 
 \code{"gradient_1"}.}
+
+\item{agg}{\code{Integer} vector of length two, factors of image 
+aggregation, i.e. in time and frequency dimension. Useful to decrease 
+image size. Default is \code{c(1, 1)} (no aggregation).}
 
 \item{\dots}{Additional arguments passed to the plot function.}
 }
