@@ -68,7 +68,7 @@ signal_filter <- function(
                        type = type,
                        shape = shape,
                        order = order,
-                       p = 0)
+                       p = p)
     
     ## return output
     return(data_out)
