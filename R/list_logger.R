@@ -85,6 +85,16 @@ list_logger <- function(
     comment = "Not tested, values copied from A. Burtins data base.",
     AD = 1.589e-06)
   
+  ## define CMG6TD parameters
+  RT130 <- list(
+    ID = "CMG6TD",
+    name = "Guralp 6TD",
+    manufacturer = "Guralp",
+    type = "Logger integrated in sensor",
+    n_components = 3,
+    comment = "Not tested, values copied from A. Burtins data base.",
+    AD = 2.609E-07)
+  
   ## build sensor library
   loggers <- list("Cube3ext" = Cube3ext,
                   "Cube3extBOB" = Cube3extBOB,

@@ -37,7 +37,7 @@ spatial_migrate <- function(
   snr,
   v,
   dt,
-  normalise
+  normalise = TRUE
 ) {
   
   ## check/set data structure

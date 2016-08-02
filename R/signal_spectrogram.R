@@ -369,7 +369,7 @@ signal_spectrogram <- function(
     
     ## optionally plot spectrogram
     if(plot == TRUE) {
-      signal_spectrogram(data = S)
+      plot_spectrogram(data = S)
     }
     
     ## return output

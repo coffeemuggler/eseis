@@ -29,7 +29,7 @@
 #' @export signal_envelope
 signal_envelope <- function(
   data,
-  p = 10^-6
+  p = 0
 ) {
   
   ## check data structure
@@ -48,13 +48,15 @@ signal_envelope <- function(
     data_hilbert <- signal_hilbert(data = data)
     
     ## calculate absolute values
-    data_abs <- abs(data_hilbert)
+    data_envelope <- abs(data_hilbert)
     
     ## apply taper
-    data_taper <- spec.taper(x = data_abs, 
-                             p = p)
-    
+    if(p > 0) {
+      
+      data_envelope <- signal_taper(data = data_envelope, p = p)
+    }
+
     ## return output
-    return(data_taper) 
+    return(data_envelope) 
   }
 }

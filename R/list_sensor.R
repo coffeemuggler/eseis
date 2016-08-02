@@ -103,8 +103,8 @@ list_sensor <- function(
   ## define CMG6TD parameters
   CMG6TD <- list(
     ID = "CMG6TD",
-    name = "Güralp 6TD",
-    manufacturer = "Güralp",
+    name = "Guralp 6TD",
+    manufacturer = "Guralp",
     type = "broadband seismometer",
     n_components = 3,
     comment = "Data taken from data base of Arnaud Burtin",
@@ -123,8 +123,8 @@ list_sensor <- function(
   ## define CMG6TD_b1is parameters
   CMG6TD_b1is <- list(
     ID = "CMG6TD_b1is",
-    name = "Güralp 6TD_b1is",
-    manufacturer = "Güralp",
+    name = "Guralp 6TD_b1is",
+    manufacturer = "Guralp",
     type = "seismometer",
     n_components = NA,
     comment = "Data taken from data base of Arnaud Burtin",
@@ -142,8 +142,8 @@ list_sensor <- function(
   ## define CMG40T parameters
   CMG40T <- list(
     ID = "CMG40T",
-    name = "Güralp 40T",
-    manufacturer = "Güralp",
+    name = "Guralp 40T",
+    manufacturer = "Guralp",
     type = "seismometer",
     n_components = 3,
     comment = "Data taken from data base of Arnaud Burtin",
@@ -159,8 +159,8 @@ list_sensor <- function(
   
   CMG3T <- list(
     ID = "CMG3T",
-    name = "Güralp 3T",
-    manufacturer = "Güralp",
+    name = "Guralp 3T",
+    manufacturer = "Guralp",
     type = "broadband seismometer",
     n_components = 3,
     comment = "Data taken from data base of Arnaud Burtin",
@@ -176,8 +176,8 @@ list_sensor <- function(
   
   CMG3ESP <- list(
     ID = "CMG3ESP",
-    name = "Güralp 3ESP",
-    manufacturer = "Güralp",
+    name = "Guralp 3ESP",
+    manufacturer = "Guralp",
     type = "seismometer",
     n_components = 3,
     comment = "Data taken from data base of Arnaud Burtin",

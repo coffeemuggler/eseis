@@ -4,7 +4,7 @@
 \alias{signal_envelope}
 \title{Calculate signal envelope.}
 \usage{
-signal_envelope(data, p = 10^-6)
+signal_envelope(data, p = 0)
 }
 \arguments{
 \item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
