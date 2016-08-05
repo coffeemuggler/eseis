@@ -81,6 +81,18 @@ plot_spectrogram <- function(
     }
   }
   
+  ## set z-limits
+  if("zlim" %in% names(list(...))) {
+    
+    zlim_psd <- list(...)$zlim
+  } else {
+    
+    zlim_psd <- range(data$S, na.rm = TRUE)
+  }
+  
+  data$S[data$S < zlim_psd[1]] <- zlim_psd[1]
+  data$S[data$S > zlim_psd[2]] <- zlim_psd[2]
+  
   ## optionally decrease image quality
   t_out <- seq(from = 1, 
                to = length(data$t),
