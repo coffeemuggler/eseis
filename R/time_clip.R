@@ -22,7 +22,7 @@ time_clip <- function(
 ) {
   
   ## check data structure
-  if(class(time) == "list") {
+  if(class(time)[1] == "list") {
     
     ## apply function to list
     data_out <- lapply(X = time, 
