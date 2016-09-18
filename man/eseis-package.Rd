@@ -10,7 +10,7 @@ Environmental seismology toolbox
 }
 \details{
 \tabular{ll}{ Package: \tab MDtools\cr Type: \tab Package\cr Version: \tab
-0.3.0\cr Date: \tab 2016-06-17\cr License: \tab GPL-3\cr }
+0.3.1\cr Date: \tab 2016-09-18\cr License: \tab GPL-3\cr }
 }
 \author{
 Michael Dietze
