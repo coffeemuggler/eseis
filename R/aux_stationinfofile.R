@@ -14,13 +14,13 @@
 #' (\code{http://www.omnirecs.de/documents.html}) or gipptools 
 #' (\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/}) 
 #' are installed. Note that GPS tag extraction may take several minutes per 
-#' cube file. Hence, depending on the numebr of files and utilised CPUs the 
+#' cube file. Hence, depending on the number of files and utilised CPUs the 
 #' processing may take a while.\cr Specifying an input directory 
 #' (\code{input_dir}) is mandatory. This input directory must only contain the 
 #' subdirectories with the cube files to process, each set of cube files must 
-#' be lociated in a separate subdirectory and these subdiretories must 
-#' have the same name as specified by the logger IDs (\code{logger_ID}). A 
-#' convenient structure would be something like: \cr 
+#' be located in a separate subdirectory and these subdiretories must 
+#' have the same name as specified by the logger IDs (\code{logger_ID}). An 
+#' appropriate structure would be something like: \cr 
 #' \enumerate{
 #'   \item input
 #'   \enumerate{
@@ -92,9 +92,6 @@
 #' rda-file. File name will be the same as for \code{file}. Default is
 #' \code{FALSE}.
 #' 
-#' @param write_map \code{Logical} value, option to create a Google Maps  
-#' map with station locations. Default is \code{FALSE}. 
-#' 
 #' @return A set of files written to disk and a data frame with seismic 
 #' station information.
 #' 
@@ -125,8 +122,7 @@
 #' #                     cpu = 0.9,
 #' #                     gipptools = "software/gipptools-2015.225", 
 #' #                     write_raw = TRUE, 
-#' #                     write_data = TRUE, 
-#' #                     write_map = TRUE)
+#' #                     write_data = TRUE)
 #' 
 #' @export aux_stationinfofile
 aux_stationinfofile <- function(
@@ -148,8 +144,7 @@ aux_stationinfofile <- function(
   gipptools,
   write_file = TRUE,
   write_raw = FALSE,
-  write_data = FALSE,
-  write_map = FALSE
+  write_data = FALSE
 ){
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
@@ -467,7 +462,7 @@ aux_stationinfofile <- function(
   if(write_raw == FALSE) {
     
     file.remove(gps_files)
-    file.remove("gps_raw")
+    file.remove(paste(output_dir, "gps_raw", sep = "/"))
   }
   
   ## Part 5 - export output data ----------------------------------------------
@@ -497,73 +492,7 @@ aux_stationinfofile <- function(
                       ".rda",
                       sep = ""))    
   }
-  
-  ## optionally create and save map output
-  
-  ## get map center
-  center <- c(mean(station_info$y), 
-              mean(station_info$x))
-  
-  ## get zoom factor
-  zoom <- min(RgoogleMaps::MaxZoom(range(station_info$y), 
-                                   range(station_info$x)))
-  
-  ## optionally adjust zoom factor
-  zoom <- ifelse(test = zoom > 100000, 
-                 yes = 15, 
-                 no = zoom)
-  
-  ## download map
-  content <- RgoogleMaps::GetMap(center = center, 
-                                 zoom = zoom, 
-                                 maptype = "terrain")
-  
-  if(write_map == TRUE) {
-    ## open jpeg device
-    jpeg(filename = paste(output_dir, 
-                          "/map.jpg", 
-                          sep = ""), 
-         width = 1000, 
-         height = 1000, 
-         res = 300)
-    
-    ## create map
-    RgoogleMaps::PlotOnStaticMap(MyMap = content, 
-                                 lat = station_info$y, 
-                                 lon = station_info$x, 
-                                 cex = 0.4, 
-                                 pch = 20)
-    
-    ## add station locations
-    RgoogleMaps::TextOnStaticMap(MyMap = content, 
-                                 lat = station_info$y, 
-                                 lon = station_info$x, 
-                                 labels = station_info$ID, 
-                                 cex = 0.5, 
-                                 adj = c(0, 0),
-                                 add = TRUE)
-    
-    ## close jpeg device
-    dev.off()
-  } else {
-    
-    ## create map
-    RgoogleMaps::PlotOnStaticMap(MyMap = content, 
-                                 lat = station_info$y, 
-                                 lon = station_info$x, 
-                                 cex = 0.4, 
-                                 pch = 20)
-    
-    ## add station locations
-    RgoogleMaps::TextOnStaticMap(MyMap = content, 
-                                 lat = station_info$y, 
-                                 lon = station_info$x, 
-                                 labels = station_info$ID, 
-                                 cex = 0.5, 
-                                 adj = c(0, 0),
-                                 add = TRUE)
-  }
-  
+
   ## get end time
   t_2 <- Sys.time()
   

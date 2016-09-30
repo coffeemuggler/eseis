@@ -7,7 +7,7 @@
 aux_stationinfofile(name, input_dir, output_dir, station_ID, station_name,
   station_z, station_d, sensor_type, logger_type, sensor_ID, logger_ID,
   unit = "dd", n, random = TRUE, cpu, gipptools, write_file = TRUE,
-  write_raw = FALSE, write_data = FALSE, write_map = FALSE)
+  write_raw = FALSE, write_data = FALSE)
 }
 \arguments{
 \item{name}{\code{Character} value, file name of the output station info 
@@ -64,9 +64,6 @@ GPS data. Default is \code{FALSE}.}
 \item{write_data}{\code{Logical} value, option to write gps raw data as 
 rda-file. File name will be the same as for \code{file}. Default is
 \code{FALSE}.}
-
-\item{write_map}{\code{Logical} value, option to create a Google Maps
-map with station locations. Default is \code{FALSE}.}
 }
 \value{
 A set of files written to disk and a data frame with seismic 
@@ -88,13 +85,13 @@ ID and logger ID.\cr The function requires that the software cubetools
 (\code{http://www.omnirecs.de/documents.html}) or gipptools 
 (\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/}) 
 are installed. Note that GPS tag extraction may take several minutes per 
-cube file. Hence, depending on the numebr of files and utilised CPUs the 
+cube file. Hence, depending on the number of files and utilised CPUs the 
 processing may take a while.\cr Specifying an input directory 
 (\code{input_dir}) is mandatory. This input directory must only contain the 
 subdirectories with the cube files to process, each set of cube files must 
-be lociated in a separate subdirectory and these subdiretories must 
-have the same name as specified by the logger IDs (\code{logger_ID}). A 
-convenient structure would be something like: \cr 
+be located in a separate subdirectory and these subdiretories must 
+have the same name as specified by the logger IDs (\code{logger_ID}). An 
+appropriate structure would be something like: \cr 
 \enumerate{
   \item input
   \enumerate{
@@ -136,8 +133,7 @@ convenient structure would be something like: \cr
 #                     cpu = 0.9,
 #                     gipptools = "software/gipptools-2015.225", 
 #                     write_raw = TRUE, 
-#                     write_data = TRUE, 
-#                     write_map = TRUE)
+#                     write_data = TRUE)
 
 }
 \author{

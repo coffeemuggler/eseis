@@ -144,7 +144,7 @@ write_sac <- function(
   sec   <- as.numeric(format(start, "%S"))
   msec <- as.numeric(format(start, "%OS")) - sec
   t1 <- 0
-  t2 <- (length(data) - 1) * dt
+  t2 <- length(data) * dt
   off <- 0
   
   ## padd values with zeros

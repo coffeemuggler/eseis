@@ -49,7 +49,7 @@ time_convert <- function(
   }
   
   ## check input formats
-  if(class(input) == "POSIXct") {
+  if(class(input)[1] == "POSIXct") {
     
     if(output == "JD") {
       

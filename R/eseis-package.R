@@ -16,7 +16,7 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom IRISSeismic readMiniseedFile
 #' @importFrom grDevices colorRampPalette dev.off jpeg
-#' @importFrom utils read.delim write.table
+#' @importFrom utils read.delim write.table read.table
 #' @useDynLib eseis
 NULL
 
