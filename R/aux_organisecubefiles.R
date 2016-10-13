@@ -178,7 +178,7 @@ aux_organisecubefiles <- function(
     X = list_logger, 
     fun = function(X, gipptools) {
       
-      system(command = paste(gipptools, "bin/cube2mseed", 
+      system(command = paste(gipptools, "/bin/cube2mseed", 
                              " --verbose --output-dir=",
                              "mseed_raw ",
                              X,
@@ -196,7 +196,7 @@ aux_organisecubefiles <- function(
     X = files_mseed_raw, 
     fun = function(X, gipptools) {
       
-      system(command = paste(gipptools, "bin/mseedcut", 
+      system(command = paste(gipptools, "/bin/mseedcut", 
                              " --file-length=HOUR --force-overwrite",
                              " --output-dir=",
                              "mseed_hour",
@@ -311,7 +311,7 @@ aux_organisecubefiles <- function(
       file_name <- x_sep[[1]][4] 
       
       ## set station and channel ID
-      system(command = paste(gipptools, "bin/mseed2mseed", 
+      system(command = paste(gipptools, "/bin/mseed2mseed", 
                              " --set-station=",
                              station,
                              " --set-channel=",
