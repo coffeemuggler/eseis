@@ -139,15 +139,23 @@ aux_organisecubefiles <- function(
   }
   
   ## create temporary output directories
-  if(dir.exists(paths = "mseed_raw/") == FALSE) {
+  if(dir.exists(paths = paste(output_dir, 
+                              "/mseed_raw/", 
+                              sep = "")) == FALSE) {
     
-    dir.create(path = "mseed_raw/", 
+    dir.create(path = paste(output_dir, 
+                            "/mseed_raw/", 
+                            sep = ""), 
                showWarnings = FALSE)
   }
   
-  if(dir.exists(paths = "mseed_hour/") == FALSE) {
+  if(dir.exists(paths = paste(output_dir, 
+                              "/mseed_hour/", 
+                              sep = "")) == FALSE) {
     
-    dir.create(path = "mseed_hour/", 
+    dir.create(path = paste(output_dir, 
+                            "/mseed_hour/", 
+                            sep = ""), 
                showWarnings = FALSE)
   }
   
@@ -175,44 +183,57 @@ aux_organisecubefiles <- function(
   invisible(parallel::parLapply(
     cl = cl, 
     X = list_logger, 
-    fun = function(X, gipptools) {
+    fun = function(X, gipptools, output_dir) {
       
       system(command = paste(gipptools, "/bin/cube2mseed", 
                              " --output-dir=",
-                             "mseed_raw ",
+                             output_dir,
+                             "/mseed_raw ",
                              X,
                              "/",
                              sep = ""))
     }, 
-    gipptools = gipptools))
+    gipptools = gipptools,
+    output_dir = output_dir))
   
   ## create list of generated mseed files
-  files_mseed_raw <- list.files(path = "mseed_raw/")
+  files_mseed_raw <- list.files(path = paste(output_dir, 
+                                             "/mseed_raw/",
+                                             sep = ""))
   
   ## create hourly from daily mseed files 
   invisible(parallel::parLapply(
     cl = cl, 
     X = files_mseed_raw, 
-    fun = function(X, gipptools) {
+    fun = function(X, gipptools, output_dir) {
       
       system(command = paste(gipptools, "/bin/mseedcut", 
                              " --file-length=HOUR --force-overwrite",
                              " --output-dir=",
-                             "mseed_hour",
-                             " mseed_raw/",
+                             output_dir,
+                             "/mseed_hour ",
+                             output_dir,
+                             "/mseed_raw/",
                              X,
                              sep = ""))                                                       
     },
-    gipptools = gipptools))
+    gipptools = gipptools,
+    output_dir = output_dir))
   
   ## remove daily files
-  files_mseed_raw_full <- list.files(path = "mseed_raw/", 
+  files_mseed_raw_full <- list.files(path = paste(output_dir, 
+                                                  "/mseed_raw/",
+                                                  sep = ""), 
                                      full.names = TRUE)
   invisible(file.remove(files_mseed_raw_full))
-  invisible(file.remove("mseed_raw"))
+  invisible(file.remove(paste(output_dir, 
+                              "/mseed_raw", 
+                              sep = "")))
   
   ## create hourly mseed file lists
-  files_mseed_hour <- list.files(path = "mseed_hour")
+  files_mseed_hour <- list.files(path = paste(output_dir,
+                                              "/mseed_hour",
+                                              sep = ""))
   
   ## import and export all mseed files as sac files
   invisible(parallel::parLapply(
@@ -227,7 +248,10 @@ aux_organisecubefiles <- function(
                    gipptools) {
       
       ## read mseed file
-      x <- eseis::read_mseed(file = paste("mseed_hour/", X, sep = ""),
+      x <- eseis::read_mseed(file = paste(output_dir, 
+                                          "/mseed_hour/", 
+                                          X, 
+                                          sep = ""),
                              signal = TRUE, 
                              time = TRUE, 
                              meta = TRUE, 
@@ -272,7 +296,8 @@ aux_organisecubefiles <- function(
         ## write sac file
         eseis::write_sac(data = x$signal, 
                          time = x$time, 
-                         file = paste("mseed_hour/",
+                         file = paste(output_dir,
+                                      "/mseed_hour/",
                                       name_output, 
                                       ".SAC", 
                                       sep = ""), 
@@ -294,9 +319,15 @@ aux_organisecubefiles <- function(
                                " --set-channel=",
                                comp_info,
                                " ./",
-                               paste("mseed_hour/", X, sep = ""),
+                               paste(output_dir, 
+                                     "/mseed_hour/", 
+                                     X, 
+                                     sep = ""),
                                " > ",
-                               paste("mseed_hour/", name_output, sep = ""),
+                               paste(output_dir, 
+                                     "/mseed_hour/", 
+                                     name_output, 
+                                     sep = ""),
                                sep = ""))
       }
       
@@ -308,12 +339,14 @@ aux_organisecubefiles <- function(
     gipptools = gipptools))
   
   ## remove old mseed files
-  invisible(file.remove(paste("mseed_hour", 
+  invisible(file.remove(paste(output_dir, "/mseed_hour", 
                               files_mseed_hour,
                               sep = "/")))
   
   ## make new file list
-  files_new <- list.files(path = "mseed_hour")
+  files_new <- list.files(path = paste(output_dir, 
+                                       "/mseed_hour", 
+                                       sep = ""))
   
   ## extract date information from hourly files
   files_year <- unlist(lapply(X = files_new, FUN = function(X) {
@@ -353,7 +386,8 @@ aux_organisecubefiles <- function(
     }
     
     ## move file to directory
-    file.copy(from = paste("mseed_hour", 
+    file.copy(from = paste(output_dir, 
+                           "/mseed_hour", 
                            files_new[i],
                            sep = "/"), 
               to = paste(output_dir, 
@@ -362,13 +396,16 @@ aux_organisecubefiles <- function(
                          sep = "/"))
     
     ## delete original file
-    file.remove(paste("mseed_hour", 
+    file.remove(paste(output_dir, 
+                      "/mseed_hour", 
                       files_new[i],
                       sep = "/"))
   }
   
   ## remove temporary directory
-  invisible(file.remove("mseed_hour"))
+  invisible(file.remove(paste(output_dir, 
+                              "/mseed_hour",
+                              sep = "")))
   
   ## stop cluster
   parallel::stopCluster(cl = cl)
