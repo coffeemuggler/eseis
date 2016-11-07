@@ -261,6 +261,20 @@ list_sensor <- function(
     s = 80,
     k = 6.4400e-07)
   
+  PE6B <- list(
+    ID = "PE6B",
+    name = "PE-6/B",
+    manufacturer = "unknown",
+    type = "geophone",
+    n_components = 3,
+    comment = "Data taken from GIPP website",
+    poles = as.complex(c(-15.88+23.43i,
+                         -15.88-23.43i)),
+    zeros = as.complex(c(0.0+0.0i,
+                         0.0+0.0i)),
+    s = 1,
+    k = 1)
+  
   
   ## build sensor library
   sensors <- list("TC120s" = TC120s,
@@ -276,7 +290,8 @@ list_sensor <- function(
                   "L22" = L22,
                   "NEOMAX" = NEOMAX,
                   "IHR1C" = IHR1C,
-                  "KINKEI" = KINKEI)
+                  "KINKEI" = KINKEI,
+                  "PE6B" = PE6B)
   
   ## return output
   return(sensors)
