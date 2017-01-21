@@ -2,9 +2,10 @@
 #' 
 #' The function removes the mean from a signal vector.
 #' 
-#' @param data \code{Numeric} vector, input signal vector
+#' @param data \code{Numeric} vector or list of vectors, input signal vector.
 #' 
-#' @return \code{Numeric} vector, data set with mean subtracted.
+#' @return \code{Numeric} vector or list of vectors, data set with mean 
+#' subtracted.
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
@@ -27,9 +28,21 @@ signal_demean <- function(
   data
 ) {
   
-  ## remove mean
-  data_out <- data - mean(data, na.rm = TRUE)
-
-  ## return output
-  return(data_out)
+  ## check data structure
+  if(class(data) == "list") {
+    
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::signal_demean)
+    
+    ## return output
+    return(data_out)
+  } else {
+    
+    ## remove mean
+    data_out <- data - mean(data, na.rm = TRUE)
+    
+    ## return output
+    return(data_out) 
+  }
 }

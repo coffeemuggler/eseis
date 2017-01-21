@@ -7,10 +7,10 @@
 signal_hilbert(data)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector.}
+\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
 }
 \value{
-\code{Numeric} vector, Hilbert transform.
+\code{Numeric} vector or list of vectors, Hilbert transform.
 }
 \description{
 The function calculates the Hilbert transform of the input signal vector.

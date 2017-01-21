@@ -4,14 +4,23 @@
 \alias{plot_spectrogram}
 \title{Calculate spectrograms (power spectral density estimates) from time series.}
 \usage{
-plot_spectrogram(data, col = "tim.colors")
+plot_spectrogram(data, legend, col = "gradient_1", agg = c(1, 1), ...)
 }
 \arguments{
 \item{data}{\code{List} object, spectrogram to be plotted. Must be output
 of \code{signal_spectrogram()} or of equivalent structure.}
 
+\item{legend}{\code{Character} scalar, label of the legend colour scale.
+When omitted, no legend is plotted.}
+
 \item{col}{\code{Character} scalar, colour palette to use. Default is 
-\code{tim.colors}.}
+\code{"gradient_1"}.}
+
+\item{agg}{\code{Integer} vector of length two, factors of image 
+aggregation, i.e. in time and frequency dimension. Useful to decrease 
+image size. Default is \code{c(1, 1)} (no aggregation).}
+
+\item{\dots}{Additional arguments passed to the plot function.}
 }
 \value{
 Graphic output of a spectrogram.
@@ -22,7 +31,27 @@ standard spectrogram apporach, multitaper, and the Welch method.
 }
 \examples{
 
-## TO BE ADDED LATER
+## load example data set
+data(rockfall)
+
+## deconvolve signal
+rockfall <- signal_deconvolve(data = rockfall, dt = 1/200)
+
+## calculate spectrogram
+PSD <- signal_spectrogram(data = rockfall, time = t, dt = 1/200)
+
+## plot spectrogram
+plot_spectrogram(data = PSD)
+
+## plot spectrogram with legend and labels in rainbow colours
+plot_spectrogram(data = PSD, 
+                 xlab = "Time (min)", 
+                 ylab = "f (Hz)", 
+                 main = "Power spectral density estimate", 
+                 legend = "dB", 
+                 zlim = c(-220, -70),
+                 col = "rainbow")
+
                      
 }
 \author{

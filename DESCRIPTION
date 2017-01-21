@@ -1,16 +1,25 @@
 Package: eseis
 Type: Package
 Title: Environmental seismology toolbox
-Version: 0.3.0
-Date: 2016-05-22
+Version: 0.3.1
+Date: 2017-01-21
 Author: Michael Dietze
 Maintainer: Michael Dietze <mdietze@gfz-potsdam.de>
 Description: Environmental seismology toolbox.
 License: GPL-3
 Depends:
     R (>= 3.3.0)
+LinkingTo: Rcpp (>= 0.12.5)
 Imports:
     sp,
     multitaper,
-    RSEIS
+    raster,
+    rgdal,
+    caTools,
+    signal,
+    matrixStats,
+    methods,
+    IRISSeismic,
+    RgoogleMaps,
+    Rcpp (>= 0.12.5)
 RoxygenNote: 5.0.1

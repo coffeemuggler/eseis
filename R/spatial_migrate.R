@@ -37,7 +37,7 @@ spatial_migrate <- function(
   snr,
   v,
   dt,
-  normalise
+  normalise = TRUE
 ) {
   
   ## check/set data structure
@@ -74,8 +74,8 @@ spatial_migrate <- function(
   }
   
   ## normalise input signals
-  s_min <- matrixStats::rowMins(data)
-  s_max <- matrixStats::rowMaxs(data)
+  s_min <- matrixStats::rowMins(data, na.rm = TRUE)
+  s_max <- matrixStats::rowMaxs(data, na.rm = TRUE)
 
   data <- (data - s_min) / (s_max - s_min)
   
@@ -94,55 +94,67 @@ spatial_migrate <- function(
     
     for(j in (i + 1):nrow(data)) {
       
-      ## calculate cross-correlation
-      cc <- ccf(x = data[i,], 
-                y = data[j,], 
-                lag.max = duration * 200,
-                plot = FALSE)
-      
-      ## assign lag times
-      lags <- cc$lag * dt
-      
-      ## assign correlation values
-      c <- cc$acf
-      
-      ## calculate SNR normalisation factor
-      if(normalise == TRUE) {
+      if(sum(is.na(data[i,])) == 0 & sum(is.na(data[j,])) == 0) {
         
-        norm <- (max(data[i,]) / mean(data[i,]) + 
-                   max(data[j,]) / mean(data[j,])) / 
-          (mean(max(data) / apply(X = data, MARGIN = 1, FUN = mean)))
+        ## calculate cross-correlation
+        cc <- ccf(x = data[i,], 
+                  y = data[j,], 
+                  lag.max = duration * 200,
+                  plot = FALSE)
+        
+        ## assign lag times
+        lags <- cc$lag * dt
+        
+        ## assign correlation values
+        c <- cc$acf
+        
+        ## calculate SNR normalisation factor
+        if(normalise == TRUE) {
+          
+          norm <- (max(data[i,], na.rm = TRUE) / mean(data[i,], na.rm = TRUE) + 
+                     max(data[j,], na.rm = TRUE) / mean(data[j,], na.rm = TRUE)) / 
+            (mean(max(data, na.rm = TRUE) / apply(X = data, 
+                                                  MARGIN = 1, 
+                                                  FUN = mean, na.rm = TRUE), na.rm = TRUE))
+        } else {
+          
+          norm <- 1
+        }
+        
+        ## calculate minimum and maximum possible lag times
+        lag.min <- which.max(diff(lags >= -d_stations[i,j]/v))
+        lag.max <- which.min(diff(lags <= d_stations[i,j]/v))
+        
+        ## clip correlation vector to lag ranges
+        c.temp <- c[lag.min:lag.max]
+        
+        ## calculate lag times
+        t.temp <- lags[lag.min:lag.max]
+        
+        ## get correlation values and lag times for maxima
+        t.max <- t.temp[c.temp == max(c.temp)]
+        
+        ## calculate modelled and emprirical lag times
+        dt.model <- (raster::raster(d_map[[i]]) - 
+                       raster::raster(d_map[[j]])) / v
+        dt.empiric <-  d_stations[i,j] / v
+        
+        ## calculate PDF for each pixel
+        c.map <- exp(-0.5 * (((dt.model - t.max) / dt.empiric)^2)) * norm
+        
+        ## add PDF to original grid
+        map <- map + c.map
+        
+        ## update counter
+        n_count <- n_count + 1
       } else {
         
-        norm <- 1
-      }
-      
-      ## calculate minimum and maximum possible lag times
-      lag.min <- which.max(diff(lags >= -d_stations[i,j]/v))
-      lag.max <- which.min(diff(lags <= d_stations[i,j]/v))
-      
-      ## clip correlation vector to lag ranges
-      c.temp <- c[lag.min:lag.max]
-      
-      ## calculate lag times
-      t.temp <- lags[lag.min:lag.max]
-      
-      ## get correlation values and lag times for maxima
-      t.max <- t.temp[c.temp == max(c.temp)]
-      
-      ## calculate modelled and emprirical lag times
-      dt.model <- (raster::raster(d_map[[i]]) - 
-                     raster::raster(d_map[[j]])) / v
-      dt.empiric <-  d_stations[i,j] / v
-      
-      ## calculate PDF for each pixel
-      c.map <- exp(-0.5 * (((dt.model - t.max) / dt.empiric)^2)) * norm
+        ## add PDF to original grid
+        map <- map
+        
+        ## update counter
+        n_count <- n_count + 1      }
 
-      ## add PDF to original grid
-      map <- map + c.map
-      
-      ## update counter
-      n_count <- n_count + 1
     }
     j = 1
   }

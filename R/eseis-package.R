@@ -3,7 +3,7 @@
 #' Environmental seismology toolbox
 #'
 #' \tabular{ll}{ Package: \tab MDtools\cr Type: \tab Package\cr Version: \tab
-#' 0.3.0\cr Date: \tab 2016-06-17\cr License: \tab GPL-3\cr }
+#' 0.3.1\cr Date: \tab 2016-09-18\cr License: \tab GPL-3\cr }
 #'
 #' @name eseis-package
 #' @aliases eseis
@@ -11,7 +11,13 @@
 #' @author Michael Dietze
 #' @keywords package
 #' @importFrom graphics image
-#' @importFrom stats ccf spec.taper spectrum filter
+#' @importFrom stats ccf spec.taper spectrum filter spec.pgram spec.ar median
+#' @importFrom methods as
+#' @importFrom Rcpp evalCpp
+#' @importFrom IRISSeismic readMiniseedFile
+#' @importFrom grDevices colorRampPalette dev.off jpeg
+#' @importFrom utils read.delim write.table read.table
+#' @useDynLib eseis
 NULL
 
 #' example data
@@ -28,7 +34,10 @@ NULL
 #' @examples
 #' 
 #' ## load example data set
-#' data(examples)
+#' data(rockfall)
+#' 
+#' ## plot signal vector
+#' plot(x = t, y = rockfall, type = "l")
 #' 
 NULL
 

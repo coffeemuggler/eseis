@@ -7,7 +7,8 @@
 signal_snr(data, detrend = FALSE)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{Numeric} vector or list of vectors , input signal 
+vector.}
 
 \item{detrend}{\code{Logical} scalar, optionally detrend data set before
 calcualting snr.}

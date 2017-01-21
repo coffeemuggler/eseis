@@ -44,9 +44,23 @@ signal_taper <- function(
     p <- (n/2) / length(data)
   }
   
-  ## apply taper
-  data_out <- spec.taper(x = data, p = p)
-  
-  ## return output
-  return(data_out)
+  ## check data structure
+  if(class(data) == "list") {
+    
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::signal_taper, 
+                       p = p,
+                       n = n)
+    
+    ## return output
+    return(data_out)
+  } else {
+    
+    ## apply taper
+    data_out <- spec.taper(x = data, p = p)
+    
+    ## return output
+    return(data_out) 
+  }
 }

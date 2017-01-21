@@ -9,7 +9,8 @@ signal_spectrogram(data, time, dt, Welch = FALSE, window, overlap = 0.5,
   n_cores = 1, plot = FALSE)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, seismic signal to be processed.}
+\item{data}{\code{Numeric} vector or list of vectors, seismic signal to 
+be processed.}
 
 \item{time}{\code{POSIX.ct} vector with time values. If omitted, an 
 artificial time vector will be created, based on \code{dt}.}

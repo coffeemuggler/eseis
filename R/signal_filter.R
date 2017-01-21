@@ -2,7 +2,7 @@
 #' 
 #' The function filters the input signal vector.
 #' 
-#' @param data \code{Numeric} vector, input signal vector
+#' @param data \code{Numeric} vector or list of vectors, input signal vector.
 #' 
 #' @param dt \code{Numeric} scalar, sampling period. If omitted, \code{dt} 
 #' is set to 1/200.
@@ -25,7 +25,7 @@
 #' 
 #' @param p \code{Numeric} scalar, fraction of the signal to be tapered.
 #' 
-#' @return \code{Numeric} scalar, filtered signal vector.
+#' @return \code{Numeric} vector or list of vectors, filtered signal vector.
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
@@ -57,57 +57,75 @@ signal_filter <- function(
   p = 0
 ) {
   
-  ## check/set dt
-  if(missing(dt) == TRUE) {
+  ## check data structure
+  if(class(data) == "list") {
     
-    warning("Sampling frequency missing! Set to 1/200")
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::signal_filter, 
+                       dt = dt,
+                       f = f,
+                       type = type,
+                       shape = shape,
+                       order = order,
+                       p = p)
     
-    dt <- 1/200
-  }
-  
-  ## check f
-  if(missing(f) == TRUE) {
+    ## return output
+    return(data_out)
+  } else {
     
-    stop("No frequencies provided!")
-  }
-  
-  ## check/set type
-  if(missing(type) == TRUE) {
-    
-    if(length(f) == 1) {
+    ## check/set dt
+    if(missing(dt) == TRUE) {
       
-      type <- "HP"
-    } else {
+      warning("Sampling frequency missing! Set to 1/200")
       
-      type <- "BP"
+      dt <- 1/200
     }
+    
+    ## check f
+    if(missing(f) == TRUE) {
+      
+      stop("No frequencies provided!")
+    }
+    
+    ## check/set type
+    if(missing(type) == TRUE) {
+      
+      if(length(f) == 1) {
+        
+        type <- "HP"
+      } else {
+        
+        type <- "BP"
+      }
+    }
+    
+    ## filter signal with Butterworth filter
+    if(shape == "butter") {
+      
+      ## translate filter type for function "butter()"
+      if(type == "LP") {
+        type <- "low"
+      } else if(type == "HP") {
+        type <- "high"
+      } else if(type == "BP") {
+        type <- "pass"
+      } else if(type == "BR") {
+        type <- "stop"
+      } 
+      
+      ## translate filter frequencis for function "butter()"
+      f_filter <- f * 2 * dt
+      
+      data_filter <- signal::filter(x = data, signal::butter(n = order, 
+                                                             W = f_filter,
+                                                             type = type))
+    }
+    
+    ## apply taper
+    data_out <- stats::spec.taper(x = data_filter, p = p)
+    
+    ## return output
+    return(data_out) 
   }
-  
-  ## filter signal with Butterworth filter
-  if(shape == "butter") {
-    
-    ## translate filter type for function "butter()"
-    if(type == "LP") {
-      type <- "low"
-    } else if(type == "HP") {
-      type <- "high"
-    } else if(type == "BP") {
-      type <- "pass"
-    } else if(type == "BR") {
-      type <- "stop"
-    } 
-    
-    ## translate filter frequencis for function "butter()"
-    f_filter <- f * 2 * dt
-    
-    data_filter <- signal::filter(x = data, signal::butter(n = order, 
-                                                           W = f_filter,
-                                                           type = type))
-  }
-  
-  ## apply taper
-  data_out <- stats::spec.taper(x = data_filter, p = p)
-  
-  ## return output
-  return(data_out)
 }

@@ -4,7 +4,7 @@
 \alias{spatial_migrate}
 \title{Migrate signals of a seismic event through a grid of locations.}
 \usage{
-spatial_migrate(data, d_stations, d_map, snr, v, dt, normalise)
+spatial_migrate(data, d_stations, d_map, snr, v, dt, normalise = TRUE)
 }
 \arguments{
 \item{data}{Numeric \code{matrix}, seismic signals to cross-correlate.}

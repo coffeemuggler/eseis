@@ -3,7 +3,8 @@
 #' This function creates spectrograms from seismic signals. It supports the
 #' standard spectrogram apporach, multitaper, and the Welch method.
 #' 
-#' @param data \code{Numeric} vector, seismic signal to be processed.
+#' @param data \code{Numeric} vector or list of vectors, seismic signal to 
+#' be processed.
 #' 
 #' @param time \code{POSIX.ct} vector with time values. If omitted, an 
 #' artificial time vector will be created, based on \code{dt}.
@@ -67,287 +68,311 @@ signal_spectrogram <- function(
   plot = FALSE
 ) {
   
-  ## missing dt value
-  if(missing(dt) == TRUE) {
+  ## check data structure
+  if(class(data) == "list") {
     
-    if(missing(time) == TRUE) {
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::signal_spectrogram, 
+                       time = time,
+                       dt = dt,
+                       Welch = Welch,
+                       window = window,
+                       overlap = overlap,
+                       window_sub = window_sub,
+                       overlap_sub = overlap_sub,
+                       multitaper = multitaper,
+                       nw = nw,
+                       k = k,
+                       n_cores = n_cores,
+                       plot = plot)
+    
+    ## return output
+    return(data_out)
+  } else {
+    
+    ## missing dt value
+    if(missing(dt) == TRUE) {
       
-      dt = 0.01
-      warning("No dt provided. Set to 0.01 s by default!")
-    } else {
-      
-      if(length(time) > 1000) {
+      if(missing(time) == TRUE) {
         
-        time_dt <- time[1:1000]
+        dt = 0.01
+        warning("No dt provided. Set to 0.01 s by default!")
       } else {
         
-        time_dt <- time
+        if(length(time) > 1000) {
+          
+          time_dt <- time[1:1000]
+        } else {
+          
+          time_dt <- time
+        }
+        
+        dt_estimate <- mean(x = diff(x = as.numeric(time)), 
+                            na.rm = TRUE)
+        print(paste("dt estimated from time vector (", 
+                    signif(x = dt_estimate),
+                    " s)",
+                    sep = ""))
       }
-      
-      dt_estimate <- mean(x = diff(x = as.numeric(time)), 
-                          na.rm = TRUE)
-      print(paste("dt estimated from time vector (", 
-                  signif(x = dt_estimate),
-                  " s)",
-                  sep = ""))
     }
-  }
-  
-  ## missing time vector
-  if(missing(time) == TRUE) {
     
-    time <- seq(from = as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
-                                               format = "%Y-%m-%d %H:%M:%S", 
-                                               tz = "UTC"), tz = "UTC"),
-                by = dt,
-                length.out = length(data))
+    ## missing time vector
+    if(missing(time) == TRUE) {
+      
+      time <- seq(from = as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
+                                                 format = "%Y-%m-%d %H:%M:%S", 
+                                                 tz = "UTC"), tz = "UTC"),
+                  by = dt,
+                  length.out = length(data))
+      
+      print("No or non-POSIXct time data provided. Default data generated!")
+    }
     
-    print("No or non-POSIXct time data provided. Default data generated!")
-  }
-  
-  ## missing window length
-  if(missing(window) == TRUE) {
+    ## missing window length
+    if(missing(window) == TRUE) {
+      
+      window <- 0.01 * length(time) * dt
+    }
     
-    window <- 0.01 * length(time) * dt
-  }
-  
-  ## missing sub-window length
-  if(Welch == TRUE & missing(window_sub) == TRUE) {
+    ## missing sub-window length
+    if(Welch == TRUE & missing(window_sub) == TRUE) {
+      
+      window_sub <- 0.1 * window
+    }
     
-    window_sub <- 0.1 * window
-  }
-  
-  ## CALCULATION PART ---------------------------------------------------------
-  
-  ## get window length
-  length_window <- round(x = window * (1 / dt), 
-                         digits = 0)
-  
-  ## get number of windows
-  n_window <- floor(length(data) / length_window)
-  
-  ## truncate time series to fit window sizes
-  data_trunc <- data[1:(length_window * n_window)]
-  time_trunc <- time[1:(length_window * n_window)]
-  
-  if(length(data) != length(data_trunc)) {
+    ## CALCULATION PART -------------------------------------------------------
     
-    print("Time series truncated to n times the window length.")
-  }
-  
-  ## get overlap length
-  length_overlap <- round(x = length_window * overlap, 
-                          digits = 0)
-  
-  ## calculate indices for slicing the time series
-  l_step <- length_window - length_overlap
-  slice_start <- seq(from = 1, to = length(data) - length_window, 
-                     by = l_step)
-  
-  ## convert time series to matrix with slices
-  data_list <- vector(mode = "list", 
-                      length = length(slice_start))
-  
-  for (i in 1:length(data_list)) {
-    
-    data_list[[i]] <- data[slice_start[i]:(slice_start[i] + 
-                                             length_window - 1)]
-  }
- 
-  ## define generic function to get spectrae
-  spec_generic <- function(x) {
-    
-    try(spectrum(x = x, 
-                 plot = FALSE)$spec,
-        silent = TRUE)
-  }
-  
-  ## define multitaper function to get spectrae
-  spec_multitaper <- function(x, dt, nw, k) {
-    
-    try(multitaper::spec.mtm(timeSeries = x, 
-                             deltat = dt,
-                             nw = nw,
-                             k = k,
-                             plot = FALSE)$spec,
-        silent = TRUE)
-  }
-  
-  ## define generic function for Welch method to get spectrae
-  spec_welch <- function(x, window_sub, overlap_sub, dt, multitaper, nw, k) {
-    
-    ## get sub-window length
-    length_window_sub <- round(x = window_sub * (1 / dt), 
+    ## get window length
+    length_window <- round(x = window * (1 / dt), 
                            digits = 0)
     
-    ## get number of sub-windows
-    n_window_sub <- floor(length(x) / length_window_sub)
+    ## get number of windows
+    n_window <- floor(length(data) / length_window)
     
     ## truncate time series to fit window sizes
-    data_trunc <- data[1:(length_window_sub * n_window_sub)]
+    data_trunc <- data[1:(length_window * n_window)]
+    time_trunc <- time[1:(length_window * n_window)]
+    
+    if(length(data) != length(data_trunc)) {
+      
+      #print("Time series truncated to n times the window length.")
+    }
     
     ## get overlap length
-    length_overlap_sub <- round(x = length_window_sub * overlap_sub, 
+    length_overlap <- round(x = length_window * overlap, 
                             digits = 0)
     
     ## calculate indices for slicing the time series
-    l_step <- length_window_sub - length_overlap_sub
-    slice_start <- seq(from = 1, 
-                       to = length(x) - length_window_sub, 
+    l_step <- length_window - length_overlap
+    slice_start <- seq(from = 1, to = length(data) - length_window, 
                        by = l_step)
     
     ## convert time series to matrix with slices
-    data_list_sub <- vector(mode = "list", 
-                            length = length(slice_start))
+    data_list <- vector(mode = "list", 
+                        length = length(slice_start))
     
-    for (i in 1:length(data_list_sub)) {
+    for (i in 1:length(data_list)) {
       
-      data_list_sub[[i]] <- x[slice_start[i]:(slice_start[i] + 
-                                               length_window_sub - 1)]
-    }
-
-    ## calculate spectrae
-    if(multitaper == TRUE) {
-      
-      S_welch <- lapply(X = data_list_sub, 
-                  FUN = spec_multitaper,
-                  dt = dt,
-                  nw = nw,
-                  k = k)
-    } else {
-      
-      S_welch <- lapply(X = data_list_sub, 
-                        FUN = spec_generic)
+      data_list[[i]] <- data[slice_start[i]:(slice_start[i] + 
+                                               length_window - 1)]
     }
     
-    ## convert list to matrix
-    S_welch <- do.call(cbind, S_welch)
-    
-    ## calculate mean
-    s_mean <- rowMeans(S_welch)
-    
-    ## return output
-    return(s_mean)
-    
-  }
-  
-  ## optinally initiate multicore environment
-  if(n_cores > 1) {
-    
-    ## detect number of CPU cores
-    n_cores_system <- parallel::detectCores()
-    n_cores <- ifelse(test = n_cores > n_cores_system, 
-                      yes = n_cores_system,
-                      no = n_cores)
-    
-    ## initiate cluster
-    cl <- parallel::makeCluster(n_cores)
-  }
-  
-  ## calculate spectrae for each slice
-  if(Welch == FALSE) {
-    
-    if(multitaper == FALSE) {
+    ## define generic function to get spectrae
+    spec_generic <- function(x) {
       
-      if(n_cores > 1) {
+      try(spectrum(x = x, 
+                   plot = FALSE)$spec,
+          silent = TRUE)
+    }
+    
+    ## define multitaper function to get spectrae
+    spec_multitaper <- function(x, dt, nw, k) {
+      
+      try(multitaper::spec.mtm(timeSeries = x, 
+                               deltat = dt,
+                               nw = nw,
+                               k = k,
+                               plot = FALSE)$spec,
+          silent = TRUE)
+    }
+    
+    ## define generic function for Welch method to get spectrae
+    spec_welch <- function(x, window_sub, overlap_sub, dt, multitaper, nw, k) {
+      
+      ## get sub-window length
+      length_window_sub <- round(x = window_sub * (1 / dt), 
+                                 digits = 0)
+      
+      ## get number of sub-windows
+      n_window_sub <- floor(length(x) / length_window_sub)
+      
+      ## truncate time series to fit window sizes
+      data_trunc <- data[1:(length_window_sub * n_window_sub)]
+      
+      ## get overlap length
+      length_overlap_sub <- round(x = length_window_sub * overlap_sub, 
+                                  digits = 0)
+      
+      ## calculate indices for slicing the time series
+      l_step <- length_window_sub - length_overlap_sub
+      slice_start <- seq(from = 1, 
+                         to = length(x) - length_window_sub, 
+                         by = l_step)
+      
+      ## convert time series to matrix with slices
+      data_list_sub <- vector(mode = "list", 
+                              length = length(slice_start))
+      
+      for (i in 1:length(data_list_sub)) {
         
-        ## non-Welch option in parallel mode
-        S <- parallel::parLapply(cl = cl,
-                                 X = data_list, 
-                                 fun = spec_generic)
+        data_list_sub[[i]] <- x[slice_start[i]:(slice_start[i] + 
+                                                  length_window_sub - 1)]
+      }
+      
+      ## calculate spectrae
+      if(multitaper == TRUE) {
+        
+        S_welch <- lapply(X = data_list_sub, 
+                          FUN = spec_multitaper,
+                          dt = dt,
+                          nw = nw,
+                          k = k)
       } else {
         
-        ## non-Welch option in one-core mode
-        S <- lapply(X = data_list, 
-                    FUN = spec_generic)
+        S_welch <- lapply(X = data_list_sub, 
+                          FUN = spec_generic)
       }
-    } else {
       
-      if(n_cores > 1) {
-        
-        ## non-Welch option in parallel mode, multitaper option
-        S <- parallel::parLapply(cl = cl,
-                                 X = data_list, 
-                                 fun = spec_multitaper,
-                                 dt = dt,
-                                 nw = nw,
-                                 k = k)
-      } else {
-        
-        ## non-Welch option in one-core mode, multitaper option
-        S <- lapply(X = data_list, 
-                    FUN = spec_multitaper,
-                    dt = dt,
-                    nw = nw,
-                    k = k)
-      }
-
+      ## convert list to matrix
+      S_welch <- do.call(cbind, S_welch)
+      
+      ## calculate mean
+      s_mean <- rowMeans(S_welch)
+      
+      ## return output
+      return(s_mean)
+      
     }
     
-  } else {
-    
+    ## optinally initiate multicore environment
     if(n_cores > 1) {
       
-      ## Welch option in parallel processing mode
-      S <- parallel::parLapply(cl = cl,
-                               X = data_list, 
-                               fun = spec_welch,
-                               window_sub = window_sub, 
-                               overlap_sub = overlap_sub, 
-                               dt = dt,
-                               nw = nw, 
-                               k = k,
-                               multitaper = multitaper)
+      ## detect number of CPU cores
+      n_cores_system <- parallel::detectCores()
+      n_cores <- ifelse(test = n_cores > n_cores_system, 
+                        yes = n_cores_system,
+                        no = n_cores)
+      
+      ## initiate cluster
+      cl <- parallel::makeCluster(n_cores)
+    }
+    
+    ## calculate spectrae for each slice
+    if(Welch == FALSE) {
+      
+      if(multitaper == FALSE) {
+        
+        if(n_cores > 1) {
+          
+          ## non-Welch option in parallel mode
+          S <- parallel::parLapply(cl = cl,
+                                   X = data_list, 
+                                   fun = spec_generic)
+        } else {
+          
+          ## non-Welch option in one-core mode
+          S <- lapply(X = data_list, 
+                      FUN = spec_generic)
+        }
+      } else {
+        
+        if(n_cores > 1) {
+          
+          ## non-Welch option in parallel mode, multitaper option
+          S <- parallel::parLapply(cl = cl,
+                                   X = data_list, 
+                                   fun = spec_multitaper,
+                                   dt = dt,
+                                   nw = nw,
+                                   k = k)
+        } else {
+          
+          ## non-Welch option in one-core mode, multitaper option
+          S <- lapply(X = data_list, 
+                      FUN = spec_multitaper,
+                      dt = dt,
+                      nw = nw,
+                      k = k)
+        }
+        
+      }
+      
     } else {
       
-      ## Welch option in one-core mode
-      S <- lapply(X = data_list, 
-                  FUN = spec_welch,
-                  window_sub = window_sub, 
-                  overlap_sub = overlap_sub, 
-                  dt = dt,
-                  nw = nw,
-                  k = k,
-                  multitaper = multitaper)
+      if(n_cores > 1) {
+        
+        ## Welch option in parallel processing mode
+        S <- parallel::parLapply(cl = cl,
+                                 X = data_list, 
+                                 fun = spec_welch,
+                                 window_sub = window_sub, 
+                                 overlap_sub = overlap_sub, 
+                                 dt = dt,
+                                 nw = nw, 
+                                 k = k,
+                                 multitaper = multitaper)
+      } else {
+        
+        ## Welch option in one-core mode
+        S <- lapply(X = data_list, 
+                    FUN = spec_welch,
+                    window_sub = window_sub, 
+                    overlap_sub = overlap_sub, 
+                    dt = dt,
+                    nw = nw,
+                    k = k,
+                    multitaper = multitaper)
+      }
+      
+      
+    }
+    
+    ## stop cluster
+    if(n_cores > 1) {
+      
+      parallel::stopCluster(cl = cl)
     }
     
     
-  }
-  
-  ## stop cluster
-  if(n_cores > 1) {
+    ## convert spectrae list to matrix
+    S <- do.call(cbind, S)
     
-    parallel::stopCluster(cl = cl)
+    ## convert data to db
+    S <- 10 * log10(S)
+    
+    ## create frequency and time vector of spectrogram
+    f_spectrum <- seq(from = 0, 
+                      to = 0.5 / dt, 
+                      length.out = nrow(S))
+    t_spectrum <- time[slice_start]
+    
+    ## assign row- and col-names
+    rownames(S) <- f_spectrum
+    colnames(S) <- t_spectrum
+    
+    ## assign output
+    S <- list(S = S,
+              t = t_spectrum,
+              f = f_spectrum)
+    class(S) <- "spectrogram"
+    
+    ## optionally plot spectrogram
+    if(plot == TRUE) {
+      plot_spectrogram(data = S)
+    }
+    
+    ## return output
+    return(S) 
   }
-  
-  
-  ## convert spectrae list to matrix
-  S <- do.call(cbind, S)
-
-  ## convert data to db
-  S <- 10 * log10(S)
-  
-  ## create frequency and time vector of spectrogram
-  f_spectrum <- seq(from = 0, 
-                    to = 0.5 / dt, 
-                    length.out = nrow(S))
-  t_spectrum <- time[slice_start]
-  
-  ## assign row- and col-names
-  rownames(S) <- f_spectrum
-  colnames(S) <- t_spectrum
-  
-  ## assign output
-  S <- list(S = S,
-            t = t_spectrum,
-            f = f_spectrum)
-  class(S) <- "spectrogram"
-  
-  ## optionally plot spectrogram
-  if(plot == TRUE) {
-    signal_spectrogram(data = S)
-  }
-  
-  ## return output
-  return(S)
 }

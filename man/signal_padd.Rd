@@ -7,10 +7,11 @@
 signal_padd(data)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{Numeric} vector or list of vectors, input signal vector}
 }
 \value{
-\code{Numeric} scalar, signal vector with added zeros.
+\code{Numeric} vector or list of vectors, signal vector with 
+added zeros.
 }
 \description{
 The function adds zeros to the input vector to reach a length,

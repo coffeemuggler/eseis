@@ -13,6 +13,11 @@ list_sensor()
 The function returns the list of supported sensors to extract signal 
 deconvolution parameters.
 }
+\details{
+Poles and zeros must be given in rad/s. Characteristics of further 
+sensors can be added manually. See examples of \code{signal_deconvolve}
+for further information.
+}
 \examples{
 
 ## show sensors

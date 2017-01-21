@@ -34,7 +34,7 @@ Version 0.2.3 (2015-02-11)
 	- Added function: snr()
 	- Function envelope() modified, now using hilbert() and spec.taper()
 
-Version 0.3.0 (2016-05-22)
+Version 0.3.0 (2016-06-22)
 	- All functions reworked for Roxygen2
 	- Syntax changed
 	- write_sac() new defined to be without depenencies, improved handling and data input
@@ -44,3 +44,15 @@ Version 0.3.0 (2016-05-22)
 	- functions to store sensor and logger data added
 	- function signal_deconvolve rewritten to take manually supplied instrument data
 	- function time_convert modified to allow three time formats
+	
+Version 0.3.1 (2016-11-07)
+  - function aux_stationinfofile() added
+  - function aux_organisecubefiles() added
+  - function signal_clip() added
+  - function time_clip() added
+  - function plot_spectrogram() revised
+  - function list_logger() and list_sensor() extended
+  - function read_mseed() added
+  - function signal_rotate added
+  - function signal_integrate() added
+  - function signal_spectrum() added

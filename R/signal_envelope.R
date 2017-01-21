@@ -4,12 +4,12 @@
 #' cosine-tapered envelope of the Hilbert-transformed signal. The signal
 #' should be detrended and/or the mean should be removed before processing.
 #' 
-#' @param data \code{Numeric} vector, input signal vector.
+#' @param data \code{Numeric} vector or list of vectors, input signal vector.
 #' 
 #' @param p \code{Numeric} scalar, proportion of the signal to be tapered,
 #' default is \code{10^-6}.
 #' 
-#' @return \code{Numeric} vector, signal envelope.
+#' @return \code{Numeric} vector or list of vectors, signal envelope.
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
@@ -29,19 +29,34 @@
 #' @export signal_envelope
 signal_envelope <- function(
   data,
-  p = 10^-6
+  p = 0
 ) {
   
-  ## calculate Hilbert transform
-  data_hilbert <- signal_hilbert(data = data)
-  
-  ## calculate absolute values
-  data_abs <- abs(data_hilbert)
-  
-  ## apply taper
-  data_taper <- spec.taper(x = data_abs, 
-                           p = p)
-  
-  ## return output
-  return(data_taper)
+  ## check data structure
+  if(class(data) == "list") {
+    
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::signal_envelope, 
+                       p = p)
+    
+    ## return output
+    return(data_out)
+  } else {
+    
+    ## calculate Hilbert transform
+    data_hilbert <- signal_hilbert(data = data)
+    
+    ## calculate absolute values
+    data_envelope <- abs(data_hilbert)
+    
+    ## apply taper
+    if(p > 0) {
+      
+      data_envelope <- signal_taper(data = data_envelope, p = p)
+    }
+
+    ## return output
+    return(data_envelope) 
+  }
 }

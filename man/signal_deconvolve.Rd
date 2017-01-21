@@ -4,21 +4,18 @@
 \alias{signal_deconvolve}
 \title{Deconvolve a signal vector.}
 \usage{
-signal_deconvolve(data, dt, output = "velocity", sensor = "TC120s",
-  logger = "Cube3ext", p = 10^-6, waterlevel = 10^-6)
+signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3extBOB",
+  p = 10^-6, waterlevel = 10^-6)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
 
 \item{dt}{\code{Numeric} scalar, sampling rate.}
 
-\item{output}{\code{Character} scalar, output data type. One out 
-of \code{"velocity"}, \code{"displacement"} or \code{"acceleration"}, 
-default is \code{"velocity"}. The other keywords are not yet supported.}
-
-\item{sensor}{\code{Character} scalar, seismic sensor name. Must be 
-present in the sensor library (\code{list_sensor}) or parameters must be 
-added manually. Default is \code{"TC120s"}.}
+\item{sensor}{\code{Character} scalar or \code{list} object, 
+seismic sensor name. Must be present in the sensor library 
+(\code{list_sensor}) or parameters must be added manually (see 
+examples). Default is \code{"TC120s"}.}
 
 \item{logger}{\code{Character} scalar, seismic logger name. Must be 
 present in the logger library (\code{list_logger}) or parameters must be
@@ -31,7 +28,7 @@ is\code{10^-6}.}
 division, default is \code{10^-6}.}
 }
 \value{
-\code{Numeric} scalar, deconvolved signal.
+\code{Numeric} vector or list of vectors, deconvolved signal.
 }
 \description{
 The function removes the instrument response from a signal vector.
@@ -47,28 +44,36 @@ rockfall_decon <- signal_deconvolve(data = rockfall,
                                     sensor = "TC120s", 
                                     logger = "Cube3ext")
 
-## filter signal
-rockfall_filter <- signal_filter(data = rockfall_decon, 
-                                 dt = 1/200, 
-                                 f = c(1,90))
-
-## plot both signals
-par_original <- par(no.readonly = TRUE)
-par(mfcol = c(2, 1))
-
+## plot time series
 plot(x = t, 
-     y = rockfall, 
-     main = "Rockfall, raw signal", 
-     ylab = "Counts", 
-     type = "l")
-
-plot(x = t, 
-     y = rockfall_filter, 
-     main = "Rockfall, deconvolved and filtered signal", 
+     y = rockfall_decon, 
+     main = "Rockfall, deconvolved signal", 
      ylab = "m/s", 
      type = "l")
-par(par_original)
-                     
+ 
+## add new logger manually
+logger_new <- list_logger()[[1]]
+
+## add logger data
+logger_new$ID <- "logger_new"
+logger_new$name <- "logger_new"
+logger_new$AD <- 2.4414e-07
+
+## deconvolve signal with new logger
+rockfall_decon <- signal_deconvolve(data = rockfall,
+                                    dt = 1/200, 
+                                    sensor = "TC120s", 
+                                    logger = logger_new)
+                                    
+## Change the setup of a logger, here: Centaur AD is changed due to 
+## other than default Vpp value, according to AD = V / (2^24).
+
+## extract default Centaur logger
+Centaur_10V <- list_logger()[[2]]
+
+## replace AD value
+Centaur_10V$AD <- 20/(2^24)
+                                    
 }
 \author{
 Michael Dietze

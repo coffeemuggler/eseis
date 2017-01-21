@@ -2,9 +2,9 @@
 #' 
 #' The function removes a linear trend from a signal vector.
 #' 
-#' @param data \code{Numeric} vector, input signal vector
+#' @param data \code{Numeric} vector or list of vectors, input signal vector.
 #' 
-#' @return \code{Numeric} vector, detrended data set.
+#' @return \code{Numeric} vector or list of vectors, detrended data set.
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
@@ -24,19 +24,31 @@ signal_detrend <- function(
   data
 ) {
   
-  ## convert vector to matrix
-  data <- rbind(data)
-
-  ## detrend data set  
-  data_t <- t(data)
-  A <- cbind(rep(0, nrow(data_t)), 
-             rep(1, nrow(data_t)))
-  A[(1:nrow(data_t)), 1] <- as.matrix(1:nrow(data_t)) / nrow(data_t)
-  X <- t(data_t - A %*% qr.solve(A, data_t))
-
-  ## convert matrix to vector
-  data_out <- as.numeric(X)
-  
-  ## return output
-  return(data_out)
+  ## check data structure
+  if(class(data) == "list") {
+    
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::signal_detrend)
+    
+    ## return output
+    return(data_out)
+  } else {
+    
+    ## convert vector to matrix
+    data <- rbind(data)
+    
+    ## detrend data set  
+    data_t <- t(data)
+    A <- cbind(rep(0, nrow(data_t)), 
+               rep(1, nrow(data_t)))
+    A[(1:nrow(data_t)), 1] <- as.matrix(1:nrow(data_t)) / nrow(data_t)
+    X <- t(data_t - A %*% qr.solve(A, data_t))
+    
+    ## convert matrix to vector
+    data_out <- as.numeric(X)
+    
+    ## return output
+    return(data_out) 
+  }
 }

@@ -12,7 +12,7 @@ read_sac(file, append = TRUE, signal = TRUE, time = TRUE, meta = TRUE,
 Wildcards may be used (see details and examples).}
 
 \item{append}{\code{Logical} scalar, option append single files to one
-continuous file, keeping only the heaer information of the first file.}
+continuous file, keeping only the header information of the first file.}
 
 \item{signal}{\code{Logical} scalar, option to import the signal vector, 
 default is \code{TRUE}.}
