@@ -3,19 +3,19 @@
 \docType{data}
 \name{t}
 \alias{t}
-\title{example data}
+\title{Time vector of a rockfall event.}
 \format{The format is: POSIXct[1:98400], format: "2015-04-06 13:16:54" ...}
-\description{
-Time vector of a rockfall event.
+\usage{
+t
 }
-\details{
+\description{
 The dataset comprises the time vector corresponding the to seismic signal
-of a rockfall event.
+of the rockfall event from the example data set "rockfall".
 }
 \examples{
 
 ## load example data set
-data(examples)
+data(rockfall)
 
 }
 \keyword{datasets}
