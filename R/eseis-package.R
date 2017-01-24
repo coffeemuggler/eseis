@@ -61,5 +61,26 @@ NULL
 #' 
 "t"
 
-
-
+#' Seismic traces of a small earthquake
+#' 
+#' The dataset comprises the seismic signal (all three components) of 
+#' a small earthquake. The data have beenrecorded at 200 Hz sampling 
+#' frequency with an Omnirecs Cube ext 3 data logger.
+#' 
+#' @name earthquake
+#' @docType data
+#' @format The format is: 
+#' List of 3
+#'  $ BHE: num [1:8001] -3.95e-07 ...
+#'  $ BHN: num [1:8001] -2.02e-07 ...
+#'  $ BHZ: num [1:8001] -1.65e-07 ...
+#' @keywords datasets
+#' @examples
+#' 
+#' ## load example data set
+#' data(earthquake)
+#' 
+#' ## plot signal vector
+#' plot(x = t, y = s$BHZ, type = "l")
+#' 
+"s"
