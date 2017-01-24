@@ -37,7 +37,7 @@
 #' ## load example data set
 #' data(earthquake)
 #' 
-#' ## filter siesmic signals
+#' ## filter seismic signals
 #' s <- eseis::signal_filter(data = s, 
 #'                           dt = 1/200, 
 #'                           f = c(0.05, 0.1))

@@ -4,6 +4,7 @@ Version 0.3.2 (TO BE SET)
   - inherited internal issues without relevance for functionality solved
   - function aux_loadevent() added
   - function plot_components() added
+  - function signal_motion() added
 
 Version 0.3.1 (2017-01-21)
   - function aux_stationinfofile() added
