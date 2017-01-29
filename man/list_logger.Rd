@@ -13,6 +13,9 @@ list_logger()
 The function returns the list of supported data loggers to extract signal 
 deconvolution parameters.
 }
+\details{
+The value AD is the analogue-digital conversion factor.
+}
 \examples{
 
 ## show sensors

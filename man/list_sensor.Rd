@@ -16,7 +16,9 @@ deconvolution parameters.
 \details{
 Poles and zeros must be given in rad/s. Characteristics of further 
 sensors can be added manually. See examples of \code{signal_deconvolve}
-for further information.
+for further information. The value s is the generator constant 
+(sensitivity) given in Vs/m. The value k is the normalisation factor of 
+the sensor.
 }
 \examples{
 
