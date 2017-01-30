@@ -274,7 +274,7 @@ list_sensor <- function(
                          -15.88-23.43i)),
     zeros = as.complex(c(0.0+0.0i,
                          0.0+0.0i)),
-    s = 1,
+    s = 28.8,
     k = 1)
   
   
