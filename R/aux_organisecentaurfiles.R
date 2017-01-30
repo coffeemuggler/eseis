@@ -230,6 +230,12 @@ aux_organisecentaurfiles <- function(
         stations_centaur$station.ID[stations_centaur$logger.ID == x_ID]
       comp_info <- substr(x = x$meta$component, start = 3, stop = 3)
       date_info <- x$meta$starttime
+      
+      ## check/set network name
+      if(x$meta$network == "XX") {
+        
+        x$meta$network <- ""
+      }
 
       ## optionally change component names
       if(channel_name == "bh") {
@@ -275,13 +281,14 @@ aux_organisecentaurfiles <- function(
                                       sep = ""), 
                          component = comp_info, 
                          unit = 1,
-                         station = stat_info, 
+                         station = as.character(stat_info), 
                          location = c(x$meta$latitude, 
                                       x$meta$longitude, 
                                       x$meta$elevation, 
                                       NA), 
                          network = x$meta$network, 
                          dt = x$meta$dt)
+        
       } else if(format == "mseed") {
         
         ## copy mseed file to temporary directory
