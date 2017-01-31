@@ -4,7 +4,7 @@
 \alias{signal_hvratio}
 \title{Calculate h-v-ratio of seismic components}
 \usage{
-signal_hvratio(data, dt, method = "periodogram", window, order = "xyz")
+signal_hvratio(data, dt, method = "periodogram", kernel, order = "xyz")
 }
 \arguments{
 \item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic
@@ -17,7 +17,7 @@ must be organised as columns.}
 One out of \code{"periodogram"} , \code{"autoregressive"} and 
 \code{"multitaper"}, default is \code{"periodogram"}.}
 
-\item{window}{\code{Numeric} value, window size (number of samples) of 
+\item{kernel}{\code{Numeric} value, window size (number of samples) of 
 the moving window used for smoothing the spectra. By default no smoothing 
 is performed.}
 
@@ -38,7 +38,7 @@ For details see http://www.geopsy.org/documentation/geopsy/hv.html.
 The spectra should be smoothed. This can either be done directly 
 during their calculation or before the calculation of the ratio. For 
 the former case set \code{method = "autoregressive"}. For the latter 
-case provide a value for \code{"window"}, which is the smoothing 
+case provide a value for \code{"kernel"}, which is the smoothing 
 window size. Smoothing is performed with the logarithms of the spectral 
 power data, using \code{caTools::runmean()} with the 
 \code{endrule = "NA"}. After smoothing the data is re-linearised.
@@ -63,10 +63,10 @@ hv <- signal_hvratio(data = s,
                      method = "autoregressive")
 plot(hv, type = "l")
 
-## calculate h-v-ratio with a smmothing window equivalent to dt
+## calculate h-v-ratio with a smoothing window equivalent to dt
 hv <- signal_hvratio(data = s, 
                      dt = 1 / 200,
-                     window = 200)
+                     kernel = 200)
 plot(hv, type = "l")
 
 }
