@@ -79,6 +79,15 @@
 #'                      col = plot_col(100),
 #'                      xlab = "Time (UTC)",
 #'                      ylab = "f (Hz)")
+#'                      
+#' ## calculate and plot stack (mean and sd) of all spectral ratios
+#' HV_mean <- apply(X = HV, MARGIN = 1, FUN = mean)
+#' HV_sd <- apply(X = HV, MARGIN = 1, FUN = sd)
+#' HV_f <- as.numeric(rownames(HV))
+#' 
+#' plot(x = HV_f, y = HV_mean, type = "l", ylim = c(0, 50))
+#' lines(x = HV_f, y = HV_mean + HV_sd, col = 2)
+#' lines(x = HV_f, y = HV_mean - HV_sd, col = 2)              
 #'
 #' @export aux_hvanalysis
 #'  
