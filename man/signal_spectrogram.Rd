@@ -21,14 +21,14 @@ estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz).}
 \item{Welch}{\code{Logical} scalar, option to use the Welch method for
 calcualtions.}
 
-\item{window}{\code{Numeric} scalar, time window length used to 
-calculate individual spectrae. Set to 1 percent of the time series length 
+\item{window}{\code{Numeric} scalar, time window length in seconds used to 
+calculate individual spectra. Set to 1 percent of the time series length 
 by default.}
 
 \item{overlap}{\code{Numeric} scalar, fraction of window overlap.}
 
-\item{window_sub}{\code{Numeric} scalar, length of the sub-window used 
-to calculate spectrae. Only relevant if \code{Welch = TRUE}. If omitted, 
+\item{window_sub}{\code{Numeric} scalar, length of the sub-window in seconds 
+used to calculate spectrae. Only relevant if \code{Welch = TRUE}. If omitted, 
 the sub-window length is set to 10 percent of the main window length.}
 
 \item{overlap_sub}{\code{Numeric} scalar, fraction of sub-window overlap.}

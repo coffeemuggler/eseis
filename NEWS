@@ -5,6 +5,10 @@ Version 0.3.2 (TO BE SET)
   - function aux_loadevent() added
   - function plot_components() added
   - function signal_motion() added
+  - function signal_hvratio() added
+  - function aux_hvanalysis() added
+  - function aux_organisecntaurfiles() added
+  - function signal_deconvolve(): s-parameter for PE6B corrected, argument gain added
 
 Version 0.3.1 (2017-01-21)
   - function aux_stationinfofile() added

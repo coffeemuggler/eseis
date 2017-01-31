@@ -15,14 +15,14 @@
 #' @param Welch \code{Logical} scalar, option to use the Welch method for
 #' calcualtions.
 #' 
-#' @param window \code{Numeric} scalar, time window length used to 
-#' calculate individual spectrae. Set to 1 percent of the time series length 
+#' @param window \code{Numeric} scalar, time window length in seconds used to 
+#' calculate individual spectra. Set to 1 percent of the time series length 
 #' by default.
 #' 
 #' @param overlap \code{Numeric} scalar, fraction of window overlap.
 #' 
-#' @param window_sub \code{Numeric} scalar, length of the sub-window used 
-#' to calculate spectrae. Only relevant if \code{Welch = TRUE}. If omitted, 
+#' @param window_sub \code{Numeric} scalar, length of the sub-window in seconds 
+#' used to calculate spectrae. Only relevant if \code{Welch = TRUE}. If omitted, 
 #' the sub-window length is set to 10 percent of the main window length.
 #' 
 #' @param overlap_sub \code{Numeric} scalar, fraction of sub-window overlap.
