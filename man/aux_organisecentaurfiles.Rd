@@ -5,7 +5,7 @@
 \title{Reorganise seismic files recorded at Nanometrics Centaur loggers}
 \usage{
 aux_organisecentaurfiles(stationfile, input_dir, output_dir, format = "sac",
-  channel_name = "bh", cpu, gipptools)
+  channel_name = "bh", cpu, gipptools, file_key = "miniseed", network)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 
@@ -30,6 +30,12 @@ processing. If omitted, one CPU is used.}
 
 \item{gipptools}{\code{Character} value, path to gipptools or cubetools 
 directory.}
+
+\item{file_key}{\code{Character} value, file name extension of the files
+to process. Only files with this extension will be processed. Default is 
+\code{"miniseed"}.}
+
+\item{network}{\code{Character} value, optional seismic network code.}
 }
 \value{
 A set of hourly seismic files written to disk.
@@ -78,8 +84,8 @@ appropriate structure would be something like: \cr
 In the case a six-channel Centaur is used to record signals from two
 sensors, in the station info file (cf. \code{aus_stationinfofile()})
 the logger ID field must be contain the four digit logger ID and the 
-channel qualifiers H (first three channels) or N (last three channels), 
-separated by an underscore, e.g., 0190_H and 0190_N.
+channel qualifiers, e.g., "AH" (first three channels) or "BH" (last three channels), 
+separated by an underscore.
 }
 \examples{
 ## uncomment to use

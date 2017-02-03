@@ -42,8 +42,8 @@
 #' In the case a six-channel Centaur is used to record signals from two
 #' sensors, in the station info file (cf. \code{aus_stationinfofile()})
 #' the logger ID field must be contain the four digit logger ID and the 
-#' channel qualifiers H (first three channels) or N (last three channels), 
-#' separated by an underscore, e.g., 0190_H and 0190_N.
+#' channel qualifiers, e.g., "AH" (first three channels) or "BH" (last three channels), 
+#' separated by an underscore.
 #' 
 #' @param stationfile \code{Character} value, file name of the station info 
 #' file, with extension. See \code{aux_stationinfofile}.
@@ -68,6 +68,12 @@
 #' @param gipptools \code{Character} value, path to gipptools or cubetools 
 #' directory. 
 #' 
+#' @param file_key \code{Character} value, file name extension of the files
+#' to process. Only files with this extension will be processed. Default is 
+#' \code{"miniseed"}.
+#' 
+#' @param network \code{Character} value, optional seismic network code.
+#'
 #' @return A set of hourly seismic files written to disk.
 #' 
 #' @author Michael Dietze
@@ -91,7 +97,9 @@ aux_organisecentaurfiles <- function(
   format = "sac",
   channel_name = "bh",
   cpu, 
-  gipptools) {
+  gipptools,
+  file_key = "miniseed",
+  network) {
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
   
@@ -143,11 +151,11 @@ aux_organisecentaurfiles <- function(
                          header = TRUE)
   
   ## check for Centaur signatures
-  stations_centaur <- stations[nchar(as.character(stations$logger.ID)) > 3,]
+  stations_centaur <- stations[nchar(as.character(stations$logger_ID)) > 3,]
   
   ## optionally process 6-channel qualifiers
-  centaur_six <- strsplit(x = as.character(stations_centaur$logger.ID), 
-                          split = "_",)
+  centaur_six <- strsplit(x = as.character(stations_centaur$logger_ID), 
+                          split = "_")
 
   centaur_six_ID <- unlist(lapply(X = centaur_six, FUN = function(X) {
     
@@ -163,22 +171,15 @@ aux_organisecentaurfiles <- function(
                             centaur_six_ID, 
                             centaur_six_chn)
   
-  ## create list of logger directories to process
-  list_logger <- list.files(path = path_data, 
-                            full.names = FALSE)
-  
-  # remove non-Centaur directories from list
-  logger_present <- match(x = list_logger, 
-                          table = stations_centaur$centaur_six_ID)
-  
-  list_logger <- list.files(path = path_data, 
-                            full.names = TRUE)[!is.na(logger_present)]
-  
   ## identify files to process
-  files <- unlist(lapply(X = list_logger, 
-                         FUN = list.files, 
-                         full.names = TRUE, 
-                         recursive = TRUE))
+  files <- list.files(pattern = file_key, 
+                      full.names = TRUE, 
+                      recursive = TRUE)
+  
+  ## remove uncomplete files
+  files <- files[!grepl(x = files, 
+                        pattern = ".part", 
+                        fixed = TRUE)]
   
   ## detect and adjust number of cores to use
   cores <- parallel::detectCores()
@@ -205,14 +206,11 @@ aux_organisecentaurfiles <- function(
                    stations_centaur, 
                    channel_name,
                    format,
-                   gipptools) {
+                   gipptools,
+                   network) {
       
       ## read mseed file
-      x <- eseis::read_mseed(file = X,
-                             signal = TRUE, 
-                             time = TRUE, 
-                             meta = TRUE, 
-                             header = FALSE)
+      x <- eseis::read_mseed(file = X)
       
       ## extract logger ID from file name
       x_raw <- strsplit(x = x$meta$filename, split = "/", fixed = TRUE)[[1]]
@@ -221,20 +219,32 @@ aux_organisecentaurfiles <- function(
       x_chn <- substr(x = strsplit(x = x_raw[1], 
                                    split = ".", 
                                    fixed = TRUE)[[1]][3], 
-                      start = 2, 
+                      start = 1, 
                       stop = 2)
       x_ID <- paste(x_name, x_chn, sep = "_")
       
+      x_ID <- ifelse(test = sum(match(x = stations_centaur$logger_ID, 
+                                      table = x_ID), 
+                                na.rm = TRUE) > 0,
+                     yes = x_ID,
+                     no = x_name)
+      
       ## extract file information
       stat_info <- 
-        stations_centaur$station.ID[stations_centaur$logger.ID == x_ID]
+        stations_centaur$ID[stations_centaur$logger_ID == x_ID]
       comp_info <- substr(x = x$meta$component, start = 3, stop = 3)
       date_info <- x$meta$starttime
       
       ## check/set network name
-      if(x$meta$network == "XX") {
+      if(missing(network) == TRUE) {
         
-        x$meta$network <- ""
+        if(x$meta$network == "XX") {
+          
+          x$meta$network <- ""
+        }
+      } else {
+        
+        x$meta$network <- network
       }
 
       ## optionally change component names
@@ -243,21 +253,65 @@ aux_organisecentaurfiles <- function(
         comp_info[comp_info == "Z"] <- "BHZ"
         comp_info[comp_info == "Y"] <- "BHN"
         comp_info[comp_info == "X"] <- "BHE"
+        
+        comp_info[comp_info == "Z"] <- "BHZ"
+        comp_info[comp_info == "N"] <- "BHN"
+        comp_info[comp_info == "E"] <- "BHE"
+        
       }
       
       if(channel_name == "p") {
         
         comp_info[comp_info == "Z"] <- "p0"
         comp_info[comp_info == "X"] <- "p1"
+        comp_info[comp_info == "Y"] <- "p2"
+        
+        comp_info[comp_info == "Z"] <- "p0"
+        comp_info[comp_info == "E"] <- "p1"
         comp_info[comp_info == "N"] <- "p2"
+        
       }
       
       ## extract date elements
       JD_info <- eseis::time_convert(input = date_info, output = "JD")
+      JD_info <- ifelse(test = nchar(x = JD_info) == 1, 
+                        yes = paste("0", JD_info, sep = ""),
+                        no = JD_info)
+      JD_info <- ifelse(test = nchar(x = JD_info) == 2, 
+                        yes = paste("0", JD_info, sep = ""),
+                        no = JD_info)
       year_info <- format(date_info, "%y")
       hour_info <- format(date_info, "%H")
       min_info <- format(date_info, "%M")
       sec_info <- format(date_info, "%S")
+      
+      ## optionally assign further meta information
+      if(is.na(x$meta$latitude) == TRUE) {
+        x$meta$latitude <- 
+          stations_centaur$y[stations_centaur$logger_ID == x_ID]
+        if(is.null(x$meta$latitude) == TRUE) {
+          
+          x$meta$latitude <- NA
+        }
+      }
+      
+      if(is.na(x$meta$longitude) == TRUE) {
+        x$meta$longitude <- 
+          stations_centaur$x[stations_centaur$logger_ID == x_ID]
+        if(is.null(x$meta$longitude) == TRUE) {
+          
+          x$meta$longitude <- NA
+        }
+      }
+
+      if(is.na(x$meta$elevation) == TRUE) {
+        x$meta$elevation <- 
+          stations_centaur$z[stations_centaur$logger_ID == x_ID]
+        if(is.null(x$meta$elevation) == TRUE) {
+          
+          x$meta$elevation <- NA
+        }
+      }
       
       ## build file name
       name_output <- paste(stat_info, 
@@ -330,7 +384,11 @@ aux_organisecentaurfiles <- function(
     stations_centaur = stations_centaur,
     channel_name = channel_name,
     format = format,
-    gipptools = gipptools))
+    gipptools = gipptools,
+    network = network))
+  
+  ## stop cluster
+  parallel::stopCluster(cl = cl)
   
   ## make new file list
   files_new <- list.files(path = paste(output_dir, 
@@ -395,7 +453,4 @@ aux_organisecentaurfiles <- function(
   invisible(file.remove(paste(output_dir, 
                               "/mseed_hour",
                               sep = "")))
-  
-  ## stop cluster
-  parallel::stopCluster(cl = cl)
 }
