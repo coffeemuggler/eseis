@@ -45,20 +45,54 @@ default is 4.0.}
 by setting to 1. Default is 1.}
 
 \item{plot}{\code{logical} scalar, toggle plot output. Default is
-\code{FALSE}.}
+\code{FALSE}. For more customised plotting see \code{plot_spectrogram()}.}
 }
 \value{
 \code{List} with spectrogram matrix, time and frequency vectors.
 }
 \description{
 This function creates spectrograms from seismic signals. It supports the
-standard spectrogram apporach, multitaper, and the Welch method.
+standard spectrogram approach, multitaper, and the Welch method.
+}
+\details{
+Data containing \code{NA} values is replaced by zeros and set to NA in the 
+output data set.
 }
 \examples{
 
-## TO BE ADDED LATER
-# not run
-                     
+## load example data set
+data("earthquake")
+
+## calculate and plot PSD straight away
+P <- signal_spectrogram(data = s$BHZ, 
+                               time = t, 
+                               dt = 1 / 200, 
+                               plot = TRUE)
+
+## calculate and plot PSD with defined window sizes and the Welch method
+P <- signal_spectrogram(data = s$BHZ, 
+                               time = t, 
+                               dt = 1 / 200, 
+                               window = 5, 
+                               overlap = 0.9, 
+                               window_sub = 3, 
+                               overlap_sub = 0.9, 
+                               Welch = TRUE,
+                               plot = TRUE)
+                               
+## calculate and plot PSD with even smaller window sizes, the Welch
+## method and using multitapers, uncomment to use.
+# P <- signal_spectrogram(data = s$BHZ, 
+#                                time = t, 
+#                                dt = 1 / 200, 
+#                                window = 2, 
+#                                overlap = 0.9, 
+#                                window_sub = 1, 
+#                                overlap_sub = 0.9, 
+#                                Welch = TRUE,
+#                                multitaper = TRUE,
+#                                plot = TRUE)
+                      
 }
 \author{
 Michael Dietze
