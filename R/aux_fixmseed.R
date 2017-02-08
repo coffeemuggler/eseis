@@ -6,7 +6,7 @@
 #' other aux-function of the package, this function is at preliminary stage
 #' and mainly used for internal purpose.
 #' 
-#' The library dataselect can be downloaded at https://seiscode.iris.washington.edu/projects/dataselect 
+#' The library dataselect can be downloaded at https://github.com/iris-edu/dataselect
 #' and requires compilation (see README file in dataselect directory). The 
 #' function goes back to an email discussion with Gillian Sharer (IRIS team),
 #' many thanks for pointing me at this option to process corrupt mseed files.
