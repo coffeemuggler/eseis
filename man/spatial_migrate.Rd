@@ -7,23 +7,23 @@
 spatial_migrate(data, d_stations, d_map, snr, v, dt, normalise = TRUE)
 }
 \arguments{
-\item{data}{Numeric \code{matrix}, seismic signals to cross-correlate.}
+\item{data}{\code{Numeric} matrix, seismic signals to cross-correlate.}
 
-\item{d_stations}{Numeric \code{matrix}, inter-station distances. Output 
+\item{d_stations}{\code{Numeric} matrix, inter-station distances. Output 
 of \code{distance_stations}.}
 
-\item{d_map}{\code{List} object, distance maps for each station. Output
-of \code{distance_map}.}
+\item{d_map}{\code{List} object, distance maps for each station (i.e., 
+\code{SpatialGridDataFrame} objects). Output of \code{distance_map}.}
 
-\item{snr}{Numeric \code{vector}, optional signal-to-noise-ratios for 
+\item{snr}{\code{Numeric} vector, optional signal-to-noise-ratios for 
 each signal trace, used for normalisation. If omitted it is calculated
 from input signals.}
 
-\item{v}{Numeric \code{scalar}, mean velocity of seismic waves (m/s).}
+\item{v}{\code{Numeric} value, mean velocity of seismic waves (m/s).}
 
-\item{dt}{Numeric \code{scalar}, sampling period.}
+\item{dt}{\code{Numeric} value, sampling period.}
 
-\item{normalise}{Logical \code{scalar}, option to normalise stations 
+\item{normalise}{\code{Logical} value, option to normalise stations 
 correlations by signal-to-noise-ratios.}
 }
 \value{
@@ -42,4 +42,3 @@ the location of a seismic signal.
 \author{
 Michael Dietze
 }
-

@@ -31,4 +31,3 @@ xyz <- signal_sum(x, y, z)
 Michael Dietze
 }
 \keyword{eseis}
-

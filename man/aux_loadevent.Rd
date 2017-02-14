@@ -80,4 +80,3 @@ data <- aux_loadevent(start = start,
 Michael Dietze
 }
 \keyword{eseis}
-

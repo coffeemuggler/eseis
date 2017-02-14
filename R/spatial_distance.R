@@ -27,39 +27,50 @@
 #' @param dstation \code{Logical} scalar, option to enable/disable calculation
 #' of interstation distances. Default is \code{TRUE}.
 #' 
+#' @param aoi \code{Numeric} vector of length four, bounding coordinates of 
+#' the area of interest to process. Only implemented for single core mode 
+#' (i.e., \code{cores = 1}).
+#' 
 #' @return \code{List} object with distance maps list and station distance 
 #' matrix.
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
+#' \dontrun{
+#' ## load and aggregate example DEM
+#' data("volcano")
+#' dem <- raster::raster(volcano)
+#' dem <- raster::aggregate(x = dem, 2) * 10
+#' dem@extent <- dem@extent * 1000
+#' dem@extent <- dem@extent + c(510, 510, 510, 510)
 #' 
-#' ## Too much to run as example, uncomment to run, use own test data
-#' # ## load and aggregate example DEM
-#' # data("volcano")
-#' # dem <- raster::raster(volcano)
-#' # dem <- raster::aggregate(x = dem, 2) * 10
-#' # dem@extent <- dem@extent * 1000
-#' # dem@extent <- dem@extent + c(510, 510, 510, 510)
-#' # 
-#' # ## define example stations
-#' # stations <- cbind(c(200, 700), c(220, 700))
-#' # 
-#' # ## plot example data
-#' # raster::plot(dem)
-#' # points(stations[,1], stations[,2])
-#' # 
-#' # ## calculate distance matrices and stations distances
-#' # D <- spatial_distance(stations = stations, 
-#' #                       dem = dem, 
-#' #                       topography = TRUE, 
-#' #                       cores = 1)
-#' # 
-#' # ## plot distance matrices
-#' # raster::plot(D$maps[[2]])
-#' # 
-#' # ## show station distance matrix
-#' # print(D$stations)
-#'                      
+#' ## define example stations
+#' stations <- cbind(c(200, 700), c(220, 700))
+#' 
+#' ## plot example data
+#' raster::plot(dem)
+#' points(stations[,1], stations[,2])
+#' 
+#' ## calculate distance matrices and stations distances
+#' D <- spatial_distance(stations = stations, 
+#'                       dem = dem, 
+#'                       topography = TRUE, 
+#'                       cores = 1)
+#' 
+#' ## plot distance map for station 2
+#' raster::plot(D$maps[[2]])
+#' 
+#' ## show station distance matrix
+#' print(D$stations)
+#' 
+#' ## run with small aoi
+#' D <- spatial_distance(stations = stations, 
+#'                       dem = dem, 
+#'                       topography = TRUE, 
+#'                       cores = 1, 
+#'                       aoi = c(400, 600, 600, 800))
+#' } 
+#'                                           
 #' @export spatial_distance
 spatial_distance <- function(
   stations,
@@ -67,7 +78,8 @@ spatial_distance <- function(
   topography = TRUE,
   cores = 1,
   dmap = TRUE,
-  dstation = TRUE
+  dstation = TRUE,
+  aoi
 ) {
   
   ## PART 1 - calculate distance maps -----------------------------------------
@@ -84,12 +96,32 @@ spatial_distance <- function(
       ## convert DEM to SpatialGridDataFrame
       dem <- methods::as(dem, "SpatialGridDataFrame")
       
+      ## get mean dem grid size
+      mean_cell_size <- mean(dem@grid@cellsize, na.rm = TRUE)
+      
       ## convert xy-coordinates of stations to SpatialPoints
       xy <- sp::SpatialPoints(coords = stations[,1:2], 
                               proj4string = sp::CRS(raster::projection(dem)))
       
       ## optionally assign DEM z-value to stations
       z <- as.numeric(sp::over(x = xy, y = dem)[,1])
+      
+      ## check/set aoi
+      if(missing(aoi) == TRUE) {
+        
+        map_coords <- sp::coordinates(obj = dem)
+        
+        aoi <- c(min(map_coords[,1]), 
+                 max(map_coords[,1]),
+                 min(map_coords[,2]), 
+                 max(map_coords[,2]))
+      }
+      
+      aoi_flag <- dem
+      aoi_flag@data <- aoi_flag@data * 0
+      aoi_xy <- sp::coordinates(aoi_flag)
+      aoi_flag@data[[1]][aoi_xy[,1] >= aoi[1] & aoi_xy[,1] <= aoi[2] &
+                           aoi_xy[,2] >= aoi[3] & aoi_xy[,2] <= aoi[4]] <- 1
       
       ## create preliminary output variables
       map_i <- dem
@@ -101,65 +133,73 @@ spatial_distance <- function(
         print(paste("Processing station", i))
         
         ## calculate euclidian distances
-        dx <- sp::coordinates(dem)[,1] - sp::coordinates(xy)[i,1]
-        dy <- sp::coordinates(dem)[,2] - sp::coordinates(xy)[i,2]
+        dem_x <- sp::coordinates(dem)[,1]
+        dem_y <- sp::coordinates(dem)[,2]
+        
+        dx <- dem_x - sp::coordinates(xy)[i,1]
+        dy <- dem_y - sp::coordinates(xy)[i,2]
         dt <- sqrt(dx^2 + dy^2)
         
         ## loop through all grid cells
         for(j in 1:length(dt)) {
           
-          ## calculate number of points to interpolate
-          n_i <- round(x = dt[j] / (0.1 * mean(dem@grid@cellsize, 
-                                               na.rm = TRUE)), 
-                       digits = 0)
-          
-          ## correct for zero points
-          n_i <- ifelse(n_i == 0, 1, n_i)
-          
-          ## create x-vector
-          x_i <- seq(from = sp::coordinates(xy)[i,1], 
-                     to = sp::coordinates(dem)[j,1],
-                     length.out = n_i)
-          
-          ## create y-vector
-          y_i <- seq(from = sp::coordinates(xy)[i,2], 
-                     to = sp::coordinates(dem)[j,2],
-                     length.out = n_i)
-          
-          ## convert x and y vector to SpatialPoints coordinates
-          xy_i <- sp::SpatialPoints(
-            coords = cbind(x_i, y_i), 
-            proj4string = sp::CRS(raster::projection(dem)))
-          
-          ## interpolate xy by DEM
-          z_i <- sp::over(x = xy_i, y = dem)[,1]
-          
-          ## calculate direct line elevantion
-          z_d <- seq(from = z[i], 
-                     to = dem@data[[1]][j], 
-                     length.out = length(z_i))
-          
-          ## calculate difference of DEM to direct elevation change
-          d_e <- z_d - z_i
-          
-          ## calculate elevation path
-          if(topography == TRUE) {
+          ## check aoi containment
+          if(aoi_flag@data[[1]][j] == 1) {
             
-            z_e <- ifelse(d_e < 0, z_i, z_d)
+            ## calculate number of points to interpolate
+            n_i <- round(x = dt[j] / (0.1 * mean_cell_size), digits = 0)
             
+            ## correct for zero points
+            n_i <- ifelse(n_i == 0, 1, n_i)
+            
+            ## create x-vector
+            x_i <- seq(from = sp::coordinates(xy)[i,1], 
+                       to = sp::coordinates(dem)[j,1],
+                       length.out = n_i)
+            
+            ## create y-vector
+            y_i <- seq(from = sp::coordinates(xy)[i,2], 
+                       to = sp::coordinates(dem)[j,2],
+                       length.out = n_i)
+            
+            ## convert x and y vector to SpatialPoints coordinates
+            xy_i <- sp::SpatialPoints(
+              coords = cbind(x_i, y_i), 
+              proj4string = sp::CRS(raster::projection(dem)))
+            
+            ## interpolate xy by DEM
+            z_i <- sp::over(x = xy_i, y = dem)[,1]
+            
+            ## calculate direct line elevantion
+            z_d <- seq(from = z[i], 
+                       to = dem@data[[1]][j], 
+                       length.out = length(z_i))
+            
+            ## calculate difference of DEM to direct elevation change
+            d_e <- z_d - z_i
+            
+            ## calculate elevation path
+            if(topography == TRUE) {
+              
+              z_e <- ifelse(d_e < 0, z_i, z_d)
+              
+            } else {
+              
+              z_e <- z_d
+              
+            }
+            
+            ## calculate path length
+            l <- sqrt((x_i[length(x_i)] - x_i[1])^2 + 
+                        (y_i[length(x_i)] - y_i[1])^2 +
+                        sum(diff(z_e))^2)
+            
+            ## assign topography-corrected distance to grid data set
+            map_i@data[[1]][j] <- l
           } else {
             
-            z_e <- z_d
-            
+            map_i@data[[1]][j] <- NA
           }
-          
-          ## calculate path length
-          l <- sqrt((x_i[length(x_i)] - x_i[1])^2 + 
-                      (y_i[length(x_i)] - y_i[1])^2 +
-                      sum(diff(z_e))^2)
-          
-          ## assign topography-corrected distance to grid data set
-          map_i@data[[1]][j] <- l
         }
         maps[[i]] <- map_i
       }

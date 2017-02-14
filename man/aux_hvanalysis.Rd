@@ -100,4 +100,3 @@ lines(x = HV_f, y = HV_mean - HV_sd, col = 2)
 Michael Dietze
 }
 \keyword{eseis}
-

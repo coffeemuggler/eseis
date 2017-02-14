@@ -45,4 +45,3 @@ plot(rockfall_taper[1:5000], type = "l")
 Michael Dietze
 }
 \keyword{eseis}
-

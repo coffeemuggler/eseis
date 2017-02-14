@@ -3,23 +3,23 @@
 #' The function performs signal migration in space in order to determine 
 #' the location of a seismic signal.
 #'
-#' @param data Numeric \code{matrix}, seismic signals to cross-correlate.
+#' @param data \code{Numeric} matrix, seismic signals to cross-correlate.
 #' 
-#' @param d_stations Numeric \code{matrix}, inter-station distances. Output 
+#' @param d_stations \code{Numeric} matrix, inter-station distances. Output 
 #' of \code{distance_stations}.
 #' 
-#' @param d_map \code{List} object, distance maps for each station. Output
-#' of \code{distance_map}.
+#' @param d_map \code{List} object, distance maps for each station (i.e., 
+#' \code{SpatialGridDataFrame} objects). Output of \code{distance_map}.
 #' 
-#' @param v Numeric \code{scalar}, mean velocity of seismic waves (m/s).
+#' @param v \code{Numeric} value, mean velocity of seismic waves (m/s).
 #' 
-#' @param dt Numeric \code{scalar}, sampling period.
+#' @param dt \code{Numeric} value, sampling period.
 #' 
-#' @param snr Numeric \code{vector}, optional signal-to-noise-ratios for 
+#' @param snr \code{Numeric} vector, optional signal-to-noise-ratios for 
 #' each signal trace, used for normalisation. If omitted it is calculated
 #' from input signals.
 #' 
-#' @param normalise Logical \code{scalar}, option to normalise stations 
+#' @param normalise \code{Logical} value, option to normalise stations 
 #' correlations by signal-to-noise-ratios.
 #' 
 #' @return A SpatialGridDataFrame-object with Gaussian probability density

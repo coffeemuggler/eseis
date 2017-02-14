@@ -39,4 +39,3 @@ plot_signal(data = rockfall, time = t, n = 100)
 Michael Dietze
 }
 \keyword{eseis}
-

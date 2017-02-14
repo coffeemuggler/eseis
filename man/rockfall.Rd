@@ -24,4 +24,3 @@ plot(x = t, y = rockfall, type = "l")
 
 }
 \keyword{datasets}
-

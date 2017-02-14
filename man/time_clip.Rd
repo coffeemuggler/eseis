@@ -27,4 +27,3 @@ The function clips  time vector based on provided limits.
 Michael Dietze
 }
 \keyword{eseis}
-

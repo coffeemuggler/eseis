@@ -28,4 +28,3 @@ plot(x = t, y = s$BHZ, type = "l")
 
 }
 \keyword{datasets}
-

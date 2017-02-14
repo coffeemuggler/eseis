@@ -40,4 +40,3 @@ diff(t_agg)
 Michael Dietze
 }
 \keyword{eseis}
-

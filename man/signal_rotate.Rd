@@ -42,4 +42,3 @@ points(x_rot[3,], col = 3)
 Michael Dietze
 }
 \keyword{eseis}
-

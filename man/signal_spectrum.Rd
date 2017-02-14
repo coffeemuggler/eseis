@@ -43,4 +43,3 @@ plot(s, type = "l", log = "y")
 Michael Dietze
 }
 \keyword{eseis}
-

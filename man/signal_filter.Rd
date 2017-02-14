@@ -59,4 +59,3 @@ plot(x = t[68000:78000],
 Michael Dietze
 }
 \keyword{eseis}
-

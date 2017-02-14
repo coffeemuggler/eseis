@@ -74,4 +74,3 @@ plot(hv, type = "l")
 Michael Dietze
 }
 \keyword{eseis}
-

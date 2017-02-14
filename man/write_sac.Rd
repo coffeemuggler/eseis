@@ -59,4 +59,3 @@ LAT, LON, ELEVATION, NETWORK.
 \author{
 Michael Dietze
 }
-

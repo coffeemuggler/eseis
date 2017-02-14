@@ -68,4 +68,3 @@ This function reads sac-files.
 \author{
 Michael Dietze
 }
-

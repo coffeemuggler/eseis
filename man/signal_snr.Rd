@@ -34,4 +34,3 @@ signal_snr(data = rockfall, detrend = TRUE)
 Michael Dietze
 }
 \keyword{eseis}
-

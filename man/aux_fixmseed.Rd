@@ -49,4 +49,3 @@ many thanks for pointing me at this option to process corrupt mseed files.
 Michael Dietze
 }
 \keyword{eseis}
-

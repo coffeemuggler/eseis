@@ -63,4 +63,3 @@ signal_stalta(data = e,
 Michael Dietze
 }
 \keyword{eseis}
-

@@ -78,4 +78,3 @@ plot_components(data = s_d,
 Michael Dietze
 }
 \keyword{eseis}
-

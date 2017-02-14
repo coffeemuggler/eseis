@@ -94,12 +94,11 @@ P <- signal_spectrogram(data = s$BHZ,
 #                                plot = TRUE)
                       
 }
-\author{
-Michael Dietze
-}
 \seealso{
 \code{\link{spectrum}}, \code{\link{spec.pgram}}, 
 \code{\link{spec.mtm}}
 }
+\author{
+Michael Dietze
+}
 \keyword{eseis}
-

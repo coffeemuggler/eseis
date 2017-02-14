@@ -22,4 +22,3 @@ Michael Dietze
 \keyword{Seismology,}
 \keyword{processing}
 \keyword{signal}
-

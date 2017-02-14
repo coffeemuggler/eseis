@@ -24,4 +24,3 @@ The function calculates the Hilbert transform of the input signal vector.
 Michael Dietze
 }
 \keyword{eseis}
-

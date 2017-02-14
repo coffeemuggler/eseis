@@ -34,4 +34,3 @@ length(rockfall_padd)
 Michael Dietze
 }
 \keyword{eseis}
-

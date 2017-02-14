@@ -54,11 +54,10 @@ plot_spectrogram(data = PSD,
 
                      
 }
-\author{
-Michael Dietze
-}
 \seealso{
 \code{\link{signal_spectrogram}}
 }
+\author{
+Michael Dietze
+}
 \keyword{eseis}
-

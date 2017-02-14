@@ -11,7 +11,8 @@ Version 0.3.2 (TO BE SET)
   - function signal_deconvolve(): s-parameter for PE6B corrected, argument gain added
   - function plot_signal() added
   - function signal_spectrogram(): na-handling implemented
-  - function au_fixmseed() added
+  - function aux_fixmseed() added
+  - function spatial_distance(): aoi option implemented
 
 Version 0.3.1 (2017-01-21)
   - function aux_stationinfofile() added
