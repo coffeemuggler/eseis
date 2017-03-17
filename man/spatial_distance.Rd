@@ -27,8 +27,8 @@ of distance maps. Default is \code{TRUE}.}
 of interstation distances. Default is \code{TRUE}.}
 
 \item{aoi}{\code{Numeric} vector of length four, bounding coordinates of 
-the area of interest to process. Only implemented for single core mode 
-(i.e., \code{cores = 1}).}
+the area of interest to process, in the form \code{c(x0, x1, y0, y1)}. Only 
+implemented for single core mode (i.e., \code{cores = 1}).}
 }
 \value{
 \code{List} object with distance maps list and station distance 

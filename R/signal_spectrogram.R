@@ -394,7 +394,7 @@ signal_spectrogram <- function(
                       to = 0.5 / dt, 
                       length.out = nrow(S))
     t_spectrum <- time[slice_start]
-    
+
     ## assign row- and col-names
     rownames(S) <- f_spectrum
     colnames(S) <- t_spectrum

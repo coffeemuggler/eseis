@@ -101,7 +101,7 @@ plot_spectrogram <- function(
   f_out <- seq(from = 1, 
                to = length(data$f),
                by = agg[2])
-  
+
   if(missing(legend) == TRUE) {
     
     ## plot image map of PSD
@@ -141,7 +141,7 @@ plot_spectrogram <- function(
     ## adjust plot margins
     mai_new[4] <- legend_space
     graphics::par(mai = mai_new)
-    
+
     ## plot image map of PSD
     image(x = data$t[t_out], 
           y = data$f[f_out], 

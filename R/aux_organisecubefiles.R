@@ -57,6 +57,13 @@
 #' @param cpu \code{Numeric} value, fraction of CPUs to use for parallel 
 #' processing. If omitted, one CPU is used.
 #' 
+#' @param fringe \code{Character} value, option to handle data outside the 
+#' GPS-tagged time span. One out of \code{"skip"}, \code{"nominal"} or 
+#' \code{"constant"}. Default is \code{"constant"}.
+#' 
+#' @param verbose \code{Logical} value, option to enable extended screen 
+#' output of cubetools operations. Default is \code{FALSE}.
+#' 
 #' @param gipptools \code{Character} value, path to gipptools or cubetools 
 #' directory. 
 #' 
@@ -82,6 +89,8 @@ aux_organisecubefiles <- function(
   format = "sac",
   channel_name = "bh",
   cpu,
+  fringe = "constant",
+  verbose = FALSE,
   gipptools
 ){
   
@@ -186,6 +195,11 @@ aux_organisecubefiles <- function(
     fun = function(X, gipptools, output_dir) {
       
       system(command = paste(gipptools, "/bin/cube2mseed", 
+                             ifelse(test = verbose == TRUE, 
+                                    yes = " --verbose", 
+                                    no = ""),
+                             " --fringe-samples=",
+                             toupper(x = fringe),
                              " --output-dir=",
                              output_dir,
                              "/mseed_raw ",
