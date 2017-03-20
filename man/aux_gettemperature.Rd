@@ -35,7 +35,8 @@ Optionally, the data is interpolated to equal intervals.
 \details{
 This feature is ony available for Cubes that were produced since 2015, 
 i.e., whose GPS output files also record the temperature inside the 
-logger.
+logger. Generating an ACSII GPS tag file using the gipptools software 
+requires a few minutes time per daily cube file.
 }
 \examples{
 
@@ -43,7 +44,7 @@ logger.
 # t <- aux_gettemperature(input_dir = "input",
 #                         logger_ID = c("ANN", "ABT"),
 #                         interval = 15,
-#                         gipptools = "~/software/gipptools")
+#                         gipptools = "~/software/gipptools-2015.225/")
 
 }
 \author{

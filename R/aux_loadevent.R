@@ -110,13 +110,24 @@ aux_loadevent <- function(
                      format = "%Y")
   
   ## create JD sequence
-  JD_seq <- eseis::time_convert(input = hours_seq, 
-                                output = "JD")
+  JD_seq <- as.character(eseis::time_convert(input = hours_seq, 
+                                             output = "JD"))
+  
+  ## padd JDs with zeros
+  JD_seq_pad <- JD_seq
+  
+  JD_seq_pad <- ifelse(test = nchar(JD_seq_pad) == 1, 
+                   yes = paste("00", JD_seq_pad, sep = ""), 
+                   no = JD_seq_pad)
+  
+  JD_seq_pad <- ifelse(test = nchar(JD_seq_pad) == 2, 
+                   yes = paste("0", JD_seq_pad, sep = ""), 
+                   no = JD_seq_pad)
   
   ## create directory string for hourly sequence
   files_hourly <- paste(dir,
                         year_seq, "/",
-                        JD_seq,
+                        JD_seq_pad,
                         sep = "")
   
   ## make file list for JDs
