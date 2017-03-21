@@ -25,6 +25,7 @@ Imports:
     rgdal,
     caTools,
     signal,
+    fftw,
     matrixStats,
     methods,
     IRISSeismic,

@@ -177,7 +177,8 @@ signal_deconvolve <- function(
     }  
     
     ## calculate Fourier transform
-    x_fft <- stats::fft(z = data_padd)
+    x_fft <- fftw::FFT(x = data_padd)
+    
     
     ## get polynomial form of poles and zeros
     poles_poly <- Re(signal::poly(x = poles))
@@ -199,8 +200,8 @@ signal_deconvolve <- function(
     rm(x_fft)
     
     ## invert deconvolved signal
-    data_inverse <- Re(stats::fft(data_decon, 
-                                  inverse = TRUE) / length(data_decon))
+    data_inverse <- Re(fftw::IFFT(x = data_decon, 
+                                  inverse = TRUE))
     rm(data_decon)
     
     ## correct for A/D-ratio and sensitivity factor
