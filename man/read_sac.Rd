@@ -31,8 +31,15 @@ out of \code{"little"}, \code{"big"} and \code{"swap"}. Default
 is \code{"little"}.}
 
 \item{biglong}{\code{Logical} scalar, number coding format. Default 
-is \code{FALSE}.
-
+is \code{FALSE}.}
+}
+\value{
+\code{List} object.
+}
+\description{
+This function reads sac-files.
+}
+\details{
 The function reads one or more sac-files. If \code{append = TRUE}, all
 files will be appended to the first one in the order as they are provided. 
 In the append-case the function returns a list of length 4 with the elements 
@@ -40,13 +47,7 @@ In the append-case the function returns a list of length 4 with the elements
 \code{append = FALSE} and nmore than one file is provided, the function
 returns a list of the length of the input files, each containing the above
 elements. \cr\cr The sac data format is implemented as descibed on the IRIS
-website (https://ds.iris.edu/files/sac-manual/manual/file_format.html).}
-}
-\value{
-\code{List} object.
-}
-\description{
-This function reads sac-files.
+website (https://ds.iris.edu/files/sac-manual/manual/file_format.html).
 }
 \examples{
 

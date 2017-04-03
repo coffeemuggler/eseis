@@ -2,6 +2,15 @@
 #'
 #' This function reads sac-files.
 #'
+#' The function reads one or more sac-files. If \code{append = TRUE}, all
+#' files will be appended to the first one in the order as they are provided. 
+#' In the append-case the function returns a list of length 4 with the elements 
+#' \code{signal}, \code{time}, \code{meta} and \code{header}. If 
+#' \code{append = FALSE} and nmore than one file is provided, the function
+#' returns a list of the length of the input files, each containing the above
+#' elements. \cr\cr The sac data format is implemented as descibed on the IRIS
+#' website (https://ds.iris.edu/files/sac-manual/manual/file_format.html).
+#' 
 #' @param file \code{Character} vector, input file name(s), with extension. 
 #' Wildcards may be used (see details and examples).
 #' 
@@ -27,16 +36,8 @@
 #' @param biglong \code{Logical} scalar, number coding format. Default 
 #' is \code{FALSE}.
 #' 
-#' The function reads one or more sac-files. If \code{append = TRUE}, all
-#' files will be appended to the first one in the order as they are provided. 
-#' In the append-case the function returns a list of length 4 with the elements 
-#' \code{signal}, \code{time}, \code{meta} and \code{header}. If 
-#' \code{append = FALSE} and nmore than one file is provided, the function
-#' returns a list of the length of the input files, each containing the above
-#' elements. \cr\cr The sac data format is implemented as descibed on the IRIS
-#' website (https://ds.iris.edu/files/sac-manual/manual/file_format.html).
-#' 
 #' @return \code{List} object.
+#' 
 #' @author Michael Dietze
 #' @examples
 #'

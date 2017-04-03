@@ -13,6 +13,11 @@ Version 0.3.2 (TO BE SET)
   - function signal_spectrogram(): na-handling implemented
   - function aux_fixmseed() added
   - function spatial_distance(): aoi option implemented
+  - function aux_gettemperature() added
+  - function aux_getevent() added
+  - functions with FFT usage optimised by fftw approach
+  - function aux_getirisstations() added
+  - function aux_getirisdata() added
 
 Version 0.3.1 (2017-01-21)
   - function aux_stationinfofile() added

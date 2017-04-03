@@ -16,9 +16,9 @@
 #' @keywords Environmental Seismology, signal processing
 #' @importFrom graphics image
 #' @importFrom stats ccf spec.taper spectrum filter spec.pgram spec.ar median nextn
-#' @importFrom methods as
+#' @importFrom methods as new
 #' @importFrom Rcpp evalCpp
-#' @importFrom IRISSeismic readMiniseedFile
+#' @importFrom IRISSeismic readMiniseedFile getNetwork getStation getSNCL
 #' @importFrom grDevices colorRampPalette dev.off jpeg
 #' @importFrom utils read.delim write.table read.table
 #' @useDynLib eseis

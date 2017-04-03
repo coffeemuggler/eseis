@@ -216,12 +216,13 @@ signal_spectrogram <- function(
                                                length_window - 1)]
     }
     
-    ## define generic function to get spectrae
+    ## define generic function to get spectra
     spec_generic <- function(x) {
       
       try(spectrum(x = x, 
                    plot = FALSE)$spec,
           silent = TRUE)
+      
     }
     
     ## define multitaper function to get spectrae
@@ -394,7 +395,7 @@ signal_spectrogram <- function(
                       to = 0.5 / dt, 
                       length.out = nrow(S))
     t_spectrum <- time[slice_start]
-
+    
     ## assign row- and col-names
     rownames(S) <- f_spectrum
     colnames(S) <- t_spectrum
@@ -408,7 +409,7 @@ signal_spectrogram <- function(
       
       t_na <- data.frame(t_na_start = t_na_start, 
                          t_na_stop = t_na_stop)
-
+      
       for(i in 1:length(t_na)) {
         
         S[,t_spectrum >= t_na[i,1] & t_spectrum <= t_na[i,2]] <- NA

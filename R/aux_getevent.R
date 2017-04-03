@@ -59,15 +59,15 @@
 #' duration <- 50
 #' 
 #' ## load the z-component data from a rockfall event
-#' data <- aux_loadevent(start = start, 
+#' data <- aux_getevent(start = start, 
 #'                       duration = duration,
 #'                       station = "LAU05",
 #'                       component = "BHZ",
 #'                       dir = "eseis/lauterbrunnen/data/sac/")
 #' }
 #'                      
-#' @export aux_loadevent
-aux_loadevent <- function(
+#' @export aux_getevent
+aux_getevent <- function(
   start,
   duration,
   station, 
