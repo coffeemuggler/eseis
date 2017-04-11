@@ -9,10 +9,13 @@ spatial_distance(stations, dem, topography = TRUE, cores = 1, dmap = TRUE,
 }
 \arguments{
 \item{stations}{\code{Numeric} matrix of length two, x- and y-coordinates 
-of the seismic stations to be processed (column-wise orgnaised).}
+of the seismic stations to be processed (column-wise orgnaised).The 
+coordinates must be in metric units, such as the UTM system and 
+match with the reference system of the \code{dem}.}
 
-\item{dem}{\code{raster} object, the digital elevation model to be 
-processed.}
+\item{dem}{\code{raster} object, the digital elevation model (DEM) to be 
+processed. The DEM must be in metric units, such as the UTM system and 
+match with the reference system of the coordinates of \code{stations}.}
 
 \item{topography}{\code{Logical} scalar, option to enable topography
 correction, default is \code{TRUE}.}

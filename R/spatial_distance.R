@@ -10,10 +10,14 @@
 #' corrected travel distance data set.
 #' 
 #' @param stations \code{Numeric} matrix of length two, x- and y-coordinates 
-#' of the seismic stations to be processed (column-wise orgnaised).
+#' of the seismic stations to be processed (column-wise orgnaised).The 
+#' coordinates must be in metric units, such as the UTM system and 
+#' match with the reference system of the \code{dem}.
 #' 
-#' @param dem \code{raster} object, the digital elevation model to be 
-#' processed.
+#' @param dem \code{raster} object, the digital elevation model (DEM) to be 
+#' processed. The DEM must be in metric units, such as the UTM system and 
+#' match with the reference system of the coordinates of \code{stations}. 
+#' See \code{raster} for supported types and how to read these to R.
 #' 
 #' @param topography \code{Logical} scalar, option to enable topography
 #' correction, default is \code{TRUE}.
