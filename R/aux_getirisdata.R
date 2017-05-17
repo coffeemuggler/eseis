@@ -19,6 +19,10 @@
 #' Typically, the SNCL string can be taken from the output of the function
 #' \code{aux_getirisstations}.
 #' 
+#' @param quality \code{Character} value, quality level of the data. One out 
+#' of \code{"D"}, \code{"R"}, \code{"Q"}, \code{"M"}, \code{"B"}. Default 
+#' is \code{"M"}.
+#' 
 #' @param ID_iris \code{Character} value, IRIS ID. Default is 
 #' \code{"IrisClient"}.
 #' 
@@ -59,6 +63,7 @@ aux_getirisdata <- function (
   start, 
   duration, 
   sncl,
+  quality = "M",
   ID_iris = "IrisClient"
 ) {
   
@@ -76,6 +81,7 @@ aux_getirisdata <- function (
     data_i <- invisible(try(IRISSeismic::getSNCL(obj = iris,  
                                                  sncl = sncl[i], 
                                                  starttime = start, 
+                                                 quality = quality,
                                                  endtime = start + duration), 
                             silent = TRUE))
     
