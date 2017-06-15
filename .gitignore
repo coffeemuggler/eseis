@@ -3,3 +3,5 @@
 .RData
 .Rbuildignore
 eseis.Rproj
+src/*.o
+src/*.dll
