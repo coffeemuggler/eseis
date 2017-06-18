@@ -96,6 +96,7 @@ signal_deconvolve <- function(
                        dt = dt,
                        sensor = sensor,
                        logger = logger,
+                       gain = gain,
                        p = p,
                        waterlevel = waterlevel)
     
@@ -151,6 +152,9 @@ signal_deconvolve <- function(
     
     AD <- logger$AD
     
+    ## apply gain correction
+    data <- data / gain
+    
     ## detrend data set
     data_detrend <- signal_detrend(data = data)
     
@@ -205,7 +209,7 @@ signal_deconvolve <- function(
     rm(data_decon)
     
     ## correct for A/D-ratio and sensitivity factor
-    data_inverse <- (data_inverse * AD) / s / gain
+    data_inverse <- (data_inverse * AD) / s
     
     ## truncate signal to original length
     data_inverse <- data_inverse[1:length(data)]

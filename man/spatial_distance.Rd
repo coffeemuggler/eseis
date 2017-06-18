@@ -15,7 +15,8 @@ match with the reference system of the \code{dem}.}
 
 \item{dem}{\code{raster} object, the digital elevation model (DEM) to be 
 processed. The DEM must be in metric units, such as the UTM system and 
-match with the reference system of the coordinates of \code{stations}.}
+match with the reference system of the coordinates of \code{stations}. 
+See \code{raster} for supported types and how to read these to R.}
 
 \item{topography}{\code{Logical} scalar, option to enable topography
 correction, default is \code{TRUE}.}

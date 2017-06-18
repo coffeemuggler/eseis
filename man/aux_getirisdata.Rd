@@ -4,7 +4,8 @@
 \alias{aux_getirisdata}
 \title{Download seismic data from IRIS data base}
 \usage{
-aux_getirisdata(start, duration, sncl, ID_iris = "IrisClient")
+aux_getirisdata(start, duration, sncl, quality = "D",
+  ID_iris = "IrisClient")
 }
 \arguments{
 \item{start}{\code{Posixct} value, start time of the data to query.}
@@ -16,6 +17,13 @@ seconds.}
 and component of interest. These strings should match the time criteria. 
 Typically, the SNCL string can be taken from the output of the function
 \code{aux_getirisstations}.}
+
+\item{quality}{\code{Character} value, quality level of the data. One out 
+of \code{"D"} (The state of quality control of the data is indeterminate), 
+\code{"R"} (Raw Waveform Data with no Quality Control), 
+\code{"Q"} (Quality Controlled Data, some processes have been applied to 
+the data), \code{"M"} (Data center modified, time-series values have not 
+been changed), \code{"B"}. Default is \code{"D"}.}
 
 \item{ID_iris}{\code{Character} value, IRIS ID. Default is 
 \code{"IrisClient"}.}

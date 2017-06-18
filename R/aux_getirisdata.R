@@ -20,8 +20,11 @@
 #' \code{aux_getirisstations}.
 #' 
 #' @param quality \code{Character} value, quality level of the data. One out 
-#' of \code{"D"}, \code{"R"}, \code{"Q"}, \code{"M"}, \code{"B"}. Default 
-#' is \code{"M"}.
+#' of \code{"D"} (The state of quality control of the data is indeterminate), 
+#' \code{"R"} (Raw Waveform Data with no Quality Control), 
+#' \code{"Q"} (Quality Controlled Data, some processes have been applied to 
+#' the data), \code{"M"} (Data center modified, time-series values have not 
+#' been changed), \code{"B"}. Default is \code{"D"}.
 #' 
 #' @param ID_iris \code{Character} value, IRIS ID. Default is 
 #' \code{"IrisClient"}.
@@ -63,7 +66,7 @@ aux_getirisdata <- function (
   start, 
   duration, 
   sncl,
-  quality = "M",
+  quality = "D",
   ID_iris = "IrisClient"
 ) {
   
