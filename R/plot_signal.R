@@ -51,42 +51,89 @@ plot_signal <- function(
     type = "l"
   }
   
-  ## create index vector
-  i <- seq(from = 1,
-           to = length(data))
+  if ("xlab" %in% names(args)) {
+    xlab <- args$xlab
+  }
+  else {
+    
+    xlab = "Time"
+  }
   
-  ## create bin vector
-  b <- round(x = seq(from = 1,
-                     to = length(data),
-                     length.out = n),
-             digits = 0)
+  if ("ylab" %in% names(args)) {
+    ylab <- args$ylab
+  }
+  else {
+    
+    ylab = "Amplitude"
+  }
   
-  ## make bin indices
-  bins <- findInterval(x = i,
-                       vec = b)
+  if ("axes" %in% names(args)) {
+    axes <- args$axes
+  }
+  else {
+    
+    axes <- TRUE
+  }
   
-  ## find maxima per bin
-  b_max = stats::aggregate(x = list(x = i,
-                                    y = data),
-                           by = list(bins = bins),
-                           max)
+  if ("format" %in% names(args)) {
+    format <- args$format
+  }
+  else {
+    
+    format <- ""
+  }
   
-  ## find minima per bin
-  b_min = stats::aggregate(x = list(x = i,
-                                    y = data),
-                           by = list(bins = bins),
-                           min)
+  ## get NA values to padd data set
+  n_padd <- ceiling(x = length(data) / n) * n - length(data)
   
-  ## create plot vectors
-  x_plot <- rep(b_min$x, 
-                each = 2)
+  ## padd data set
+  s_padd <- c(data, rep(NA, 
+                        times = n_padd))
   
-  y_plot <- as.numeric(rbind(b_min$y, 
-                             b_max$y))
+  t_padd <- c(time, rep(NA, 
+                        times = n_padd))
+  
+  ## convert signal vector to matrix
+  S <- matrix(data = s_padd, 
+              ncol = n)
+  
+  ## calculate columnwise min and max
+  S_min <- matrixStats::colMins(x = S, 
+                                na.rm = TRUE)
+  
+  S_max <- matrixStats::colMaxs(x = S, 
+                                na.rm = TRUE)
+  
+  ## convert min and max alternatingly to vector
+  s_plot <- as.numeric(rbind(S_min, S_max))
+  
+  ## get time vector subset
+  i <- seq(from = 1, 
+           to = length(t_padd), 
+           by = nrow(S))
+  
+  ## make pairs of time vector subsets
+  t_plot <- rep(t_padd[i], each = 2)
   
   ## generate plot
-  graphics::plot(time[x_plot], 
-                 y_plot, 
+  graphics::plot(t_plot, 
+                 s_plot, 
                  type = type, 
+                 xlab = xlab,
+                 ylab = ylab,
+                 axes = FALSE,
                  ...)
+  
+  ## add box
+  box(which = "plot")
+  
+  ## optionally add axes
+  if(axes == TRUE) {
+    
+    axis.POSIXct(side = 1, 
+                 x = t_plot, 
+                 format = format)
+    
+    axis(side = 2)
+  }
 }
