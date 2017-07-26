@@ -4,4 +4,5 @@
 .Rbuildignore
 eseis.Rproj
 src/*.o
+src/eseis.so
 src/*.dll
