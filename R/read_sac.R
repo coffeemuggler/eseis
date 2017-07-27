@@ -4,12 +4,14 @@
 #'
 #' The function reads one or more sac-files. If \code{append = TRUE}, all
 #' files will be appended to the first one in the order as they are provided. 
-#' In the append-case the function returns a list of length 4 with the elements 
-#' \code{signal}, \code{time}, \code{meta} and \code{header}. If 
-#' \code{append = FALSE} and nmore than one file is provided, the function
-#' returns a list of the length of the input files, each containing the above
-#' elements. \cr\cr The sac data format is implemented as descibed on the IRIS
-#' website (https://ds.iris.edu/files/sac-manual/manual/file_format.html).
+#' In the append-case the function returns a either a list with the elements 
+#' \code{signal}, \code{time}, \code{meta} and \code{header} or a list of the 
+#' class \code{eseis} (see documentation of 
+#' \code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file 
+#' is provided, the function returns a list of the length of the input files, 
+#' each containing the above elements. \cr\cr The sac data format is 
+#' implemented as descibed on the IRIS website 
+#' (https://ds.iris.edu/files/sac-manual/manual/file_format.html).
 #' 
 #' @param file \code{Character} vector, input file name(s), with extension. 
 #' Wildcards may be used (see details and examples).
@@ -29,6 +31,10 @@
 #' @param header \code{Logical} scalar, option to append the header part, 
 #' default is \code{TRUE}.
 #' 
+#' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
+#' object (recommended, see documentation of 
+#' \code{aux_initiateeseis}), default is \code{FALSE}
+#' 
 #' @param endianness \code{Logical} scalar, endianness of the sac file. One
 #' out of \code{"little"}, \code{"big"} and \code{"swap"}. Default 
 #' is \code{"little"}.
@@ -41,19 +47,23 @@
 #' @author Michael Dietze
 #' @examples
 #'
-#' ## Not run - read one file
-#' # file1 <- "~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC"
+#' \dontrun{
+#' ## read one file
+#' file1 <- "~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC"
 #' 
-#' # sac1 <- read_sac(file = file1)
+#' sac1 <- read_sac(file = file1)
 #' 
-#' # signal <- sac1$signal
-#' # time <- sac1$time
+#' signal <- sac1$signal
+#' time <- sac1$time
 #' 
-#' ## Not run - read two (or more files) without meta and header parts
-#' # file2 <- c("~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC",
-#' #            "~/Data/sac/EXMP01.14.213.02.00.00.BHE.SAC")
+#' ## read two (or more files) without meta and header parts
+#' file2 <- c("~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC",
+#'            "~/Data/sac/EXMP01.14.213.02.00.00.BHE.SAC")
 #' 
-#' # sac2 <- read_sac(file = file2, meta = FALSE, header = FALSE)
+#' sac2 <- read_sac(file = file2, 
+#'                  meta = FALSE, 
+#'                  header = FALSE)
+#' }
 #'
 #' @export read_sac
 read_sac <- function(
@@ -63,9 +73,21 @@ read_sac <- function(
   time = TRUE,
   meta = TRUE,
   header = TRUE,
+  eseis = FALSE,
   endianness = "little",
   biglong = FALSE
 ) {
+  
+  ## collect function arguments
+  eseis_arguments <- list(file = file,
+                          append = append,
+                          signal = signal,
+                          time = time,
+                          meta = meta,
+                          header = header,
+                          eseis = eseis,
+                          endianness = endianness,
+                          biglong = biglong)
   
   ## check/select files
   if(sum(grepl(pattern = "[*]", x = file)) > 0) {
@@ -127,10 +149,22 @@ read_sac <- function(
   length_sac[112] <- 16
   
   
-  data_list <- vector(mode = "list", 
-                      length = length(file))
+  if(eseis == TRUE) {
+    
+    data_list <- lapply(X = 1:length(file), 
+                       FUN = function(X) {
+                         eseis::aux_initiateeseis()
+                       })
+  } else {
+    
+    data_list <- vector(mode = "list", 
+                        length = length(file))
+  }
   
   for(j in 1:length(data_list)) {
+    
+    ## get start time
+    t_0 <- Sys.time()
     
     file_read <- file(description = file[j], 
                       open = "rb")
@@ -236,40 +270,81 @@ read_sac <- function(
     ## optionally create time vector
     if(time == TRUE) {
       time_sac <- data.frame(seq(from = time_start, 
-                      by = dt, 
-                      length.out = length(data_sac)))
+                                 by = dt, 
+                                 length.out = length(data_sac)))
       
     }
     
-    
-    data_list[[j]] <- list(signal = data_sac,
-                           time = time_sac,
-                           meta = meta,
-                           header = header)
+    if(eseis == TRUE) {
+      
+      ## calculate function call duration
+      eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                            time2 = t_0, 
+                                            units = "secs"))
+      
+      ## fill eseis object
+      data_list[[j]]$signal <- data_sac
+      data_list[[j]]$meta <- meta
+      data_list[[j]]$header <- header
+      data_list[[j]]$history[[length(data_list[[j]]$history) + 1]] <- 
+        list(time = Sys.time(),
+             call = "read_sac()",
+             arguments = eseis_arguments,
+             duration = eseis_duration)
+      names(data_list[[j]]$history)[length(data_list[[j]]$history)] <- 
+        as.character(length(data_list[[j]]$history))
+      
+    } else {
+      
+      ## fill data object
+      data_list[[j]] <- list(signal = data_sac,
+                             time = time_sac,
+                             meta = meta,
+                             header = header)
+    }
   }
   
-  
+  ## optionally append data sets to first one
   if(append == TRUE) {
     
+    ## concatanate signal vectors
     data_append <- as.numeric(unlist(lapply(X = data_list, FUN = function(x) {
       x$signal
     })))
-
+    
+    ## concatanate time vectors
     time_append <- do.call(rbind, lapply(X = data_list, FUN = function(x) {
       x$time
     }))
     
+    ## assign first data set to output data set
     data_out <- data_list[[1]]
     
+    ## insert appended signal vector in output data set
     data_out$signal <- data_append
-    data_out$time <- time_append[,1]
     
+    if(eseis == FALSE) {
+      
+      ## insert appended time vector in output data set
+      data_out$time <- time_append[,1]
+    }
+    
+    ## update data set length
     data_out$meta$n <- length(data_append)
+    
+    ## update processing duration
+    step_process <- length(data_out$history)
+    data_out$history[[step_process]]$duration <- 
+      as.numeric(difftime(time1 = Sys.time(), 
+                          time2 = data_out$history[[step_process]]$time, 
+                          units = "secs"))
+    
   } else {
     
+    ## assign initial data set to output data set
     data_out <- data_list
   }
-
+  
   ## return data set
   return(data_out)
 }

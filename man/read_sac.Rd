@@ -5,7 +5,7 @@
 \title{Read sac-files.}
 \usage{
 read_sac(file, append = TRUE, signal = TRUE, time = TRUE, meta = TRUE,
-  header = TRUE, endianness = "little", biglong = FALSE)
+  header = TRUE, eseis = FALSE, endianness = "little", biglong = FALSE)
 }
 \arguments{
 \item{file}{\code{Character} vector, input file name(s), with extension. 
@@ -26,6 +26,10 @@ default is \code{TRUE}.}
 \item{header}{\code{Logical} scalar, option to append the header part, 
 default is \code{TRUE}.}
 
+\item{eseis}{\code{Logical} scalar, option to read data to an \code{eseis}
+object (recommended, see documentation of 
+\code{aux_initiateeseis}), default is \code{FALSE}}
+
 \item{endianness}{\code{Logical} scalar, endianness of the sac file. One
 out of \code{"little"}, \code{"big"} and \code{"swap"}. Default 
 is \code{"little"}.}
@@ -42,28 +46,34 @@ This function reads sac-files.
 \details{
 The function reads one or more sac-files. If \code{append = TRUE}, all
 files will be appended to the first one in the order as they are provided. 
-In the append-case the function returns a list of length 4 with the elements 
-\code{signal}, \code{time}, \code{meta} and \code{header}. If 
-\code{append = FALSE} and nmore than one file is provided, the function
-returns a list of the length of the input files, each containing the above
-elements. \cr\cr The sac data format is implemented as descibed on the IRIS
-website (https://ds.iris.edu/files/sac-manual/manual/file_format.html).
+In the append-case the function returns a either a list with the elements 
+\code{signal}, \code{time}, \code{meta} and \code{header} or a list of the 
+class \code{eseis} (see documentation of 
+\code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file 
+is provided, the function returns a list of the length of the input files, 
+each containing the above elements. \cr\cr The sac data format is 
+implemented as descibed on the IRIS website 
+(https://ds.iris.edu/files/sac-manual/manual/file_format.html).
 }
 \examples{
 
-## Not run - read one file
-# file1 <- "~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC"
+\dontrun{
+## read one file
+file1 <- "~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC"
 
-# sac1 <- read_sac(file = file1)
+sac1 <- read_sac(file = file1)
 
-# signal <- sac1$signal
-# time <- sac1$time
+signal <- sac1$signal
+time <- sac1$time
 
-## Not run - read two (or more files) without meta and header parts
-# file2 <- c("~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC",
-#            "~/Data/sac/EXMP01.14.213.02.00.00.BHE.SAC")
+## read two (or more files) without meta and header parts
+file2 <- c("~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC",
+           "~/Data/sac/EXMP01.14.213.02.00.00.BHE.SAC")
 
-# sac2 <- read_sac(file = file2, meta = FALSE, header = FALSE)
+sac2 <- read_sac(file = file2, 
+                 meta = FALSE, 
+                 header = FALSE)
+}
 
 }
 \author{
