@@ -39,4 +39,3 @@ spatial_convert(data = xy,
 Michael Dietze
 }
 \keyword{eseis}
-

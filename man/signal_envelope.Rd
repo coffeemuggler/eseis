@@ -39,4 +39,3 @@ plot(x = t[68000:78000], y = rockfall_envelope[68000:78000], type = "l")
 Michael Dietze
 }
 \keyword{eseis}
-

@@ -29,4 +29,3 @@ The function clips signals based on the correpsonding time vector.
 Michael Dietze
 }
 \keyword{eseis}
-

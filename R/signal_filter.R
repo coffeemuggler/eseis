@@ -123,8 +123,8 @@ signal_filter <- function(
     }
     
     ## apply taper
-    data_out <- stats::spec.taper(x = data_filter, p = p)
-    
+    #data_out <- stats::spec.taper(x = data_filter, p = p)
+    data_out = data_filter
     ## return output
     return(data_out) 
   }

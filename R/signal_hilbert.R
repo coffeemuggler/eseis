@@ -27,22 +27,24 @@ signal_hilbert <- function(
     return(data_out)
   } else {
     
+    ## get length of the data set
+    n <- length(data)
+
     ## create Hilbert vector
-    h <- numeric(length = length(data))
-    
-    ## ceck odd vs. even data length
-    if(length(data) %% 2 == 0) {
-      h[c(1, length(data) / 2 + 1)] <- 1
-      h[2:(length(data) / 2)] <- 2
+    h <- numeric(length = n)
+
+    ## check odd vs. even data length
+    if(n %% 2 == 0) {
+      h[c(1, n / 2 + 1)] <- 1
+      h[2:(n / 2)] <- 2
     }
     else {
       h[1] <- 1
-      h[2:((length(data) + 1) / 2)] <- 2
+      h[2:((n + 1) / 2)] <- 2
     }
     
     ## get Hilbert transform
-    data_out <- stats::fft(h * stats::fft(data), 
-                           inverse = TRUE) / length(data)    
+    data_out <- fftw::IFFT(h * fftw::FFT(data))
     
     ## return hilbert data set
     return(invisible(data_out)) 

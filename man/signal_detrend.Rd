@@ -32,4 +32,3 @@ range(rockfall_detrend)
 Michael Dietze
 }
 \keyword{eseis}
-

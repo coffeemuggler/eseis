@@ -5,14 +5,18 @@
 \title{Calculate topography-corrected distances for seismic waves.}
 \usage{
 spatial_distance(stations, dem, topography = TRUE, cores = 1, dmap = TRUE,
-  dstation = TRUE)
+  dstation = TRUE, aoi)
 }
 \arguments{
 \item{stations}{\code{Numeric} matrix of length two, x- and y-coordinates 
-of the seismic stations to be processed (column-wise orgnaised).}
+of the seismic stations to be processed (column-wise orgnaised).The 
+coordinates must be in metric units, such as the UTM system and 
+match with the reference system of the \code{dem}.}
 
-\item{dem}{\code{raster} object, the digital elevation model to be 
-processed.}
+\item{dem}{\code{raster} object, the digital elevation model (DEM) to be 
+processed. The DEM must be in metric units, such as the UTM system and 
+match with the reference system of the coordinates of \code{stations}. 
+See \code{raster} for supported types and how to read these to R.}
 
 \item{topography}{\code{Logical} scalar, option to enable topography
 correction, default is \code{TRUE}.}
@@ -25,6 +29,10 @@ of distance maps. Default is \code{TRUE}.}
 
 \item{dstation}{\code{Logical} scalar, option to enable/disable calculation
 of interstation distances. Default is \code{TRUE}.}
+
+\item{aoi}{\code{Numeric} vector of length four, bounding coordinates of 
+the area of interest to process, in the form \code{c(x0, x1, y0, y1)}. Only 
+implemented for single core mode (i.e., \code{cores = 1}).}
 }
 \value{
 \code{List} object with distance maps list and station distance 
@@ -42,37 +50,43 @@ of the landscape. The function accounts for this effect and returns the
 corrected travel distance data set.
 }
 \examples{
+\dontrun{
+## load and aggregate example DEM
+data("volcano")
+dem <- raster::raster(volcano)
+dem <- raster::aggregate(x = dem, 2) * 10
+dem@extent <- dem@extent * 1000
+dem@extent <- dem@extent + c(510, 510, 510, 510)
 
-## Too much to run as example, uncomment to run, use own test data
-# ## load and aggregate example DEM
-# data("volcano")
-# dem <- raster::raster(volcano)
-# dem <- raster::aggregate(x = dem, 2) * 10
-# dem@extent <- dem@extent * 1000
-# dem@extent <- dem@extent + c(510, 510, 510, 510)
-# 
-# ## define example stations
-# stations <- cbind(c(200, 700), c(220, 700))
-# 
-# ## plot example data
-# raster::plot(dem)
-# points(stations[,1], stations[,2])
-# 
-# ## calculate distance matrices and stations distances
-# D <- spatial_distance(stations = stations, 
-#                       dem = dem, 
-#                       topography = TRUE, 
-#                       cores = 1)
-# 
-# ## plot distance matrices
-# raster::plot(D$maps[[2]])
-# 
-# ## show station distance matrix
-# print(D$stations)
-                     
+## define example stations
+stations <- cbind(c(200, 700), c(220, 700))
+
+## plot example data
+raster::plot(dem)
+points(stations[,1], stations[,2])
+
+## calculate distance matrices and stations distances
+D <- spatial_distance(stations = stations, 
+                      dem = dem, 
+                      topography = TRUE, 
+                      cores = 1)
+
+## plot distance map for station 2
+raster::plot(D$maps[[2]])
+
+## show station distance matrix
+print(D$stations)
+
+## run with small aoi
+D <- spatial_distance(stations = stations, 
+                      dem = dem, 
+                      topography = TRUE, 
+                      cores = 1, 
+                      aoi = c(400, 600, 600, 800))
+} 
+                                          
 }
 \author{
 Michael Dietze
 }
 \keyword{eseis}
-

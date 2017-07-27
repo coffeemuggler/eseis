@@ -3,6 +3,8 @@
 #' The function returns the list of supported data loggers to extract signal 
 #' deconvolution parameters.
 #' 
+#' The value AD is the analogue-digital conversion factor.
+#' 
 #' @return \code{List} object, supported loggers with their parameters.
 #' @author Michael Dietze
 #' @keywords eseis

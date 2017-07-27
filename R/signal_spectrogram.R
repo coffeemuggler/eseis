@@ -1,7 +1,10 @@
 #' Calculate spectrograms (power spectral density estimates) from time series.
 #' 
 #' This function creates spectrograms from seismic signals. It supports the
-#' standard spectrogram apporach, multitaper, and the Welch method.
+#' standard spectrogram approach, multitaper, and the Welch method.
+#' 
+#' Data containing \code{NA} values is replaced by zeros and set to NA in the 
+#' output data set.
 #' 
 #' @param data \code{Numeric} vector or list of vectors, seismic signal to 
 #' be processed.
@@ -15,14 +18,14 @@
 #' @param Welch \code{Logical} scalar, option to use the Welch method for
 #' calcualtions.
 #' 
-#' @param window \code{Numeric} scalar, time window length used to 
-#' calculate individual spectrae. Set to 1 percent of the time series length 
+#' @param window \code{Numeric} scalar, time window length in seconds used to 
+#' calculate individual spectra. Set to 1 percent of the time series length 
 #' by default.
 #' 
 #' @param overlap \code{Numeric} scalar, fraction of window overlap.
 #' 
-#' @param window_sub \code{Numeric} scalar, length of the sub-window used 
-#' to calculate spectrae. Only relevant if \code{Welch = TRUE}. If omitted, 
+#' @param window_sub \code{Numeric} scalar, length of the sub-window in seconds 
+#' used to calculate spectrae. Only relevant if \code{Welch = TRUE}. If omitted, 
 #' the sub-window length is set to 10 percent of the main window length.
 #' 
 #' @param overlap_sub \code{Numeric} scalar, fraction of sub-window overlap.
@@ -39,7 +42,7 @@
 #' by setting to 1. Default is 1.
 #' 
 #' @param plot \code{logical} scalar, toggle plot output. Default is
-#' \code{FALSE}.
+#' \code{FALSE}. For more customised plotting see \code{plot_spectrogram()}.
 #' 
 #' @return \code{List} with spectrogram matrix, time and frequency vectors.
 #' @author Michael Dietze
@@ -48,9 +51,39 @@
 #' @keywords eseis
 #' @examples
 #' 
-#' ## TO BE ADDED LATER
-#' # not run
-#'                      
+#' ## load example data set
+#' data("earthquake")
+#' 
+#' ## calculate and plot PSD straight away
+#' P <- signal_spectrogram(data = s$BHZ, 
+#'                                time = t, 
+#'                                dt = 1 / 200, 
+#'                                plot = TRUE)
+#' 
+#' ## calculate and plot PSD with defined window sizes and the Welch method
+#' P <- signal_spectrogram(data = s$BHZ, 
+#'                                time = t, 
+#'                                dt = 1 / 200, 
+#'                                window = 5, 
+#'                                overlap = 0.9, 
+#'                                window_sub = 3, 
+#'                                overlap_sub = 0.9, 
+#'                                Welch = TRUE,
+#'                                plot = TRUE)
+#'                                
+#' ## calculate and plot PSD with even smaller window sizes, the Welch
+#' ## method and using multitapers, uncomment to use.
+#' # P <- signal_spectrogram(data = s$BHZ, 
+#' #                                time = t, 
+#' #                                dt = 1 / 200, 
+#' #                                window = 2, 
+#' #                                overlap = 0.9, 
+#' #                                window_sub = 1, 
+#' #                                overlap_sub = 0.9, 
+#' #                                Welch = TRUE,
+#' #                                multitaper = TRUE,
+#' #                                plot = TRUE)
+#'                       
 #' @export signal_spectrogram
 signal_spectrogram <- function(
   data,
@@ -91,7 +124,7 @@ signal_spectrogram <- function(
     return(data_out)
   } else {
     
-    ## missing dt value
+    ## handle missing dt value
     if(missing(dt) == TRUE) {
       
       if(missing(time) == TRUE) {
@@ -117,7 +150,7 @@ signal_spectrogram <- function(
       }
     }
     
-    ## missing time vector
+    ## handle missing time vector
     if(missing(time) == TRUE) {
       
       time <- seq(from = as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
@@ -129,17 +162,22 @@ signal_spectrogram <- function(
       print("No or non-POSIXct time data provided. Default data generated!")
     }
     
-    ## missing window length
+    ## handle missing window length
     if(missing(window) == TRUE) {
       
       window <- 0.01 * length(time) * dt
     }
     
-    ## missing sub-window length
+    ## handle missing sub-window length
     if(Welch == TRUE & missing(window_sub) == TRUE) {
       
       window_sub <- 0.1 * window
     }
+    
+    ## identify NA values
+    i_na <- is.na(data)
+    
+    data[i_na] <- 0
     
     ## CALCULATION PART -------------------------------------------------------
     
@@ -178,12 +216,13 @@ signal_spectrogram <- function(
                                                length_window - 1)]
     }
     
-    ## define generic function to get spectrae
+    ## define generic function to get spectra
     spec_generic <- function(x) {
       
       try(spectrum(x = x, 
                    plot = FALSE)$spec,
           silent = TRUE)
+      
     }
     
     ## define multitaper function to get spectrae
@@ -248,7 +287,7 @@ signal_spectrogram <- function(
       S_welch <- do.call(cbind, S_welch)
       
       ## calculate mean
-      s_mean <- rowMeans(S_welch)
+      s_mean <- rowMeans(S_welch, na.rm = TRUE)
       
       ## return output
       return(s_mean)
@@ -360,6 +399,22 @@ signal_spectrogram <- function(
     ## assign row- and col-names
     rownames(S) <- f_spectrum
     colnames(S) <- t_spectrum
+    
+    ## reset NA-affected parts to NA
+    if(sum(i_na) > 0) {
+      
+      i_na_diff <- diff(i_na)
+      t_na_start <- time[i_na_diff == 1] - window
+      t_na_stop <- time[i_na_diff == -1]
+      
+      t_na <- data.frame(t_na_start = t_na_start, 
+                         t_na_stop = t_na_stop)
+      
+      for(i in 1:length(t_na)) {
+        
+        S[,t_spectrum >= t_na[i,1] & t_spectrum <= t_na[i,2]] <- NA
+      }
+    }
     
     ## assign output
     S <- list(S = S,

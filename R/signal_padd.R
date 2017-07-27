@@ -38,7 +38,8 @@ signal_padd <- function(
   } else {
     
     ## get number of samples to reach next highest power two length 
-    n <- 2^ceiling(x = log(x = length(data), base = 2))
+    #n <- 2^ceiling(x = log(x = length(data), base = 2))
+    n <- stats::nextn(n = length(data), factors = 2)
     
     ## create output vector
     data_out <- rep(x = 0, times = n)

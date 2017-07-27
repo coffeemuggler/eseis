@@ -5,7 +5,8 @@
 \title{Convert cube files to mseed or sac files and organise in directory structure.}
 \usage{
 aux_organisecubefiles(stationfile, input_dir, output_dir, format = "sac",
-  channel_name = "bh", cpu, gipptools)
+  channel_name = "bh", cpu, fringe = "constant", verbose = FALSE,
+  gipptools)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 
@@ -26,6 +27,13 @@ of \code{"bh"} and \code{"p"}. Default is \code{"bh"}.}
 
 \item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel 
 processing. If omitted, one CPU is used.}
+
+\item{fringe}{\code{Character} value, option to handle data outside the 
+GPS-tagged time span. One out of \code{"skip"}, \code{"nominal"} or 
+\code{"constant"}. Default is \code{"constant"}.}
+
+\item{verbose}{\code{Logical} value, option to enable extended screen 
+output of cubetools operations. Default is \code{FALSE}.}
 
 \item{gipptools}{\code{Character} value, path to gipptools or cubetools 
 directory.}
@@ -88,4 +96,3 @@ appropriate structure would be something like: \cr
 Michael Dietze
 }
 \keyword{eseis}
-

@@ -5,7 +5,9 @@
 #' 
 #' Poles and zeros must be given in rad/s. Characteristics of further 
 #' sensors can be added manually. See examples of \code{signal_deconvolve}
-#' for further information.
+#' for further information. The value s is the generator constant 
+#' (sensitivity) given in Vs/m. The value k is the normalisation factor of 
+#' the sensor.
 #' 
 #' @return \code{List} object, supported sensors with their parameters.
 #' @author Michael Dietze
@@ -272,7 +274,7 @@ list_sensor <- function(
                          -15.88-23.43i)),
     zeros = as.complex(c(0.0+0.0i,
                          0.0+0.0i)),
-    s = 1,
+    s = 28.8,
     k = 1)
   
   

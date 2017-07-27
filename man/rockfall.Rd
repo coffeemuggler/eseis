@@ -3,14 +3,16 @@
 \docType{data}
 \name{rockfall}
 \alias{rockfall}
-\title{example data}
+\title{Seismic trace of a rockfall event.}
 \format{The format is: num [1:98400] 65158 65176 65206 65194 65155 ...}
-\description{
-Seismic trace of a rockfall event.
+\usage{
+rockfall
 }
-\details{
-The dataset comprises the seismic signal (vertical component) of a rockfall
-event, preceeded by an earthquake.
+\description{
+The dataset comprises the seismic signal (vertical component) of 
+a rockfall event, preceeded by an earthquake. The data have been
+recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
+data logger.
 }
 \examples{
 
@@ -22,4 +24,3 @@ plot(x = t, y = rockfall, type = "l")
 
 }
 \keyword{datasets}
-

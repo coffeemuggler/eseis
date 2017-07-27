@@ -2,6 +2,14 @@
 #' 
 #' The function removes the instrument response from a signal vector.
 #' 
+#' The function requires a set of input parameters, apart from the signal 
+#' vector. These parameters are contained in and read from the function 
+#' \code{list_sensor()} and \code{list_logger()}. Poles and zeros are used 
+#' to build the transfer function. The value s is the generator constant in 
+#' Vs/m. The value k is the normalisation factor. AD is the analogue-digital 
+#' conversion factor. If the signal was recorded with a gain value other than 
+#' 1, the resulting signal needs to be corrected for this, as well.
+#' 
 #' @param data \code{Numeric} vector or list of vectors, input signal vector.
 #' 
 #' @param dt \code{Numeric} scalar, sampling rate.
@@ -14,6 +22,9 @@
 #' @param logger \code{Character} scalar, seismic logger name. Must be 
 #' present in the logger library (\code{list_logger}) or parameters must be
 #' added manually. Default is \code{"Cube"}.
+#' 
+#' @param gain \code{Numeric} value, signal gain level of the logger. Default 
+#' is \code{1}.
 #' 
 #' @param p \code{Numeric} scalar, proportion of signal to be tapered. Default
 #' is\code{10^-6}.
@@ -71,6 +82,7 @@ signal_deconvolve <- function(
   dt,
   sensor = "TC120s",
   logger = "Cube3extBOB",
+  gain = 1,
   p = 10^-6,
   waterlevel = 10^-6
 ) {
@@ -84,6 +96,7 @@ signal_deconvolve <- function(
                        dt = dt,
                        sensor = sensor,
                        logger = logger,
+                       gain = gain,
                        p = p,
                        waterlevel = waterlevel)
     
@@ -139,6 +152,9 @@ signal_deconvolve <- function(
     
     AD <- logger$AD
     
+    ## apply gain correction
+    data <- data / gain
+    
     ## detrend data set
     data_detrend <- signal_detrend(data = data)
     
@@ -165,7 +181,8 @@ signal_deconvolve <- function(
     }  
     
     ## calculate Fourier transform
-    x_fft <- stats::fft(z = data_padd)
+    x_fft <- fftw::FFT(x = data_padd)
+    
     
     ## get polynomial form of poles and zeros
     poles_poly <- Re(signal::poly(x = poles))
@@ -187,8 +204,8 @@ signal_deconvolve <- function(
     rm(x_fft)
     
     ## invert deconvolved signal
-    data_inverse <- Re(stats::fft(data_decon, 
-                                  inverse = TRUE) / length(data_decon))
+    data_inverse <- Re(fftw::IFFT(x = data_decon, 
+                                  inverse = TRUE))
     rm(data_decon)
     
     ## correct for A/D-ratio and sensitivity factor

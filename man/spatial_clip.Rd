@@ -33,4 +33,3 @@ The function replaces raster values based on different thresholds.
 Michael Dietze
 }
 \keyword{eseis}
-

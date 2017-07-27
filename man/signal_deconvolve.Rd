@@ -5,7 +5,7 @@
 \title{Deconvolve a signal vector.}
 \usage{
 signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3extBOB",
-  p = 10^-6, waterlevel = 10^-6)
+  gain = 1, p = 10^-6, waterlevel = 10^-6)
 }
 \arguments{
 \item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
@@ -21,6 +21,9 @@ examples). Default is \code{"TC120s"}.}
 present in the logger library (\code{list_logger}) or parameters must be
 added manually. Default is \code{"Cube"}.}
 
+\item{gain}{\code{Numeric} value, signal gain level of the logger. Default 
+is \code{1}.}
+
 \item{p}{\code{Numeric} scalar, proportion of signal to be tapered. Default
 is\code{10^-6}.}
 
@@ -32,6 +35,15 @@ division, default is \code{10^-6}.}
 }
 \description{
 The function removes the instrument response from a signal vector.
+}
+\details{
+The function requires a set of input parameters, apart from the signal 
+vector. These parameters are contained in and read from the function 
+\code{list_sensor()} and \code{list_logger()}. Poles and zeros are used 
+to build the transfer function. The value s is the generator constant in 
+Vs/m. The value k is the normalisation factor. AD is the analogue-digital 
+conversion factor. If the signal was recorded with a gain value other than 
+1, the resulting signal needs to be corrected for this, as well.
 }
 \examples{
 
@@ -79,4 +91,3 @@ Centaur_10V$AD <- 20/(2^24)
 Michael Dietze
 }
 \keyword{eseis}
-

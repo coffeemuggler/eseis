@@ -47,4 +47,3 @@ rockfall_int <- signal_integrate(data = rockfall_decon,
 Michael Dietze
 }
 \keyword{eseis}
-
