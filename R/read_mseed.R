@@ -1,6 +1,15 @@
-#' Read sac-files.
+#' Read mseed-files.
 #'
-#' This function reads sac-files.
+#' This function reads mseed-files. If \code{append = TRUE}, all
+#' files will be appended to the first one in the order as they are provided. 
+#' In the append-case the function returns a either a list with the elements 
+#' \code{signal}, \code{time}, \code{meta} and \code{header} or a list of the 
+#' class \code{eseis} (see documentation of 
+#' \code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file 
+#' is provided, the function returns a list of the length of the input files, 
+#' each containing the above elements. \cr\cr The mseed data format is read 
+#' using the function \code{readMiniseedFile} from the 
+#' package \code{IRISSeismic}.
 #'
 #' @param file \code{Character} vector, input file name(s), with extension. 
 #' Wildcards may be used (see details and examples).
@@ -20,31 +29,27 @@
 #' @param header \code{Logical} scalar, option to append the header part, 
 #' default is \code{TRUE}.
 #' 
-#' The function reads one or more mseed-files. If \code{append = TRUE}, all
-#' files will be appended to the first one in the order as they are provided. 
-#' In the append-case the function returns a list of length 4 with the elements 
-#' \code{signal}, \code{time}, \code{meta} and \code{header}. If 
-#' \code{append = FALSE} and nmore than one file is provided, the function
-#' returns a list of the length of the input files, each containing the above
-#' elements. \cr\cr The mseed data format is read using the function 
-#' \code{readMiniseedFile} from the package \code{IRISSeismic}.
+#' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
+#' object (recommended, see documentation of 
+#' \code{aux_initiateeseis}), default is \code{FALSE}
 #' 
 #' @return \code{List} object.
 #' @author Michael Dietze
 #' @examples
 #'
-#' ## Not run - uncomment to run
+#'\dontrun{
 #' ## read mseed file with default options
-#' # x <- read_mseed(file = "input.miniseed")
+#' x <- read_mseed(file = "input.miniseed")
 #' 
 #' ## read mseed file, only signal trace
-#' # x <- read_mseed(file = "input.miniseed", 
-#' #                 time = FALSE, 
-#' #                 meta = FALSE, 
-#' #                 header = FALSE)
+#' x <- read_mseed(file = "input.miniseed", 
+#'                 time = FALSE, 
+#'                 meta = FALSE, 
+#'                 header = FALSE)
 #'                 
 #' ## read more than one mseed files and append traces
-#' # x <- read_mseed(file = c("input_1.miniseed", "input_2.miniseed"))
+#' x <- read_mseed(file = c("input_1.miniseed", "input_2.miniseed"))
+#' }
 #'
 #' @export read_mseed
 read_mseed <- function(
@@ -53,8 +58,21 @@ read_mseed <- function(
   signal = TRUE,
   time = TRUE,
   meta = TRUE,
-  header = TRUE
+  header = TRUE,
+  eseis = FALSE
 ) {
+  
+  ## collect function arguments
+  eseis_arguments <- list(file = file,
+                          append = append,
+                          signal = signal,
+                          time = time,
+                          meta = meta,
+                          header = header,
+                          eseis = eseis)
+  
+  ## get start time
+  t_0 <- Sys.time()
   
   ## check/select files
   if(sum(grepl(pattern = "[*]", x = file)) > 0) {
@@ -184,15 +202,47 @@ read_mseed <- function(
     }
   }
   
-  ## assign all data to output object
-  data_out <- vector(mode = "list", length = length(data))
+  ## create output object
+  if(eseis == TRUE) {
+    
+    data_out <- lapply(X = 1:length(file), 
+                        FUN = function(X) {
+                          eseis::aux_initiateeseis()
+                        })
+  } else {
+    
+    data_out <- vector(mode = "list", 
+                        length = length(file))
+  }
   
   for(i in 1:length(data_out)) {
     
-    data_out[[i]] <- list(signal = signal_list[[i]],
-                          time = time_list[[i]],
-                          meta = meta_list[[i]],
-                          header = header_list[[i]])
+    if(eseis == TRUE) {
+      
+      ## calculate function call duration
+      eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                            time2 = t_0, 
+                                            units = "secs"))
+      
+      ## fill eseis object
+      data_out[[i]]$signal <- signal_list[[i]]
+      data_out[[i]]$meta <- meta_list[[i]]
+      data_out[[i]]$header <- header_list[[i]]
+      data_out[[i]]$history[[length(data_out[[j]]$history) + 1]] <- 
+        list(time = Sys.time(),
+             call = "read_mseed()",
+             arguments = eseis_arguments,
+             duration = eseis_duration)
+      names(data_out[[i]]$history)[length(data_out[[i]]$history)] <- 
+        as.character(length(data_out[[i]]$history))
+      
+    } else {
+      
+      ## fill data object
+      data_out[[i]] <- list(signal = signal_list[[i]],
+                            time = time_list[[i]],
+                            meta = meta_list[[i]],
+                            header = header_list[[i]])    }
   }
   
   ## optionally append data
