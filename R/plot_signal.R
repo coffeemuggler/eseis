@@ -3,6 +3,12 @@
 #' This function plots a line graph of a seismic signal. To avoid long plot 
 #' times the signal is reduced to a given number of points.
 #' 
+#' The \code{format} argument is based on hints provided by Sebastian 
+#' Kreutzer and Christoph Burow. It allows plotting time axis units in 
+#' user defined formats. The time format must be provided as character string 
+#' using the POSIX standard (see documentation of \code{strptime} for a list 
+#' of available keywords), e.g., "%H:%M:%S" for hour:minute:second.
+#' 
 #' @param data \code{Numeric} vector to plot.
 #' 
 #' @param time \code{POSIXct} vector, corresponding time vector.
@@ -83,6 +89,16 @@ plot_signal <- function(
     format <- ""
   }
   
+  ## remove keywords
+  keywords <- c("format")
+  args <- args[!names(args)%in%keywords]
+  
+  ## account for data sets smaller than n
+  if(length(data) < n) {
+    
+    n <- length(data)
+  }
+  
   ## get NA values to padd data set
   n_padd <- ceiling(x = length(data) / n) * n - length(data)
   
@@ -115,25 +131,27 @@ plot_signal <- function(
   ## make pairs of time vector subsets
   t_plot <- rep(t_padd[i], each = 2)
   
+  
   ## generate plot
-  graphics::plot(t_plot, 
-                 s_plot, 
-                 type = type, 
-                 xlab = xlab,
-                 ylab = ylab,
-                 axes = FALSE,
-                 ...)
+  do.call(what = graphics::plot, 
+          args = c(list(t_plot, 
+                        s_plot, 
+                        type = type, 
+                        xlab = xlab,
+                        ylab = ylab,
+                        axes = FALSE), 
+                   args))
   
   ## add box
-  box(which = "plot")
+  graphics::box(which = "plot")
   
   ## optionally add axes
   if(axes == TRUE) {
     
-    axis.POSIXct(side = 1, 
-                 x = t_plot, 
-                 format = format)
+    graphics::axis.POSIXct(side = 1, 
+                           x = t_plot, 
+                           format = format)
     
-    axis(side = 2)
+    graphics::axis(side = 2)
   }
 }

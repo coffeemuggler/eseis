@@ -23,6 +23,13 @@ A line plot.
 This function plots a line graph of a seismic signal. To avoid long plot 
 times the signal is reduced to a given number of points.
 }
+\details{
+The \code{format} argument is based on hints provided by Sebastian 
+Kreutzer and Christoph Burow. It allows plotting time axis units in 
+user defined formats. The time format must be provided as character string 
+using the POSIX standard (see documentation of \code{strptime} for a list 
+of available keywords), e.g., "%H:%M:%S" for hour:minute:second.
+}
 \examples{
 
 ## load example data set

@@ -14,7 +14,7 @@
 #' @docType package
 #' @author Michael Dietze
 #' @keywords Environmental Seismology, signal processing
-#' @importFrom graphics image axis axis.POSIXct box
+#' @importFrom graphics image plot axis axis.POSIXct box
 #' @importFrom stats ccf spec.taper spectrum filter spec.pgram spec.ar median nextn
 #' @importFrom methods as new
 #' @importFrom Rcpp evalCpp
