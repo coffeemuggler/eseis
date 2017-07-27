@@ -2,23 +2,24 @@
 % Please edit documentation in R/signal_aggregate.R
 \name{signal_aggregate}
 \alias{signal_aggregate}
-\title{Aggregate a time series}
+\title{Aggregate a signal vector}
 \usage{
 signal_aggregate(data, n = 2)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, data set to be 
-processed.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{n}{\code{Numeric} scalar, number of samples to be aggregated to one
 new data value. Must be an integer value greater than 1. Default is 
 \code{2}.}
 }
 \value{
-\code{Numeric} vector or list of vectors, aggregated data.
+Aggregated data set.
 }
 \description{
-The time series \code{x} is aggregated by an integer factor \code{n}.
+The signal vector \code{data} is aggregated by an integer factor \code{n}.
+If an \code{eseis} object is provided, the meta data is updated.
 }
 \examples{
 
