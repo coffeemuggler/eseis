@@ -1,6 +1,6 @@
 Changes for R-package eseis
 
-Version 0.3.2 (TO BE SET)
+Version 0.3.2 (2017-07-24)
   - inherited internal issues without relevance for functionality solved
   - function aux_loadevent() added
   - function plot_components() added
