@@ -7,7 +7,8 @@
 signal_demean(data)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 }
 \value{
 \code{Numeric} vector or list of vectors, data set with mean 

@@ -7,7 +7,8 @@
 signal_filter(data, dt, f, type, shape = "butter", order = 2, p = 0)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{dt}{\code{Numeric} scalar, sampling period. If omitted, \code{dt} 
 is set to 1/200.}

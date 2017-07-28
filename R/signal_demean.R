@@ -2,7 +2,8 @@
 #' 
 #' The function removes the mean from a signal vector.
 #' 
-#' @param data \code{Numeric} vector or list of vectors, input signal vector.
+#' @param data \code{eseis} object, \code{numeric} vector or list of 
+#' objects, data set to be processed.
 #' 
 #' @return \code{Numeric} vector or list of vectors, data set with mean 
 #' subtracted.

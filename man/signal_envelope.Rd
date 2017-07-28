@@ -7,7 +7,8 @@
 signal_envelope(data, p = 0)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{p}{\code{Numeric} scalar, proportion of the signal to be tapered,
 default is \code{10^-6}.}

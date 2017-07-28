@@ -8,7 +8,8 @@ signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3extBOB",
   gain = 1, p = 10^-6, waterlevel = 10^-6)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{dt}{\code{Numeric} scalar, sampling rate.}
 

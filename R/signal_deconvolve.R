@@ -10,7 +10,8 @@
 #' conversion factor. If the signal was recorded with a gain value other than 
 #' 1, the resulting signal needs to be corrected for this, as well.
 #' 
-#' @param data \code{Numeric} vector or list of vectors, input signal vector.
+#' @param data \code{eseis} object, \code{numeric} vector or list of 
+#' objects, data set to be processed.
 #' 
 #' @param dt \code{Numeric} scalar, sampling rate.
 #' 
