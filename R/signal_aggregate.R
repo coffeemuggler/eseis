@@ -16,10 +16,11 @@
 #' @examples
 #' 
 #' ## load example data set
-#' data(rockfall, envir = environment())
+#' data(rockfall)
 #' 
 #' ## aggregate signal by factor 4 (i.e., dt goes from 1/200 to 1/50)
-#' rockfall_agg <- signal_aggregate(data = rockfall, n = 4)
+#' rockfall_agg <- signal_aggregate(data = rockfall_z, 
+#'                                  n = 4)
 #' 
 #' ## create example data set
 #' s <- 1:10
@@ -64,24 +65,24 @@ signal_aggregate <- function(
   n = 2
 ) {
   
-  ## get start time
-  t_0 <- Sys.time()
-  
-  ## collect function arguments
-  eseis_arguments <- list(data = "",
-                          n = n)
-  
   ## check data structure
   if(class(data) == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
-                       FUN = eseis::signal_aggregate, 
+                       FUN = eseis::signal_aggregate,
                        n = n)
     
     ## return output
     return(data_out)
   } else {
+    
+    ## get start time
+    t_0 <- Sys.time()
+    
+    ## collect function arguments
+    eseis_arguments <- list(data = "",
+                            n = n)
     
     ## check aggregation factor
     if(signif(n) != n) {
@@ -180,7 +181,7 @@ signal_aggregate <- function(
       ## update object history
       eseis_data$history[[length(eseis_data$history) + 1]] <- 
         list(time = Sys.time(),
-             call = "read_sac()",
+             call = "signal_aggregate()",
              arguments = eseis_arguments,
              duration = eseis_duration)
       names(eseis_data$history)[length(eseis_data$history)] <- 
@@ -191,6 +192,6 @@ signal_aggregate <- function(
     }
     
     ## return output
-    return(data_agg) 
+    return(data_agg)
   }
 }

@@ -20,7 +20,7 @@
 #' data(rockfall)
 #' 
 #' ## remove mean from data set
-#' rockfall <- signal_demean(data = rockfall)
+#' rockfall <- signal_demean(data = rockfall_z)
 #' 
 #' ## create artefact at the beginning
 #' rockfall[1:100] <- runif(n = 100, min = -5000, max = 5000)

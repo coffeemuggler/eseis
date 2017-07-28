@@ -22,14 +22,14 @@ The function removes the mean from a signal vector.
 data(rockfall)
 
 ## remove mean from data set
-rockfall_demean <- signal_demean(data = rockfall)
+rockfall_demean <- signal_demean(data = rockfall_z)
 
 ## compare data ranges
-range(rockfall)
+range(rockfall_z)
 range(rockfall_demean)
 
-## chow mean of initial signal
-mean(rockfall)
+## show mean of initial signal
+mean(rockfall_z)
                      
 }
 \author{

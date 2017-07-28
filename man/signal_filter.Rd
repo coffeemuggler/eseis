@@ -42,7 +42,7 @@ The function filters the input signal vector.
 data(rockfall)
 
 ## filter data set by bandpass filter between 1 and 90 Hz
-rockfall_bp <- signal_filter(data = rockfall, 
+rockfall_bp <- signal_filter(data = rockfall_z, 
                              f = c(1, 90), 
                              dt = 1/200)
                              
@@ -50,7 +50,7 @@ rockfall_bp <- signal_filter(data = rockfall,
 rockfall_bp <- signal_taper(data = rockfall_bp, n = 2000)
 
 ## plot filtered signal
-plot(x = t[68000:78000], 
+plot(x = rockfall_t[68000:78000], 
      y = rockfall_bp[68000:78000], 
      type = "l")
                      

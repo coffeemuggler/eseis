@@ -24,10 +24,11 @@ If an \code{eseis} object is provided, the meta data is updated.
 \examples{
 
 ## load example data set
-data(rockfall, envir = environment())
+data(rockfall)
 
 ## aggregate signal by factor 4 (i.e., dt goes from 1/200 to 1/50)
-rockfall_agg <- signal_aggregate(data = rockfall, n = 4)
+rockfall_agg <- signal_aggregate(data = rockfall_z, 
+                                 n = 4)
 
 ## create example data set
 s <- 1:10

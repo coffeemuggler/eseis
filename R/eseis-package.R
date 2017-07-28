@@ -40,17 +40,20 @@ NULL
 #' ## load example data set
 #' data(rockfall)
 #' 
-#' ## plot signal vector
-#' plot(x = t, y = rockfall, type = "l")
+#' ## plot signal vector using base functionality
+#' plot(x = rockfall_t, y = rockfall_z, type = "l")
 #' 
-"rockfall"
+#' ## plot signal vector using the package plot function
+#' plot_signal(data = rockfall_z, time = rockfall_t)
+#' 
+"rockfall_z"
 
 #' Time vector of a rockfall event.
 #' 
 #' The dataset comprises the time vector corresponding the to seismic signal
 #' of the rockfall event from the example data set "rockfall".
 #' 
-#' @name t
+#' @name rockfall
 #' @docType data
 #' @format The format is: POSIXct[1:98400], format: "2015-04-06 13:16:54" ...
 #' @keywords datasets
@@ -59,7 +62,31 @@ NULL
 #' ## load example data set
 #' data(rockfall)
 #' 
-"t"
+"rockfall_t"
+
+#' An eseis object of a rockfall event.
+#' 
+#' The dataset comprises the seismic signal (vertical component) of 
+#' a rockfall event, preceeded by an earthquake. The data have been
+#' recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
+#' data logger.
+#' 
+#' @name rockfall
+#' @docType data
+#' @format List of 4
+#'          $ signal : num [1:98399] 65211 65192 65158 65176 65206 ...
+#'          $ meta   :List of 12
+#'           ..$ station  : chr "789     "
+#'           ..$ network  : chr "XX      "
+#'           ..$ component: chr "p0      "
+#'           ..$ n        : int 98399
+#' @keywords datasets
+#' @examples
+#' 
+#' ## load example data set
+#' data(rockfall)
+#' 
+"rockfall_eseis"
 
 #' Seismic traces of a small earthquake
 #' 
@@ -84,3 +111,19 @@ NULL
 #' plot(x = t, y = s$BHZ, type = "l")
 #' 
 "s"
+
+#' Time vector for seismic traces of a small earthquake
+#' 
+#' The dataset comprises the time vector associated with the data set
+#' \code{earthquake}.
+#' 
+#' @name earthquake
+#' @docType data
+#' @format The format is: POSIXct[1:98400], format: "2015-04-06 13:16:54" ...
+#' @keywords datasets
+#' @examples
+#' 
+#' ## load example data set
+#' data(earthquake)
+#' 
+"t"

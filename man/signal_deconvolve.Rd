@@ -51,13 +51,13 @@ conversion factor. If the signal was recorded with a gain value other than
 data(rockfall)
 
 ## deconvolve signal
-rockfall_decon <- signal_deconvolve(data = rockfall,
+rockfall_decon <- signal_deconvolve(data = rockfall_z,
                                     dt = 1/200, 
                                     sensor = "TC120s", 
                                     logger = "Cube3ext")
 
 ## plot time series
-plot(x = t, 
+plot(x = rockfall_t, 
      y = rockfall_decon, 
      main = "Rockfall, deconvolved signal", 
      ylab = "m/s", 
@@ -72,7 +72,7 @@ logger_new$name <- "logger_new"
 logger_new$AD <- 2.4414e-07
 
 ## deconvolve signal with new logger
-rockfall_decon <- signal_deconvolve(data = rockfall,
+rockfall_decon <- signal_deconvolve(data = rockfall_z,
                                     dt = 1/200, 
                                     sensor = "TC120s", 
                                     logger = logger_new)

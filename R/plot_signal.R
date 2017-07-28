@@ -30,10 +30,10 @@
 #' data(rockfall)
 #' 
 #' ## plot data set straightforward
-#' plot_signal(data = rockfall, time = t)
+#' plot_signal(data = rockfall_z, time = rockfall_t)
 #' 
 #' ## plot data set with lower resolution
-#' plot_signal(data = rockfall, time = t, n = 100)
+#' plot_signal(data = rockfall_z, time = rockfall_t, n = 100)
 #' 
 #' @export plot_signal
 #' 

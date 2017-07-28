@@ -40,17 +40,17 @@ long-term-average of the input signal.
 data(rockfall)
 
 ## filter signal
-sf <- signal_filter(data = rockfall, 
+sf <- signal_filter(data = rockfall_z, 
                     dt = 1/200, 
                     f = c(1, 90), 
                     p = 0.05)
                     
 ## calculate signal envelope
-e <- signal_envelope(data = sf)
+rockfall_e <- signal_envelope(data = sf)
 
 ## pick earthquake and rockfall event
-signal_stalta(data = e, 
-              time = t, 
+signal_stalta(data = rockfall_e, 
+              time = rockfall_t, 
               sta = 100, 
               lta = 18000, 
               freeze = TRUE, 

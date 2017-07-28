@@ -152,9 +152,9 @@ read_sac <- function(
   if(eseis == TRUE) {
     
     data_list <- lapply(X = 1:length(file), 
-                       FUN = function(X) {
-                         eseis::aux_initiateeseis()
-                       })
+                        FUN = function(X) {
+                          eseis::aux_initiateeseis()
+                        })
   } else {
     
     data_list <- vector(mode = "list", 
@@ -323,7 +323,15 @@ read_sac <- function(
     ## insert appended signal vector in output data set
     data_out$signal <- data_append
     
-    if(eseis == FALSE) {
+    if(eseis == TRUE) {
+      
+      ## update processing duration
+      step_process <- length(data_out$history)
+      data_out$history[[step_process]]$duration <- 
+        as.numeric(difftime(time1 = Sys.time(), 
+                            time2 = data_out$history[[step_process]]$time, 
+                            units = "secs"))
+    } else {
       
       ## insert appended time vector in output data set
       data_out$time <- time_append[,1]
@@ -331,13 +339,6 @@ read_sac <- function(
     
     ## update data set length
     data_out$meta$n <- length(data_append)
-    
-    ## update processing duration
-    step_process <- length(data_out$history)
-    data_out$history[[step_process]]$duration <- 
-      as.numeric(difftime(time1 = Sys.time(), 
-                          time2 = data_out$history[[step_process]]$time, 
-                          units = "secs"))
     
   } else {
     

@@ -28,10 +28,13 @@
 #' data(rockfall)
 #' 
 #' ## deconvolve signal
-#' rockfall <- signal_deconvolve(data = rockfall, dt = 1/200)
+#' rockfall <- signal_deconvolve(data = rockfall_z, 
+#'                               dt = 1/200)
 #' 
 #' ## calculate spectrogram
-#' PSD <- signal_spectrogram(data = rockfall, time = t, dt = 1/200)
+#' PSD <- signal_spectrogram(data = rockfall_z, 
+#'                           time = rockfall_t, 
+#'                           dt = 1/200)
 #' 
 #' ## plot spectrogram
 #' plot_spectrogram(data = PSD)

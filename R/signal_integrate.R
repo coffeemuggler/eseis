@@ -23,7 +23,7 @@
 #' data(rockfall)
 #' 
 #' ## deconvolve signal
-#' rockfall_decon <- signal_deconvolve(data = rockfall,
+#' rockfall_decon <- signal_deconvolve(data = rockfall_z,
 #'                                     dt = 1/200, 
 #'                                     sensor = "TC120s", 
 #'                                     logger = "Cube3ext")

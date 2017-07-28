@@ -261,7 +261,11 @@ read_mseed <- function(
     data_out <- data_out[[1]]
     
     data_out$signal <- data_append
-    data_out$time <- time_append
+    
+    if(eseis == FALSE) {
+      
+      data_out$time <- time_append
+    }
     
     data_out$meta$n <- length(data_append)
     

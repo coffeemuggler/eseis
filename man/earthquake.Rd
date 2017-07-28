@@ -4,6 +4,8 @@
 \name{earthquake}
 \alias{earthquake}
 \alias{s}
+\alias{earthquake}
+\alias{t}
 \title{Seismic traces of a small earthquake}
 \format{The format is: 
 List of 3
@@ -12,11 +14,16 @@ List of 3
  $ BHZ: num [1:8001] -1.65e-07 ...}
 \usage{
 s
+
+t
 }
 \description{
 The dataset comprises the seismic signal (all three components) of 
 a small earthquake. The data have beenrecorded at 200 Hz sampling 
 frequency with an Omnirecs Cube ext 3 data logger.
+
+The dataset comprises the time vector associated with the data set
+\code{earthquake}.
 }
 \examples{
 
@@ -25,6 +32,10 @@ data(earthquake)
 
 ## plot signal vector
 plot(x = t, y = s$BHZ, type = "l")
+
+
+## load example data set
+data(earthquake)
 
 }
 \keyword{datasets}

@@ -3,12 +3,29 @@
 \docType{data}
 \name{rockfall}
 \alias{rockfall}
+\alias{rockfall_z}
+\alias{rockfall}
+\alias{rockfall_t}
+\alias{rockfall}
+\alias{rockfall_eseis}
 \title{Seismic trace of a rockfall event.}
 \format{The format is: num [1:98400] 65158 65176 65206 65194 65155 ...}
 \usage{
-rockfall
+rockfall_z
+
+rockfall_t
+
+rockfall_eseis
 }
 \description{
+The dataset comprises the seismic signal (vertical component) of 
+a rockfall event, preceeded by an earthquake. The data have been
+recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
+data logger.
+
+The dataset comprises the time vector corresponding the to seismic signal
+of the rockfall event from the example data set "rockfall".
+
 The dataset comprises the seismic signal (vertical component) of 
 a rockfall event, preceeded by an earthquake. The data have been
 recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
@@ -19,8 +36,19 @@ data logger.
 ## load example data set
 data(rockfall)
 
-## plot signal vector
-plot(x = t, y = rockfall, type = "l")
+## plot signal vector using base functionality
+plot(x = rockfall_t, y = rockfall_z, type = "l")
+
+## plot signal vector using the package plot function
+plot_signal(data = rockfall_z, time = rockfall_t)
+
+
+## load example data set
+data(rockfall)
+
+
+## load example data set
+data(rockfall)
 
 }
 \keyword{datasets}

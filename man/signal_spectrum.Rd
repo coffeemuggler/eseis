@@ -30,10 +30,10 @@ different approaches.
 \examples{
 
 ## load example data set
-data(rockfall, envir = environment())
+data(rockfall)
 
 ## calculate spectrum with standard setup
-s <- signal_spectrum(data = rockfall, dt = 1/200)
+s <- signal_spectrum(data = rockfall_z, dt = 1/200)
 
 ## plot spectrum
 plot(s, type = "l", log = "y")

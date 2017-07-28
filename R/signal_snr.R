@@ -18,8 +18,8 @@
 #' data(rockfall)
 #' 
 #' ## calculate snr with detrend option off and on
-#' signal_snr(data = rockfall)
-#' signal_snr(data = rockfall, detrend = TRUE)
+#' signal_snr(data = rockfall_z)
+#' signal_snr(data = rockfall_z, detrend = TRUE)
 #'                      
 #' @export signal_snr
 signal_snr <- function(

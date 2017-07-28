@@ -21,10 +21,10 @@ The function removes a linear trend from a signal vector.
 data(rockfall)
 
 ## remove linear trend from data set
-rockfall_detrend <- signal_detrend(data = rockfall)
+rockfall_detrend <- signal_detrend(data = rockfall_z)
 
 ## compare data ranges
-range(rockfall)
+range(rockfall_z)
 range(rockfall_detrend)
                      
 }

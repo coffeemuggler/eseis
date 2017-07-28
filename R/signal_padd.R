@@ -15,10 +15,10 @@
 #' data(rockfall)
 #' 
 #' ## padd with zeros
-#' rockfall_padd <- signal_padd(data = rockfall)
+#' rockfall_padd <- signal_padd(data = rockfall_z)
 #' 
 #' ## compare lengths
-#' length(rockfall)
+#' length(rockfall_z)
 #' length(rockfall_padd)
 #'                      
 #' @export signal_padd

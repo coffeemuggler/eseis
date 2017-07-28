@@ -26,13 +26,15 @@ should be detrended and/or the mean should be removed before processing.
 data(rockfall)
 
 ## detrend data set
-rockfall_detrend <- signal_detrend(data = rockfall)
+rockfall_detrend <- signal_detrend(data = rockfall_z)
 
 ## calculate envelope
 rockfall_envelope <- signal_envelope(data = rockfall_detrend)
 
 ## plot envelope
-plot(x = t[68000:78000], y = rockfall_envelope[68000:78000], type = "l")
+plot(x = rockfall_t[68000:78000], 
+     y = rockfall_envelope[68000:78000], 
+     type = "l")
                      
 }
 \author{
