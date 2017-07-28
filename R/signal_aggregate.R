@@ -78,7 +78,7 @@ signal_aggregate <- function(
   } else {
     
     ## get start time
-    t_0 <- Sys.time()
+    eseis_t_0 <- Sys.time()
     
     ## collect function arguments
     eseis_arguments <- list(data = "",
@@ -175,7 +175,7 @@ signal_aggregate <- function(
       
       ## calculate function call duration
       eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
-                                            time2 = t_0, 
+                                            time2 = eseis_t_0, 
                                             units = "secs"))
       
       ## update object history
