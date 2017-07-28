@@ -87,6 +87,11 @@ signal_deconvolve <- function(
   waterlevel = 10^-6
 ) {
   
+  ## check/set arguments
+  if(missing(dt) == TRUE) {
+    dt <- NULL
+  }
+  
   ## check data structure
   if(class(data) == "list") {
     
@@ -102,7 +107,20 @@ signal_deconvolve <- function(
     
     ## return output
     return(data_out)
+    
   } else {
+    
+    ## get start time
+    eseis_t_0 <- Sys.time()
+    
+    ## collect function arguments
+    eseis_arguments <- list(data = "",
+                            dt = dt,
+                            sensor = sensor,
+                            logger = logger,
+                            gain = gain,
+                            p = p,
+                            waterlevel = waterlevel)
     
     ## get sensor information
     if(class(sensor) == "character") {
@@ -129,7 +147,7 @@ signal_deconvolve <- function(
     s <- sensor$s
     k <- sensor$k
     
-    ## get sensor information
+    ## get logger information
     if(class(logger) == "character") {
       
       logger <- try(list_logger()[[logger]], silent = TRUE)
@@ -151,6 +169,31 @@ signal_deconvolve <- function(
     }
     
     AD <- logger$AD
+    
+    ## extract eseis object signal vector
+    if(class(data) == "eseis") {
+      
+      ## set eseis flag
+      eseis_class <- TRUE
+      
+      ## store initial object
+      eseis_data <- data
+      
+      ## extract signal vector
+      data <- eseis_data$signal
+      
+      ## extract dt
+      dt <- eseis_data$meta$dt
+    } else {
+      
+      eseis_class <- FALSE
+    }
+    
+    ## check for non-missing dt
+    if(is.null(dt) == TRUE) {
+      
+      stop("No dt provided.")
+    }
     
     ## apply gain correction
     data <- data / gain
@@ -221,7 +264,31 @@ signal_deconvolve <- function(
     ## remove garbage
     gc()
     
+    ## optionally update eseis object
+    if(eseis_class == TRUE) {
+      
+      ## assign aggregated signal vector
+      eseis_data$signal <- data_out
+      
+      ## calculate function call duration
+      eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                            time2 = eseis_t_0, 
+                                            units = "secs"))
+      
+      ## update object history
+      eseis_data$history[[length(eseis_data$history) + 1]] <- 
+        list(time = Sys.time(),
+             call = "signal_deconvolve()",
+             arguments = eseis_arguments,
+             duration = eseis_duration)
+      names(eseis_data$history)[length(eseis_data$history)] <- 
+        as.character(length(eseis_data$history))
+      
+      ## assign eseis object to output data set
+      data_out <- eseis_data
+    }
+    
     ## return output signal
     return(data_out)    
   }
- }
+}
