@@ -7,7 +7,8 @@
 signal_integrate(data, dt, method = "fft", waterlevel = 10^-6)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{dt}{\code{Numeric} scalar, sampling rate.}
 

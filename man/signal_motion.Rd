@@ -8,8 +8,9 @@ signal_motion(data, time, dt, window, step, order = "xyz")
 }
 \arguments{
 \item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic
-componenents to be plotted. If \code{data} is a matrix, the components 
-must be organised as columns.}
+componenents to be processed. If \code{data} is a matrix, the components 
+must be organised as columns. Also, \code{data} can be a list of 
+\code{eseis} objects.}
 
 \item{time}{\code{POSIXct} vector, time vector corresponding to the 
 seismic signal components. If omitted, a synthetic time vector will 
@@ -65,6 +66,7 @@ s_d <- eseis::signal_integrate(data = s, dt = 1/200)
 ## calculate particle motion parameters
 pm <- signal_motion(data = s_d, 
                     time = t, 
+                    dt = 1 / 200,
                     window = 100, 
                     step = 10)
                     

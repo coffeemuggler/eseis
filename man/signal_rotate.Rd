@@ -7,10 +7,12 @@
 signal_rotate(data, angle)
 }
 \arguments{
-\item{data}{\code{Numeric} matrix, or list of matrices, input signal 
-vectors. Matrix must contain either two columns (x- and y-component) or
-three columns (x-, y-, and z-component), in exactly that order of the 
-components.}
+\item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic
+componenents to be processed. If \code{data} is a matrix, the components 
+must be organised as rows. Also, \code{data} can be a list of 
+\code{eseis} objects. If a matrix, this matrix must contain either two 
+columns (x- and y-component) or three columns (x-, y-, and z-component), 
+in exactly that order of the components.}
 
 \item{angle}{\code{Numeric} scalar, rotation angle in degrees.}
 }

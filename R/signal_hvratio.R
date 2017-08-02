@@ -14,7 +14,8 @@
 #' 
 #' @param data \code{List}, \code{data frame} or \code{matrix}, seismic
 #' componenents to be processed. If \code{data} is a matrix, the components 
-#' must be organised as columns.
+#' must be organised as columns. Also, \code{data} can be a list of 
+#' \code{eseis} objects.
 #' 
 #' @param dt \code{Numeric} value, sampling period.
 #' 
@@ -29,7 +30,7 @@
 #' @param order \code{Caracter} value, order of the seismic components. 
 #' Describtion must contain the letters \code{"x"},\code{"y"} and
 #' \code{"z"} in the order according to the input data set. Default is 
-#' \code{"xyz"} (NW-SE-vertical).
+#' \code{"xyz"} (EW-SN-vertical).
 #' 
 #' @return A \code{data frame} with the h-v-frequency ratio.
 #' 
@@ -49,7 +50,9 @@
 #' ## calculate h-v-ratio, will be very rugged
 #' hv <- signal_hvratio(data = s, 
 #'                      dt = 1 / 200)
-#' plot(hv, type = "l")
+#' plot(hv$ratio, 
+#'      type = "l", 
+#'      log = "y")
 #' 
 #' ## calculate h-v-ratio using the autogressive spectrum method
 #' hv <- signal_hvratio(data = s, 
@@ -74,13 +77,60 @@ signal_hvratio <- function(
   order = "xyz"
 ) {
   
-  ## check/set input arguments
-  if(missing(dt) == TRUE) {
+  ## check/set dt
+  if(missing(dt) == TRUE && class(data[[1]]) != "eseis") {
     
-    stop("No sampling period provided!")
+    warning("Sampling frequency missing! Set to 1/200")
+    
+    dt <- 1 / 200
+    
+  } else if(missing(dt) == TRUE){
+    
+    dt <- NULL
   }
   
+  if(missing(kernel) == TRUE) {
+    
+    kernel <- NULL
+  }
+  
+  ## get start time
+  eseis_t_0 <- Sys.time()
+  
+  ## collect function arguments
+  eseis_arguments <- list(data = "",
+                          dt = dt,
+                          method = method,
+                          kernel = kernel,
+                          order = order)
+  
   ## homogenise data structure
+  if(class(data[[1]]) == "eseis") {
+    
+    ## set eseis flag
+    eseis_class <- TRUE
+    
+    ## store initial object
+    eseis_data <- data
+    
+    ## extract signal vector
+    data <- lapply(X = data, FUN = function(X) {
+      
+      X$signal
+    })
+    
+    ## convert signal vector list to matrix
+    data <- do.call(cbind, data)
+    
+    ## update dt
+    dt <- eseis_data[[1]]$meta$dt
+    
+  } else {
+    
+    ## set eseis flag
+    eseis_class <- FALSE
+  }
+    
   if(class(data) != "list") {
     
     data <- as.list(as.data.frame(data))
@@ -97,7 +147,7 @@ signal_hvratio <- function(
                               method = method)
   
   ## optionally smooth data
-  if(missing(kernel) == FALSE) {
+  if(is.null(kernel) == FALSE) {
     
     ## log spectral power vectors
     s_log <- lapply(X = s, FUN = function(X) {
@@ -130,6 +180,34 @@ signal_hvratio <- function(
   hv <- data.frame(
     frequency = s[[1]]$frequency,
     ratio = sqrt(s_smooth[[1]]^2 + s_smooth[[2]]^2) / s_smooth[[3]])
+  
+  ## optionally rebuild eseis object
+  if(eseis_class == TRUE) {
+    
+    ## assign aggregated signal vector
+    eseis_data <- list(ratio = hv,
+                       history = eseis_data$history)
+    
+    ## calculate function call duration
+    eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                          time2 = eseis_t_0, 
+                                          units = "secs"))
+    
+    ## update object history
+    eseis_data$history[[length(eseis_data$history) + 1]] <- 
+      list(time = Sys.time(),
+           call = "signal_hvratio()",
+           arguments = eseis_arguments,
+           duration = eseis_duration)
+    names(eseis_data$history)[length(eseis_data$history)] <- 
+      as.character(length(eseis_data$history))
+    
+    ## set S3 class name
+    class(eseis_data) <- "eseis"
+    
+    ## assign eseis object to output data set
+    hv <- eseis_data
+  }
   
   ## return output
   return(hv)

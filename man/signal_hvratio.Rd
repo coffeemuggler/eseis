@@ -9,7 +9,8 @@ signal_hvratio(data, dt, method = "periodogram", kernel, order = "xyz")
 \arguments{
 \item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic
 componenents to be processed. If \code{data} is a matrix, the components 
-must be organised as columns.}
+must be organised as columns. Also, \code{data} can be a list of 
+\code{eseis} objects.}
 
 \item{dt}{\code{Numeric} value, sampling period.}
 
@@ -24,7 +25,7 @@ is performed.}
 \item{order}{\code{Caracter} value, order of the seismic components. 
 Describtion must contain the letters \code{"x"},\code{"y"} and
 \code{"z"} in the order according to the input data set. Default is 
-\code{"xyz"} (NW-SE-vertical).}
+\code{"xyz"} (EW-SN-vertical).}
 }
 \value{
 A \code{data frame} with the h-v-frequency ratio.
@@ -55,7 +56,9 @@ s <- signal_detrend(data = s)
 ## calculate h-v-ratio, will be very rugged
 hv <- signal_hvratio(data = s, 
                      dt = 1 / 200)
-plot(hv, type = "l")
+plot(hv$ratio, 
+     type = "l", 
+     log = "y")
 
 ## calculate h-v-ratio using the autogressive spectrum method
 hv <- signal_hvratio(data = s, 

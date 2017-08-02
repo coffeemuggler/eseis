@@ -10,8 +10,9 @@
 #' or rewritten loop functionality.
 #' 
 #' @param data \code{List}, \code{data frame} or \code{matrix}, seismic
-#' componenents to be plotted. If \code{data} is a matrix, the components 
-#' must be organised as columns.
+#' componenents to be processed. If \code{data} is a matrix, the components 
+#' must be organised as columns. Also, \code{data} can be a list of 
+#' \code{eseis} objects.
 #' 
 #' @param time \code{POSIXct} vector, time vector corresponding to the 
 #' seismic signal components. If omitted, a synthetic time vector will 
@@ -59,6 +60,7 @@
 #' ## calculate particle motion parameters
 #' pm <- signal_motion(data = s_d, 
 #'                     time = t, 
+#'                     dt = 1 / 200,
 #'                     window = 100, 
 #'                     step = 10)
 #'                     
@@ -83,35 +85,40 @@ signal_motion <- function(
   order = "xyz"
 ) {
   
-  ## homogenise data structure
-  if(class(data) == "list") {
+  ## check/set dt
+  if(missing(dt) == TRUE && class(data[[1]]) != "eseis") {
     
-    data <- do.call(cbind, data)
-  }
-  
-  data <- as.data.frame(x = data)
-  
-  ## optionally update component order
-  component_ID <- strsplit(x = order, split = "")[[1]]
-  
-  data <- data[,order(component_ID)]
-  
-  ## check/set time vector
-  if(missing(time) == TRUE) {
-    
-    if(missing(dt) == TRUE) {
+    ## check/set time vector
+    if(missing(time) == TRUE) {
       
-      stop("Neither time nor dt provided!")
-    } else {
-      
-      time <- seq(from = 0,
-                  by = dt,
-                  length.out = nrow(data))
+      if(missing(dt) == TRUE) {
+        
+        stop("Neither time nor dt provided!")
+      } else {
+        
+        time <- seq(from = 0,
+                    by = dt,
+                    length.out = nrow(data))
+      }
     }
+    
+  } else if(missing(dt) == TRUE){
+    
+    dt <- NULL
+    
+    time <- NULL
   }
   
   ## check/set window size
   if(missing(window) == TRUE) {
+    
+    if(class(data[[1]]) == "eseis") {
+      
+      n <- data[[1]]$meta$n
+    } else {
+      
+      n <- nrow(data)
+    }
     
     window <- round(x = nrow(data) * 0.01, 
                     digits = 0)
@@ -129,6 +136,59 @@ signal_motion <- function(
     step <- round(x = window * 0.5, 
                   digits = 0)
   }
+  
+  ## get start time
+  eseis_t_0 <- Sys.time()
+  
+  ## collect function arguments
+  eseis_arguments <- list(data = "",
+                          time = time, 
+                          dt = dt,
+                          window = window,
+                          step = step,
+                          order = order)
+
+  ## homogenise data structure
+  if(class(data[[1]]) == "eseis") {
+    
+    ## set eseis flag
+    eseis_class <- TRUE
+    
+    ## store initial object
+    eseis_data <- data
+    
+    ## extract signal vector
+    data <- lapply(X = data, FUN = function(X) {
+      
+      X$signal
+    })
+    
+    ## update dt
+    dt <- eseis_data[[1]]$meta$dt
+    
+    ## generate time vector
+    time <- seq(from = eseis_data[[1]]$meta$starttime, 
+                by = eseis_data[[1]]$meta$dt,
+                length.out = eseis_data[[1]]$meta$n)
+    
+  } else {
+    
+    ## set eseis flag
+    eseis_class <- FALSE
+  }
+  
+  ## homogenise data structure
+  if(class(data) == "list") {
+    
+    data <- do.call(cbind, data)
+  }
+  
+  data <- as.data.frame(x = data)
+  
+  ## optionally update component order
+  component_ID <- strsplit(x = order, split = "")[[1]]
+  
+  data <- data[,order(component_ID)]
   
   ## define window indices
   window_left <- seq(from = 1, 
@@ -176,6 +236,37 @@ signal_motion <- function(
                    eigen = eig_ratio_i,
                    azimuth = azimuth_i,
                    inclination = inclination_i)
+  
+  ## optionally rebuild eseis object
+  if(eseis_class == TRUE) {
+    
+    ## assign aggregated signal vector
+    eseis_data <- list(time = time_i,
+                       eigen = eig_ratio_i,
+                       azimuth = azimuth_i,
+                       inclination = inclination_i,
+                       history = eseis_data[[1]]$history)
+    
+    ## calculate function call duration
+    eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                          time2 = eseis_t_0, 
+                                          units = "secs"))
+    
+    ## update object history
+    eseis_data$history[[length(eseis_data$history) + 1]] <- 
+      list(time = Sys.time(),
+           call = "signal_motion()",
+           arguments = eseis_arguments,
+           duration = eseis_duration)
+    names(eseis_data$history)[length(eseis_data$history)] <- 
+      as.character(length(eseis_data$history))
+    
+    ## set S3 class name
+    class(eseis_data) <- "eseis"
+    
+    ## assign eseis object to output data set
+    data_out <- eseis_data
+  }
   
   ## return function output
   return(data_out)
