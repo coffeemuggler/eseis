@@ -4,14 +4,19 @@
 \alias{plot_spectrogram}
 \title{Calculate spectrograms (power spectral density estimates) from time series.}
 \usage{
-plot_spectrogram(data, legend, col = "gradient_1", agg = c(1, 1), ...)
+plot_spectrogram(data, legend = FALSE, keep_par = FALSE,
+  col = "gradient_1", agg = c(1, 1), ...)
 }
 \arguments{
 \item{data}{\code{List} object, spectrogram to be plotted. Must be output
 of \code{signal_spectrogram()} or of equivalent structure.}
 
-\item{legend}{\code{Character} scalar, label of the legend colour scale.
-When omitted, no legend is plotted.}
+\item{legend}{\code{Logical} value, option to add colour bar legend. Legend
+label can be changed by \code{zlab}}
+
+\item{keep_par}{\code{Logical} value, option to omit resetting plot 
+parameters after function execution. Useful for adding data to the PSD
+plot. Default is \code{FALSE} (parameters are reset to original values).}
 
 \item{col}{\code{Character} scalar, colour palette to use. Default is 
 \code{"gradient_1"}.}
