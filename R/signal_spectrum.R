@@ -3,8 +3,8 @@
 #' The spectral density estimate of the time series is calculated using 
 #' different approaches.
 #' 
-#' @param data \code{Numeric} vector or list of vectors, data set to be 
-#' processed.
+#' @param data \code{eseis} object, \code{numeric} vector or list of 
+#' objects, data set to be processed.
 #' 
 #' @param dt \code{Numeric} scalar, sampling period. If omitted, \code{dt} 
 #' is set to 1/200.
@@ -38,6 +38,18 @@ signal_spectrum <- function(
   ...
 ) {
   
+  ## check/set dt
+  if(missing(dt) == TRUE && class(data) != "eseis") {
+    
+    warning("Sampling frequency missing! Set to 1/200")
+    
+    dt <- 1 / 200
+    
+  } else if(missing(dt) == TRUE){
+    
+    dt <- NULL
+  }
+  
   ## check data structure
   if(class(data) == "list") {
     
@@ -50,14 +62,36 @@ signal_spectrum <- function(
     
     ## return output
     return(data_out)
+    
   } else {
     
-    ## check/set dt
-    if(missing(dt) == TRUE) {
+    ## get start time
+    eseis_t_0 <- Sys.time()
+    
+    ## collect function arguments
+    eseis_arguments <- list(data = "",
+                            dt = dt,
+                            method = method)
+    
+    ## check if input object is of class eseis
+    if(class(data) == "eseis") {
       
-      warning("Sampling frequency missing! Set to 1/200")
+      ## set eseis flag
+      eseis_class <- TRUE
       
-      dt <- 1/200
+      ## store initial object
+      eseis_data <- data
+      
+      ## extract signal vector
+      data <- eseis_data$signal
+      
+      ## extract sampling period
+      dt <- eseis_data$meta$dt
+      
+    } else {
+      
+      ## set eseis flag
+      eseis_class <- FALSE
     }
     
     if(method == "periodogram") {
@@ -106,6 +140,33 @@ signal_spectrum <- function(
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
                              spectrum = s$spec)
+    }
+    
+    ## optionally rebuild eseis object
+    if(eseis_class == TRUE) {
+      
+      ## assign aggregated signal vector
+      eseis_data$signal <- data_out
+      
+      ## rename output list element
+      names(eseis_data)[1] <- "spectrum"
+      
+      ## calculate function call duration
+      eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                            time2 = eseis_t_0, 
+                                            units = "secs"))
+      
+      ## update object history
+      eseis_data$history[[length(eseis_data$history) + 1]] <- 
+        list(time = Sys.time(),
+             call = "signal_spectrum()",
+             arguments = eseis_arguments,
+             duration = eseis_duration)
+      names(eseis_data$history)[length(eseis_data$history)] <- 
+        as.character(length(eseis_data$history))
+      
+      ## assign eseis object to output data set
+      data_out <- eseis_data
     }
     
     ## return output

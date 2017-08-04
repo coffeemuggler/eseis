@@ -12,8 +12,9 @@
 #' package \code{rgl} being installed. 
 #' 
 #' @param data \code{List}, \code{data frame} or \code{matrix}, seismic
-#' componenents to be plotted. If \code{data} is a matrix, the components 
-#' must be organised as columns.
+#' componenents to be processed. If \code{data} is a matrix, the components 
+#' must be organised as columns. Also, \code{data} can be a list of 
+#' \code{eseis} objects.
 #' 
 #' @param type \code{Character} value, plot type. One out of \code{"2D"} 
 #' (panel of three 2-dimensional plots), \code{"3D"} (perspective 3D plot)
@@ -89,8 +90,7 @@ plot_components <- function(
   ## check/set plot arguments
   if ("main" %in% names(args)) {
     main <- args$main
-  }
-  else {
+  } else {
     
     if(type == "2D") {
       
@@ -104,9 +104,9 @@ plot_components <- function(
   }
   
   if ("xlab" %in% names(args)) {
+    
     xlab <- args$xlab
-  }
-  else {
+  } else {
     
     if(type == "2D") {
       
@@ -120,9 +120,9 @@ plot_components <- function(
   }
   
   if ("ylab" %in% names(args)) {
+    
     ylab <- args$ylab
-  }
-  else {
+  } else {
     
     if(type == "2D") {
       
@@ -137,8 +137,7 @@ plot_components <- function(
   
   if ("zlab" %in% names(args)) {
     zlab <- args$zlab
-  }
-  else {
+  } else {
     
     zlab <- "Vertical"
   }
@@ -146,8 +145,7 @@ plot_components <- function(
   if ("lwd" %in% names(args)) {
     
     lwd <- args$lwd
-  }
-  else {
+  } else {
     
     lwd <- 1
   }
@@ -155,8 +153,7 @@ plot_components <- function(
   if ("col" %in% names(args)) {
     
     col <- args$col
-  }
-  else {
+  } else {
     
     col <- 1
   }
@@ -164,8 +161,7 @@ plot_components <- function(
   if ("phi" %in% names(args)) {
     
     phi <- args$phi
-  }
-  else {
+  } else {
     
     phi <- 20
   }
@@ -173,10 +169,26 @@ plot_components <- function(
   if ("theta" %in% names(args)) {
     
     theta <- args$theta
-  }
-  else {
+  } else {
     
     theta <- 30
+  }
+  
+  ## homogenise data structure
+  if(class(data[[1]]) == "eseis") {
+    
+    ## store initial object
+    eseis_data <- data
+    
+    ## extract signal vector
+    data <- lapply(X = data, FUN = function(X) {
+      
+      X$signal
+    })
+    
+    ## convert signal vector list to matrix
+    data <- do.call(cbind, data)
+    
   }
   
   ## homogenise data structure

@@ -9,7 +9,8 @@
 #' using the POSIX standard (see documentation of \code{strptime} for a list 
 #' of available keywords), e.g., "%H:%M:%S" for hour:minute:second.
 #' 
-#' @param data \code{Numeric} vector to plot.
+#' @param data \code{eseis} object or \code{numeric} vector, data set to 
+#' be plotted.
 #' 
 #' @param time \code{POSIXct} vector, corresponding time vector.
 #' 
@@ -44,6 +45,29 @@ plot_signal <- function(
   n = 10000,
   ...
 ) {
+  
+  ## check if input object is of class eseis
+  if(class(data) == "eseis") {
+    
+    ## set eseis flag
+    eseis_class <- TRUE
+    
+    ## store initial object
+    eseis_data <- data
+    
+    ## extract signal vector
+    data <- eseis_data$signal
+    
+    ## create time vector
+    time <- seq(from = eseis_data$meta$starttime, 
+                by = eseis_data$meta$dt, 
+                length.out = eseis_data$meta$n)
+    
+  } else {
+    
+    ## set eseis flag
+    eseis_class <- FALSE
+  }
   
   ## extract additional plot arguments
   args <- list(...)

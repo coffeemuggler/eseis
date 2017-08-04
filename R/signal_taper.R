@@ -3,7 +3,8 @@
 #' The function tapers a signal vector with a cosine bell taper, either of a
 #' given proportion or a discrete number of samples.
 #' 
-#' @param data \code{Numeric} vector, input signal vector
+#' @param data \code{eseis} object, \code{numeric} vector or list of 
+#' objects, data set to be processed.
 #' 
 #' @param p \code{Numeric} scalar, proportion of the signal vector to be 
 #' tapered. Alternative to \code{n}.
@@ -40,8 +41,9 @@ signal_taper <- function(
 ) {
   
   ## check/set taper width
-  if(missing(n) == FALSE) {
-    p <- (n/2) / length(data)
+  if(missing(n) == TRUE) {
+    
+    n <- NULL
   }
   
   ## check data structure
@@ -57,8 +59,65 @@ signal_taper <- function(
     return(data_out)
   } else {
     
+    ## get start time
+    eseis_t_0 <- Sys.time()
+    
+    ## collect function arguments
+    eseis_arguments <- list(data = "",
+                            p = p,
+                            n = n)
+    
+    ## check if input object is of class eseis
+    if(class(data) == "eseis") {
+      
+      ## set eseis flag
+      eseis_class <- TRUE
+      
+      ## store initial object
+      eseis_data <- data
+      
+      ## extract signal vector
+      data <- eseis_data$signal
+      
+    } else {
+      
+      ## set eseis flag
+      eseis_class <- FALSE
+    }
+    
+    ## optionally convert n tp p
+    if(is.null(n) == FALSE) {
+      
+      p <- (n / 2) / length(data)
+    }
+    
     ## apply taper
-    data_out <- spec.taper(x = data, p = p)
+    data_out <- spec.taper(x = data,
+                           p = p)
+    
+    ## optionally rebuild eseis object
+    if(eseis_class == TRUE) {
+      
+      ## assign aggregated signal vector
+      eseis_data$signal <- data_out
+      
+      ## calculate function call duration
+      eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                            time2 = eseis_t_0, 
+                                            units = "secs"))
+      
+      ## update object history
+      eseis_data$history[[length(eseis_data$history) + 1]] <- 
+        list(time = Sys.time(),
+             call = "signal_taper()",
+             arguments = eseis_arguments,
+             duration = eseis_duration)
+      names(eseis_data$history)[length(eseis_data$history)] <- 
+        as.character(length(eseis_data$history))
+      
+      ## assign eseis object to output data set
+      data_out <- eseis_data
+    }
     
     ## return output
     return(data_out) 

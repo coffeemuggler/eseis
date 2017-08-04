@@ -7,8 +7,8 @@
 signal_spectrum(data, dt, method = "periodogram", ...)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, data set to be 
-processed.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{dt}{\code{Numeric} scalar, sampling period. If omitted, \code{dt} 
 is set to 1/200.}

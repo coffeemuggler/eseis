@@ -56,7 +56,7 @@ plot_spectrogram(data = PSD,
                  xlab = "Time (min)", 
                  ylab = "f (Hz)", 
                  main = "Power spectral density estimate", 
-                 legend = "dB", 
+                 legend = TRUE, 
                  zlim = c(-220, -70),
                  col = "rainbow")
 

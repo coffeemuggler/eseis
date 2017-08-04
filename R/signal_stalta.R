@@ -3,7 +3,8 @@
 #' The function calculates the ratio of the short-term-average and 
 #' long-term-average of the input signal.
 #' 
-#' @param data \code{Numeric} vector or list, input signal envelope vector(s).
+#' @param data \code{eseis} object, \code{numeric} vector or list of 
+#' objects, data set to be processed.
 #' 
 #' @param time \code{POSIXct} vector, time vector of the signal(s). If not 
 #' provided, a synthetic time vector will be created.
@@ -24,8 +25,11 @@
 #' 
 #' @return \code{data frame}, detected events (ID, start time, duration in 
 #' seconds).
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data
@@ -62,21 +66,34 @@ signal_stalta <- function(
   off
 ) {
   
-  ## missing dt value
-  if(missing(dt) == TRUE) {
+  ## check/store presence of time vector
+  if(missing(time) == TRUE) {
+    
+    time_in <- NULL
+  } else {
+    
+    time_in <- time
+  }
+  
+  ## check/set dt
+  if(missing(dt) == TRUE && class(data) != "eseis") {
     
     if(missing(time) == TRUE) {
       
-      dt = 0.01
-      warning("No dt provided. Set to 0.01 s by default!")
+      dt <- 1 / 200
+      
+      warning("No dt provided. Set to 1 / 200 s by default!")
+      
     } else {
       
       if(length(time) > 1000) {
         
         time_dt <- time[1:1000]
+        
       } else {
         
         time_dt <- time
+        
       }
       
       dt_estimate <- mean(x = diff(x = as.numeric(time)), 
@@ -88,10 +105,14 @@ signal_stalta <- function(
       
       dt <- dt_estimate
     }
+    
+  } else if(class(data) == "eseis") {
+    
+    dt <- data$meta$dt
   }
   
-  ## missing time vector
-  if(missing(time) == TRUE) {
+  ## handle missing time vector
+  if(missing(time) == TRUE && class(data) != "eseis") {
     
     time <- seq(from = as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
                                                format = "%Y-%m-%d %H:%M:%S", 
@@ -100,6 +121,12 @@ signal_stalta <- function(
                 length.out = length(data))
     
     print("No or non-POSIXct time data provided. Default data generated!")
+    
+  } else if(class(data) == "eseis") {
+    
+    time <- seq(from = data$meta$starttime, 
+                by = dt, 
+                length.out = data$meta$n)
   }
 
   ## check data structure
@@ -118,7 +145,39 @@ signal_stalta <- function(
     
     ## return output
     return(data_out)
+    
   } else {
+    
+    ## get start time
+    eseis_t_0 <- Sys.time()
+    
+    ## collect function arguments
+    eseis_arguments <- list(data = "",
+                            time = time_in,
+                            dt = dt,
+                            sta = sta,
+                            lta = lta,
+                            freeze = freeze,
+                            on = on,
+                            off = off)
+    
+    ## homogenise data structure
+    if(class(data) == "eseis") {
+      
+      ## set eseis flag
+      eseis_class <- TRUE
+      
+      ## store initial object
+      eseis_data <- data
+      
+      ## extract signal vector
+      data <- eseis_data$signal
+      
+    } else {
+      
+      ## set eseis flag
+      eseis_class <- FALSE
+    }
 
     ## calculate sta vector
     data_sta <- caTools::runmean(x = data, 
@@ -186,6 +245,34 @@ signal_stalta <- function(
       data_out <- data.frame(ID = NA,
                              start = NA,
                              duration = NA)[-1,]
+    }
+    
+    ## optionally rebuild eseis object
+    if(eseis_class == TRUE) {
+      
+      ## assign aggregated signal vector
+      eseis_data <- list(picks = data_out,
+                         history = eseis_data$history)
+      
+      ## calculate function call duration
+      eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                            time2 = eseis_t_0, 
+                                            units = "secs"))
+      
+      ## update object history
+      eseis_data$history[[length(eseis_data$history) + 1]] <- 
+        list(time = Sys.time(),
+             call = "signal_stalta()",
+             arguments = eseis_arguments,
+             duration = eseis_duration)
+      names(eseis_data$history)[length(eseis_data$history)] <- 
+        as.character(length(eseis_data$history))
+      
+      ## set S3 class name
+      class(eseis_data) <- "eseis"
+      
+      ## assign eseis object to output data set
+      data_out <- eseis_data
     }
 
     ## return output

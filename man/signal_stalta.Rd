@@ -7,7 +7,8 @@
 signal_stalta(data, time, dt, sta, lta, freeze = FALSE, on, off)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list, input signal envelope vector(s).}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{time}{\code{POSIXct} vector, time vector of the signal(s). If not 
 provided, a synthetic time vector will be created.}

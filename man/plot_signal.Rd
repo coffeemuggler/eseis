@@ -7,7 +7,8 @@
 plot_signal(data, time, n = 10000, ...)
 }
 \arguments{
-\item{data}{\code{Numeric} vector to plot.}
+\item{data}{\code{eseis} object or \code{numeric} vector, data set to 
+be plotted.}
 
 \item{time}{\code{POSIXct} vector, corresponding time vector.}
 

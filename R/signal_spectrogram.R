@@ -44,11 +44,17 @@
 #' @param plot \code{logical} scalar, toggle plot output. Default is
 #' \code{FALSE}. For more customised plotting see \code{plot_spectrogram()}.
 #' 
+#' @param \dots Additional arguments passed to the plot function.
+#' 
 #' @return \code{List} with spectrogram matrix, time and frequency vectors.
+#' 
 #' @author Michael Dietze
+#' 
 #' @seealso \code{\link{spectrum}}, \code{\link{spec.pgram}}, 
 #' \code{\link{spec.mtm}}
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set
@@ -98,7 +104,8 @@ signal_spectrogram <- function(
   nw = 4.0,
   k = 7,
   n_cores = 1,
-  plot = FALSE
+  plot = FALSE,
+  ...
 ) {
   
   ## check data structure
@@ -122,23 +129,37 @@ signal_spectrogram <- function(
     
     ## return output
     return(data_out)
+    
   } else {
     
-    ## handle missing dt value
-    if(missing(dt) == TRUE) {
+    ## check/store presence of time vector
+    if(missing(time) == TRUE) {
+      
+      time_in <- NULL
+    } else {
+      
+      time_in <- time
+    }
+    
+    ## check/set dt
+    if(missing(dt) == TRUE && class(data) != "eseis") {
       
       if(missing(time) == TRUE) {
         
-        dt = 0.01
-        warning("No dt provided. Set to 0.01 s by default!")
+        dt <- 1 / 200
+        
+        warning("No dt provided. Set to 1 / 200 s by default!")
+        
       } else {
         
         if(length(time) > 1000) {
           
           time_dt <- time[1:1000]
+          
         } else {
           
           time_dt <- time
+          
         }
         
         dt_estimate <- mean(x = diff(x = as.numeric(time)), 
@@ -147,11 +168,17 @@ signal_spectrogram <- function(
                     signif(x = dt_estimate),
                     " s)",
                     sep = ""))
+        
+        dt <- dt_estimate
       }
+      
+    } else if(class(data) == "eseis") {
+      
+      dt <- data$meta$dt
     }
     
     ## handle missing time vector
-    if(missing(time) == TRUE) {
+    if(missing(time) == TRUE && class(data) != "eseis") {
       
       time <- seq(from = as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
                                                  format = "%Y-%m-%d %H:%M:%S", 
@@ -160,6 +187,12 @@ signal_spectrogram <- function(
                   length.out = length(data))
       
       print("No or non-POSIXct time data provided. Default data generated!")
+      
+    } else if(class(data) == "eseis") {
+      
+      time <- seq(from = data$meta$starttime, 
+                  by = dt, 
+                  length.out = data$meta$n)
     }
     
     ## handle missing window length
@@ -169,15 +202,55 @@ signal_spectrogram <- function(
     }
     
     ## handle missing sub-window length
-    if(Welch == TRUE & missing(window_sub) == TRUE) {
+    if(Welch == TRUE && missing(window_sub) == TRUE) {
       
       window_sub <- 0.1 * window
+      
+    } else if(Welch == FALSE) {
+      
+      window_sub <- NULL
     }
     
     ## identify NA values
     i_na <- is.na(data)
     
     data[i_na] <- 0
+    
+    ## get start time
+    eseis_t_0 <- Sys.time()
+    
+    ## collect function arguments
+    eseis_arguments <- list(data = "",
+                            time = time_in,
+                            dt = dt,
+                            Welch = Welch,
+                            window = window,
+                            overlap = overlap,
+                            window_sub = window_sub,
+                            overlap_sub = overlap_sub,
+                            multitaper = multitaper,
+                            nw = nw,
+                            k = k,
+                            n_cores = n_cores,
+                            plot = plot)
+    
+    ## homogenise data structure
+    if(class(data) == "eseis") {
+      
+      ## set eseis flag
+      eseis_class <- TRUE
+      
+      ## store initial object
+      eseis_data <- data
+      
+      ## extract signal vector
+      data <- eseis_data$signal
+ 
+    } else {
+      
+      ## set eseis flag
+      eseis_class <- FALSE
+    }
     
     ## CALCULATION PART -------------------------------------------------------
     
@@ -191,11 +264,6 @@ signal_spectrogram <- function(
     ## truncate time series to fit window sizes
     data_trunc <- data[1:(length_window * n_window)]
     time_trunc <- time[1:(length_window * n_window)]
-    
-    if(length(data) != length(data_trunc)) {
-      
-      #print("Time series truncated to n times the window length.")
-    }
     
     ## get overlap length
     length_overlap <- round(x = length_window * overlap, 
@@ -384,7 +452,7 @@ signal_spectrogram <- function(
     }
     
     
-    ## convert spectrae list to matrix
+    ## convert spectra list to matrix
     S <- do.call(cbind, S)
     
     ## convert data to db
@@ -394,6 +462,7 @@ signal_spectrogram <- function(
     f_spectrum <- seq(from = 0, 
                       to = 0.5 / dt, 
                       length.out = nrow(S))
+    
     t_spectrum <- time[slice_start]
     
     ## assign row- and col-names
@@ -424,7 +493,37 @@ signal_spectrogram <- function(
     
     ## optionally plot spectrogram
     if(plot == TRUE) {
-      plot_spectrogram(data = S)
+      
+      plot_spectrogram(data = S, ...)
+      
+    }
+    
+    ## optionally rebuild eseis object
+    if(eseis_class == TRUE) {
+      
+      ## assign aggregated signal vector
+      eseis_data <- list(PSD = S,
+                         history = eseis_data$history)
+      
+      ## calculate function call duration
+      eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                            time2 = eseis_t_0, 
+                                            units = "secs"))
+      
+      ## update object history
+      eseis_data$history[[length(eseis_data$history) + 1]] <- 
+        list(time = Sys.time(),
+             call = "signal_spectrogram()",
+             arguments = eseis_arguments,
+             duration = eseis_duration)
+      names(eseis_data$history)[length(eseis_data$history)] <- 
+        as.character(length(eseis_data$history))
+      
+      ## set S3 class name
+      class(eseis_data) <- "eseis"
+      
+      ## assign eseis object to output data set
+      S <- eseis_data
     }
     
     ## return output

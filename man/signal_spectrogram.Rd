@@ -6,7 +6,7 @@
 \usage{
 signal_spectrogram(data, time, dt, Welch = FALSE, window, overlap = 0.5,
   window_sub, overlap_sub = 0.5, multitaper = FALSE, nw = 4, k = 7,
-  n_cores = 1, plot = FALSE)
+  n_cores = 1, plot = FALSE, ...)
 }
 \arguments{
 \item{data}{\code{Numeric} vector or list of vectors, seismic signal to 
@@ -46,6 +46,8 @@ by setting to 1. Default is 1.}
 
 \item{plot}{\code{logical} scalar, toggle plot output. Default is
 \code{FALSE}. For more customised plotting see \code{plot_spectrogram()}.}
+
+\item{\dots}{Additional arguments passed to the plot function.}
 }
 \value{
 \code{List} with spectrogram matrix, time and frequency vectors.

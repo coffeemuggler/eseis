@@ -7,7 +7,8 @@
 signal_taper(data, p = 0, n)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{p}{\code{Numeric} scalar, proportion of the signal vector to be 
 tapered. Alternative to \code{n}.}
