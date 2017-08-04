@@ -3,7 +3,9 @@ Changes for R-package eseis
 Version 0.4.0 (TO BE SET)
   - plot_signal(), speed increased by factor ten
   - eseis object implemented and all functions modified to support this object
-  - aux_initiateeseis() added
+  - function aux_initiateeseis() added
+  - function plot_spectrum() added
+  - plot_spectrogram(), time shift bug fixed, log-y option added, default labels added, option to keep plot arguments added 
 
 Version 0.3.2 (2017-07-26)
   - inherited internal issues without relevance for functionality solved
