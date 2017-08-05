@@ -256,6 +256,7 @@ read_sac <- function(
                  latitude = location_station[1],
                  longitude = location_station[2],
                  elevation = location_station[3],
+                 depth = location_station[4],
                  filename = file)
     
     data_sac <- readBin(con = file_read, 

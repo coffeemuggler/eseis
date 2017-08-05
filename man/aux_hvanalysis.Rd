@@ -10,7 +10,8 @@ aux_hvanalysis(data, time, window, overlap = 0, dt, method = "periodogram",
 \arguments{
 \item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic
 componenents to be processed. If \code{data} is a matrix, the components 
-must be organised as columns.}
+must be organised as columns. Also, \code{data} can be a list of 
+\code{eseis} objects.}
 
 \item{time}{\code{POSIX.ct} vector with time values. If omitted, an 
 artificial time vector will be created, based on \code{dt}.}

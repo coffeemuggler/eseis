@@ -7,9 +7,11 @@
 #' following parameters are not supported when writing the sac file: 
 #' LAT, LON, ELEVATION, NETWORK.
 #'
-#' @param data \code{Numeric} vector, seismic trace to be written.
+#' @param data \code{eseis} object or \code{numeric} vector, data set to 
+#' be processed. Most other arguments can be omitted if \code{data} is an
+#' \code{eseis} object.
 #' 
-#' @param file \code{Character} scalar, filename with extension.
+#' @param file \code{Character} scalar, sac filename with extension.
 #' 
 #' @param time \code{POSIXct} vector, time vector corresponding to the 
 #' seismic trace. Alternatively, the start time stamp can be provided as
@@ -58,7 +60,7 @@ write_sac <- function(
   parameters,
   biglong = FALSE
 ) {
-
+  
   ## check/set biglong-dependent parameters
   if(biglong == TRUE) {
     ilong <- 8
@@ -68,75 +70,133 @@ write_sac <- function(
     ifloat <- 4
   }
   
-  ## check/set station
-  if(missing(station) == TRUE) {
+  if(class(data) != "eseis") {
     
-    print("Station name missing! Value station set to NULL")
-    station <- "NULL"
-  }
-  
-  ## check/set network
-  if(missing(network) == TRUE) {
-    
-    print("Network name missing! Value network set to NULL")
-    network <- "NULL"
-  }
-  
-  ## check/set component
-  if(missing(component) == TRUE) {
-    
-    print("Component name missing! Value component set to p0")
-    component <- "p0"
-  }
-  
-  ## check/set unit
-  if(missing(unit) == TRUE) {
-    
-    print("Unit missing! Value unit set to 1 ('unknown')")
-    unit <- "unknown"
-  }
-  
-  ## reassign unit ID
-  if(unit == "unknown") {unit <- 1}
-  if(unit == "displacement") {unit <- 2}
-  if(unit == "velocity") {unit <- 3}
-  if(unit == "volts") {unit <- 4}
-  if(unit == "acceleration") {unit <- 5}
-  
-  ## check/set location
-  if(missing(location) == TRUE) {
-    
-    print("Location information missing! Values set to -12345")
-    location <- rep(x = -12345, times = 4)
-  }
-  
-  ## check/set time vector
-  if(missing(time) == TRUE) {
-    
-    stop("No time information provided. Cannot generate sac-file.")
-  } else if(length(time) == 1) {
-    
-    if(missing(dt) == TRUE) {
-      stop("No sampling period (dt) provided. Cannot generate sac-file.")
+    ## check/set station
+    if(missing(station) == TRUE) {
+      
+      print("Station name missing! Value station set to NULL")
+      station <- "NULL"
     }
     
-    time <- seq(from = time, by = dt, length.out = length(data))
+    ## check/set network
+    if(missing(network) == TRUE) {
+      
+      print("Network name missing! Value network set to NULL")
+      network <- "NULL"
+    }
+    
+    ## check/set component
+    if(missing(component) == TRUE) {
+      
+      print("Component name missing! Value component set to p0")
+      component <- "p0"
+    }
+    
+    ## check/set unit
+    if(missing(unit) == TRUE) {
+      
+      print("Unit missing! Value unit set to 1 ('unknown')")
+      unit <- "unknown"
+    }
+    
+    ## reassign unit ID
+    if(unit == "unknown") {unit <- 1}
+    if(unit == "displacement") {unit <- 2}
+    if(unit == "velocity") {unit <- 3}
+    if(unit == "volts") {unit <- 4}
+    if(unit == "acceleration") {unit <- 5}
+    
+    ## check/set location
+    if(missing(location) == TRUE) {
+      
+      print("Location information missing! Values set to -12345")
+      location <- rep(x = -12345, times = 4)
+    }
+    
+    ## check/set time vector
+    if(missing(time) == TRUE) {
+      
+      stop("No time information provided. Cannot generate sac-file.")
+    } else if(length(time) == 1) {
+      
+      if(missing(dt) == TRUE) {
+        stop("No sampling period (dt) provided. Cannot generate sac-file.")
+      }
+      
+      time <- seq(from = time, by = dt, length.out = length(data))
+    }
+    
+    ## check/set dt
+    if(missing(dt) == TRUE) {
+      dt <- as.numeric(mean(diff(time)))
+    }
+    
+    ## round dt
+    dt <- signif(x = dt, digits = 10)
+    
+    ## get first time entry
+    start <- time[1]
+  } else {
+    
+    ## extract meta information from eseis object
+    
+    ## station name
+    station <- data$meta$station
+    
+    ## network ID
+    network <- data$meta$network
+    
+    ## get raw component
+    component <- data$meta$component
+    
+    ## try to convert component to keyword
+    component <- c("p1", "p2", "p0")[match(x = component, 
+                                               table = c("BHE", 
+                                                         "BHN", 
+                                                         "BHZ"), 
+                                               nomatch = NA)]
+    
+    ## account for missing information
+    if(is.na(component) == TRUE) {
+      
+      print("Component name missing! Value component set to p0")
+      component <- "p0"
+    }
+    
+    ## check/set unit
+    if(missing(unit) == TRUE) {
+      
+      print("Unit missing! Value unit set to 1 ('unknown')")
+      unit <- "unknown"
+    }
+    
+    ## reassign unit ID
+    if(unit == "unknown") {unit <- 1}
+    if(unit == "displacement") {unit <- 2}
+    if(unit == "velocity") {unit <- 3}
+    if(unit == "volts") {unit <- 4}
+    if(unit == "acceleration") {unit <- 5}
+    
+    ## location information
+    location <- c(data$meta$latitude,
+                  data$meta$longitude,
+                  data$meta$elevation,
+                  data$meta$depth)
+    
+    ## sampling period 
+    dt <- data$meta$dt
+    
+    ## start time
+    start <- data$meta$starttime
+    
+    ## extract signal
+    data <- data$signal
   }
-  
-  ## check/set dt
-  if(missing(dt) == TRUE) {
-    dt <- as.numeric(mean(diff(time)))
-  }
-  
-  ## round dt
-  dt <- signif(x = dt, digits = 10)
-  
-  ## get first time entry
-  start <- time[1]
   
   ## create time data
   yr <- as.numeric(format(start, "%Y"))
-  jd <- as.numeric(as.POSIXlt(start)$yday + 1)
+  jd <- as.numeric(format(start, "%j"))
   mo <- as.numeric(format(start, "%m"))
   dom <- as.numeric(format(start, "%d"))
   hr <- as.numeric(format(start, "%H"))
@@ -186,7 +246,7 @@ write_sac <- function(
     sac_parameters$value[4] <-  1
     
     sac_parameters$value[5] <-  "-12345"
-
+    
     sac_parameters$value[6] <- t1
     
     sac_parameters$value[7] <- t2
@@ -244,11 +304,11 @@ write_sac <- function(
     sac_parameters$value[89:105] <- rep(x = "-12345", times = 17)
     
     sac_parameters$value[106] <- 1
-
+    
     sac_parameters$value[107] <- 1
-
+    
     sac_parameters$value[108] <- 1
-
+    
     sac_parameters$value[109] <- 0
     
     sac_parameters$value[110] <- "-12345"
@@ -273,53 +333,53 @@ write_sac <- function(
     sac_parameters <- parameters
   }
   
-    ## open binary file
-    SAC <- file(description = file, open = "wb")
-    
-    ## write float part to sac-file
-    writeBin(object = as.numeric(sac_parameters$value[1:70]), 
-             con = SAC, 
-             size = ifloat, 
-             endian = .Platform$endian)
-    
-    ## write long part to sac-file
-    writeBin(object = as.integer(sac_parameters$value[71:110]),
-             con = SAC, 
-             size = ilong, 
-             endian = .Platform$endian)
-    
-    ## write character part to sac-file
-    writeChar(object = format(as.character(sac_parameters$value[111]), 
+  ## open binary file
+  SAC <- file(description = file, 
+              open = "wb")
+  
+  ## write float part to sac-file
+  writeBin(object = as.numeric(sac_parameters$value[1:70]), 
+           con = SAC, 
+           size = ifloat, 
+           endian = .Platform$endian)
+  
+  ## write long part to sac-file
+  writeBin(object = as.integer(sac_parameters$value[71:110]),
+           con = SAC, 
+           size = ilong, 
+           endian = .Platform$endian)
+  
+  ## write character part to sac-file
+  writeChar(object = format(as.character(sac_parameters$value[111]), 
+                            width = 8, 
+                            justify = "left"), 
+            con = SAC, 
+            nchars = 8, 
+            eos = NULL)
+  
+  writeChar(object = format(as.character(sac_parameters$value[112]), 
+                            width = 16, 
+                            justify = "left"), 
+            con = SAC, 
+            nchars = 16, 
+            eos = NULL)
+  
+  
+  for(j in 113:133) {
+    writeChar(object = format(as.character(sac_parameters$value[j]), 
                               width = 8, 
                               justify = "left"), 
               con = SAC, 
               nchars = 8, 
               eos = NULL)
-    
-    writeChar(object = format(as.character(sac_parameters$value[112]), 
-                              width = 16, 
-                              justify = "left"), 
-              con = SAC, 
-              nchars = 16, 
-              eos = NULL)
-              
-    
-    for(j in 113:133) {
-      writeChar(object = format(as.character(sac_parameters$value[j]), 
-                                width = 8, 
-                                justify = "left"), 
-                con = SAC, 
-                nchars = 8, 
-                eos = NULL)
-    }
-    
-    ## write signal part to sac-file
-    writeBin(object = data, 
-             con = SAC, 
-             size = ifloat, 
-             endian = .Platform$endian)
-    
-    ## close connection
-    close(SAC)
-}
+  }
   
+  ## write signal part to sac-file
+  writeBin(object = data, 
+           con = SAC, 
+           size = ifloat, 
+           endian = .Platform$endian)
+  
+  ## close connection
+  close(SAC)
+}

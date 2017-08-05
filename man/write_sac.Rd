@@ -8,9 +8,11 @@ write_sac(data, file, time, component, unit, station, location, network, dt,
   parameters, biglong = FALSE)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, seismic trace to be written.}
+\item{data}{\code{eseis} object or \code{numeric} vector, data set to 
+be processed. Most other arguments can be omitted if \code{data} is an
+\code{eseis} object.}
 
-\item{file}{\code{Character} scalar, filename with extension.}
+\item{file}{\code{Character} scalar, sac filename with extension.}
 
 \item{time}{\code{POSIXct} vector, time vector corresponding to the 
 seismic trace. Alternatively, the start time stamp can be provided as

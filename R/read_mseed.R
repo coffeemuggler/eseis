@@ -198,6 +198,7 @@ read_mseed <- function(
                         latitude = NA,
                         longitude = NA,
                         elevation = NA,
+                        depth = NA,
                         filename = data[[i]]@url)
     }
   }

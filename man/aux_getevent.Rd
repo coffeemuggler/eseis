@@ -5,7 +5,7 @@
 \title{Load seismic data based on a time stamp}
 \usage{
 aux_getevent(start, duration, station, component = "BHZ", format = "sac",
-  dir, simplify = TRUE)
+  dir, simplify = TRUE, eseis = FALSE)
 }
 \arguments{
 \item{start}{\code{POSIXct} value, start time of the data to import.}
@@ -31,9 +31,14 @@ structure (cf. \code{aux_organisecubefiles()}). Default is
 when possible. This basically means that if only data from one station 
 is loaded, the list object will have one level less. Default is 
 \code{TRUE}.}
+
+\item{eseis}{\code{Logical} scalar, option to read data to an \code{eseis}
+object (recommended, see documentation of 
+\code{aux_initiateeseis}), default is \code{FALSE}}
 }
 \value{
-\code{list} object containing the time vector (\code{$time}) 
+A \code{list} object containing either a set of \code{eseis}
+objects or a data set with the time vector (\code{$time}) 
 and a list of seismic stations (\code{$station_ID}) with their seismic
 signals as data frame (\code{$signal}). If \code{simplify = TRUE} (the 
 default option) and only one seismic station is provided, the output  
@@ -47,7 +52,7 @@ and duration.
 \details{
 This and all other aux-functions are primarily written for internal 
 use amongst the GFZ Geomorphology Section group members and their  
-usual data handling scheme. Thus, they may be of limited change when 
+usual data handling scheme. Thus, they may be of limited use when 
 adopted for other scopes. However, many of these functions are 
 internally consistent in usage. For example, data set recorded by 
 Omnirecs Cube data loggers can be conherently processed with the 

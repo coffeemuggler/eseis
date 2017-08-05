@@ -6,7 +6,7 @@
 #' 
 #' This and all other aux-functions are primarily written for internal 
 #' use amongst the GFZ Geomorphology Section group members and their  
-#' usual data handling scheme. Thus, they may be of limited change when 
+#' usual data handling scheme. Thus, they may be of limited use when 
 #' adopted for other scopes. However, many of these functions are 
 #' internally consistent in usage. For example, data set recorded by 
 #' Omnirecs Cube data loggers can be conherently processed with the 
@@ -42,7 +42,12 @@
 #' is loaded, the list object will have one level less. Default is 
 #' \code{TRUE}.
 #' 
-#' @return \code{list} object containing the time vector (\code{$time}) 
+#' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
+#' object (recommended, see documentation of 
+#' \code{aux_initiateeseis}), default is \code{FALSE}
+#' 
+#' @return A \code{list} object containing either a set of \code{eseis}
+#' objects or a data set with the time vector (\code{$time}) 
 #' and a list of seismic stations (\code{$station_ID}) with their seismic
 #' signals as data frame (\code{$signal}). If \code{simplify = TRUE} (the 
 #' default option) and only one seismic station is provided, the output  
@@ -74,7 +79,8 @@ aux_getevent <- function(
   component = "BHZ",
   format = "sac",
   dir,
-  simplify = TRUE
+  simplify = TRUE,
+  eseis = FALSE
 ) {
   
   ## check/set arguments ------------------------------------------------------
@@ -159,32 +165,16 @@ aux_getevent <- function(
   
   ## Data import section ------------------------------------------------------
   
-  ## read time vector for first station and component
-  files_time <- files_station[[1]][grepl(x = files_station[[1]], 
-                                         pattern = component[1])]
-  
-  if(format == "sac") {
-    
-    time <- eseis::read_sac(file = files_time, 
-                            append = TRUE)$time
-  } else if(format == "mseed") {
-    
-    time <- eseis::read_mseed(file = files_time, 
-                              append = TRUE)$time
-    
-  }
-  
   ## create data object
   data <- vector(mode = "list", 
                  length = length(files_station))
-  names(data) <- station
   
   ## process files station-wise
   for(i in 1:length(data)) {
     
     data[[i]] <- as.data.frame(do.call(cbind, lapply(
       X = component, 
-      FUN = function(x, files_station, i, format, start, stop, time) {
+      FUN = function(x, files_station, i, format, start, stop) {
         
         ## isolate component of interest
         files_cmp <- files_station[[i]]
@@ -195,16 +185,17 @@ aux_getevent <- function(
         if(format == "sac") {
           
           x <- eseis::read_sac(file = files_cmp, 
-                               append = TRUE)$signal
+                               eseis = TRUE,
+                               append = TRUE)
         } else if(format == "mseed") {
           
           x <- eseis::read_mseed(file = files_cmp, 
-                                 append = TRUE)$signal
+                                 eseis = TRUE,
+                                 append = TRUE)
         }
         
         ## clip signal at start and end time
         x <- eseis::signal_clip(data = x, 
-                                time = time, 
                                 limits = c(start, stop))
         
         ## return processed seismic signal
@@ -214,30 +205,60 @@ aux_getevent <- function(
       i = i,
       format = format,
       start = start,
-      stop = stop,
-      time = time)))
+      stop = stop)))
     
     names(data[[i]]) <- component
+    
+    for(j in 1:length(data[[i]])) {
+      
+      class(data[[i]][[j]]) <- "eseis"
+    }
   }
   
-  ## clip time vector at start and end time
-  time <- eseis::time_clip(time = time, 
-                           limits = c(start, stop))
-  
   ## Data cleaning and output section -----------------------------------------
+  
+  ## optionally convert data structures
+  if(eseis == FALSE) {
+    
+    ## generate time vector
+    time <- seq(from = data[[1]][[1]]$meta$starttime, 
+                by = data[[1]][[1]]$meta$dt, 
+                length.out = data[[1]][[1]]$meta$n)
+    
+    ## extract signal vectors
+    for(i in 1:length(data)) {
+      
+      data[[i]] <- lapply(X = data[[i]], FUN = function(X) {
+        
+        X$signal
+      })
+      
+      ## assign names to vectors
+      names(data[[i]]) <- component[i]
+    }
+    
+    ## assign names to vectors
+    names(data) <- station
+
+    ## create output data set
+    data_out <- list(time = time, 
+                     signal = data)
+    
+  } else {
+    
+    names(data) <- station
+    
+    data_out <- data
+  }
   
   ## optionally simplify data structure
   if(simplify == TRUE) {
     
-    if(length(data) == 1) {
+    if(length(data_out) == 1) {
       
-      data <- data[[1]]
+      data_out <- data_out[[1]]
     }
   }
-  
-  ## create output data set
-  data_out <- list(time = time, 
-                   signal = data)
   
   ## return output data set
   return(data_out)

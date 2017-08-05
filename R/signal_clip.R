@@ -72,13 +72,14 @@ signal_clip <- function(
       ## get start index
       i_start <- as.numeric(difftime(time1 = limits[1], 
                                      time2 = data$meta$starttime, 
-                                     units = "secs")) / data$meta$dt
+                                     units = "secs")) / data$meta$dt + 1
       
       ## get stop index
       i_stop <- as.numeric(difftime(time1 = limits[2], 
                                     time2 = data$meta$starttime, 
                                     units = "secs")) / data$meta$dt
       
+
       ## correct for inappropriate indices
       if(i_start < 1) {
         

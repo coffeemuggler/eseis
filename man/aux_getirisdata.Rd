@@ -5,7 +5,7 @@
 \title{Download seismic data from IRIS data base}
 \usage{
 aux_getirisdata(start, duration, sncl, quality = "D",
-  ID_iris = "IrisClient")
+  ID_iris = "IrisClient", eseis = FALSE)
 }
 \arguments{
 \item{start}{\code{Posixct} value, start time of the data to query.}
@@ -27,6 +27,10 @@ been changed), \code{"B"}. Default is \code{"D"}.}
 
 \item{ID_iris}{\code{Character} value, IRIS ID. Default is 
 \code{"IrisClient"}.}
+
+\item{eseis}{\code{Logical} scalar, option to read data to an \code{eseis}
+object (recommended, see documentation of 
+\code{aux_initiateeseis}), default is \code{FALSE}}
 }
 \value{
 \code{List} with downloaded seismic data. For each element in 
@@ -49,12 +53,12 @@ download.
 
 \dontrun{
 
-sncl <- aux_getirisdata(start = as.POSIXct("2010-01-01 22:22:22", 
-                                           tz = "UTC"), 
-                        duration = 120, 
-                        location = c(53, 13), 
-                        radius = 1, 
-                        component = "BHZ")
+sncl <- aux_getirisstations(start = as.POSIXct("2010-01-01 22:22:22", 
+                                               tz = "UTC"), 
+                            duration = 120, 
+                            location = c(53, 13), 
+                            radius = 1, 
+                            component = "BHZ")
 
 data <- aux_getirisdata(start = as.POSIXct("2010-01-01 22:22:22", 
                                            tz = "UTC"), 

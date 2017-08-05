@@ -29,6 +29,10 @@
 #' @param ID_iris \code{Character} value, IRIS ID. Default is 
 #' \code{"IrisClient"}.
 #' 
+#' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
+#' object (recommended, see documentation of 
+#' \code{aux_initiateeseis}), default is \code{FALSE}
+#' 
 #' @return \code{List} with downloaded seismic data. For each element in 
 #' \code{sncl}, a list element is created, which in turn contains a list with 
 #' the typical seismic data organisation as, for example, created by 
@@ -40,12 +44,12 @@
 #' 
 #' \dontrun{
 #' 
-#' sncl <- aux_getirisdata(start = as.POSIXct("2010-01-01 22:22:22", 
-#'                                            tz = "UTC"), 
-#'                         duration = 120, 
-#'                         location = c(53, 13), 
-#'                         radius = 1, 
-#'                         component = "BHZ")
+#' sncl <- aux_getirisstations(start = as.POSIXct("2010-01-01 22:22:22", 
+#'                                                tz = "UTC"), 
+#'                             duration = 120, 
+#'                             location = c(53, 13), 
+#'                             radius = 1, 
+#'                             component = "BHZ")
 #' 
 #' data <- aux_getirisdata(start = as.POSIXct("2010-01-01 22:22:22", 
 #'                                            tz = "UTC"), 
@@ -67,22 +71,40 @@ aux_getirisdata <- function (
   duration, 
   sncl,
   quality = "D",
-  ID_iris = "IrisClient"
+  ID_iris = "IrisClient",
+  eseis = FALSE
 ) {
+  
+  ## collect function arguments
+  eseis_arguments <- list(start = start,
+                          duration = duration, 
+                          sncl = sncl,
+                          quality = quality,
+                          ID_iris = ID_iris,
+                          eseis = eseis)
   
   ## generate new IRIS client ID
   iris <- new(ID_iris)
   
   ## create output data set
-  data <- vector(mode = "list", 
-                 length = length(sncl))
+  if(eseis == TRUE) {
+    
+    data_list <- lapply(X = 1:length(sncl), 
+                     FUN = function(X) {
+                       eseis::aux_initiateeseis()
+                     })
+  } else {
+    
+    data_list <- vector(mode = "list", 
+                     length = length(sncl))
+  }
   
   ## process data download sequentially
   for(i in 1:length(sncl)) {
     
     ## download data
     data_i <- invisible(try(IRISSeismic::getSNCL(obj = iris,  
-                                                 sncl = sncl[i], 
+                                                 sncl = as.character(sncl[i]),
                                                  starttime = start, 
                                                  quality = quality,
                                                  endtime = start + duration), 
@@ -118,17 +140,44 @@ aux_getirisdata <- function (
                    latitude = data_i@traces[[1]]@stats@latitude,
                    longitude = data_i@traces[[1]]@stats@longitude,
                    elevation = data_i@traces[[1]]@stats@elevation,
+                   depth = data_i@traces[[1]]@stats@depth,
                    filename = data_i@url)
       
       header <- NA
       
-      data[[i]] <- list(signal = signal,
-                        time = time,
-                        meta = meta,
-                        header = header)
+      if(eseis == TRUE) {
+        
+        ## calculate function call duration
+        step_process <- length(data_list[[i]]$history)
+        data_list[[i]]$history[[step_process]]$duration <- 
+          as.numeric(difftime(time1 = Sys.time(), 
+                              time2 = data_list[[i]]$
+                                history[[step_process]]$time, 
+                              units = "secs"))
+        
+        ## fill eseis object
+        data_list[[i]]$signal <- signal
+        data_list[[i]]$meta <- meta
+        data_list[[i]]$header <- header
+        data_list[[i]]$history[[length(data_list[[i]]$history) + 1]] <- 
+          list(time = Sys.time(),
+               call = "aux_getirisdata()",
+               arguments = eseis_arguments,
+               duration = eseis_duration)
+        names(data_list[[i]]$history)[length(data_list[[i]]$history)] <- 
+          as.character(length(data_list[[i]]$history))
+
+      } else {
+        
+        ## fill data object
+        data_list[[i]] <- list(signal = signal,
+                            time = time,
+                            meta = meta,
+                            header = header)
+      }
     }
   } 
-  
+
   ## return results
-  return(data)
+  return(data_list)
 }
