@@ -141,6 +141,11 @@ plot_spectrogram <- function(
   
   extraArgs <- extraArgs[!names(extraArgs)%in%keywords]
   
+  ## check for eseis object
+  if(class(data) == "eseis") {
+    
+    data <- data$PSD
+  }
   
   ## check input data
   if(class(data) != "spectrogram") {
