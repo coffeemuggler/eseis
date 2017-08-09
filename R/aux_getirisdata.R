@@ -162,8 +162,7 @@ aux_getirisdata <- function (
         data_list[[i]]$history[[length(data_list[[i]]$history) + 1]] <- 
           list(time = Sys.time(),
                call = "aux_getirisdata()",
-               arguments = eseis_arguments,
-               duration = eseis_duration)
+               arguments = eseis_arguments)
         names(data_list[[i]]$history)[length(data_list[[i]]$history)] <- 
           as.character(length(data_list[[i]]$history))
 
