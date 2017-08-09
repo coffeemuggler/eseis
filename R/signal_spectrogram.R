@@ -16,7 +16,7 @@
 #' estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz). 
 #' 
 #' @param Welch \code{Logical} scalar, option to use the Welch method for
-#' calcualtions.
+#' calculations.
 #' 
 #' @param window \code{Numeric} scalar, time window length in seconds used to 
 #' calculate individual spectra. Set to 1 percent of the time series length 
