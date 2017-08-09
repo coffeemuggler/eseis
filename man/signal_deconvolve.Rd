@@ -20,7 +20,7 @@ examples). Default is \code{"TC120s"}.}
 
 \item{logger}{\code{Character} scalar, seismic logger name. Must be 
 present in the logger library (\code{list_logger}) or parameters must be
-added manually. Default is \code{"Cube"}.}
+added manually. Default is \code{"Cube3extBOB"}.}
 
 \item{gain}{\code{Numeric} value, signal gain level of the logger. Default 
 is \code{1}.}
