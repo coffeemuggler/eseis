@@ -130,6 +130,15 @@ aux_psdsummary <- function(
     logger <- "Cube3extBOB"
   }
   
+  ## set NA replace option
+  if("na.replace" %in% names(extraArgs)) {
+    
+    na.replace <- extraArgs$na.replace
+  } else {
+    
+    na.replace <- FALSE
+  }
+  
   ## set filter frequencies
   if("f" %in% names(extraArgs)) {
     
@@ -195,7 +204,7 @@ aux_psdsummary <- function(
   
   ## remove keywords from plot arguments
   keywords <- c("zlim", "legend", "f", "sensor", "logger", 
-                "type", "Welch", "window", "window_sub")
+                "type", "Welch", "window", "window_sub", "na.replace")
   
   extraArgs <- extraArgs[!names(extraArgs)%in%keywords]
   
@@ -263,18 +272,29 @@ aux_psdsummary <- function(
       
       ## PROCESSING | DATA IMPORT AND PROCESSING ------------------------------
       
+      ## set start time, accounting for boundary condition
+      if(j == 1) {
+        
+        day_start <- days_show[j]
+      } else {
+        
+        day_start <- days_show[j] - 600
+      }
+
       ## read input files
-      s <- try(eseis::aux_getevent(start = days_show[j] - 600, 
+      s <- try(eseis::aux_getevent(start = days_show[j], 
                                    duration = 24 * 60 * 60 + 600, 
                                    station = station[i], 
                                    component = component, 
+                                   dir = input_dir,
                                    eseis = TRUE)[[1]], 
                silent = TRUE)
-      
+
       ## deconvolve data
       s <- try(eseis::signal_deconvolve(data = s, 
                                  sensor = sensor, 
-                                 logger = logger),
+                                 logger = logger,
+                                 na.replace = na.replace),
                silent = TRUE)
       
       ## detrend data
