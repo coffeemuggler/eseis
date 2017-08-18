@@ -5,7 +5,7 @@
 \title{Deconvolve a signal vector.}
 \usage{
 signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3extBOB",
-  gain = 1, p = 10^-6, waterlevel = 10^-6)
+  gain = 1, p = 10^-6, waterlevel = 10^-6, na.replace = FALSE)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
@@ -30,6 +30,11 @@ is\code{10^-6}.}
 
 \item{waterlevel}{\code{Numeric} scalar, waterlevel value for frequency
 division, default is \code{10^-6}.}
+
+\item{na.replace}{\code{Logical} value, option to replace NA values in the 
+data set by zeros. Default is \code{FALSE}. Attention, the zeros will 
+create artifacts in the deconvolved data set. However, NA values will 
+result in no deconvolution at all.}
 }
 \value{
 \code{Numeric} vector or list of vectors, deconvolved signal.

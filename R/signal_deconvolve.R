@@ -33,6 +33,11 @@
 #' @param waterlevel \code{Numeric} scalar, waterlevel value for frequency
 #' division, default is \code{10^-6}.
 #' 
+#' @param na.replace \code{Logical} value, option to replace NA values in the 
+#' data set by zeros. Default is \code{FALSE}. Attention, the zeros will 
+#' create artifacts in the deconvolved data set. However, NA values will 
+#' result in no deconvolution at all.
+#' 
 #' @return \code{Numeric} vector or list of vectors, deconvolved signal.
 #' @author Michael Dietze
 #' @keywords eseis
@@ -85,7 +90,8 @@ signal_deconvolve <- function(
   logger = "Cube3extBOB",
   gain = 1,
   p = 10^-6,
-  waterlevel = 10^-6
+  waterlevel = 10^-6,
+  na.replace = FALSE
 ) {
   
   ## check/set arguments
@@ -215,6 +221,12 @@ signal_deconvolve <- function(
     data_padd <- signal_padd(data = data_taper)
     rm(data_taper)
     
+    ## optionally replace NA values by zero
+    if(na.replace == TRUE) {
+      
+      data_padd[is.na(data_padd)] <- 0
+    }
+    
     ## make frequency vector
     if ((length(data_padd)%%2) == 1) {
       f <- c(seq(0, (length(data_padd) - 1) / 2), 
@@ -226,7 +238,6 @@ signal_deconvolve <- function(
     
     ## calculate Fourier transform
     x_fft <- fftw::FFT(x = data_padd)
-    
     
     ## get polynomial form of poles and zeros
     poles_poly <- Re(signal::poly(x = poles))
