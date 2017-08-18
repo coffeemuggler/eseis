@@ -84,12 +84,18 @@ signal_clip <- function(
       if(i_start < 1) {
         
         warning("Start time smaller than signal start. Set to start time.")
+        
+        limits[1] <- limits[1] + (1 - i_start) * data$meta$dt
+        
         i_start <- 1
       }
       
       if(i_stop > data$meta$n) {
         
         warning("Stop time greater than signal length. Set to end time.")
+        
+        limits[2] <- limits[1] + data$meta$n * data$meta$dt
+        
         i_stop <- data$meta$n
       }
       
