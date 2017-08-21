@@ -75,58 +75,12 @@ signal_stalta <- function(
     time_in <- time
   }
   
-  ## check/set dt
-  if(missing(dt) == TRUE && class(data) != "eseis") {
+  if(missing(dt) == TRUE) {
     
-    if(missing(time) == TRUE) {
-      
-      dt <- 1 / 200
-      
-      warning("No dt provided. Set to 1 / 200 s by default!")
-      
-    } else {
-      
-      if(length(time) > 1000) {
-        
-        time_dt <- time[1:1000]
-        
-      } else {
-        
-        time_dt <- time
-        
-      }
-      
-      dt_estimate <- mean(x = diff(x = as.numeric(time)), 
-                          na.rm = TRUE)
-      print(paste("dt estimated from time vector (", 
-                  signif(x = dt_estimate),
-                  " s)",
-                  sep = ""))
-      
-      dt <- dt_estimate
-    }
+    dt <- NULL
+  } else {
     
-  } else if(class(data) == "eseis") {
-    
-    dt <- data$meta$dt
-  }
-  
-  ## handle missing time vector
-  if(missing(time) == TRUE && class(data) != "eseis") {
-    
-    time <- seq(from = as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
-                                               format = "%Y-%m-%d %H:%M:%S", 
-                                               tz = "UTC"), tz = "UTC"),
-                by = dt,
-                length.out = length(data))
-    
-    print("No or non-POSIXct time data provided. Default data generated!")
-    
-  } else if(class(data) == "eseis") {
-    
-    time <- seq(from = data$meta$starttime, 
-                by = dt, 
-                length.out = data$meta$n)
+    dt <- dt
   }
 
   ## check data structure
@@ -135,7 +89,7 @@ signal_stalta <- function(
     ## apply function to list
     data_out <- lapply(X = data, 
                        FUN = eseis::signal_stalta,
-                       time = time,
+                       time = time_in,
                        dt = dt,
                        sta = sta,
                        lta = lta,
@@ -173,12 +127,66 @@ signal_stalta <- function(
       ## extract signal vector
       data <- eseis_data$signal
       
+      ## extract sampling period
+      dt <- eseis_data$meta$dt
+      
+      ## generate time vector
+      time <- seq(from = eseis_data$meta$starttime, 
+                  by = dt, 
+                  length.out = eseis_data$meta$n)
+      
     } else {
       
       ## set eseis flag
       eseis_class <- FALSE
+      
+      ## assign dt and time
+      if(is.null(dt) == TRUE) {
+        
+        if(is.null(time) == TRUE) {
+          
+          dt <- 1 / 200
+          
+          warning("No dt provided. Set to 1 / 200 s by default!")
+        } else {
+          
+          if(length(time) > 1000) {
+            
+            time_dt <- time[1:1000]
+            
+          } else {
+            
+            time_dt <- time
+            
+          }
+          
+          dt_estimate <- mean(x = diff(x = as.numeric(time)), 
+                              na.rm = TRUE)
+          print(paste("dt estimated from time vector (", 
+                      signif(x = dt_estimate),
+                      " s)",
+                      sep = ""))
+          
+          dt <- dt_estimate
+        }
+        
+        ## handle missing time vector
+        if(is.null(time) == TRUE) {
+          
+          time <- seq(from = 
+                        as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
+                                                format = "%Y-%m-%d %H:%M:%S", 
+                                                tz = "UTC"), tz = "UTC"),
+                      by = dt,
+                      length.out = length(data))
+          
+          print("No or non-POSIXct time data provided. Default data created!")
+          
+        }
+        
+      }
     }
-
+ 
     ## calculate sta vector
     data_sta <- caTools::runmean(x = data, 
                                  k = sta, 
