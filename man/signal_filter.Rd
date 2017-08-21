@@ -4,17 +4,17 @@
 \alias{signal_filter}
 \title{Filter a seismic signal.}
 \usage{
-signal_filter(data, dt, f, type, shape = "butter", order = 2, p = 0)
+signal_filter(data, f, dt, type, shape = "butter", order = 2, p = 0)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
 
-\item{dt}{\code{Numeric} scalar, sampling period. If omitted, \code{dt} 
-is set to 1/200.}
-
 \item{f}{\code{Numeric} scalar or vector of length two, lower and/or 
 upper cutoff frequencies (Hz).}
+
+\item{dt}{\code{Numeric} scalar, sampling period. If omitted, \code{dt} 
+is set to 1/200.}
 
 \item{type}{\code{Character} scalar, type of filter, one out of 
 \code{"LP"} (low pass), \code{"HP"} (high pass), \code{"BP"} (band 

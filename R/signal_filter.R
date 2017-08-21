@@ -5,11 +5,11 @@
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
-#' @param dt \code{Numeric} scalar, sampling period. If omitted, \code{dt} 
-#' is set to 1/200.
-#' 
 #' @param f \code{Numeric} scalar or vector of length two, lower and/or 
 #' upper cutoff frequencies (Hz).
+#' 
+#' @param dt \code{Numeric} scalar, sampling period. If omitted, \code{dt} 
+#' is set to 1/200.
 #' 
 #' @param type \code{Character} scalar, type of filter, one out of 
 #' \code{"LP"} (low pass), \code{"HP"} (high pass), \code{"BP"} (band 
@@ -50,8 +50,8 @@
 #' @export signal_filter
 signal_filter <- function(
   data,
-  dt,
   f,
+  dt,
   type,
   shape = "butter",
   order = 2,
@@ -67,7 +67,7 @@ signal_filter <- function(
     
   } else if(missing(dt) == TRUE){
     
-    dt <- NULL
+    dt <- data$meta$dt
   }
   
   ## check data structure
