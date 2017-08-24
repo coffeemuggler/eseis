@@ -85,6 +85,15 @@ aux_getevent <- function(
   
   ## check/set arguments ------------------------------------------------------
   
+  ## get system time zone
+  tz_system <- Sys.timezone()
+  
+  ## automatically reset time zone if function breaks or ends
+  on.exit(expr = Sys.setenv(TZ = tz_system))
+  
+  ## set system time zone to UTC
+  Sys.setenv(TZ = "UTC")
+  
   ## check start time format
   if(class(start)[1] != "POSIXct") {
     
@@ -197,7 +206,7 @@ aux_getevent <- function(
         ## clip signal at start and end time
         x <- eseis::signal_clip(data = x, 
                                 limits = c(start, stop))
-        
+
         ## return processed seismic signal
         return(x)
       }, 
