@@ -282,7 +282,7 @@ aux_psdsummary <- function(
       }
 
       ## read input files
-      s <- try(eseis::aux_getevent(start = days_show[j], 
+      s <- try(eseis::aux_getevent(start = day_start, 
                                    duration = 24 * 60 * 60 + 600, 
                                    station = station[i], 
                                    component = component, 
@@ -487,9 +487,11 @@ aux_psdsummary <- function(
         ## generate month number
         n_month <- months_unique[k]
         
-        if(nchar(n_month) == 1) {n_month <- paste("0", 
-                                                  n_month, 
-                                                  sep = "")}
+        if(nchar(n_month) == 1) {
+          n_month <- paste("0", 
+                           n_month, 
+                           sep = "")
+        }
         
         ## prepare output device
         jpeg(filename = paste(output_dir,
@@ -561,9 +563,11 @@ aux_psdsummary <- function(
         ## generate week number
         n_week <- weeks_unique[k]
         
-        if(nchar(n_week) == 1) {n_week <- paste("0", 
-                                                n_week, 
-                                                sep = "")}
+        if(nchar(n_week) == 1) {
+          n_week <- paste("0", 
+                          n_week, 
+                          sep = "")
+        }
         
         ## prepare output device
         jpeg(filename = paste(output_dir,
@@ -635,9 +639,11 @@ aux_psdsummary <- function(
         ## generate month number
         n_day <- days_unique[k]
         
-        if(nchar(n_day) == 1) {n_week <- paste("0", 
-                                               n_week, 
-                                               sep = "")}
+        if(nchar(n_day) == 1) {
+          n_week <- paste("0", 
+                          n_week, 
+                          sep = "")
+        }
         
         ## prepare output device
         jpeg(filename = paste(output_dir,
@@ -652,7 +658,7 @@ aux_psdsummary <- function(
              quality = jpg_dim[4])
         
         ## generate plot
-        do.call(what = eseis::plot_spectrogram, 
+        try(do.call(what = eseis::plot_spectrogram, 
                 args = c(list(data = P_daily_res,
                               main = paste(station[i], 
                                            " | JD ",
@@ -665,7 +671,8 @@ aux_psdsummary <- function(
                                            sep = ""),
                               zlim = zlim_psd,
                               legend = legend), 
-                         extraArgs))
+                         extraArgs)), 
+            silent = TRUE)
         
         ## close plot device
         dev.off()
