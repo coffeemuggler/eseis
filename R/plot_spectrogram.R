@@ -136,8 +136,25 @@ plot_spectrogram <- function(
     legend_values <- pretty(data$S, na.rm = TRUE)
   }
   
+  if ("axes" %in% names(extraArgs)) {
+    axes <- extraArgs$axes
+  }
+  else {
+    
+    axes <- TRUE
+  }
+  
+  ## handle date formats
+  if ("format" %in% names(extraArgs)) {
+    format <- extraArgs$format
+  }
+  else {
+    
+    format <- ""
+  }
+  
   ## remove keywords from plot arguments
-  keywords <- c("main", "xlab", "ylab", "zlab", "zlim")
+  keywords <- c("main", "xlab", "ylab", "zlab", "zlim", "format", "axes")
   
   extraArgs <- extraArgs[!names(extraArgs)%in%keywords]
   
@@ -194,11 +211,22 @@ plot_spectrogram <- function(
                           z = t(data$S[f_out, t_out]), 
                           col = do.call(what = col, 
                                         args = list(200)),
+                          axes = FALSE,
                           main = main,
                           xlab = xlab,
                           ylab = ylab,
                           zlim = zlim_psd), 
                      extraArgs))
+    
+    ## optionally add axes
+    if(axes == TRUE) {
+      
+      graphics::axis.POSIXct(side = 1, 
+                             x = data$t[t_out], 
+                             format = format)
+      
+      graphics::axis(side = 2)
+    }
     
     ## add box
     box(which = "plot")
@@ -230,6 +258,7 @@ plot_spectrogram <- function(
             args = c(list(x = data$t[t_out], 
                           y = data$f[f_out], 
                           z = t(data$S[f_out, t_out]), 
+                          axes = FALSE,
                           col = do.call(what = col, 
                                         args = list(200)),
                           main = main,
@@ -237,6 +266,16 @@ plot_spectrogram <- function(
                           ylab = ylab,
                           zlim = zlim_psd), 
                      extraArgs))
+    
+    ## optionally add axes
+    if(axes == TRUE) {
+      
+      graphics::axis.POSIXct(side = 1, 
+                             x = data$t[t_out], 
+                             format = format)
+      
+      graphics::axis(side = 2)
+    }
     
     ## allow overplotting
     xpd_in <- graphics::par()$xpd
