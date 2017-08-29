@@ -15,12 +15,13 @@
 #' @author Michael Dietze
 #' @keywords Environmental Seismology, signal processing
 #' @importFrom graphics image plot axis axis.POSIXct box mtext
-#' @importFrom stats ccf spec.taper spectrum filter spec.pgram spec.ar median nextn
+#' @importFrom stats ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd
 #' @importFrom methods as new
 #' @importFrom Rcpp evalCpp
 #' @importFrom IRISSeismic readMiniseedFile getNetwork getStation getSNCL
 #' @importFrom grDevices colorRampPalette dev.off jpeg
-#' @importFrom utils read.delim write.table read.table sessionInfo
+#' @importFrom utils read.delim write.table read.table sessionInfo download.file
+#' @importFrom XML xmlParse xmlToList
 #' @useDynLib eseis
 NULL
 
