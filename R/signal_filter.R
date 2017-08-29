@@ -61,7 +61,10 @@ signal_filter <- function(
   ## check/set dt
   if(missing(dt) == TRUE && class(data) != "eseis") {
     
-    warning("Sampling frequency missing! Set to 1/200")
+    if(class(data[[1]]) != "eseis") {
+      
+      warning("Sampling frequency missing! Set to 1/200")
+    }
     
     dt <- 1 / 200
     
