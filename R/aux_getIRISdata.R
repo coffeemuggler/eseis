@@ -39,19 +39,21 @@
 #' \code{read_sac()}.
 #' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' \dontrun{
 #' 
-#' sncl <- aux_getirisstations(start = as.POSIXct("2010-01-01 22:22:22", 
+#' sncl <- aux_getIRISstations(start = as.POSIXct("2010-01-01 22:22:22", 
 #'                                                tz = "UTC"), 
 #'                             duration = 120, 
 #'                             location = c(53, 13), 
 #'                             radius = 1, 
 #'                             component = "BHZ")
 #' 
-#' data <- aux_getirisdata(start = as.POSIXct("2010-01-01 22:22:22", 
+#' data <- aux_getIRISdata(start = as.POSIXct("2010-01-01 22:22:22", 
 #'                                            tz = "UTC"), 
 #'                         duration = 120,
 #'                         sncl = sncl$sncl[1])
@@ -63,9 +65,9 @@
 #'             time = t)
 #' }
 #'                      
-#' @export aux_getirisdata
+#' @export aux_getIRISdata
 #' 
-aux_getirisdata <- function (
+aux_getIRISdata <- function (
   
   start, 
   duration, 

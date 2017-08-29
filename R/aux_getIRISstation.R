@@ -37,7 +37,7 @@
 #' 
 #' \dontrun{
 #' 
-#' x <- aux_getirisstations(start = as.POSIXct("2010-01-01 22:22:22", 
+#' x <- aux_getIRISstation(start = as.POSIXct("2010-01-01 22:22:22", 
 #'                          tz = "UTC"), 
 #'                          duration = 3 * 3600, 
 #'                          location = c(53, 13), 
@@ -45,9 +45,9 @@
 #'                          component = "BHZ")
 #' }
 #'                      
-#' @export aux_getirisstations
+#' @export aux_getIRISstation
 #' 
-aux_getirisstations <- function (
+aux_getIRISstation <- function (
   
   start, 
   duration, 
