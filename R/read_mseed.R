@@ -157,9 +157,16 @@ read_mseed <- function(
     
       for(j in 1:length(time_limits[[i]])) {
         
-        signal_list[[i]][time_list[[i]] >= time_limits[[i]][[j]]$start & 
-                    time_list[[i]] <= time_limits[[i]][[j]]$stop] <- 
-          data[[i]]@traces[[j]]@data
+        i_time_ok <- time_list[[i]] >= time_limits[[i]][[j]]$start & 
+          time_list[[i]] <= time_limits[[i]][[j]]$stop
+        
+        if(sum(i_time_ok) != length(data[[i]]@traces[[j]]@data)) {
+          
+          print("read_mseed: possible mismatch of time and data length.")
+        }
+        
+        signal_list[[i]][i_time_ok] <- 
+          data[[i]]@traces[[j]]@data[1:sum(i_time_ok)]
       }
   }
   
