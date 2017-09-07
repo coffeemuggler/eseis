@@ -12,6 +12,7 @@
 #'   \item \code{orfeus} \code{"http://www.orfeus-eu.org"}
 #'   \item \code{bgr} \code{"http://eida.bgr.de"}
 #'   \item \code{sss} \code{"http://eida.ethz.ch"}
+#'   \item \code{geofon} \code{"http://geofon.gfz-potsdam.de/"}
 #' }
 #' 
 #' Other FDSN data base addresses can be provided in the same way as the 
@@ -52,7 +53,7 @@
 #' 
 #' x <- aux_getFDSNstation(start = as.POSIXct(x = "2010-01-01 22:22:22", 
 #'                                            tz = "UTC"), 
-#'                         location = c(45, 10), 
+#'                         centre = c(45, 10), 
 #'                         radius = 1)
 #'                            
 #' ## optionally plot station locations on a map (requires RgoogleMaps)
@@ -94,6 +95,7 @@ aux_getFDSNstation <- function (
   if(missing(url) == TRUE) {
     
     url <- c("http://www.orfeus-eu.org",
+             "http://geofon.gfz-potsdam.de/",
              "http://eida.bgr.de",
              "http://eida.ethz.ch")
   }

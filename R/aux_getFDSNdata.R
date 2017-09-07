@@ -191,7 +191,7 @@ aux_getFDSNdata <- function(
     
     ## read mseed file
     s <- try(eseis::read_mseed(file = mseed_temp, 
-                               eseis = TRUE), 
+                               eseis = eseis), 
              silent = TRUE)
     
     ## remove temporary mseed file
