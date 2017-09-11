@@ -155,7 +155,8 @@ plot_components <- function(
     col <- args$col
   } else {
     
-    col <- 1
+    col <- colorRampPalette(colors = 1)
+    col <- col(n = ncol(data))
   }
   
   if ("phi" %in% names(args)) {
@@ -323,7 +324,7 @@ plot_components <- function(
     rgl::segments3d(x=as.vector(t(data_plot[,c(1, 4)])),
                     y=as.vector(t(data_plot[,c(2, 5)])),
                     z=as.vector(t(data_plot[,c(3, 6)])), 
-                    col = col[1:nrow(data_plot)],
+                    col = col,
                     lwd = lwd)
     
     ## add axes
