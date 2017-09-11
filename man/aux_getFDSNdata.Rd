@@ -75,7 +75,7 @@ par(mfcol = c(3, 1))
 
 for(i in 1:3) {
 
-  plot_signal(data = d_f[[i]],
+  plot_signal(data = d[[i]],
               main = paste(x$ID[i], 
                            " | ",
                            round(x$distance[i], 2),
