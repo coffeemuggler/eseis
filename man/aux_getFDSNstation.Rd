@@ -49,7 +49,9 @@ It uses the following three FDSN data bases by default:
 
 Other FDSN data base addresses can be provided in the same way as the 
 addresses in the above list. They are to be provided as character 
-vector.
+vector. For a list of addresses see 
+\href{http://www.fdsn.org/webservices/datacenters/} and 
+\href{http://docs.obspy.org/packages/obspy.clients.fdsn.html#module-obspy.clients.fdsn}.
 }
 \examples{
 

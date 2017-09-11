@@ -17,7 +17,9 @@
 #' 
 #' Other FDSN data base addresses can be provided in the same way as the 
 #' addresses in the above list. They are to be provided as character 
-#' vector.
+#' vector. For a list of addresses see 
+#' \href{http://www.fdsn.org/webservices/datacenters/} and 
+#' \href{http://docs.obspy.org/packages/obspy.clients.fdsn.html#module-obspy.clients.fdsn}.
 #'
 #' @param centre \code{Numeric} vector of length two, center coordinates 
 #' (\code{c(latitude, longitude)}) of the location to search data for. 
