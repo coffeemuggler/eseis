@@ -10,9 +10,9 @@
 #' 
 #' \itemize{
 #'   \item \code{orfeus} \code{"http://www.orfeus-eu.org"}
+#'   \item \code{geofon} \code{"http://geofon.gfz-potsdam.de/"}
 #'   \item \code{bgr} \code{"http://eida.bgr.de"}
 #'   \item \code{sss} \code{"http://eida.ethz.ch"}
-#'   \item \code{geofon} \code{"http://geofon.gfz-potsdam.de/"}
 #' }
 #' 
 #' Other FDSN data base addresses can be provided in the same way as the 
@@ -94,10 +94,10 @@ aux_getFDSNstation <- function (
   ## build link list
   if(missing(url) == TRUE) {
     
-    url <- c("http://www.orfeus-eu.org",
-             "http://geofon.gfz-potsdam.de/",
-             "http://eida.bgr.de",
-             "http://eida.ethz.ch")
+    url <- c("http://eida.bgr.de",
+             "http://eida.ethz.ch",
+             "http://www.orfeus-eu.org",
+             "http://geofon.gfz-potsdam.de")
   }
   
   ## create output object

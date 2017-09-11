@@ -42,6 +42,7 @@ It uses the following three FDSN data bases by default:
 
 \itemize{
   \item \code{orfeus} \code{"http://www.orfeus-eu.org"}
+  \item \code{geofon} \code{"http://geofon.gfz-potsdam.de/"}
   \item \code{bgr} \code{"http://eida.bgr.de"}
   \item \code{sss} \code{"http://eida.ethz.ch"}
 }
@@ -56,7 +57,7 @@ vector.
 
 x <- aux_getFDSNstation(start = as.POSIXct(x = "2010-01-01 22:22:22", 
                                            tz = "UTC"), 
-                        location = c(45, 10), 
+                        centre = c(45, 10), 
                         radius = 1)
                            
 ## optionally plot station locations on a map (requires RgoogleMaps)
