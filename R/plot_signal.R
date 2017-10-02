@@ -166,9 +166,6 @@ plot_signal <- function(
                         axes = FALSE), 
                    args))
   
-  ## add box
-  graphics::box(which = "plot")
-  
   ## optionally add axes
   if(axes == TRUE) {
     
@@ -177,5 +174,7 @@ plot_signal <- function(
                            format = format)
     
     graphics::axis(side = 2)
+    
+    graphics::box(which = "plot")
   }
 }
