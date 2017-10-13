@@ -38,6 +38,24 @@
 #'    }
 #' }
 #' 
+#' With one of the latest updates of either R or Java the cache size for 
+#' converting cube files to mseed files has been reduced with no way to 
+#' externally change this setting. Thus, in several cases the conversion 
+#' stops due to buffer overruns. This effect has been particularly observed 
+#' when trying to convert more than about 20 consecutive days of cube files
+#' at once. In such a case, it is appropriate to set the function argument
+#' mseed_manual to \code{TRUE}. This will stop the function just at the point
+#' where the function would call the GIPPtools function cube2mseed. The user 
+#' will see a confirmation command line in the R console in which she or he 
+#' is asked to first copy all manually converted mseed files to the directory 
+#' \code{mseed_raw} before confirming to continue with the R function. To 
+#' convert all cube files to mseed files it is advised to open a terminal and 
+#' run the function \code{GIPPtools/bin/cube2mseed} with the following 
+#' parameters: \code{GIPPtools/bin/cube2mseed --verbose --output-dir=./mseed_raw/ ./input_dir/}
+#' without further adjustments, except for the fringe sample option, as 
+#' specified in \code{aux_organisecubefiles}. Please also see the documentation 
+#' of cube2mseed for further information.
+#' 
 #' @param stationfile \code{Character} value, file name of the station info 
 #' file, with extension. See \code{aux_stationinfofile}.
 #'
@@ -47,6 +65,10 @@
 #' 
 #' @param output_dir \code{Character} value, path to directory where output 
 #' data is written to.
+#' 
+#' @param mseed_manual \code{Logical} value, option to convert mseed files 
+#' manually. See details. Default is \code{FALSE}, i.e., the function converts 
+#' cube files to mseed files using the GIPP tools.
 #' 
 #' @param format \code{Character} value, output file format. One out of 
 #' \code{"mseed"} and \code{"sac"}. Default is \code{"sac"}.
@@ -86,6 +108,7 @@ aux_organisecubefiles <- function(
   stationfile,
   input_dir,
   output_dir,
+  mseed_manual = FALSE,
   format = "sac",
   channel_name = "bh",
   cpu,
@@ -188,27 +211,50 @@ aux_organisecubefiles <- function(
   ## initiate cluster
   cl <- parallel::makeCluster(getOption("mc.cores", cores))
   
-  ## convert cube to mseed files
-  invisible(parallel::parLapply(
-    cl = cl, 
-    X = list_logger, 
-    fun = function(X, gipptools, output_dir) {
+  ## convert mseed files or use manually converted files
+  if(mseed_manual == TRUE) {
+    
+    print(paste("Copy all mseed files to 'mseed_raw' and press any key",
+                "to continue (or 'q' to quit).", 
+                sep = " "))
+    
+    go_on <- scan(what = "character",
+                  n = 1,
+                  quiet = TRUE)
+    
+    if(length(go_on) == 0) {
+      go_on <- "go_on"
+    }
+    
+    if(go_on == "q") {
       
-      system(command = paste(gipptools, "/bin/cube2mseed", 
-                             ifelse(test = verbose == TRUE, 
-                                    yes = " --verbose", 
-                                    no = ""),
-                             " --fringe-samples=",
-                             toupper(x = fringe),
-                             " --output-dir=",
-                             output_dir,
-                             "/mseed_raw ",
-                             X,
-                             "/",
-                             sep = ""))
-    }, 
-    gipptools = gipptools,
-    output_dir = output_dir))
+      stop("Manual function abort.")
+    }
+    
+  } else {
+    
+    ## convert cube to mseed files
+    invisible(parallel::parLapply(
+      cl = cl, 
+      X = list_logger, 
+      fun = function(X, gipptools, output_dir) {
+        
+        system(command = paste(gipptools, "/bin/cube2mseed", 
+                               ifelse(test = verbose == TRUE, 
+                                      yes = " --verbose", 
+                                      no = ""),
+                               " --fringe-samples=",
+                               toupper(x = fringe),
+                               " --output-dir=",
+                               output_dir,
+                               "/mseed_raw ",
+                               X,
+                               "/",
+                               sep = ""))
+      }, 
+      gipptools = gipptools,
+      output_dir = output_dir))
+  }
   
   ## create list of generated mseed files
   files_mseed_raw <- list.files(path = paste(output_dir, 
@@ -240,9 +286,9 @@ aux_organisecubefiles <- function(
                                                   sep = ""), 
                                      full.names = TRUE)
   invisible(file.remove(files_mseed_raw_full))
-  invisible(file.remove(paste(output_dir, 
+  try(invisible(file.remove(paste(output_dir, 
                               "/mseed_raw", 
-                              sep = "")))
+                              sep = ""))))
   
   ## create hourly mseed file lists
   files_mseed_hour <- list.files(path = paste(output_dir,
@@ -417,9 +463,9 @@ aux_organisecubefiles <- function(
   }
   
   ## remove temporary directory
-  invisible(file.remove(paste(output_dir, 
+  try(invisible(file.remove(paste(output_dir, 
                               "/mseed_hour",
-                              sep = "")))
+                              sep = ""))))
   
   ## stop cluster
   parallel::stopCluster(cl = cl)

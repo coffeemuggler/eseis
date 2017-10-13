@@ -4,9 +4,9 @@
 \alias{aux_organisecubefiles}
 \title{Convert cube files to mseed or sac files and organise in directory structure.}
 \usage{
-aux_organisecubefiles(stationfile, input_dir, output_dir, format = "sac",
-  channel_name = "bh", cpu, fringe = "constant", verbose = FALSE,
-  gipptools)
+aux_organisecubefiles(stationfile, input_dir, output_dir,
+  mseed_manual = FALSE, format = "sac", channel_name = "bh", cpu,
+  fringe = "constant", verbose = FALSE, gipptools)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 
@@ -18,6 +18,10 @@ stored in a separate sub-directory named after the cube ID.}
 
 \item{output_dir}{\code{Character} value, path to directory where output 
 data is written to.}
+
+\item{mseed_manual}{\code{Logical} value, option to convert mseed files 
+manually. See details. Default is \code{FALSE}, i.e., the function converts 
+cube files to mseed files using the GIPP tools.}
 
 \item{format}{\code{Character} value, output file format. One out of 
 \code{"mseed"} and \code{"sac"}. Default is \code{"sac"}.}
@@ -80,6 +84,24 @@ appropriate structure would be something like: \cr
       }
    }
 }
+
+With one of the latest updates of either R or Java the cache size for 
+converting cube files to mseed files has been reduced with no way to 
+externally change this setting. Thus, in several cases the conversion 
+stops due to buffer overruns. This effect has been particularly observed 
+when trying to convert more than about 20 consecutive days of cube files
+at once. In such a case, it is appropriate to set the function argument
+mseed_manual to \code{TRUE}. This will stop the function just at the point
+where the function would call the GIPPtools function cube2mseed. The user 
+will see a confirmation command line in the R console in which she or he 
+is asked to first copy all manually converted mseed files to the directory 
+\code{mseed_raw} before confirming to continue with the R function. To 
+convert all cube files to mseed files it is advised to open a terminal and 
+run the function \code{GIPPtools/bin/cube2mseed} with the following 
+parameters: \code{GIPPtools/bin/cube2mseed --verbose --output-dir=./mseed_raw/ ./input_dir/}
+without further adjustments, except for the fringe sample option, as 
+specified in \code{aux_organisecubefiles}. Please also see the documentation 
+of cube2mseed for further information.
 }
 \examples{
 
