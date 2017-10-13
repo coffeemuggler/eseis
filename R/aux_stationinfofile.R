@@ -76,6 +76,11 @@
 #' @param random \code{Logical} value, option to draw \code{n} cube files 
 #' randomly instead of ordered by date. Default is \code{TRUE}.
 #' 
+#' @param quantile \code{Numeric} value, quantile size to which the extracted 
+#' coordinate sample size is restricted. This is mainly used to remove 
+#' coordinate outliers, due to spurious GPS signals. Default is 
+#' \code{0.95}. Set to \code{1} to omit any sample rejection.
+#' 
 #' @param cpu \code{Numeric} value, fraction of CPUs to use for parallel 
 #' processing. If omitted, one CPU is used.
 #' 
@@ -139,6 +144,7 @@ aux_stationinfofile <- function(
   logger_ID,
   unit = "dd",
   n,
+  quantile = 0.95,
   random = TRUE,
   cpu,
   gipptools,
@@ -429,6 +435,23 @@ aux_stationinfofile <- function(
     return(cbind(lat, lon))
   })
   
+  ## remove outliers
+  gps_cube <- lapply(X = gps_cube, FUN = function(gps_cube, qt) {
+    
+    lat_median_diff <- abs(median(x = gps_cube[,1]) - gps_cube[,1])
+    lon_median_diff <- abs(median(x = gps_cube[,2]) - gps_cube[,2])
+    
+    lat_diff_quantile <- stats::quantile(x = lat_median_diff, qt)
+    lon_diff_quantile <- stats::quantile(x = lon_median_diff, qt)
+    
+    gps_cube[lat_median_diff > lat_diff_quantile,1] <- NA
+    gps_cube[lon_median_diff > lon_diff_quantile,1] <- NA
+    
+    gps_cube <- gps_cube[complete.cases(gps_cube),]
+    
+    return(gps_cube)
+  }, qt = quantile)
+  
   ## optionally convert decimal degrees to UTM coordinates
   if(unit == "utm") {
     
@@ -447,7 +470,8 @@ aux_stationinfofile <- function(
   }
   
   ## calculate average coordinates
-  gps_cube_mean <- lapply(X = gps_cube, FUN = colMeans)
+  gps_cube_mean <- lapply(X = gps_cube,
+                          FUN = colMeans)
   
   ## convert station info file and average gps data to data frames
   station_info <- as.data.frame(do.call(rbind, station_info), 

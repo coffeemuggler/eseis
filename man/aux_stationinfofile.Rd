@@ -6,8 +6,8 @@
 \usage{
 aux_stationinfofile(name, input_dir, output_dir, station_ID, station_name,
   station_z, station_d, sensor_type, logger_type, sensor_ID, logger_ID,
-  unit = "dd", n, random = TRUE, cpu, gipptools, write_file = TRUE,
-  write_raw = FALSE, write_data = FALSE)
+  unit = "dd", n, quantile = 0.95, random = TRUE, cpu, gipptools,
+  write_file = TRUE, write_raw = FALSE, write_data = FALSE)
 }
 \arguments{
 \item{name}{\code{Character} value, file name of the output station info 
@@ -45,6 +45,11 @@ Default is \code{"dd"}.}
 
 \item{n}{\code{Numeric} value, number of cube file to process for GPS 
 coordinate extraction. If omitted, all files are processed.}
+
+\item{quantile}{\code{Numeric} value, quantile size to which the extracted 
+coordinate sample size is restricted. This is mainly used to remove 
+coordinate outliers, due to spurious GPS signals. Default is 
+\code{0.95}. Set to \code{1} to omit any sample rejection.}
 
 \item{random}{\code{Logical} value, option to draw \code{n} cube files 
 randomly instead of ordered by date. Default is \code{TRUE}.}
