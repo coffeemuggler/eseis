@@ -4,9 +4,9 @@
 \alias{aux_organisecubefiles}
 \title{Convert cube files to mseed or sac files and organise in directory structure.}
 \usage{
-aux_organisecubefiles(stationfile, input_dir, output_dir,
-  mseed_manual = FALSE, format = "sac", channel_name = "bh", cpu,
-  fringe = "constant", verbose = FALSE, gipptools)
+aux_organisecubefiles(stationfile, input_dir, output_dir, format = "sac",
+  channel_name = "bh", cpu, fringe = "constant", verbose = FALSE,
+  gipptools, heapspace = 4096, mseed_manual = FALSE)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 
@@ -18,10 +18,6 @@ stored in a separate sub-directory named after the cube ID.}
 
 \item{output_dir}{\code{Character} value, path to directory where output 
 data is written to.}
-
-\item{mseed_manual}{\code{Logical} value, option to convert mseed files 
-manually. See details. Default is \code{FALSE}, i.e., the function converts 
-cube files to mseed files using the GIPP tools.}
 
 \item{format}{\code{Character} value, output file format. One out of 
 \code{"mseed"} and \code{"sac"}. Default is \code{"sac"}.}
@@ -41,6 +37,14 @@ output of cubetools operations. Default is \code{FALSE}.}
 
 \item{gipptools}{\code{Character} value, path to gipptools or cubetools 
 directory.}
+
+\item{heapspace}{\code{Numeric} value, heap space assigned to the Jave 
+Runtime Environment. Should be increased if the cube to mseed conversion
+fails (announced if \code{verbose = TRUE}). Default is \code{4096}.}
+
+\item{mseed_manual}{\code{Logical} value, option to convert mseed files 
+manually. See details. Default is \code{FALSE}, i.e., the function converts 
+cube files to mseed files using the GIPP tools.}
 }
 \value{
 A set of hourly seismic files written to disk.

@@ -66,10 +66,6 @@
 #' @param output_dir \code{Character} value, path to directory where output 
 #' data is written to.
 #' 
-#' @param mseed_manual \code{Logical} value, option to convert mseed files 
-#' manually. See details. Default is \code{FALSE}, i.e., the function converts 
-#' cube files to mseed files using the GIPP tools.
-#' 
 #' @param format \code{Character} value, output file format. One out of 
 #' \code{"mseed"} and \code{"sac"}. Default is \code{"sac"}.
 #' 
@@ -88,6 +84,14 @@
 #' 
 #' @param gipptools \code{Character} value, path to gipptools or cubetools 
 #' directory. 
+#' 
+#' @param heapspace \code{Numeric} value, heap space assigned to the Jave 
+#' Runtime Environment. Should be increased if the cube to mseed conversion
+#' fails (announced if \code{verbose = TRUE}). Default is \code{4096}.
+#' 
+#' @param mseed_manual \code{Logical} value, option to convert mseed files 
+#' manually. See details. Default is \code{FALSE}, i.e., the function converts 
+#' cube files to mseed files using the GIPP tools.
 #' 
 #' @return A set of hourly seismic files written to disk.
 #' 
@@ -108,13 +112,14 @@ aux_organisecubefiles <- function(
   stationfile,
   input_dir,
   output_dir,
-  mseed_manual = FALSE,
   format = "sac",
   channel_name = "bh",
   cpu,
   fringe = "constant",
   verbose = FALSE,
-  gipptools
+  gipptools,
+  heapspace = 4096,
+  mseed_manual = FALSE
 ){
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
@@ -239,7 +244,13 @@ aux_organisecubefiles <- function(
       X = list_logger, 
       fun = function(X, gipptools, output_dir) {
         
-        system(command = paste(gipptools, "/bin/cube2mseed", 
+        system(command = paste("java -Xmx", 
+                               heapspace,
+                               "m; ",
+                               "export _JAVA_OPTIONS=-Xmx", 
+                               heapspace,
+                               "m; ",
+                               gipptools, "/bin/cube2mseed", 
                                ifelse(test = verbose == TRUE, 
                                       yes = " --verbose", 
                                       no = ""),
