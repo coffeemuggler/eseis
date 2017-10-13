@@ -56,6 +56,11 @@
 #' specified in \code{aux_organisecubefiles}. Please also see the documentation 
 #' of cube2mseed for further information.
 #' 
+#' Alternatively, increasing the heap space of the Java Runtime Environment, 
+#' required for converting the cube files, can solve the above mentioned 
+#' issue. To increase the eap space, use the argument \code{heapspace}. By 
+#' default, this argument is set to 4096. 
+#' 
 #' @param stationfile \code{Character} value, file name of the station info 
 #' file, with extension. See \code{aux_stationinfofile}.
 #'
