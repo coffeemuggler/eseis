@@ -447,7 +447,7 @@ aux_stationinfofile <- function(
     gps_cube[lat_median_diff > lat_diff_quantile,1] <- NA
     gps_cube[lon_median_diff > lon_diff_quantile,1] <- NA
     
-    gps_cube <- gps_cube[complete.cases(gps_cube),]
+    gps_cube <- gps_cube[stats::complete.cases(gps_cube),]
     
     return(gps_cube)
   }, qt = quantile)

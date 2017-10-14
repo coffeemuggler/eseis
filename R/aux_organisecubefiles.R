@@ -58,7 +58,7 @@
 #' 
 #' Alternatively, increasing the heap space of the Java Runtime Environment, 
 #' required for converting the cube files, can solve the above mentioned 
-#' issue. To increase the eap space, use the argument \code{heapspace}. By 
+#' issue. To increase the heap space, use the argument \code{heapspace}. By 
 #' default, this argument is set to 4096. 
 #' 
 #' @param stationfile \code{Character} value, file name of the station info 
@@ -302,9 +302,10 @@ aux_organisecubefiles <- function(
                                                   sep = ""), 
                                      full.names = TRUE)
   invisible(file.remove(files_mseed_raw_full))
-  try(invisible(file.remove(paste(output_dir, 
+  try(invisible(unlink(paste(output_dir, 
                               "/mseed_raw", 
-                              sep = ""))))
+                              sep = ""), 
+                       recursive = TRUE)))
   
   ## create hourly mseed file lists
   files_mseed_hour <- list.files(path = paste(output_dir,
@@ -479,9 +480,10 @@ aux_organisecubefiles <- function(
   }
   
   ## remove temporary directory
-  try(invisible(file.remove(paste(output_dir, 
+  try(invisible(unlink(paste(output_dir, 
                               "/mseed_hour",
-                              sep = ""))))
+                              sep = ""), 
+                       recursive = TRUE)))
   
   ## stop cluster
   parallel::stopCluster(cl = cl)

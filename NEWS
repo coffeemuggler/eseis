@@ -12,6 +12,8 @@ Version 0.4.0 (TO BE SET)
   - plot_spectrogram(), time shift bug fixed, log-y option added, default labels added, option to keep plot arguments added 
   - plot functions, time axis format option added
   - aux_organisecubefiles(), manual mseed conversion option added
+  - aux_organisecubefiles(), JRE heap space modification added
+  - aux_organisecubefiles(), temp directory removal changed to unlink()
   - aux_stationinfofile(), removal of outliers implemented
 
 Version 0.3.2 (2017-07-26)

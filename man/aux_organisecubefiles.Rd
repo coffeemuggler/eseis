@@ -106,6 +106,11 @@ parameters: \code{GIPPtools/bin/cube2mseed --verbose --output-dir=./mseed_raw/ .
 without further adjustments, except for the fringe sample option, as 
 specified in \code{aux_organisecubefiles}. Please also see the documentation 
 of cube2mseed for further information.
+
+Alternatively, increasing the heap space of the Java Runtime Environment, 
+required for converting the cube files, can solve the above mentioned 
+issue. To increase the heap space, use the argument \code{heapspace}. By 
+default, this argument is set to 4096.
 }
 \examples{
 
