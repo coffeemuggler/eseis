@@ -7,6 +7,7 @@ Version 0.4.0 (TO BE SET)
   - function plot_spectrum() added
   - function aux_getFDSNstation() added
   - function aux_getFDSNdata() added
+  - function plot_ppsd() added
   - functions aux_getIRISstation() and aux_getIRISdata() renamed
   - plot_signal(), speed increased by factor ten
   - plot_spectrogram(), time shift bug fixed, log-y option added, default labels added, option to keep plot arguments added 
