@@ -298,16 +298,19 @@ aux_psdsummary <- function(
                silent = TRUE)
       
       ## detrend data
-      s <- try(eseis::signal_detrend(data = s))
+      s <- try(eseis::signal_detrend(data = s),
+               silent = TRUE)
       
       ## filter data
       s <- try(eseis::signal_filter(data = s, 
                              f = f,
-                             type = type))
+                             type = type),
+               silent = TRUE)
       
       ## taper data
       s <- try(eseis::signal_taper(data = s,
-                            n = 1 / s$meta$dt * 600 / 2))
+                            n = 1 / s$meta$dt * 600 / 2),
+               silent = TRUE)
       
       ## PROCESSING | PSD CALCULATION AND ERROR HANDLING ------------------------
       
@@ -315,18 +318,27 @@ aux_psdsummary <- function(
       P <- try(eseis::signal_spectrogram(data = s, 
                                   window = window, 
                                   Welch = Welch, 
-                                  window_sub = window_sub))
+                                  window_sub = window_sub),
+               silent = TRUE)
       
       ## check/replace PSD if unsuccessfully calculated
       if(class(P) == "try-error") {
+        
+        dt <- try(s$meta$dt, 
+                  silent = TRUE)
+        
+        if(class(dt) == "try-error") {
+          
+          dt <- 1 / 200
+        }
         
         t_null <- seq(from = days_show[j], 
                       to = days_show[j] + 24 * 60 * 60, 
                       by = 3600)
         
         f_null <- seq(from = 0, 
-                      to = 0.5 / s$meta$dt, 
-                      length.out = 0.5 / s$meta$dt * 
+                      to = 0.5 / dt, 
+                      length.out = 0.5 / dt * 
                         ifelse(Welch == TRUE, window_sub, window))
         
         P_null <- matrix(data = rep(-500, length(t_null) * length(f_null)),
