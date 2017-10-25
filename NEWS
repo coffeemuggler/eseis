@@ -8,6 +8,7 @@ Version 0.4.0 (TO BE SET)
   - function aux_getFDSNstation() added
   - function aux_getFDSNdata() added
   - function plot_ppsd() added
+  - function aux_psdpanels() added
   - functions aux_getIRISstation() and aux_getIRISdata() renamed
   - plot_signal(), speed increased by factor ten
   - plot_spectrogram(), time shift bug fixed, log-y option added, default labels added, option to keep plot arguments added 
@@ -16,6 +17,7 @@ Version 0.4.0 (TO BE SET)
   - aux_organisecubefiles(), JRE heap space modification added
   - aux_organisecubefiles(), temp directory removal changed to unlink()
   - aux_stationinfofile(), removal of outliers implemented
+  - aux_psdsummary(), bug removed
 
 Version 0.3.2 (2017-07-26)
   - inherited internal issues without relevance for functionality solved
