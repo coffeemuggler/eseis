@@ -327,7 +327,7 @@ aux_psdsummary <- function(
         dt <- try(s$meta$dt, 
                   silent = TRUE)
         
-        if(class(dt) == "try-error") {
+        if(class(dt) == "try-error" | is.null(dt) == TRUE) {
           
           dt <- 1 / 200
         }
