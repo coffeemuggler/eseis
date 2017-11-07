@@ -20,7 +20,8 @@
 #' @importFrom Rcpp evalCpp
 #' @importFrom IRISSeismic readMiniseedFile getNetwork getStation getSNCL
 #' @importFrom grDevices colorRampPalette dev.off jpeg
-#' @importFrom utils read.delim write.table read.table sessionInfo download.file
+#' @importFrom rmarkdown render
+#' @importFrom utils read.delim write.table read.table sessionInfo download.file browseURL
 #' @importFrom XML xmlParse xmlToList
 #' @useDynLib eseis
 NULL

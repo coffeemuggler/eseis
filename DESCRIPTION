@@ -30,6 +30,7 @@ Imports:
     methods,
     IRISSeismic,
     XML,
+    rmarkdown,
     Rcpp (>= 0.12.5)
 Suggests:
     plot3D,
