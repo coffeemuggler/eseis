@@ -5,7 +5,7 @@
 \title{Download seismic data from FDSN data base}
 \usage{
 aux_getFDSNdata(start, duration, channel = "BHZ", network, station, url,
-  eseis = FALSE)
+  link_only = FALSE, eseis = FALSE)
 }
 \arguments{
 \item{start}{\code{Posixct} value, start time of the data to query.}
@@ -21,6 +21,9 @@ seconds.}
 \item{station}{\code{Character} vector, FDSN station ID.}
 
 \item{url}{\code{Character} vector, FDSN url.}
+
+\item{link_only}{\code{Logical} vector, return only FDSN link instead of
+downloading and importing the data.}
 
 \item{eseis}{\code{Logical} scalar, option to read data to an \code{eseis}
 object (recommended, see documentation of 
