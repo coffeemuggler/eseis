@@ -5,8 +5,8 @@
 \title{Generate spectrogram panels for a seismic network}
 \usage{
 aux_psdpanels(station, component = "BHZ", period, span = 1, input_dir,
-  output_dir, aggregate = c(1, 5), n_dates = 2000, jpg_dim = c(4444, 2500,
-  300, 90), verbose = FALSE, ...)
+  output_dir, cpu, aggregate = c(1, 5), n_dates = 2000, jpg_dim = c(4444,
+  2500, 300, 90), verbose = FALSE, ...)
 }
 \arguments{
 \item{station}{\code{character} value, seismic station ID, which must
@@ -30,6 +30,9 @@ seismic files are stored.}
 
 \item{output_dir}{\code{Character} value, path to directory where PSD
 image files are saved to.}
+
+\item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel 
+processing. If omitted, one CPU is used.}
 
 \item{aggregate}{\code{Numeric} vector of length two, aggregation factors 
 for the processed PSD matrics. First entry denotes time aggregation, 
