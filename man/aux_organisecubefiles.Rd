@@ -6,7 +6,7 @@
 \usage{
 aux_organisecubefiles(stationfile, input_dir, output_dir, format = "sac",
   channel_name = "bh", cpu, fringe = "constant", verbose = FALSE,
-  gipptools, heapspace = 4096, mseed_manual = FALSE)
+  gipptools, heapspace = 4096, mseed_manual = FALSE, mseed_keep = FALSE)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 
@@ -45,6 +45,9 @@ fails (announced if \code{verbose = TRUE}). Default is \code{4096}.}
 \item{mseed_manual}{\code{Logical} value, option to convert mseed files 
 manually. See details. Default is \code{FALSE}, i.e., the function converts 
 cube files to mseed files using the GIPP tools.}
+
+\item{mseed_keep}{\code{Logical} value, option to keep mseed files instead 
+of deleting them. Default is \code{FALSE}.}
 }
 \value{
 A set of hourly seismic files written to disk.

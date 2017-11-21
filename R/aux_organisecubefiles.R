@@ -98,6 +98,9 @@
 #' manually. See details. Default is \code{FALSE}, i.e., the function converts 
 #' cube files to mseed files using the GIPP tools.
 #' 
+#' @param mseed_keep \code{Logical} value, option to keep mseed files instead 
+#' of deleting them. Default is \code{FALSE}. 
+#' 
 #' @return A set of hourly seismic files written to disk.
 #' 
 #' @author Michael Dietze
@@ -124,7 +127,8 @@ aux_organisecubefiles <- function(
   verbose = FALSE,
   gipptools,
   heapspace = 4096,
-  mseed_manual = FALSE
+  mseed_manual = FALSE,
+  mseed_keep = FALSE
 ){
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
@@ -247,7 +251,7 @@ aux_organisecubefiles <- function(
     invisible(parallel::parLapply(
       cl = cl, 
       X = list_logger, 
-      fun = function(X, gipptools, output_dir) {
+      fun = function(X, gipptools, output_dir, heapspace, verbose, fringe) {
         
         system(command = paste("java -Xmx", 
                                heapspace,
@@ -269,7 +273,10 @@ aux_organisecubefiles <- function(
                                sep = ""))
       }, 
       gipptools = gipptools,
-      output_dir = output_dir))
+      output_dir = output_dir, 
+      heapspace = heapspace,
+      verbose = verbose,
+      fringe = fringe))
   }
   
   ## create list of generated mseed files
@@ -301,7 +308,9 @@ aux_organisecubefiles <- function(
                                                   "/mseed_raw/",
                                                   sep = ""), 
                                      full.names = TRUE)
+  
   invisible(file.remove(files_mseed_raw_full))
+  
   try(invisible(unlink(paste(output_dir, 
                               "/mseed_raw", 
                               sep = ""), 
@@ -416,14 +425,26 @@ aux_organisecubefiles <- function(
     gipptools = gipptools))
   
   ## remove old mseed files
-  invisible(file.remove(paste(output_dir, "/mseed_hour", 
-                              files_mseed_hour,
-                              sep = "/")))
-  
-  ## make new file list
-  files_new <- list.files(path = paste(output_dir, 
-                                       "/mseed_hour", 
-                                       sep = ""))
+  if(mseed_keep == FALSE) {
+    
+    invisible(file.remove(paste(output_dir, "/mseed_hour", 
+                                files_mseed_hour,
+                                sep = "/")))
+    
+    ## make new file list
+    files_new <- list.files(path = paste(output_dir, 
+                                         "/mseed_hour", 
+                                         sep = ""))
+  } else {
+    
+    ## make new file list
+    files_new <- list.files(path = paste(output_dir, 
+                                         "/mseed_hour", 
+                                         sep = ""))
+    
+    ## remove original mseed files from new file list
+    files_new <- files_new[!(files_new %in% files_mseed_hour)]
+  }
   
   ## extract date information from hourly files
   files_year <- unlist(lapply(X = files_new, FUN = function(X) {
@@ -480,10 +501,13 @@ aux_organisecubefiles <- function(
   }
   
   ## remove temporary directory
-  try(invisible(unlink(paste(output_dir, 
-                              "/mseed_hour",
-                              sep = ""), 
-                       recursive = TRUE)))
+  if(mseed_keep == FALSE) {
+    
+    try(invisible(unlink(paste(output_dir, 
+                               "/mseed_hour",
+                               sep = ""), 
+                         recursive = TRUE)))
+  }
   
   ## stop cluster
   parallel::stopCluster(cl = cl)
