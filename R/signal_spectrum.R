@@ -147,6 +147,9 @@ signal_spectrum <- function(
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
                              spectrum = s$spec)
+    } else {
+      
+      stop("Keyword for method not supported!")
     }
     
     ## optionally rebuild eseis object
