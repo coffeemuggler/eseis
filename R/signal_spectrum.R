@@ -37,19 +37,26 @@ signal_spectrum <- function(
   method = "periodogram",
   ...
 ) {
-  
+
   ## check/set dt
   if(missing(dt) == TRUE && class(data) != "eseis") {
+
+    ## try to get object class
+    class_data <- try(class(data[[1]]) == "eseis", 
+                      silent = TRUE)
     
-    warning("Sampling frequency missing! Set to 1/200")
-    
-    dt <- 1 / 200
+    if(class(class_data) == "try-error " | class_data == FALSE) {
+      
+      warning("Sampling frequency missing! Set to 1/200")
+      
+      dt <- 1 / 200
+    } 
     
   } else if(missing(dt) == TRUE){
     
     dt <- NULL
   }
-  
+
   ## check data structure
   if(class(data) == "list") {
     

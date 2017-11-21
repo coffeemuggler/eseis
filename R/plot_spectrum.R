@@ -43,163 +43,175 @@ plot_spectrum <- function(
   ...
 ) {
   
-  ## get start time
-  eseis_t_0 <- Sys.time()
-  
-  ## collect function arguments
-  eseis_arguments <- list(data = "")
-  
-  ## check if input object is of class eseis
-  if(class(data) == "eseis") {
+  ## check data structure
+  if(class(data) == "list") {
     
-    ## set eseis flag
-    eseis_class <- TRUE
-    
-    ## store initial object
-    eseis_data <- data
-    
-    ## extract signal vector
-    data <- eseis_data$spectrum
+    ## apply function to list
+    data_out <- lapply(X = data, 
+                       FUN = eseis::plot_spectrum,
+                       unit = unit,
+                       n = n)
     
   } else {
     
-    ## set eseis flag
-    eseis_class <- FALSE
+    ## get start time
+    eseis_t_0 <- Sys.time()
     
-    ## check if appropriate data is present
-    if(class(data) != "data.frame") {
-      
-      stop("Spectrum data is no data frame!")
-    }
-  }
-  
-  ## extract additional plot arguments
-  args <- list(...)
-  
-  ## check/set plot arguments
-  if ("type" %in% names(args)) {
-    type <- args$type
-  }
-  else {
+    ## collect function arguments
+    eseis_arguments <- list(data = "")
     
-    type = "l"
-  }
-  
-  if ("xlab" %in% names(args)) {
-    xlab <- args$xlab
-  }
-  else {
-    
-    xlab = "Frequency (Hz)"
-  }
-  
-  if ("ylab" %in% names(args)) {
-    ylab <- args$ylab
-  }
-  else {
-    
-    if(unit == "dB") {
+    ## check if input object is of class eseis
+    if(class(data) == "eseis") {
       
-      ylab <- expression(paste("Power (10 ", log[10], " (", m^2, "/", s^2, 
-                               ") /", " Hz)", sep = ""))
+      ## set eseis flag
+      eseis_class <- TRUE
       
+      ## store initial object
+      eseis_data <- data
       
-    } else if(unit == "linear") {
+      ## extract signal vector
+      data <- eseis_data$spectrum
       
-      ylab <- expression(paste("Power (", m^2, "/", s^2, 
-                               ") /", " Hz)", sep = ""))
-    } else if(unit == "log") {
-      
-      ylab <- expression(paste("Power (log(", m^2, "/", s^2, 
-                               ") /", " Hz)", sep = ""))
     } else {
       
-      ylab <- ""
-    }
-  }
-  
-  ## remove keywords
-  keywords <- c("type", "xlab", "ylab")
-  
-  args <- args[!names(args)%in%keywords]
-  
-  ## convert data to specified units
-  if(unit == "dB") {
-    
-    data$spectrum <- 10 * log10(data$spectrum)
-  } else if(unit == "log") {
-    
-    data$spectrum <- log(data$spectrum)
-  }
-  
-  ## account for data sets smaller than n
-  if(length(data$spectrum) < n) {
-    
-    n <- length(data$spectrum)
-  }
-  
-  ## get NA values to padd data set
-  n_padd <- ceiling(x = length(data$spectrum) / n) * n - length(data$spectrum)
-  
-  ## padd data set
-  s_padd <- c(data$spectrum, rep(NA, 
-                                 times = n_padd))
-  
-  f_padd <- c(data$frequency, rep(NA, 
-                                  times = n_padd))
-  
-  ## convert signal vector to matrix
-  S <- matrix(data = s_padd, 
-              ncol = n)
-  
-  ## calculate columnwise min and max
-  S_min <- matrixStats::colMins(x = S, 
-                                na.rm = TRUE)
-  
-  S_max <- matrixStats::colMaxs(x = S, 
-                                na.rm = TRUE)
-  
-  ## convert min and max alternatingly to vector
-  s_plot <- as.numeric(rbind(S_min, S_max))
-  
-  ## get time vector subset
-  i <- seq(from = 1, 
-           to = length(f_padd), 
-           by = nrow(S))
-  
-  ## make pairs of time vector subsets
-  f_plot <- rep(f_padd[i], each = 2)
-  
-  ## account for log scale x axis
-  if ("log" %in% names(args)) {
-    
-    ## check/correct that no y-axis log is used
-    if(args$log == "xy") {
+      ## set eseis flag
+      eseis_class <- FALSE
       
-      warning("Y axis log scale not supported, use other unit instead.")
+      ## check if appropriate data is present
+      if(class(data) != "data.frame") {
+        
+        stop("Spectrum data is no data frame!")
+      }
+    }
+    
+    ## extract additional plot arguments
+    args <- list(...)
+    
+    ## check/set plot arguments
+    if ("type" %in% names(args)) {
+      type <- args$type
+    }
+    else {
       
-      args$log <- "x"
+      type = "l"
     }
-   
-    ## remove zero values
-    if(args$log == "x") {
-
-      f_plot <- f_plot[-(1:2)]
-
-      s_plot <- s_plot[-(1:2)]
+    
+    if ("xlab" %in% names(args)) {
+      xlab <- args$xlab
     }
+    else {
+      
+      xlab = "Frequency (Hz)"
+    }
+    
+    if ("ylab" %in% names(args)) {
+      ylab <- args$ylab
+    }
+    else {
+      
+      if(unit == "dB") {
+        
+        ylab <- expression(paste("Power (10 ", log[10], " (", m^2, "/", s^2, 
+                                 ") /", " Hz)", sep = ""))
+        
+        
+      } else if(unit == "linear") {
+        
+        ylab <- expression(paste("Power (", m^2, "/", s^2, 
+                                 ") /", " Hz)", sep = ""))
+      } else if(unit == "log") {
+        
+        ylab <- expression(paste("Power (log(", m^2, "/", s^2, 
+                                 ") /", " Hz)", sep = ""))
+      } else {
+        
+        ylab <- ""
+      }
+    }
+    
+    ## remove keywords
+    keywords <- c("type", "xlab", "ylab")
+    
+    args <- args[!names(args)%in%keywords]
+    
+    ## convert data to specified units
+    if(unit == "dB") {
+      
+      data$spectrum <- 10 * log10(data$spectrum)
+    } else if(unit == "log") {
+      
+      data$spectrum <- log(data$spectrum)
+    }
+    
+    ## account for data sets smaller than n
+    if(length(data$spectrum) < n) {
+      
+      n <- length(data$spectrum)
+    }
+    
+    ## get NA values to padd data set
+    n_padd <- ceiling(x = length(data$spectrum) / n) * n - length(data$spectrum)
+    
+    ## padd data set
+    s_padd <- c(data$spectrum, rep(NA, 
+                                   times = n_padd))
+    
+    f_padd <- c(data$frequency, rep(NA, 
+                                    times = n_padd))
+    
+    ## convert signal vector to matrix
+    S <- matrix(data = s_padd, 
+                ncol = n)
+    
+    ## calculate columnwise min and max
+    S_min <- matrixStats::colMins(x = S, 
+                                  na.rm = TRUE)
+    
+    S_max <- matrixStats::colMaxs(x = S, 
+                                  na.rm = TRUE)
+    
+    ## convert min and max alternatingly to vector
+    s_plot <- as.numeric(rbind(S_min, S_max))
+    
+    ## get time vector subset
+    i <- seq(from = 1, 
+             to = length(f_padd), 
+             by = nrow(S))
+    
+    ## make pairs of time vector subsets
+    f_plot <- rep(f_padd[i], each = 2)
+    
+    ## account for log scale x axis
+    if ("log" %in% names(args)) {
+      
+      ## check/correct that no y-axis log is used
+      if(args$log == "xy") {
+        
+        warning("Y axis log scale not supported, use other unit instead.")
+        
+        args$log <- "x"
+      }
+      
+      ## remove zero values
+      if(args$log == "x") {
+        
+        f_plot <- f_plot[-(1:2)]
+        
+        s_plot <- s_plot[-(1:2)]
+      }
+    }
+    
+    
+    ## generate plot
+    do.call(what = graphics::plot, 
+            args = c(list(f_plot, 
+                          s_plot, 
+                          type = type, 
+                          xlab = xlab,
+                          ylab = ""), 
+                     args))
+    
+    ## add y axis label
+    graphics::mtext(text = ylab, side = 2, line = 2.75)
   }
-  
-  
-  ## generate plot
-  do.call(what = graphics::plot, 
-          args = c(list(f_plot, 
-                        s_plot, 
-                        type = type, 
-                        xlab = xlab,
-                        ylab = ""), 
-                   args))
-  
-  ## add y axis label
-  graphics::mtext(text = ylab, side = 2, line = 2.75)
 }
