@@ -114,7 +114,7 @@ plot_signal <- function(
   }
   
   ## remove keywords
-  keywords <- c("format", "axes")
+  keywords <- c("format", "axes", "xlab", "ylab")
   args <- args[!names(args)%in%keywords]
   
   ## account for data sets smaller than n
