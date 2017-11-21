@@ -63,6 +63,12 @@ plot_spectrogram <- function(
   ...
 ) {
   
+  ## check for eseis object
+  if(class(data) == "eseis") {
+    
+    data <- data$PSD
+  }
+  
   ## define colours
   if(col == "gradient_1") {
     
@@ -154,15 +160,15 @@ plot_spectrogram <- function(
   }
   
   ## remove keywords from plot arguments
-  keywords <- c("main", "xlab", "ylab", "zlab", "zlim", "format", "axes")
+  keywords <- c("main", 
+                "xlab", 
+                "ylab", 
+                "zlab",
+                "zlim", 
+                "format", 
+                "axes")
   
   extraArgs <- extraArgs[!names(extraArgs)%in%keywords]
-  
-  ## check for eseis object
-  if(class(data) == "eseis") {
-    
-    data <- data$PSD
-  }
   
   ## check input data
   if(class(data) != "spectrogram") {
