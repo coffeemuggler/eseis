@@ -19,6 +19,8 @@ Version 0.4.0 (TO BE SET)
   - aux_organisecubefiles(), temp directory removal changed to unlink()
   - aux_stationinfofile(), removal of outliers implemented
   - aux_psdsummary(), bug removed
+  - aux_organisecubefiles(), feature added (mseed_keep)
+  - aux_getfdsnstation(), option added to only return ftl links
 
 Version 0.3.2 (2017-07-26)
   - inherited internal issues without relevance for functionality solved
