@@ -264,9 +264,15 @@ aux_getevent <- function(
   if(simplify == TRUE) {
     
     if(length(data_out) == 1) {
+
+      data_out <- data_out[[1]]
+    }
+    
+    if(length(data_out) == 1) {
       
       data_out <- data_out[[1]]
     }
+    
   }
   
   ## return output data set
