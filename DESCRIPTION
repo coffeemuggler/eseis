@@ -2,7 +2,7 @@ Package: eseis
 Type: Package
 Title: Environmental Seismology Toolbox
 Version: 0.4.0
-Date: 2017-08-26
+Date: 2017-11-25
 Author: Michael Dietze
 Maintainer: Michael Dietze <mdietze@gfz-potsdam.de>
 Description: The package eseis contains a growing set of function 
