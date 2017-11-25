@@ -85,15 +85,6 @@ aux_getevent <- function(
   
   ## check/set arguments ------------------------------------------------------
   
-  ## get system time zone
-  tz_system <- Sys.timezone()
-  
-  ## automatically reset time zone if function breaks or ends
-  on.exit(expr = Sys.setenv(TZ = tz_system))
-  
-  ## set system time zone to UTC
-  Sys.setenv(TZ = "UTC")
-  
   ## check start time format
   if(class(start)[1] != "POSIXct") {
     
@@ -104,6 +95,30 @@ aux_getevent <- function(
   if(missing(dir) == TRUE) {
     
     dir <- ""
+  }
+  
+  ## get system time zone
+  tz_system <- Sys.timezone()
+  
+  ## get desired time zone
+  tz_start <- format(start, 
+                     format = "%Z")
+  
+  if(tz_system != tz_start) {
+    
+    ## set system time zone to input data time zone
+    Sys.setenv(TZ = format(start, 
+                           format = "%Z"))
+
+    ## create information message
+    tz_message <- paste("System time zone changed to event time zone. ",
+                        "Undo with Sys.setenv(TZ = '",
+                        tz_system,
+                        "')",
+                        sep = "")
+    
+    ## inform about time zone change
+    print(tz_message)
   }
   
   ## composition of the file name patterns ------------------------------------
@@ -272,7 +287,6 @@ aux_getevent <- function(
       
       data_out <- data_out[[1]]
     }
-    
   }
   
   ## return output data set
