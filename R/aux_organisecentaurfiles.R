@@ -89,7 +89,7 @@
 #' #                          output_dir = "output", 
 #' #                          gipptools = "software/gipptools-2015.225/")
 #'                         
-#' @export aux_organisecubefiles
+#' @export aux_organisecentaurfiles
 aux_organisecentaurfiles <- function(
   stationfile, 
   input_dir, 
@@ -103,6 +103,12 @@ aux_organisecentaurfiles <- function(
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
   
+  ## check/set network ID
+  if(missing(network) == TRUE) {
+    
+    network <- "NA"
+  }
+
   ## check/set output directory
   if(missing(output_dir) == TRUE) {
     
@@ -148,7 +154,9 @@ aux_organisecentaurfiles <- function(
   
   ## read station info data
   stations <- read.table(file = stationfile, 
-                         header = TRUE)
+                         header = TRUE,
+                         stringsAsFactors = FALSE, 
+                         colClasses = "character")
   
   ## check for Centaur signatures
   stations_centaur <- stations[nchar(as.character(stations$logger_ID)) > 3,]
