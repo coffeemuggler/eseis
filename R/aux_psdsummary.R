@@ -287,7 +287,7 @@ aux_psdsummary <- function(
                                    station = station[i], 
                                    component = component, 
                                    dir = input_dir,
-                                   eseis = TRUE)[[1]], 
+                                   eseis = TRUE), 
                silent = TRUE)
 
       ## deconvolve data
@@ -312,7 +312,7 @@ aux_psdsummary <- function(
                             n = 1 / s$meta$dt * 600 / 2),
                silent = TRUE)
       
-      ## PROCESSING | PSD CALCULATION AND ERROR HANDLING ------------------------
+      ## PROCESSING | PSD CALCULATION AND ERROR HANDLING ----------------------
       
       ## create PSD
       P <- try(eseis::signal_spectrogram(data = s, 
