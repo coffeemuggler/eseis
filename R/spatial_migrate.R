@@ -162,5 +162,8 @@ spatial_migrate <- function(
   ## correct output by number of station correlations
   map <- map / (n_count - 1)
   
+  ## divide output by two
+  map <- map / 2
+  
   return(map)
 }
