@@ -21,7 +21,12 @@ diameter (m)}
 
 \item{a_w}{\code{Numeric} value, fluid flow inclination angle (radians)}
 
-\item{f}{= c(1, 100) \code{Numeric} vector, frequency range to be modelled}
+\item{f}{= c(1, 100) \code{Numeric} vector, frequency range to be modelled. 
+If of length two the argument is interpreted as representing the lower and 
+upper limit and the final length of the frequency vector is set by the 
+argument \code{res}. If \code{f} contains more than two values it is 
+interpreted as the actual frequency vector and the value of \code{res} is 
+ignored.}
 
 \item{r_0}{\code{Numeric} value, distance of seismic station to source}
 
@@ -76,6 +81,8 @@ by the user, using the \code{...} argument:
 }
 \examples{
 
+
+
 ## model the turbulence-related power spectrum
 P <- model_turbulence(d_s = 0.03, # 3 cm mean grain-size
                       s_s = 1.35, # 1.35 log standard deviation
@@ -97,7 +104,9 @@ P$spectrum <- (10*log10(P$spectrum))
 
 ## plot the power spectrum
 plot(P, type = "l")
-                    
+              
+
+                                
 }
 \author{
 Sophie Lagarde, Michael Dietze

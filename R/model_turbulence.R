@@ -34,7 +34,15 @@
 #' 
 #' @param a_w \code{Numeric} value, fluid flow inclination angle (radians)
 #' 
-#' @param f = c(1, 100) \code{Numeric} vector, frequency range to be modelled
+#' @param f = c(1, 100) \code{Numeric} vector, frequency range to be modelled. 
+#' If of length two the argument is interpreted as representing the lower and 
+#' upper limit and the final length of the frequency vector is set by the 
+#' argument \code{res}. If \code{f} contains more than two values it is 
+#' interpreted as the actual frequency vector and the value of \code{res} is 
+#' ignored.
+#' 
+#' @param res \code{Numeric} value, output resolution, i.e. length of the 
+#' spectrum vector. Default is 1000.
 #' 
 #' @param r_0 \code{Numeric} value, distance of seismic station to source
 #' 
@@ -51,9 +59,6 @@
 #' @param n_0 \code{Numeric} vector of length two, Greens function 
 #' approximation coefficients. Cf. N_11 and N_12 in eq. 36 in Gimbert et 
 #' al. (2014) 
-#' 
-#' @param res \code{Numeric} value, output resolution, i.e. length of the 
-#' spectrum vector. Default is 1000.
 #' 
 #' @param eseis \code{Character} value, option to return an eseis object 
 #' instead of a data frame. Default is \code{FALSE}.
@@ -90,7 +95,7 @@
 #' 
 #' ## plot the power spectrum
 #' plot(P, type = "l")
-#'                     
+#'               
 #' @export model_turbulence
 #' 
 model_turbulence <- function(
@@ -184,9 +189,15 @@ model_turbulence <- function(
   ## CALCULATION PART ---------------------------------------------------------
   
   ## define frequency vector
-  f_seq <- seq(from = f[1], 
-               to = f[2], 
-               length.out = res)
+  if(length(f) == 2) {
+    
+    f_seq <- seq(from = f[1], 
+                 to = f[2], 
+                 length.out = res)
+  } else {
+    
+    f_seq <- f
+  }
 
   ## calculate frequency dependent quality factor  
   q_seq <- q_0 * (f_seq / f_0)^e_0
