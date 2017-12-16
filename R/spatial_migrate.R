@@ -3,7 +3,8 @@
 #' The function performs signal migration in space in order to determine 
 #' the location of a seismic signal.
 #'
-#' @param data \code{Numeric} matrix, seismic signals to cross-correlate.
+#' @param data \code{Numeric} matrix or \code{eseis} object, seismic signals 
+#' to cross-correlate.
 #' 
 #' @param d_stations \code{Numeric} matrix, inter-station distances. Output 
 #' of \code{distance_stations}.
@@ -24,10 +25,58 @@
 #' 
 #' @return A SpatialGridDataFrame-object with Gaussian probability density
 #' function values for each grid cell.
+#' 
 #' @author Michael Dietze
+#' 
 #' @examples
 #'
-#' ## No examples ready, yet.
+#' \dontrun{
+#' 
+#' ## create synthetic DEM
+#' dem <- raster::raster(nrows = 20, ncols = 20, 
+#'                       xmn = 0, xmx = 10000, 
+#'                       ymn= 0, ymx = 10000, 
+#'                       vals = rep(0, 400))
+#' 
+#' ## define station coordinates
+#' sta <- data.frame(x = c(1000, 9000, 5000),
+#'                   y = c(1000, 1000, 9000),
+#'                   ID = c("A", "B", "C"))
+#' 
+#' ## create synthetic signal (source in the center of the DEM)
+#' s <- rbind(dnorm(x = 1:1000, mean = 400, sd = 50),
+#'            dnorm(x = 1:1000, mean = 400, sd = 50),
+#'            dnorm(x = 1:1000, mean = 400, sd = 50))
+#' 
+#' ## plot DEM and stations
+#' raster::plot(dem)
+#' 
+#' text(x = sta$x, 
+#'      y = sta$y, 
+#'      labels = sta$ID)
+#' 
+#' ## calculate spatial distance maps and inter-station distances
+#' D <- eseis::spatial_distance(stations = sta[,1:2],
+#'                              dem = dem)
+#' 
+#' ## locate signal
+#' e <- eseis::spatial_migrate(data = s, 
+#'                             d_stations = D$stations, 
+#'                             d_map = D$maps, 
+#'                             v = 1000, 
+#'                             dt = 1/10)
+#' 
+#' ## get most likely location coordinates
+#' xy <- sp::coordinates(e)[raster::values(e) == max(raster::values(e))]
+#' 
+#' ## plot location estimate, most likely location estimate and stations
+#' raster::plot(e)
+#' points(xy[1], 
+#'        xy[2],
+#'        pch = 20)
+#' points(sta[,1:2])
+#' 
+#' }
 #'
 #' @export spatial_migrate
 spatial_migrate <- function(
@@ -42,7 +91,28 @@ spatial_migrate <- function(
   
   ## check/set data structure
   if(is.matrix(data) == FALSE) {
-    stop("Input signals must be more than one!")
+    
+    if(class(data) == "list") {
+      
+      ## extract sampling period from first eseis object
+      dt <- try(data[[1]]$meta$dt)
+      
+      ## check if dt can be extracted, otherwise stop function
+      if(class(dt) == "try-error") {
+        
+        stop("signal object seems to contain no eseis objects!")
+      }
+      
+      ## strip and organise signal vectors in matrix
+      
+      data <- do.call(rbind, lapply(X = data, FUN = function(data) {
+        
+        data$signal
+      }))
+    } else {
+      
+      stop("Input signals must be more than one!")
+    }
   }
   
   if(is.matrix(d_stations) == FALSE) {

@@ -81,8 +81,6 @@ by the user, using the \code{...} argument:
 }
 \examples{
 
-
-
 ## model the turbulence-related power spectrum
 P <- model_turbulence(d_s = 0.03, # 3 cm mean grain-size
                       s_s = 1.35, # 1.35 log standard deviation
@@ -105,8 +103,6 @@ P$spectrum <- (10*log10(P$spectrum))
 ## plot the power spectrum
 plot(P, type = "l")
               
-
-                                
 }
 \author{
 Sophie Lagarde, Michael Dietze
