@@ -21,8 +21,7 @@
 #' must be names after the four digit Centaur ID and contain only mseed files,
 #' regardless if further subdirectories are used (e.g., for calendar days). An 
 #' appropriate structure would be something like: \cr 
-#' \enumerate{
-#'   \item input
+#' \bold{input}
 #'   \enumerate{
 #'     \item 0190
 #'       \enumerate{
@@ -37,7 +36,6 @@
 #'         }
 #'       }
 #'    }
-#' }
 #' 
 #' In the case a six-channel Centaur is used to record signals from two
 #' sensors, in the station info file (cf. \code{aus_stationinfofile()})
