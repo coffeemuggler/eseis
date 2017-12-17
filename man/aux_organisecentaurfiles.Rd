@@ -61,28 +61,10 @@ are installed. \cr Specifying an input directory
 (\code{input_dir}) is mandatory. This input directory must only contain the 
 subdirectories with mseed data for each Centaur logger. The subdirectory 
 must be names after the four digit Centaur ID and contain only mseed files,
-regardless if further subdirectories are used (e.g., for calendar days). An 
-appropriate structure would be something like: \cr 
-\enumerate{
-  \item input
-  \enumerate{
-    \item 0190
-      \enumerate{
-        \item 2015
-        \enumerate{
-          \item 11
-          \enumerate{
-            \item mseed file 1
-            \item mseed file 1
-          }
-        \item 12
-        }
-      }
-   }
-}
+regardless if further subdirectories are used (e.g., for calendar days).
 
 In the case a six-channel Centaur is used to record signals from two
-sensors, in the station info file (cf. \code{aus_stationinfofile()})
+sensors, in the station info file (cf. \code{aux_stationinfofile()})
 the logger ID field must be contain the four digit logger ID and the 
 channel qualifiers, e.g., "AH" (first three channels) or "BH" (last three channels), 
 separated by an underscore.
