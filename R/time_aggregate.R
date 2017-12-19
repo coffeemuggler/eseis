@@ -2,15 +2,18 @@
 #' 
 #' The time series \code{x} is aggregated by an integer factor \code{n}.
 #' 
-#' @param data \code{Numeric} vector, time to be processed.
+#' @param data \code{POSIXct} vector, time to be processed.
 #' 
-#' @param n \code{Numeric} scalar, number of samples to be aggregated to one
+#' @param n \code{Numeric} value, number of samples to be aggregated to one
 #' new data value. Must be an integer value greater than 1. Default is 
 #' \code{2}.
 #' 
-#' @return \code{Numeric} vector, aggregated data.
+#' @return \code{POSIXct} vector, aggregated data.
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set

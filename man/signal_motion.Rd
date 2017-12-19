@@ -18,7 +18,7 @@ be generated. If omitted, the sampling period (\code{dt}) must be
 provided.}
 
 \item{dt}{\code{Numeric} value, sampling period. Only needed if 
-\code{time} is omitted.}
+\code{time} is omitted or if \code{data} is no \code{eseis} object.}
 
 \item{window}{\code{Numeric} value, time window length (given as 
 number of samples) used to calculate the particle motion parameters. 
@@ -33,7 +33,7 @@ size is set to 50 percent of the window size by default.}
 \item{order}{\code{Character} value, order of the seismic components. 
 Describtion must contain the letters \code{"x"},\code{"y"} and
 \code{"z"} in the order according to the input data set. Default is 
-\code{"xyz"} (NW-SE-vertical).}
+\code{"xyz"} (NS-EW-vertical).}
 }
 \value{
 A List object with eigenvalue ratios (\code{eigen}), 

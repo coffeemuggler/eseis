@@ -1,6 +1,6 @@
-#' Write seismic traces as sac-file to disk.
+#' Write seismic traces as sac file to disk.
 #'
-#' This function converts seismic traces to sac-files and writes them to disk.
+#' This function converts seismic traces to sac files and writes them to disk.
 #' 
 #' For description of the sac file format see
 #' https://ds.iris.edu/files/sac-manual/manual/file_format.html. Currently the 
@@ -11,42 +11,53 @@
 #' be processed. Most other arguments can be omitted if \code{data} is an
 #' \code{eseis} object.
 #' 
-#' @param file \code{Character} scalar, sac filename with extension.
+#' @param file \code{Character} scalar, sac file name with extension.
 #' 
 #' @param time \code{POSIXct} vector, time vector corresponding to the 
 #' seismic trace. Alternatively, the start time stamp can be provided as
 #' \code{POSIXct} value and a value for \code{dt} must be given.
 #' 
-#' @param component \code{Character} scalar, component ID, optional.
+#' @param component \code{Character} value, component ID, optional.
 #' 
-#' @param unit \code{Character} scalar, unit of the signal, optional. One out
+#' @param unit \code{Character} value, unit of the signal, optional. One out
 #' of \code{"unknown"}, \code{"displacement"}, \code{"velocity"}, 
 #' \code{"volts"}, \code{"acceleration"}. Default is \code{"unknown"}.
 #' 
-#' @param station \code{Character} scalar, station ID, optinal.
+#' @param station \code{Character} value, station ID, optinal.
 #' 
 #' @param location \code{Character} vector of length four, station location 
 #' data (latitude, longitude, elevation, depth), optional.
 #' 
-#' @param network \code{Character} scalar, network ID, optional.
+#' @param network \code{Character} value, network ID, optional.
 #' 
-#' @param dt \code{Numeric} scalar, sampling period. Only needed if no time
+#' @param dt \code{Numeric} value, sampling period. Only needed if no time
 #' vector is provided.
 #' 
 #' @param parameters \code{Data frame} sac parameter list, as obtained from
 #' \code{list_sacparameters}. Allows user-specific modifications. If this 
 #' data frame is provided, it overrides all other arguments. 
 #' 
-#' @param biglong \code{Logical} scalar, biglong option, default is 
+#' @param biglong \code{Logical} value, biglong option, default is 
 #' \code{FALSE}
 #' 
 #' @return A binary file written to disk.
+#' 
 #' @author Michael Dietze
+#' 
 #' @examples
 #'
-#' ## No examples ready, yet.
+#' \dontrun{
+#' ## load example data 
+#' data("rockfall")
+#' 
+#' ## write as sac file
+#' write_sac(data = rockfall_eseis, 
+#'           file = "rockfall.sac")
+#'           
+#' }
 #'
 #' @export write_sac
+#' 
 write_sac <- function(
   data,
   file,
@@ -207,7 +218,7 @@ write_sac <- function(
   t2 <- length(data) * dt
   off <- 0
   
-  ## padd values with zeros
+  ## pad values with zeros
   jd_3 <- ifelse(nchar(jd) < 2, paste("00", jd, sep = ""), jd)
   jd_3 <- ifelse(nchar(jd_3) < 3, paste("0", jd_3, sep = ""), jd_3)
   

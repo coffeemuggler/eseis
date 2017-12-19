@@ -13,51 +13,50 @@
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
-#' @param dt \code{Numeric} scalar, sampling rate.
+#' @param dt \code{Numeric} value, sampling rate. Only needed if \code{data} 
+#' is not an \code{eseis} object
 #' 
-#' @param sensor \code{Character} scalar or \code{list} object, 
+#' @param sensor \code{Character} value or \code{list} object, 
 #' seismic sensor name. Must be present in the sensor library 
 #' (\code{list_sensor}) or parameters must be added manually (see 
 #' examples). Default is \code{"TC120s"}.
 #' 
-#' @param logger \code{Character} scalar, seismic logger name. Must be 
+#' @param logger \code{Character} value, seismic logger name. Must be 
 #' present in the logger library (\code{list_logger}) or parameters must be
 #' added manually. Default is \code{"Cube3extBOB"}.
 #' 
 #' @param gain \code{Numeric} value, signal gain level of the logger. Default 
 #' is \code{1}.
 #' 
-#' @param p \code{Numeric} scalar, proportion of signal to be tapered. Default
+#' @param p \code{Numeric} value, proportion of signal to be tapered. Default
 #' is\code{10^-6}.
 #' 
-#' @param waterlevel \code{Numeric} scalar, waterlevel value for frequency
+#' @param waterlevel \code{Numeric} value, waterlevel value for frequency
 #' division, default is \code{10^-6}.
 #' 
 #' @param na.replace \code{Logical} value, option to replace NA values in the 
 #' data set by zeros. Default is \code{FALSE}. Attention, the zeros will 
-#' create artifacts in the deconvolved data set. However, NA values will 
+#' create artifacts in the deconvolved data set. However, \code{NA} values will 
 #' result in no deconvolution at all.
 #' 
 #' @return \code{Numeric} vector or list of vectors, deconvolved signal.
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set
 #' data(rockfall)
 #' 
-#' ## deconvolve signal
-#' rockfall_decon <- signal_deconvolve(data = rockfall_z,
-#'                                     dt = 1/200, 
-#'                                     sensor = "TC120s", 
-#'                                     logger = "Cube3ext")
+#' ## deconvolve signal with minimum effort
+#' rockfall_decon <- signal_deconvolve(data = rockfall_eseis)
 #' 
 #' ## plot time series
-#' plot(x = rockfall_t, 
-#'      y = rockfall_decon, 
+#' plot_signal(data = rockfall_decon, 
 #'      main = "Rockfall, deconvolved signal", 
-#'      ylab = "m/s", 
-#'      type = "l")
+#'      ylab = "m/s")
 #'  
 #' ## add new logger manually
 #' logger_new <- list_logger()[[1]]
@@ -68,8 +67,7 @@
 #' logger_new$AD <- 2.4414e-07
 #' 
 #' ## deconvolve signal with new logger
-#' rockfall_decon <- signal_deconvolve(data = rockfall_z,
-#'                                     dt = 1/200, 
+#' rockfall_decon <- signal_deconvolve(data = rockfall_eseis,
 #'                                     sensor = "TC120s", 
 #'                                     logger = logger_new)
 #'                                     
@@ -83,6 +81,7 @@
 #' Centaur_10V$AD <- 20/(2^24)
 #'                                     
 #' @export signal_deconvolve
+#' 
 signal_deconvolve <- function(
   data,
   dt,
@@ -218,26 +217,26 @@ signal_deconvolve <- function(
     rm(data_demean)
     
     ## add zeros to reach even power of two number
-    data_padd <- signal_padd(data = data_taper)
+    data_pad <- signal_pad(data = data_taper)
     rm(data_taper)
     
     ## optionally replace NA values by zero
     if(na.replace == TRUE) {
       
-      data_padd[is.na(data_padd)] <- 0
+      data_pad[is.na(data_pad)] <- 0
     }
     
     ## make frequency vector
-    if ((length(data_padd)%%2) == 1) {
-      f <- c(seq(0, (length(data_padd) - 1) / 2), 
-             seq(-(length(data_padd) - 1) / 2, -1)) / (length(data_padd) * dt)
+    if ((length(data_pad)%%2) == 1) {
+      f <- c(seq(0, (length(data_pad) - 1) / 2), 
+             seq(-(length(data_pad) - 1) / 2, -1)) / (length(data_pad) * dt)
     } else {
-      f = c(seq(0, length(data_padd) / 2), 
-            seq(-length(data_padd) / 2 + 1, -1)) / (length(data_padd) * dt)
+      f = c(seq(0, length(data_pad) / 2), 
+            seq(-length(data_pad) / 2 + 1, -1)) / (length(data_pad) * dt)
     }  
     
     ## calculate Fourier transform
-    x_fft <- fftw::FFT(x = data_padd)
+    x_fft <- fftw::FFT(x = data_pad)
     
     ## get polynomial form of poles and zeros
     poles_poly <- Re(signal::poly(x = poles))

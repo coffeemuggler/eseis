@@ -6,32 +6,35 @@
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
-#' @param p \code{Numeric} scalar, proportion of the signal vector to be 
+#' @param p \code{Numeric} value, proportion of the signal vector to be 
 #' tapered. Alternative to \code{n}.
 #' 
-#' @param n \code{Numeric} scalar, number of samples to be tapered at each
+#' @param n \code{Numeric} value, number of samples to be tapered at each
 #' end of the signal vector.
 #' 
-#' @return \code{Numeric} scalar, tapered signal vector.
+#' @return \code{Data frame}, tapered signal vector.
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set
 #' data(rockfall)
 #' 
 #' ## remove mean from data set
-#' rockfall <- signal_demean(data = rockfall_z)
+#' rockfall <- signal_demean(data = rockfall_eseis)
 #' 
 #' ## create artefact at the beginning
-#' rockfall[1:100] <- runif(n = 100, min = -5000, max = 5000)
+#' rockfall_eseis$signal[1:100] <- runif(n = 100, min = -5000, max = 5000)
 #' 
 #' ## taper signal
 #' rockfall_taper <- signal_taper(data = rockfall, n = 1000)
 #' 
 #' ## plot both data sets
-#' plot(rockfall[1:5000], type = "l")
-#' plot(rockfall_taper[1:5000], type = "l")
+#' plot_signal(data = rockfall_eseis)
+#' plot_signal(rockfall_taper)
 #'                      
 #' @export signal_taper
 signal_taper <- function(

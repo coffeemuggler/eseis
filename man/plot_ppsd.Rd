@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_ppsd.R
 \name{plot_ppsd}
 \alias{plot_ppsd}
-\title{Plot a probabilistic spectrum, or power spectral density estimate (PPSD)}
+\title{Plot a probabilistic power spectral density estimate (PPSD)}
 \usage{
 plot_ppsd(data, res = c(500, 500), n, ...)
 }
@@ -25,7 +25,7 @@ are set to one percent of the input data set dimension.}
 Graphic output of a spectrogram.
 }
 \description{
-The function uses the output of \code{signal_spectrogram()} to create a 
+The function uses the output of \code{signal_spectrogram()} to plot a 
 probabilistic power spectral density estimate.
 }
 \examples{

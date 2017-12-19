@@ -7,8 +7,8 @@
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
-#' @param p \code{Numeric} scalar, proportion of the signal to be tapered,
-#' default is \code{10^-6}.
+#' @param p \code{Numeric} value, proportion of the signal to be tapered,
+#' default is \code{0}.
 #' 
 #' @return \code{Numeric} vector or list of vectors, signal envelope.
 #' @author Michael Dietze
@@ -19,15 +19,13 @@
 #' data(rockfall)
 #' 
 #' ## detrend data set
-#' rockfall_detrend <- signal_detrend(data = rockfall_z)
+#' rockfall_detrend <- signal_detrend(data = rockfall_eseis)
 #' 
 #' ## calculate envelope
 #' rockfall_envelope <- signal_envelope(data = rockfall_detrend)
 #' 
 #' ## plot envelope
-#' plot(x = rockfall_t[68000:78000], 
-#'      y = rockfall_envelope[68000:78000], 
-#'      type = "l")
+#' plot_signal(data = rockfall_envelope)
 #'                      
 #' @export signal_envelope
 signal_envelope <- function(

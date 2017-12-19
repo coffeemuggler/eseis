@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_sac.R
 \name{write_sac}
 \alias{write_sac}
-\title{Write seismic traces as sac-file to disk.}
+\title{Write seismic traces as sac file to disk.}
 \usage{
 write_sac(data, file, time, component, unit, station, location, network, dt,
   parameters, biglong = FALSE)
@@ -12,40 +12,40 @@ write_sac(data, file, time, component, unit, station, location, network, dt,
 be processed. Most other arguments can be omitted if \code{data} is an
 \code{eseis} object.}
 
-\item{file}{\code{Character} scalar, sac filename with extension.}
+\item{file}{\code{Character} scalar, sac file name with extension.}
 
 \item{time}{\code{POSIXct} vector, time vector corresponding to the 
 seismic trace. Alternatively, the start time stamp can be provided as
 \code{POSIXct} value and a value for \code{dt} must be given.}
 
-\item{component}{\code{Character} scalar, component ID, optional.}
+\item{component}{\code{Character} value, component ID, optional.}
 
-\item{unit}{\code{Character} scalar, unit of the signal, optional. One out
+\item{unit}{\code{Character} value, unit of the signal, optional. One out
 of \code{"unknown"}, \code{"displacement"}, \code{"velocity"}, 
 \code{"volts"}, \code{"acceleration"}. Default is \code{"unknown"}.}
 
-\item{station}{\code{Character} scalar, station ID, optinal.}
+\item{station}{\code{Character} value, station ID, optinal.}
 
 \item{location}{\code{Character} vector of length four, station location 
 data (latitude, longitude, elevation, depth), optional.}
 
-\item{network}{\code{Character} scalar, network ID, optional.}
+\item{network}{\code{Character} value, network ID, optional.}
 
-\item{dt}{\code{Numeric} scalar, sampling period. Only needed if no time
+\item{dt}{\code{Numeric} value, sampling period. Only needed if no time
 vector is provided.}
 
 \item{parameters}{\code{Data frame} sac parameter list, as obtained from
 \code{list_sacparameters}. Allows user-specific modifications. If this 
 data frame is provided, it overrides all other arguments.}
 
-\item{biglong}{\code{Logical} scalar, biglong option, default is 
+\item{biglong}{\code{Logical} value, biglong option, default is 
 \code{FALSE}}
 }
 \value{
 A binary file written to disk.
 }
 \description{
-This function converts seismic traces to sac-files and writes them to disk.
+This function converts seismic traces to sac files and writes them to disk.
 }
 \details{
 For description of the sac file format see
@@ -55,7 +55,15 @@ LAT, LON, ELEVATION, NETWORK.
 }
 \examples{
 
-## No examples ready, yet.
+\dontrun{
+## load example data 
+data("rockfall")
+
+## write as sac file
+write_sac(data = rockfall_eseis, 
+          file = "rockfall.sac")
+          
+}
 
 }
 \author{

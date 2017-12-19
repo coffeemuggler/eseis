@@ -1,13 +1,13 @@
 #' Extract temperature data from cube files.
 #' 
-#' This function reads auxiliary information stored in cube files and 
-#' extracts the temperature data that is stored along with each GPS tag. 
-#' Optionally, the data is interpolated to equal intervals.
+#' This function reads auxiliary information stored in Omnirecs/Digos Datacube  
+#' files and extracts the temperature data that is stored along with each GPS 
+#' tag. Optionally, the data is interpolated to equal intervals.
 #' 
-#' This feature is ony available for Cubes that were produced since 2015, 
-#' i.e., whose GPS output files also record the temperature inside the 
-#' logger. Generating an ACSII GPS tag file using the gipptools software 
-#' requires a few minutes time per daily cube file.
+#' This feature is ony available for  Omnirecs/Digos Datacube that were 
+#' produced since 2015, i.e., whose GPS output files also record the 
+#' temperature inside the logger. Generating an ACSII GPS tag file using the 
+#' gipptools software requires a few minutes time per daily file.
 #' 
 #' @param input_dir \code{Character} value, path to directory where all cube 
 #' files to be processed as stored. Each set of files from one logger must be 
@@ -15,7 +15,7 @@
 #'
 #' @param logger_ID \code{Character} vector, logger ID.
 #' 
-#' @param interval \code{Numeric} value, time interval (minutes )to which  
+#' @param interval \code{Numeric} value, time interval (minutes) to which  
 #' temperature data is interpolated. No interpolation is performed if this 
 #' argument is omitted.
 #' 

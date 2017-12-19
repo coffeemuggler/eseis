@@ -1,7 +1,7 @@
 #' Rotate signal vectors using a 3-D rotation matrix.
 #' 
 #' The function rotates the horizontal components of the input data according 
-#' to the specified rotation angle. 
+#' to the specified angle. 
 #' 
 #' @param data \code{List}, \code{data frame} or \code{matrix}, seismic
 #' componenents to be processed. If \code{data} is a matrix, the components 
@@ -10,14 +10,14 @@
 #' columns (x- and y-component) or three columns (x-, y-, and z-component), 
 #' in exactly that order of the components.
 #' 
-#' @param angle \code{Numeric} scalar, rotation angle in degrees.
+#' @param angle \code{Numeric} value, rotation angle in degrees.
 #' 
 #' @return \code{Numeric} matrix, the 3-dimensional rotation matrix.
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
 #' 
-#' ## create artificial data set
+#' ## create synthetic data set
 #' data <- rbind(x = sin(seq(0, pi, length.out = 10)),
 #' y = sin(seq(0, pi, length.out = 10)),
 #' z = rep(0, 10))

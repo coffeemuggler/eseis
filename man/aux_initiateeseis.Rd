@@ -16,18 +16,18 @@ system information.
 }
 \details{
 The S3 object class \code{eseis} contains the data vector (\code{$signal}), 
-a meta information list (\code{$meta}) with all essential seismic meta data, 
+a meta information list (\code{$meta}) with all essential seismic meta data - 
 such as sampling interval, station ID, component, start time of the stream 
-or file name of the input file, a list with header data of the seismic 
+or file name of the input file - a list with header data of the seismic 
 source file (\code{$header}), and a history list (\code{$history}), which 
-records all data manipulation of an (\code{eseis}) object. The element 
+records all data manipulation steps of an (\code{eseis}) object. The element 
 (\code{$meta}) will be used by functions of the package to look for 
 essential information to perform data manipulations (e.g., the sampling 
-interval). Thus, working with (\code{eseis}) object is convenient and less 
+interval). Thus, working with (\code{eseis}) objects is convenient and less 
 prone to user related errors/bugs, given that the meta information is 
 correct and does not change during the processing chain; package functions 
-will update the meta information whenever necesary (e.g., 
-\code{signal_aggregate}). The element (\code{$header}) will only be
+will update the meta information whenever necessary (e.g., 
+\code{signal_aggregate}). The element \code{$header} will only be
 present if a seismic source file has been imported.
 
 The history element is the key feature for transparent and reproducable 

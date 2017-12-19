@@ -23,8 +23,8 @@ Default is \code{"UTC"}.}
 \code{Numeric} vector,
 }
 \description{
-The function converts a Julian Day value to a date, if a year is provided, 
-to \code{POSIXct}, otherwise to \code{POSIXlt}.
+The function converts a Julian Day value to a date, to \code{POSIXct} if a 
+year is provided, otherwise to \code{POSIXlt}.
 }
 \examples{
 

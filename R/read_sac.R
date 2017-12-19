@@ -1,50 +1,51 @@
-#' Read sac-files.
+#' Read sac files.
 #'
-#' This function reads sac-files.
+#' This function reads sac files.
 #'
 #' The function reads one or more sac-files. If \code{append = TRUE}, all
 #' files will be appended to the first one in the order as they are provided. 
 #' In the append-case the function returns a either a list with the elements 
 #' \code{signal}, \code{time}, \code{meta} and \code{header} or a list of the 
 #' class \code{eseis} (see documentation of 
-#' \code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file 
+#' \code{aux_initiateeseis}). If \code{append = FALSE} and more than one file 
 #' is provided, the function returns a list of the length of the input files, 
 #' each containing the above elements. \cr\cr The sac data format is 
 #' implemented as descibed on the IRIS website 
 #' (https://ds.iris.edu/files/sac-manual/manual/file_format.html).
 #' 
 #' @param file \code{Character} vector, input file name(s), with extension. 
-#' Wildcards may be used (see details and examples).
 #' 
-#' @param append \code{Logical} scalar, option append single files to one
-#' continuous file, keeping only the header information of the first file.
-#' 
-#' @param signal \code{Logical} scalar, option to import the signal vector, 
+#' @param append \code{Logical} value, option append single files to one
+#' continuous file, keeping only the header information of the first file,
 #' default is \code{TRUE}.
 #' 
-#' @param time \code{Logical} scalar, option to create the time vector. The 
+#' @param signal \code{Logical} value, option to import the signal vector, 
+#' default is \code{TRUE}.
+#' 
+#' @param time \code{Logical} value, option to create the time vector. The 
 #' timezone is automatically set to \code{"UTC"}, default is \code{TRUE}.
 #' 
-#' @param meta \code{Logical} scalar, option to append the meta data part, 
+#' @param meta \code{Logical} value, option to append the meta data part, 
 #' default is \code{TRUE}.
 #' 
-#' @param header \code{Logical} scalar, option to append the header part, 
+#' @param header \code{Logical} value, option to append the header part, 
 #' default is \code{TRUE}.
 #' 
-#' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
+#' @param eseis \code{Logical} value, option to read data to an \code{eseis}
 #' object (recommended, see documentation of 
-#' \code{aux_initiateeseis}), default is \code{FALSE}
+#' \code{aux_initiateeseis}), default is \code{TRUE}
 #' 
-#' @param endianness \code{Logical} scalar, endianness of the sac file. One
+#' @param endianness \code{Logical} value, endianness of the sac file. One
 #' out of \code{"little"}, \code{"big"} and \code{"swap"}. Default 
 #' is \code{"little"}.
 #' 
-#' @param biglong \code{Logical} scalar, number coding format. Default 
+#' @param biglong \code{Logical} value, number coding format. Default 
 #' is \code{FALSE}.
 #' 
-#' @return \code{List} object.
+#' @return \code{List} object, optionally of class \code{eseis}.
 #' 
 #' @author Michael Dietze
+#' 
 #' @examples
 #'
 #' \dontrun{
@@ -53,16 +54,14 @@
 #' 
 #' sac1 <- read_sac(file = file1)
 #' 
-#' signal <- sac1$signal
-#' time <- sac1$time
-#' 
 #' ## read two (or more files) without meta and header parts
 #' file2 <- c("~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC",
 #'            "~/Data/sac/EXMP01.14.213.02.00.00.BHE.SAC")
 #' 
 #' sac2 <- read_sac(file = file2, 
 #'                  meta = FALSE, 
-#'                  header = FALSE)
+#'                  header = FALSE,
+#'                  eseis = FALSE)
 #' }
 #'
 #' @export read_sac
@@ -73,7 +72,7 @@ read_sac <- function(
   time = TRUE,
   meta = TRUE,
   header = TRUE,
-  eseis = FALSE,
+  eseis = TRUE,
   endianness = "little",
   biglong = FALSE
 ) {

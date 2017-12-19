@@ -30,8 +30,7 @@ This function plots a line graph of the spectrum of a seismic signal.
 data(rockfall)
 
 ## calculate spectrum
-spectrum_rockfall <- signal_spectrum(data = rockfall_z, 
-                                     dt = 1 / 200)
+spectrum_rockfall <- signal_spectrum(data = rockfall_eseis)
 
 ## plot data set with lower resolution
 plot_spectrum(data = spectrum_rockfall)

@@ -10,8 +10,8 @@ signal_envelope(data, p = 0)
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
 
-\item{p}{\code{Numeric} scalar, proportion of the signal to be tapered,
-default is \code{10^-6}.}
+\item{p}{\code{Numeric} value, proportion of the signal to be tapered,
+default is \code{0}.}
 }
 \value{
 \code{Numeric} vector or list of vectors, signal envelope.
@@ -27,15 +27,13 @@ should be detrended and/or the mean should be removed before processing.
 data(rockfall)
 
 ## detrend data set
-rockfall_detrend <- signal_detrend(data = rockfall_z)
+rockfall_detrend <- signal_detrend(data = rockfall_eseis)
 
 ## calculate envelope
 rockfall_envelope <- signal_envelope(data = rockfall_detrend)
 
 ## plot envelope
-plot(x = rockfall_t[68000:78000], 
-     y = rockfall_envelope[68000:78000], 
-     type = "l")
+plot_signal(data = rockfall_envelope)
                      
 }
 \author{

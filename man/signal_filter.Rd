@@ -2,7 +2,7 @@
 % Please edit documentation in R/signal_filter.R
 \name{signal_filter}
 \alias{signal_filter}
-\title{Filter a seismic signal.}
+\title{Filter a seismic signal in the time domain}
 \usage{
 signal_filter(data, f, dt, type, shape = "butter", order = 2, p = 0)
 }
@@ -10,32 +10,32 @@ signal_filter(data, f, dt, type, shape = "butter", order = 2, p = 0)
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
 
-\item{f}{\code{Numeric} scalar or vector of length two, lower and/or 
+\item{f}{\code{Numeric} value or vector of length two, lower and/or 
 upper cutoff frequencies (Hz).}
 
-\item{dt}{\code{Numeric} scalar, sampling period. If omitted, \code{dt} 
+\item{dt}{\code{Numeric} value, sampling period. If omitted, \code{dt} 
 is set to 1/200.}
 
-\item{type}{\code{Character} scalar, type of filter, one out of 
+\item{type}{\code{Character} value, type of filter, one out of 
 \code{"LP"} (low pass), \code{"HP"} (high pass), \code{"BP"} (band 
 pass) and \code{"BR"} (band rejection). If omitted, the type is interpreted 
 from \code{f}. If \code{f} is of length two, \code{type} is set to 
 \code{"BP"}. If \code{f} is of length one, \code{type} is set to 
 \code{"HP"}.}
 
-\item{shape}{\code{Character} scalar, one out of \code{"butter"} 
+\item{shape}{\code{Character} value, one out of \code{"butter"} 
 (Butterworth), default is \code{"butter"}.}
 
-\item{order}{\code{Numeric} scalar, order of the filter, default 
-is \code{2}.}
+\item{order}{\code{Numeric} value, order of the filter, default 
+is \code{2}. Only needed if \code{data} is no \code{eseis} object.}
 
-\item{p}{\code{Numeric} scalar, fraction of the signal to be tapered.}
+\item{p}{\code{Numeric} value, fraction of the signal to be tapered.}
 }
 \value{
 \code{Numeric} vector or list of vectors, filtered signal vector.
 }
 \description{
-The function filters the input signal vector.
+The function filters the input signal vector in the time domain.
 }
 \examples{
 
@@ -43,17 +43,15 @@ The function filters the input signal vector.
 data(rockfall)
 
 ## filter data set by bandpass filter between 1 and 90 Hz
-rockfall_bp <- signal_filter(data = rockfall_z, 
-                             f = c(1, 90), 
-                             dt = 1/200)
+rockfall_bp <- signal_filter(data = rockfall_eseis, 
+                             f = c(1, 90))
                              
 ## taper signal to account for edge effects
-rockfall_bp <- signal_taper(data = rockfall_bp, n = 2000)
+rockfall_bp <- signal_taper(data = rockfall_bp, 
+                            n = 2000)
 
 ## plot filtered signal
-plot(x = rockfall_t[68000:78000], 
-     y = rockfall_bp[68000:78000], 
-     type = "l")
+plot_signal(data = rockfall_bp)
                      
 }
 \author{

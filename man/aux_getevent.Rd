@@ -2,39 +2,39 @@
 % Please edit documentation in R/aux_getevent.R
 \name{aux_getevent}
 \alias{aux_getevent}
-\title{Load seismic data based on a time stamp}
+\title{Load seismic data of a user-defined event}
 \usage{
 aux_getevent(start, duration, station, component = "BHZ", format = "sac",
-  dir, simplify = TRUE, eseis = FALSE)
+  dir, simplify = TRUE, eseis = TRUE)
 }
 \arguments{
 \item{start}{\code{POSIXct} value, start time of the data to import.}
 
-\item{duration}{\code{numeric} value, duration of the data to import
+\item{duration}{\code{Numeric} value, duration of the data to import,
 in seconds.}
 
-\item{station}{\code{character} value, seismic station ID, which must
+\item{station}{\code{Character} value, seismic station ID, which must
 correspond to the ID in the file name of the data directory structure 
-(cf. \code{aux_organisecubefiles()}).}
+(cf. \code{aux_organisecubefiles}).}
 
-\item{component}{\code{character} value, seismic component, which must
+\item{component}{\code{Character} value, seismic component, which must
 correspond to the component name in the file name of the data directory  
-structure (cf. \code{aux_organisecubefiles()}). Default is 
+structure (cf. \code{aux_organisecubefiles}). Default is 
 \code{"BHZ"} (vertical component of a sac file).}
 
-\item{format}{\code{character} value, seismic data format. One out of 
+\item{format}{\code{Character} value, seismic data format. One out of 
 \code{"sac"} and \code{"mseed"}. Default is \code{"sac"}.}
 
-\item{dir}{\code{character} value, path to the seismic data directory.}
+\item{dir}{\code{Character} value, path to the seismic data directory.}
 
-\item{simplify}{\code{logical} value, option to simplify import output
+\item{simplify}{\code{Logical} value, option to simplify output
 when possible. This basically means that if only data from one station 
 is loaded, the list object will have one level less. Default is 
 \code{TRUE}.}
 
-\item{eseis}{\code{Logical} scalar, option to read data to an \code{eseis}
+\item{eseis}{\code{Logical} value, option to read data to an \code{eseis}
 object (recommended, see documentation of 
-\code{aux_initiateeseis}), default is \code{FALSE}}
+\code{aux_initiateeseis}), default is \code{TRUE}}
 }
 \value{
 A \code{list} object containing either a set of \code{eseis}
@@ -42,24 +42,17 @@ objects or a data set with the time vector (\code{$time})
 and a list of seismic stations (\code{$station_ID}) with their seismic
 signals as data frame (\code{$signal}). If \code{simplify = TRUE} (the 
 default option) and only one seismic station is provided, the output  
-object only contains \code{$time} and \code{$signal}.
+object containseither just one eseis object or the vectors for 
+\code{$time} and \code{$signal}.
 }
 \description{
 The function loads seismic data from a data directory structure (see 
-\code{aux_organisecubefiles()}) based on the event start time 
-and duration.
+\code{aux_organisecubefiles()}) based on the event start time, duration,
+component and station ID.
 }
 \details{
-This and all other aux-functions are primarily written for internal 
-use amongst the GFZ Geomorphology Section group members and their  
-usual data handling scheme. Thus, they may be of limited use when 
-adopted for other scopes. However, many of these functions are 
-internally consistent in usage. For example, data set recorded by 
-Omnirecs Cube data loggers can be conherently processed with the 
-aux-function family and will result in the envisioned data structure.
-
 The function assumes complete data sets, i.e., not a single hourly 
-data set must be missing or causes problems during import. The time 
+data set must be missing. The time 
 vector is loaded only once, from the first station and its first 
 component. Thus, it is assumed that all loaded seismic signals are
 of the same sampling frequency and length.
@@ -72,7 +65,7 @@ of the same sampling frequency and length.
 start <- as.POSIXct("2015-04-06 13:22:30", tz = "UTC")
 duration <- 50
 
-## load the z-component data from a rockfall event
+## load the z component data from a rockfall event
 data <- aux_getevent(start = start, 
                       duration = duration,
                       station = "LAU05",

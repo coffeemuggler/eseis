@@ -1,51 +1,52 @@
-#' Filter a seismic signal.
+#' Filter a seismic signal in the time domain
 #' 
-#' The function filters the input signal vector.
+#' The function filters the input signal vector in the time domain.
 #' 
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
-#' @param f \code{Numeric} scalar or vector of length two, lower and/or 
+#' @param f \code{Numeric} value or vector of length two, lower and/or 
 #' upper cutoff frequencies (Hz).
 #' 
-#' @param dt \code{Numeric} scalar, sampling period. If omitted, \code{dt} 
+#' @param dt \code{Numeric} value, sampling period. If omitted, \code{dt} 
 #' is set to 1/200.
 #' 
-#' @param type \code{Character} scalar, type of filter, one out of 
+#' @param type \code{Character} value, type of filter, one out of 
 #' \code{"LP"} (low pass), \code{"HP"} (high pass), \code{"BP"} (band 
 #' pass) and \code{"BR"} (band rejection). If omitted, the type is interpreted 
 #' from \code{f}. If \code{f} is of length two, \code{type} is set to 
 #' \code{"BP"}. If \code{f} is of length one, \code{type} is set to 
 #' \code{"HP"}.
 #' 
-#' @param shape \code{Character} scalar, one out of \code{"butter"} 
+#' @param shape \code{Character} value, one out of \code{"butter"} 
 #' (Butterworth), default is \code{"butter"}.
 #' 
-#' @param order \code{Numeric} scalar, order of the filter, default 
-#' is \code{2}.
+#' @param order \code{Numeric} value, order of the filter, default 
+#' is \code{2}. Only needed if \code{data} is no \code{eseis} object.
 #' 
-#' @param p \code{Numeric} scalar, fraction of the signal to be tapered.
+#' @param p \code{Numeric} value, fraction of the signal to be tapered.
 #' 
 #' @return \code{Numeric} vector or list of vectors, filtered signal vector.
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set
 #' data(rockfall)
 #' 
 #' ## filter data set by bandpass filter between 1 and 90 Hz
-#' rockfall_bp <- signal_filter(data = rockfall_z, 
-#'                              f = c(1, 90), 
-#'                              dt = 1/200)
+#' rockfall_bp <- signal_filter(data = rockfall_eseis, 
+#'                              f = c(1, 90))
 #'                              
 #' ## taper signal to account for edge effects
-#' rockfall_bp <- signal_taper(data = rockfall_bp, n = 2000)
+#' rockfall_bp <- signal_taper(data = rockfall_bp, 
+#'                             n = 2000)
 #' 
 #' ## plot filtered signal
-#' plot(x = rockfall_t[68000:78000], 
-#'      y = rockfall_bp[68000:78000], 
-#'      type = "l")
+#' plot_signal(data = rockfall_bp)
 #'                      
 #' @export signal_filter
 signal_filter <- function(

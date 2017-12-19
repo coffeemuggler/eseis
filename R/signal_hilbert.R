@@ -6,13 +6,21 @@
 #' objects, data set to be processed.
 #' 
 #' @return \code{Numeric} vector or list of vectors, Hilbert transform.
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
-#' ## NOT DONE YET
-#'                      
+#' ## load example data
+#' data(rockfall)
+#' 
+#' ## calculate hilbert transform
+#' rockfall_h <- signal_hilbert(data = rockfall_eseis)
+#' 
 #' @export signal_hilbert
+#' 
 signal_hilbert <- function(
   data
 ) {

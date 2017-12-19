@@ -20,7 +20,7 @@ clipping.}
 \code{Numeric} data set clipped to provided time interval.
 }
 \description{
-The function clips signals based on the correpsonding time vector.
+The function clips a seismic signal based on the corresponding time vector.
 }
 \examples{
 

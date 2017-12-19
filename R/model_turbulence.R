@@ -1,7 +1,7 @@
 #' Model the seismic spectrum due to hydraulic turbulence
 #' 
 #' The function calculates the seismic spectrum as predicted by the model 
-#' of Gimbert et al. (2014) for hadraulic turbulence. The code was written to 
+#' of Gimbert et al. (2014) for hydraulic turbulence. The code was written to 
 #' R by Sophie Lagarde and integrated to the R package 'eseis' by Michael 
 #' Dietze.
 #' 
@@ -12,7 +12,7 @@
 #'   (dimensionless)
 #'   \item \code{g = 9.81}, gravitational acceleration (m/s^2)
 #'   \item \code{k = 0.5}, Kolmogrov constant (dimensionless)
-#'   \item \code{k_s = 3 * d_s}, roughness lenght (m)
+#'   \item \code{k_s = 3 * d_s}, roughness length (m)
 #'   \item \code{h = k_s / 2}, reference height of the measurement (m)
 #'   \item \code{e_0 = 0}, exponent of Q increase with frequency 
 #'   (dimensionless)
@@ -34,7 +34,7 @@
 #' 
 #' @param a_w \code{Numeric} value, fluid flow inclination angle (radians)
 #' 
-#' @param f = c(1, 100) \code{Numeric} vector, frequency range to be modelled. 
+#' @param f \code{Numeric} vector, frequency range to be modelled. 
 #' If of length two the argument is interpreted as representing the lower and 
 #' upper limit and the final length of the frequency vector is set by the 
 #' argument \code{res}. If \code{f} contains more than two values it is 
@@ -46,18 +46,18 @@
 #' 
 #' @param r_0 \code{Numeric} value, distance of seismic station to source
 #' 
-#' @param f_0 \code{Numeric} value, frequency NOT DOCUMENTED (Hz)
+#' @param f_0 \code{Numeric} value, reference frequency (Hz)
 #' 
 #' @param q_0 \code{Numeric} value, ground quality factor at \code{f_0}
 #' 
 #' @param v_0 \code{Numeric} value, phase speed of the Rayleigh wave at 
-#' f_0 (m/s)
+#' \code{f_0} (m/s)
 #' 
 #' @param p_0 \code{Numeric} value, variation exponent of Rayleigh wave 
 #' velocities with frequency (dimensionless)
 #' 
 #' @param n_0 \code{Numeric} vector of length two, Greens function 
-#' approximation coefficients. Cf. N_11 and N_12 in eq. 36 in Gimbert et 
+#' displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 
 #' al. (2014) 
 #' 
 #' @param eseis \code{Character} value, option to return an eseis object 
@@ -65,8 +65,7 @@
 #' 
 #' @param \dots Further arguments passed to the function.
 #' 
-#' @return \code{Numeric} with elements \code{f} (frequency) and \code{p} 
-#' (spectral power in dB).
+#' @return \code{eseis} object containing the modelled spectrum.
 #' 
 #' @author Sophie Lagarde, Michael Dietze
 #' 
@@ -90,11 +89,8 @@
 #'                       n_0 = c(0.6, 0.8), # Greens function estimates
 #'                       res = 1000) # 1000 values build the output resolution
 #' 
-#' ## convert power to dB scale
-#' P$spectrum <- (10*log10(P$spectrum))
-#' 
 #' ## plot the power spectrum
-#' plot(P, type = "l")
+#' plot_spectrum(data = P)
 #'               
 #' @export model_turbulence
 #' 

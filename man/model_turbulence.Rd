@@ -21,7 +21,7 @@ diameter (m)}
 
 \item{a_w}{\code{Numeric} value, fluid flow inclination angle (radians)}
 
-\item{f}{= c(1, 100) \code{Numeric} vector, frequency range to be modelled. 
+\item{f}{\code{Numeric} vector, frequency range to be modelled. 
 If of length two the argument is interpreted as representing the lower and 
 upper limit and the final length of the frequency vector is set by the 
 argument \code{res}. If \code{f} contains more than two values it is 
@@ -30,18 +30,18 @@ ignored.}
 
 \item{r_0}{\code{Numeric} value, distance of seismic station to source}
 
-\item{f_0}{\code{Numeric} value, frequency NOT DOCUMENTED (Hz)}
+\item{f_0}{\code{Numeric} value, reference frequency (Hz)}
 
 \item{q_0}{\code{Numeric} value, ground quality factor at \code{f_0}}
 
 \item{v_0}{\code{Numeric} value, phase speed of the Rayleigh wave at 
-f_0 (m/s)}
+\code{f_0} (m/s)}
 
 \item{p_0}{\code{Numeric} value, variation exponent of Rayleigh wave 
 velocities with frequency (dimensionless)}
 
 \item{n_0}{\code{Numeric} vector of length two, Greens function 
-approximation coefficients. Cf. N_11 and N_12 in eq. 36 in Gimbert et 
+displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 
 al. (2014)}
 
 \item{res}{\code{Numeric} value, output resolution, i.e. length of the 
@@ -53,12 +53,11 @@ instead of a data frame. Default is \code{FALSE}.}
 \item{\dots}{Further arguments passed to the function.}
 }
 \value{
-\code{Numeric} with elements \code{f} (frequency) and \code{p} 
-(spectral power in dB).
+\code{eseis} object containing the modelled spectrum.
 }
 \description{
 The function calculates the seismic spectrum as predicted by the model 
-of Gimbert et al. (2014) for hadraulic turbulence. The code was written to 
+of Gimbert et al. (2014) for hydraulic turbulence. The code was written to 
 R by Sophie Lagarde and integrated to the R package 'eseis' by Michael 
 Dietze.
 }
@@ -70,7 +69,7 @@ by the user, using the \code{...} argument:
   (dimensionless)
   \item \code{g = 9.81}, gravitational acceleration (m/s^2)
   \item \code{k = 0.5}, Kolmogrov constant (dimensionless)
-  \item \code{k_s = 3 * d_s}, roughness lenght (m)
+  \item \code{k_s = 3 * d_s}, roughness length (m)
   \item \code{h = k_s / 2}, reference height of the measurement (m)
   \item \code{e_0 = 0}, exponent of Q increase with frequency 
   (dimensionless)
@@ -97,11 +96,8 @@ P <- model_turbulence(d_s = 0.03, # 3 cm mean grain-size
                       n_0 = c(0.6, 0.8), # Greens function estimates
                       res = 1000) # 1000 values build the output resolution
 
-## convert power to dB scale
-P$spectrum <- (10*log10(P$spectrum))
-
 ## plot the power spectrum
-plot(P, type = "l")
+plot_spectrum(data = P)
               
 }
 \author{

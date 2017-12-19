@@ -1,17 +1,17 @@
-#' Calculate spectrograms (power spectral density estimates) from time series.
+#' Plot spectrograms (power spectral density estimates)
 #' 
-#' This function creates spectrograms from seismic signals. It supports the
-#' standard spectrogram apporach, multitaper, and the Welch method.
+#' This function plots spectrograms of seismic signals. It uses the output 
+#' of \code{signal_spectrogram}.
 #' 
 #' @param data \code{List} object, spectrogram to be plotted. Must be output
-#' of \code{signal_spectrogram()} or of equivalent structure.
+#' of \code{signal_spectrogram} or of equivalent structure.
 #' 
 #' @param legend \code{Logical} value, option to add colour bar legend. Legend
-#' label can be changed by \code{zlab}
+#' label can be changed by \code{zlab}.
 #' 
 #' @param keep_par \code{Logical} value, option to omit resetting plot 
-#' parameters after function execution. Useful for adding data to the PSD
-#' plot. Default is \code{FALSE} (parameters are reset to original values).
+#' parameters after function execution. Useful for adding further data to the 
+#' PSD plot. Default is \code{FALSE} (parameters are reset to original values).
 #' 
 #' @param col \code{Character} scalar, colour palette to use. Default is 
 #' \code{"gradient_1"}.
@@ -32,13 +32,10 @@
 #' data(rockfall)
 #' 
 #' ## deconvolve signal
-#' rockfall <- signal_deconvolve(data = rockfall_z, 
-#'                               dt = 1/200)
+#' rockfall <- signal_deconvolve(data = rockfall_eseis)
 #' 
 #' ## calculate spectrogram
-#' PSD <- signal_spectrogram(data = rockfall_z, 
-#'                           time = rockfall_t, 
-#'                           dt = 1/200)
+#' PSD <- signal_spectrogram(data = rockfall)
 #' 
 #' ## plot spectrogram
 #' plot_spectrogram(data = PSD)

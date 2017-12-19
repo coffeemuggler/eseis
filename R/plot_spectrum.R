@@ -27,8 +27,7 @@
 #' data(rockfall)
 #' 
 #' ## calculate spectrum
-#' spectrum_rockfall <- signal_spectrum(data = rockfall_z, 
-#'                                      dt = 1 / 200)
+#' spectrum_rockfall <- signal_spectrum(data = rockfall_eseis)
 #' 
 #' ## plot data set with lower resolution
 #' plot_spectrum(data = spectrum_rockfall)
@@ -149,18 +148,18 @@ plot_spectrum <- function(
       n <- length(data$spectrum)
     }
     
-    ## get NA values to padd data set
-    n_padd <- ceiling(x = length(data$spectrum) / n) * n - length(data$spectrum)
+    ## get NA values to pad data set
+    n_pad <- ceiling(x = length(data$spectrum) / n) * n - length(data$spectrum)
     
-    ## padd data set
-    s_padd <- c(data$spectrum, rep(NA, 
-                                   times = n_padd))
+    ## pad data set
+    s_pad <- c(data$spectrum, rep(NA, 
+                                   times = n_pad))
     
-    f_padd <- c(data$frequency, rep(NA, 
-                                    times = n_padd))
+    f_pad <- c(data$frequency, rep(NA, 
+                                    times = n_pad))
     
     ## convert signal vector to matrix
-    S <- matrix(data = s_padd, 
+    S <- matrix(data = s_pad, 
                 ncol = n)
     
     ## calculate columnwise min and max
@@ -175,11 +174,11 @@ plot_spectrum <- function(
     
     ## get time vector subset
     i <- seq(from = 1, 
-             to = length(f_padd), 
+             to = length(f_pad), 
              by = nrow(S))
     
     ## make pairs of time vector subsets
-    f_plot <- rep(f_padd[i], each = 2)
+    f_plot <- rep(f_pad[i], each = 2)
     
     ## account for log scale x axis
     if ("log" %in% names(args)) {

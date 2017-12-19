@@ -19,7 +19,7 @@ t
 }
 \description{
 The dataset comprises the seismic signal (all three components) of 
-a small earthquake. The data have beenrecorded at 200 Hz sampling 
+a small earthquake. The data have been recorded at 200 Hz sampling 
 frequency with an Omnirecs Cube ext 3 data logger.
 
 The dataset comprises the time vector associated with the data set
@@ -36,6 +36,9 @@ plot(x = t, y = s$BHZ, type = "l")
 
 ## load example data set
 data(earthquake)
+
+## show range of time vector
+range(t)
 
 }
 \keyword{datasets}

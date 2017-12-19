@@ -14,11 +14,11 @@
 #' data(rockfall)
 #' 
 #' ## remove linear trend from data set
-#' rockfall_detrend <- signal_detrend(data = rockfall_z)
+#' rockfall_detrend <- signal_detrend(data = rockfall_eseis)
 #' 
 #' ## compare data ranges
-#' range(rockfall_z)
-#' range(rockfall_detrend)
+#' range(rockfall_eseis$signal)
+#' range(rockfall_detrend$signal)
 #'                      
 #' @export signal_detrend
 signal_detrend <- function(

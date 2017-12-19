@@ -5,10 +5,10 @@
 \title{Download seismic data from FDSN data base}
 \usage{
 aux_getFDSNdata(start, duration, channel = "BHZ", network, station, url,
-  link_only = FALSE, eseis = FALSE)
+  link_only = FALSE, eseis = TRUE)
 }
 \arguments{
-\item{start}{\code{Posixct} value, start time of the data to query.}
+\item{start}{\code{POSIXct} value, start time of the data to query.}
 
 \item{duration}{\code{Numeric} value, length of the data to query, in 
 seconds.}
@@ -20,21 +20,21 @@ seconds.}
 
 \item{station}{\code{Character} vector, FDSN station ID.}
 
-\item{url}{\code{Character} vector, FDSN url.}
+\item{url}{\code{Character} vector, FDSN URL.}
 
 \item{link_only}{\code{Logical} vector, return only FDSN link instead of
 downloading and importing the data.}
 
 \item{eseis}{\code{Logical} scalar, option to read data to an \code{eseis}
 object (recommended, see documentation of 
-\code{aux_initiateeseis}), default is \code{FALSE}}
+\code{aux_initiateeseis}), default is \code{TRUE}}
 }
 \value{
 \code{List} object with imported seismic data for each provided 
 set of input arguments.
 }
 \description{
-The function accesses the specified FDSn internet data base(s) and 
+The function accesses the specified FDSN internet data base(s) and 
 downloads seismic data based on the network and station IDs and time
 constraints.
 }
@@ -44,7 +44,7 @@ function \code{aux_getFDSNstation} before. It will return all the
 information in a structured way.
 
 It is possible to use the function to process more than one data set. In 
-this case, the arguments \code{network},\code{station} and \code{url} 
+this case, the arguments \code{network}, \code{station} and \code{url} 
 must match pairwise. The arguments \code{start}, \code{duration} and 
 \code{channel} will be treated as constants if not also provided as 
 vectors.
@@ -88,7 +88,7 @@ for(i in 1:3) {
                      
 }
 \seealso{
-[aux_get_FDSNstation], [read_mseed]
+aux_get_FDSNstation, read_mseed
 }
 \author{
 Michael Dietze

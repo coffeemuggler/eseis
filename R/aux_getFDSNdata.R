@@ -1,6 +1,6 @@
 #' Download seismic data from FDSN data base
 #' 
-#' The function accesses the specified FDSn internet data base(s) and 
+#' The function accesses the specified FDSN internet data base(s) and 
 #' downloads seismic data based on the network and station IDs and time
 #' constraints.
 #' 
@@ -9,12 +9,12 @@
 #' information in a structured way.
 #' 
 #' It is possible to use the function to process more than one data set. In 
-#' this case, the arguments \code{network},\code{station} and \code{url} 
+#' this case, the arguments \code{network}, \code{station} and \code{url} 
 #' must match pairwise. The arguments \code{start}, \code{duration} and 
 #' \code{channel} will be treated as constants if not also provided as 
 #' vectors. 
 #' 
-#' @param start \code{Posixct} value, start time of the data to query. 
+#' @param start \code{POSIXct} value, start time of the data to query. 
 #' 
 #' @param duration \code{Numeric} value, length of the data to query, in 
 #' seconds.
@@ -26,21 +26,21 @@
 #' 
 #' @param station \code{Character} vector, FDSN station ID.
 #' 
-#' @param url \code{Character} vector, FDSN url.
+#' @param url \code{Character} vector, FDSN URL.
 #' 
 #' @param link_only \code{Logical} vector, return only FDSN link instead of
 #' downloading and importing the data.
 #' 
 #' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
 #' object (recommended, see documentation of 
-#' \code{aux_initiateeseis}), default is \code{FALSE}
+#' \code{aux_initiateeseis}), default is \code{TRUE}
 #' 
 #' @return \code{List} object with imported seismic data for each provided 
 #' set of input arguments. 
 #' 
 #' @author Michael Dietze
 #' 
-#' @seealso [aux_get_FDSNstation], [read_mseed]
+#' @seealso aux_get_FDSNstation, read_mseed
 #' 
 #' @keywords eseis
 #' 
@@ -92,7 +92,7 @@ aux_getFDSNdata <- function(
   station,
   url,
   link_only = FALSE,
-  eseis = FALSE
+  eseis = TRUE
   
 ) {
   

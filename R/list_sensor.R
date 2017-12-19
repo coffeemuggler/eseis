@@ -15,7 +15,7 @@
 #' @examples
 #' 
 #' ## show sensors
-#' list_sensor
+#' list_sensor()
 #'                      
 #' @export list_sensor
 list_sensor <- function(

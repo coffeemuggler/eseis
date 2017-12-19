@@ -10,10 +10,10 @@ spatial_convert(data, from, to)
 \item{data}{\code{Numeric} matrix or data frame, x-, y-coordinates to 
 be converted.}
 
-\item{from}{\code{Character} scalar, proj4 string of the current 
+\item{from}{\code{Character} value, proj4 string of the current 
 reference system.}
 
-\item{to}{\code{Character} scalar, proj4 string of the target 
+\item{to}{\code{Character} value, proj4 string of the target 
 reference system.}
 }
 \value{

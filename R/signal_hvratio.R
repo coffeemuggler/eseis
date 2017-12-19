@@ -27,7 +27,7 @@
 #' the moving window used for smoothing the spectra. By default no smoothing 
 #' is performed.
 #' 
-#' @param order \code{Caracter} value, order of the seismic components. 
+#' @param order \code{Character} value, order of the seismic components. 
 #' Describtion must contain the letters \code{"x"},\code{"y"} and
 #' \code{"z"} in the order according to the input data set. Default is 
 #' \code{"xyz"} (EW-SN-vertical).

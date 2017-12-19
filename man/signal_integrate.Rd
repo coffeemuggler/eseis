@@ -2,7 +2,7 @@
 % Please edit documentation in R/signal_integrate.R
 \name{signal_integrate}
 \alias{signal_integrate}
-\title{Integrate a signal vector.}
+\title{Integrate a seismic signal}
 \usage{
 signal_integrate(data, dt, method = "fft", waterlevel = 10^-6)
 }
@@ -32,14 +32,10 @@ displacement. Two methods are available
 data(rockfall)
 
 ## deconvolve signal
-rockfall_decon <- signal_deconvolve(data = rockfall_z,
-                                    dt = 1/200, 
-                                    sensor = "TC120s", 
-                                    logger = "Cube3ext")
+rockfall_decon <- signal_deconvolve(data = rockfall_eseis)
                                     
 ## integrate signal
-rockfall_int <- signal_integrate(data = rockfall_decon,
-                                 dt = 1/200)
+rockfall_int <- signal_integrate(data = rockfall_decon)
                                  
 ## Note that usually the signal should be filtered prior to integration.
                      

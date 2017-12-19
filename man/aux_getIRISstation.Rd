@@ -8,7 +8,7 @@ aux_getIRISstation(start, duration, location, radius = 10,
   component = "BHZ", ID_iris = "IrisClient")
 }
 \arguments{
-\item{start}{\code{Posixct} value, start time of the data to query.}
+\item{start}{\code{POSIXct} value, start time of the data to query.}
 
 \item{duration}{\code{Numeric} value, length of the data to query, in 
 seconds.}
@@ -28,19 +28,17 @@ one component can be defined per search. Default is \code{"BHZ"}.}
 }
 \value{
 \code{Data frame} with query results. The data frame contains 
-information for all seismic stations fulfilling the defined criteria: 
-\code{NAME VARIABLES}.
+information for all seismic stations fulfilling the defined criteria.
 }
 \description{
 This function queries the IRIS data base for seismic stations that match
 a set of criteria for seismic data. The criteria include signal time stamp 
 and location, component and a search radius. The returned SNCL strings can 
-be used to download data using the function \code{aux_getirisdata()}.
+be used to download data using the function \code{aux_getIRISdata}.
 }
 \details{
-The function makes use of the functionalities provided by the package 
-IRISSeismic. It requires a working internet connection to perform the 
-query.
+The function makes use of the package  IRISSeismic. It requires a working 
+internet connection to perform the query.
 }
 \examples{
 

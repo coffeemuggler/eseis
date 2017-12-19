@@ -6,7 +6,7 @@
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
-#' @param n \code{Numeric} scalar, number of samples to be aggregated to one
+#' @param n \code{Numeric} value, number of samples to be aggregated to one
 #' new data value. Must be an integer value greater than 1. Default is 
 #' \code{2}.
 #' 

@@ -1,4 +1,4 @@
-#' List logger library.
+#' List library with data logger information.
 #' 
 #' The function returns the list of supported data loggers to extract signal 
 #' deconvolution parameters.
@@ -10,8 +10,11 @@
 #' @keywords eseis
 #' @examples
 #' 
-#' ## show sensors
-#' list_logger
+#' ## show documented loggers
+#' list_logger()
+#' 
+#' ## show names of loggers in list
+#' names(list_logger())
 #'                      
 #' @export list_logger
 list_logger <- function(

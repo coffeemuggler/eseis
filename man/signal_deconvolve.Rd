@@ -11,29 +11,30 @@ signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3extBOB",
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
 
-\item{dt}{\code{Numeric} scalar, sampling rate.}
+\item{dt}{\code{Numeric} value, sampling rate. Only needed if \code{data} 
+is not an \code{eseis} object}
 
-\item{sensor}{\code{Character} scalar or \code{list} object, 
+\item{sensor}{\code{Character} value or \code{list} object, 
 seismic sensor name. Must be present in the sensor library 
 (\code{list_sensor}) or parameters must be added manually (see 
 examples). Default is \code{"TC120s"}.}
 
-\item{logger}{\code{Character} scalar, seismic logger name. Must be 
+\item{logger}{\code{Character} value, seismic logger name. Must be 
 present in the logger library (\code{list_logger}) or parameters must be
 added manually. Default is \code{"Cube3extBOB"}.}
 
 \item{gain}{\code{Numeric} value, signal gain level of the logger. Default 
 is \code{1}.}
 
-\item{p}{\code{Numeric} scalar, proportion of signal to be tapered. Default
+\item{p}{\code{Numeric} value, proportion of signal to be tapered. Default
 is\code{10^-6}.}
 
-\item{waterlevel}{\code{Numeric} scalar, waterlevel value for frequency
+\item{waterlevel}{\code{Numeric} value, waterlevel value for frequency
 division, default is \code{10^-6}.}
 
 \item{na.replace}{\code{Logical} value, option to replace NA values in the 
 data set by zeros. Default is \code{FALSE}. Attention, the zeros will 
-create artifacts in the deconvolved data set. However, NA values will 
+create artifacts in the deconvolved data set. However, \code{NA} values will 
 result in no deconvolution at all.}
 }
 \value{
@@ -56,18 +57,13 @@ conversion factor. If the signal was recorded with a gain value other than
 ## load example data set
 data(rockfall)
 
-## deconvolve signal
-rockfall_decon <- signal_deconvolve(data = rockfall_z,
-                                    dt = 1/200, 
-                                    sensor = "TC120s", 
-                                    logger = "Cube3ext")
+## deconvolve signal with minimum effort
+rockfall_decon <- signal_deconvolve(data = rockfall_eseis)
 
 ## plot time series
-plot(x = rockfall_t, 
-     y = rockfall_decon, 
+plot_signal(data = rockfall_decon, 
      main = "Rockfall, deconvolved signal", 
-     ylab = "m/s", 
-     type = "l")
+     ylab = "m/s")
  
 ## add new logger manually
 logger_new <- list_logger()[[1]]
@@ -78,8 +74,7 @@ logger_new$name <- "logger_new"
 logger_new$AD <- 2.4414e-07
 
 ## deconvolve signal with new logger
-rockfall_decon <- signal_deconvolve(data = rockfall_z,
-                                    dt = 1/200, 
+rockfall_decon <- signal_deconvolve(data = rockfall_eseis,
                                     sensor = "TC120s", 
                                     logger = logger_new)
                                     

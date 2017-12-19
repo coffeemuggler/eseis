@@ -18,8 +18,12 @@ The function calculates the Hilbert transform of the input signal vector.
 }
 \examples{
 
-## NOT DONE YET
-                     
+## load example data
+data(rockfall)
+
+## calculate hilbert transform
+rockfall_h <- signal_hilbert(data = rockfall_eseis)
+
 }
 \author{
 Michael Dietze

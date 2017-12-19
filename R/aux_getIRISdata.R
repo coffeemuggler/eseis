@@ -3,13 +3,12 @@
 #' This function accesses the IRIS internet data base of seismic signals and 
 #' downloads seismic data based on the provided SNCL string and time 
 #' information. The downloaded data is converted to the same structure as 
-#' would be expected from \code{read_sac()} or \code{read_mseed()}.
+#' would be expected from \code{read_sac} or \code{read_mseed}.
 #' 
-#' The function makes use of the functionalities provided by the package 
-#' IRISSeismic. It requires a working internet connection to perform the 
-#' download.
+#' The function makes use of the package 'IRISSeismic'. It requires a working 
+#' internet connection to perform the download.
 #'
-#' @param start \code{Posixct} value, start time of the data to query. 
+#' @param start \code{POSIXct} value, start time of the data to query. 
 #' 
 #' @param duration \code{Numeric} value, length of the data to query, in 
 #' seconds.
@@ -31,12 +30,12 @@
 #' 
 #' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
 #' object (recommended, see documentation of 
-#' \code{aux_initiateeseis}), default is \code{FALSE}
+#' \code{aux_initiateeseis}), default is \code{TRUE}
 #' 
 #' @return \code{List} with downloaded seismic data. For each element in 
 #' \code{sncl}, a list element is created, which in turn contains a list with 
 #' the typical seismic data organisation as, for example, created by 
-#' \code{read_sac()}.
+#' \code{read_sac}.
 #' 
 #' @author Michael Dietze
 #' 
@@ -46,23 +45,19 @@
 #' 
 #' \dontrun{
 #' 
-#' sncl <- aux_getIRISstations(start = as.POSIXct("2010-01-01 22:22:22", 
+#' sncl <- aux_getIRISstation(start = as.POSIXct("2010-01-01 22:22:22", 
 #'                                                tz = "UTC"), 
 #'                             duration = 120, 
 #'                             location = c(53, 13), 
-#'                             radius = 1, 
+#'                             radius = 0.7, 
 #'                             component = "BHZ")
 #' 
-#' data <- aux_getIRISdata(start = as.POSIXct("2010-01-01 22:22:22", 
+#' s <- aux_getIRISdata(start = as.POSIXct("2010-01-01 22:22:22", 
 #'                                            tz = "UTC"), 
 #'                         duration = 120,
 #'                         sncl = sncl$sncl[1])
 #'                         
-#' s <- data[[1]]$signal
-#' t <- data[[1]]$time
-#' 
-#' plot_signal(data = s, 
-#'             time = t)
+#' plot_signal(data = s[[1]])
 #' }
 #'                      
 #' @export aux_getIRISdata
@@ -74,7 +69,7 @@ aux_getIRISdata <- function (
   sncl,
   quality = "D",
   ID_iris = "IrisClient",
-  eseis = FALSE
+  eseis = TRUE
 ) {
   
   ## collect function arguments

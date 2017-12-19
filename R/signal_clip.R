@@ -1,6 +1,6 @@
 #' Clip signal based on time vector.
 #' 
-#' The function clips signals based on the correpsonding time vector.
+#' The function clips a seismic signal based on the corresponding time vector.
 #' 
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
@@ -14,7 +14,9 @@
 #' @return \code{Numeric} data set clipped to provided time interval. 
 #' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data

@@ -1,4 +1,4 @@
-#' Integrate a signal vector.
+#' Integrate a seismic signal
 #' 
 #' The function integrates a signal vector to convert values from velocity to 
 #' displacement. Two methods are available 
@@ -16,22 +16,21 @@
 #' division, default is \code{10^-6}. Only used when \code{method = "fft"}.
 #' 
 #' @return \code{Numeric} vector or list of vectors, integrated signal.
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set
 #' data(rockfall)
 #' 
 #' ## deconvolve signal
-#' rockfall_decon <- signal_deconvolve(data = rockfall_z,
-#'                                     dt = 1/200, 
-#'                                     sensor = "TC120s", 
-#'                                     logger = "Cube3ext")
+#' rockfall_decon <- signal_deconvolve(data = rockfall_eseis)
 #'                                     
 #' ## integrate signal
-#' rockfall_int <- signal_integrate(data = rockfall_decon,
-#'                                  dt = 1/200)
+#' rockfall_int <- signal_integrate(data = rockfall_decon)
 #'                                  
 #' ## Note that usually the signal should be filtered prior to integration.
 #'                      
@@ -104,19 +103,19 @@ signal_integrate <- function(
       data_demean <- signal_demean(data = data)
       
       ## add zeros to reach even power of two number
-      data_padd <- signal_padd(data = data_demean)
+      data_pad <- signal_pad(data = data_demean)
       
       ## define frequency vector
-      if ((length(data_padd)%%2) == 1) {
-        f <- c(seq(0, (length(data_padd) - 1) / 2), 
-               seq(-(length(data_padd) - 1) / 2, -1)) / (length(data_padd) * dt)
+      if ((length(data_pad)%%2) == 1) {
+        f <- c(seq(0, (length(data_pad) - 1) / 2), 
+               seq(-(length(data_pad) - 1) / 2, -1)) / (length(data_pad) * dt)
       } else {
-        f = c(seq(0, length(data_padd) / 2), 
-              seq(-length(data_padd) / 2 + 1, -1)) / (length(data_padd) * dt)
+        f = c(seq(0, length(data_pad) / 2), 
+              seq(-length(data_pad) / 2 + 1, -1)) / (length(data_pad) * dt)
       }
       
       ## calculate fast Fourier transform
-      x_fft <- stats::fft(z = data_padd)
+      x_fft <- stats::fft(z = data_pad)
       
       ## calculate complex respone vector
       f_comp <- 2 * pi * f * dt * complex(real = 0, imaginary = 1)
@@ -130,7 +129,7 @@ signal_integrate <- function(
       
       ## calculate inverse fast Fourier transform
       data_integrate <- Re(stats::fft(x_fft * f_comp_inverse, 
-                                      inverse = TRUE) / length(data_padd))
+                                      inverse = TRUE) / length(data_pad))
       
       ## truncate data set to original length
       data_out <- data_integrate[1:length(data)]

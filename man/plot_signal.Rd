@@ -18,18 +18,19 @@ is reduced. Default is \code{10000}.}
 \item{\dots}{Further arguments passed to the plot function.}
 }
 \value{
-A line plot.
+A line plot of a seismic wave form.
 }
 \description{
 This function plots a line graph of a seismic signal. To avoid long plot 
-times the signal is reduced to a given number of points.
+preparation times the signal is reduced to a given number of points.
 }
 \details{
 The \code{format} argument is based on hints provided by Sebastian 
 Kreutzer and Christoph Burow. It allows plotting time axis units in 
 user defined formats. The time format must be provided as character string 
 using the POSIX standard (see documentation of \code{strptime} for a list 
-of available keywords), e.g., "%H:%M:%S" for hour:minute:second.
+of available keywords), e.g., "%H:%M:%S" (hour:minute:second),
+"%Y-%m-%d" (year-month-day).
 }
 \examples{
 
@@ -37,10 +38,10 @@ of available keywords), e.g., "%H:%M:%S" for hour:minute:second.
 data(rockfall)
 
 ## plot data set straightforward
-plot_signal(data = rockfall_z, time = rockfall_t)
+plot_signal(data = rockfall_eseis)
 
 ## plot data set with lower resolution
-plot_signal(data = rockfall_z, time = rockfall_t, n = 100)
+plot_signal(data = rockfall_eseis, n = 100)
 
 }
 \author{

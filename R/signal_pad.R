@@ -1,4 +1,4 @@
-#' Padd signal with zeros.
+#' Pad signal with zeros.
 #' 
 #' The function adds zeros to the input vector to reach a length,
 #' corresponding to the next higher power of two.
@@ -8,22 +8,25 @@
 #' 
 #' @return \code{Numeric} vector or list of vectors, signal vector with 
 #' added zeros.
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set
 #' data(rockfall)
 #' 
-#' ## padd with zeros
-#' rockfall_padd <- signal_padd(data = rockfall_z)
+#' ## pad with zeros
+#' rockfall_pad <- signal_pad(data = rockfall_eseis)
 #' 
 #' ## compare lengths
-#' length(rockfall_z)
-#' length(rockfall_padd)
+#' rockfall_eseis$meta$n
+#' rockfall_pad$meta$n
 #'                      
-#' @export signal_padd
-signal_padd <- function(
+#' @export signal_pad
+signal_pad <- function(
   
   data
 ) {
@@ -33,7 +36,7 @@ signal_padd <- function(
     
     ## apply function to list
     data_out <- lapply(X = data, 
-                       FUN = eseis::signal_padd)
+                       FUN = eseis::signal_pad)
     
     ## return output
     return(data_out)
@@ -89,7 +92,7 @@ signal_padd <- function(
       ## update object history
       eseis_data$history[[length(eseis_data$history) + 1]] <- 
         list(time = Sys.time(),
-             call = "signal_padd()",
+             call = "signal_pad()",
              arguments = eseis_arguments,
              duration = eseis_duration)
       names(eseis_data$history)[length(eseis_data$history)] <- 

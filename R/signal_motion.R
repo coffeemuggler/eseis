@@ -20,7 +20,7 @@
 #' provided.
 #' 
 #' @param dt \code{Numeric} value, sampling period. Only needed if 
-#' \code{time} is omitted.
+#' \code{time} is omitted or if \code{data} is no \code{eseis} object.
 #' 
 #' @param window \code{Numeric} value, time window length (given as 
 #' number of samples) used to calculate the particle motion parameters. 
@@ -35,7 +35,7 @@
 #' @param order \code{Character} value, order of the seismic components. 
 #' Describtion must contain the letters \code{"x"},\code{"y"} and
 #' \code{"z"} in the order according to the input data set. Default is 
-#' \code{"xyz"} (NW-SE-vertical).
+#' \code{"xyz"} (NS-EW-vertical).
 #' 
 #' @return A List object with eigenvalue ratios (\code{eigen}), 
 #' azimuth (\code{azimuth}) and inclination (\code{inclination}) as well

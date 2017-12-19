@@ -6,10 +6,11 @@
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
-#' @param detrend \code{Logical} scalar, optionally detrend data set before
+#' @param detrend \code{Logical} value, optionally detrend data set before
 #' calcualting snr.
 #' 
-#' @return \code{Numeric} scalar, signal-to-noise ratio.
+#' @return \code{Numeric} value, signal-to-noise ratio.
+#' 
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
@@ -18,8 +19,12 @@
 #' data(rockfall)
 #' 
 #' ## calculate snr with detrend option off and on
-#' signal_snr(data = rockfall_z)
-#' signal_snr(data = rockfall_z, detrend = TRUE)
+#' snr <- signal_snr(data = rockfall_eseis)
+#' print(snr$snr)
+#' 
+#' snr <- signal_snr(data = rockfall_eseis, 
+#'                   detrend = TRUE)
+#' print(snr$snr)
 #'                      
 #' @export signal_snr
 signal_snr <- function(

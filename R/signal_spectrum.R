@@ -1,15 +1,15 @@
 #' Calculate the spectrum of a time series
 #' 
-#' The spectral density estimate of the time series is calculated using 
+#' The power spectral density estimate of the time series is calculated using 
 #' different approaches.
 #' 
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
-#' @param dt \code{Numeric} scalar, sampling period. If omitted, \code{dt} 
-#' is set to 1/200.
+#' @param dt \code{Numeric} value, sampling period. If omitted, \code{dt} 
+#' is set to 1/200. Only needed if \code{data} is no \code{eseis} object.
 #' 
-#' @param method \code{Character} scalar, calculation method. One out of 
+#' @param method \code{Character} value, calculation method. One out of 
 #' \code{"periodogram"} , \code{"autoregressive"} and \code{"multitaper"}, 
 #' default is \code{"periodogram"}.
 #' 
@@ -17,20 +17,24 @@
 #' \code{\link{spec.pgram}}, \code{\link{spec.ar}}, \code{\link{spec.mtm}}.
 #' 
 #' @return \code{Data frame} with spectrum and frequency vector 
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set
 #' data(rockfall)
 #' 
 #' ## calculate spectrum with standard setup
-#' s <- signal_spectrum(data = rockfall_z, dt = 1/200)
+#' s <- signal_spectrum(data = rockfall_eseis)
 #' 
 #' ## plot spectrum
-#' plot(s, type = "l", log = "y")
+#' plot_spectrum(data = s)
 #' 
 #' @export signal_spectrum
+#' 
 signal_spectrum <- function(
   data,
   dt,

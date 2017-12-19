@@ -13,8 +13,8 @@ componenents to be processed. If \code{data} is a matrix, the components
 must be organised as columns. Also, \code{data} can be a list of 
 \code{eseis} objects.}
 
-\item{time}{\code{POSIX.ct} vector with time values. If omitted, an 
-artificial time vector will be created, based on \code{dt}.}
+\item{time}{\code{POSIXct} vector with time values. If omitted, an 
+synthetic time vector will be created, based on \code{dt}.}
 
 \item{window}{\code{Numeric} scalar, time window length in seconds used to 
 calculate individual spectral ratios. Set to 10 percent of the time  
@@ -28,16 +28,16 @@ series length by default.}
 One out of \code{"periodogram"} , \code{"autoregressive"} and 
 \code{"multitaper"}, default is \code{"periodogram"}.}
 
-\item{kernel}{\code{Numeric} value, window size (number of samples) of 
-the moving window used for smoothing the spectra. By default no smoothing 
-is performed.}
+\item{kernel}{\code{Numeric} value, window size (defined by number of 
+samples) of the moving window used for smoothing the spectra. By default 
+no smoothing is performed.}
 
-\item{order}{\code{Caracter} value, order of the seismic components. 
+\item{order}{\code{Character} value, order of the seismic components. 
 Describtion must contain the letters \code{"x"},\code{"y"} and
 \code{"z"} in the order according to the input data set. Default is 
 \code{"xyz"} (NW-SE-vertical).}
 
-\item{plot}{\code{logical} value, toggle plot output. Default is
+\item{plot}{\code{Logical} value, toggle plot output. Default is
 \code{FALSE}.}
 
 \item{\dots}{Additional arguments passed to the plot function.}
@@ -49,9 +49,9 @@ A \code{matrix} with the h-v-frequency ratios for each time slice.
 This function cuts a three component seismic data set into time windows
 that may or may not overlap and calculates the spectral ratio for each of 
 these windows. It returns a matrix with the ratios for each time slice. 
-Thus, it is a wrapper for the function \code{signal_hvratio()}. For 
+Thus, it is a wrapper for the function \code{signal_hvratio}. For 
 further information about the technique and function arguments see the 
-description of \code{signal_hvratio()}.
+description of \code{signal_hvratio}.
 }
 \examples{
 ## load example data set

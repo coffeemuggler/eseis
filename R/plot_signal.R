@@ -1,13 +1,14 @@
 #' Plot a seismic signal
 #' 
 #' This function plots a line graph of a seismic signal. To avoid long plot 
-#' times the signal is reduced to a given number of points.
+#' preparation times the signal is reduced to a given number of points.
 #' 
 #' The \code{format} argument is based on hints provided by Sebastian 
 #' Kreutzer and Christoph Burow. It allows plotting time axis units in 
 #' user defined formats. The time format must be provided as character string 
 #' using the POSIX standard (see documentation of \code{strptime} for a list 
-#' of available keywords), e.g., "%H:%M:%S" for hour:minute:second.
+#' of available keywords), e.g., "%H:%M:%S" (hour:minute:second),
+#' "%Y-%m-%d" (year-month-day).
 #' 
 #' @param data \code{eseis} object or \code{numeric} vector, data set to 
 #' be plotted.
@@ -19,7 +20,7 @@
 #' 
 #' @param \dots Further arguments passed to the plot function.
 #' 
-#' @return A line plot.
+#' @return A line plot of a seismic wave form.
 #' 
 #' @author Michael Dietze
 #' 
@@ -31,10 +32,10 @@
 #' data(rockfall)
 #' 
 #' ## plot data set straightforward
-#' plot_signal(data = rockfall_z, time = rockfall_t)
+#' plot_signal(data = rockfall_eseis)
 #' 
 #' ## plot data set with lower resolution
-#' plot_signal(data = rockfall_z, time = rockfall_t, n = 100)
+#' plot_signal(data = rockfall_eseis, n = 100)
 #' 
 #' @export plot_signal
 #' 
@@ -123,18 +124,18 @@ plot_signal <- function(
     n <- length(data)
   }
   
-  ## get NA values to padd data set
-  n_padd <- ceiling(x = length(data) / n) * n - length(data)
+  ## get NA values to pad data set
+  n_pad <- ceiling(x = length(data) / n) * n - length(data)
   
-  ## padd data set
-  s_padd <- c(data, rep(NA, 
-                        times = n_padd))
+  ## pad data set
+  s_pad <- c(data, rep(NA, 
+                        times = n_pad))
   
-  t_padd <- c(time, rep(NA, 
-                        times = n_padd))
+  t_pad <- c(time, rep(NA, 
+                        times = n_pad))
   
   ## convert signal vector to matrix
-  S <- matrix(data = s_padd, 
+  S <- matrix(data = s_pad, 
               ncol = n)
   
   ## calculate columnwise min and max
@@ -149,11 +150,11 @@ plot_signal <- function(
   
   ## get time vector subset
   i <- seq(from = 1, 
-           to = length(t_padd), 
+           to = length(t_pad), 
            by = nrow(S))
   
   ## make pairs of time vector subsets
-  t_plot <- rep(t_padd[i], each = 2)
+  t_plot <- rep(t_pad[i], each = 2)
   
   
   ## generate plot

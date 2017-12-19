@@ -27,7 +27,7 @@
 #' Michael Dietze
 #' 
 #' @return
-#' Writes a HTML and .Rds file.
+#' HTML and .Rds file.
 #' 
 #' @examples
 #' 
@@ -185,7 +185,7 @@ write_report <- function(
                                   format = "%Y-%m-%d %H:%M:%S")
   
   ## write object meta information
-  writeLines("<pre style='padding:0px;border:0px'>",
+writeLines("<pre style='padding:0px;border:0px'>",
              con = tmp)
   
   for(i in 1:length(object$meta)) {

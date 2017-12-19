@@ -21,7 +21,7 @@ default web browser after it has been rendered.}
 default styling of the HTML document.}
 }
 \value{
-Writes a HTML and .Rds file.
+HTML and .Rds file.
 }
 \description{
 This function creates a HTML report for a given eseis object, listing its

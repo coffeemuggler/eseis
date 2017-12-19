@@ -10,39 +10,41 @@
 #' be processed.
 #' 
 #' @param time \code{POSIX.ct} vector with time values. If omitted, an 
-#' artificial time vector will be created, based on \code{dt}.
+#' artificial time vector will be created, based on \code{dt}. Only needed 
+#' if \code{data} is no \code{eseis} object.
 #' 
-#' @param dt \code{Numeric} scalar, sampling period. If omitted, either 
-#' estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz). 
+#' @param dt \code{Numeric} value, sampling period. If omitted, either 
+#' estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz). Only needed 
+#' if \code{data} is no \code{eseis} object.
 #' 
-#' @param Welch \code{Logical} scalar, option to use the Welch method for
+#' @param Welch \code{Logical} value, option to use the Welch method for
 #' calculations.
 #' 
-#' @param window \code{Numeric} scalar, time window length in seconds used to 
+#' @param window \code{Numeric} value, time window length in seconds used to 
 #' calculate individual spectra. Set to 1 percent of the time series length 
 #' by default.
 #' 
-#' @param overlap \code{Numeric} scalar, fraction of window overlap.
+#' @param overlap \code{Numeric} value, fraction of window overlap.
 #' 
-#' @param window_sub \code{Numeric} scalar, length of the sub-window in seconds 
-#' used to calculate spectrae. Only relevant if \code{Welch = TRUE}. If omitted, 
+#' @param window_sub \code{Numeric} value, length of the sub-window in seconds 
+#' used to calculate spectra. Only relevant if \code{Welch = TRUE}. If omitted, 
 #' the sub-window length is set to 10 percent of the main window length.
 #' 
-#' @param overlap_sub \code{Numeric} scalar, fraction of sub-window overlap.
+#' @param overlap_sub \code{Numeric} value, fraction of sub-window overlap.
 #' 
-#' @param multitaper \code{Logical} scalar, option to use multitaper for the
+#' @param multitaper \code{Logical} value, option to use multitaper for the
 #' calculations. Can increase computation time significantly.
 #' 
-#' @param nw \code{Numeric} scalar, multitaper time-bandwidth parameter,
+#' @param nw \code{Numeric} value, multitaper time-bandwidth parameter,
 #' default is 4.0.
 #' 
-#' @param k \code{Numeric} scalar, multitaper number of tapers, default is 7.
+#' @param k \code{Numeric} value, multitaper number of tapers, default is 7.
 #' 
-#' @param n_cores \code{Numeric} scalar, number of CPU cores to use. Disabled 
+#' @param n_cores \code{Numeric} value, number of CPU cores to use. Disabled 
 #' by setting to 1. Default is 1.
 #' 
-#' @param plot \code{logical} scalar, toggle plot output. Default is
-#' \code{FALSE}. For more customised plotting see \code{plot_spectrogram()}.
+#' @param plot \code{Logical} value, toggle plot output. Default is
+#' \code{FALSE}. For more customised plotting see \code{plot_spectrogram}.
 #' 
 #' @param \dots Additional arguments passed to the plot function.
 #' 

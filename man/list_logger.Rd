@@ -2,7 +2,7 @@
 % Please edit documentation in R/list_logger.R
 \name{list_logger}
 \alias{list_logger}
-\title{List logger library.}
+\title{List library with data logger information.}
 \usage{
 list_logger()
 }
@@ -18,8 +18,11 @@ The value AD is the analogue-digital conversion factor.
 }
 \examples{
 
-## show sensors
-list_logger
+## show documented loggers
+list_logger()
+
+## show names of loggers in list
+names(list_logger())
                      
 }
 \author{

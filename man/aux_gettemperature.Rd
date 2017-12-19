@@ -13,7 +13,7 @@ stored in a separate sub-directory named after the cube ID.}
 
 \item{logger_ID}{\code{Character} vector, logger ID.}
 
-\item{interval}{\code{Numeric} value, time interval (minutes )to which
+\item{interval}{\code{Numeric} value, time interval (minutes) to which
 temperature data is interpolated. No interpolation is performed if this 
 argument is omitted.}
 
@@ -28,15 +28,15 @@ A \code{list} of \code{data frames} with time and temperature
 values for each cube data logger.
 }
 \description{
-This function reads auxiliary information stored in cube files and 
-extracts the temperature data that is stored along with each GPS tag. 
-Optionally, the data is interpolated to equal intervals.
+This function reads auxiliary information stored in Omnirecs/Digos Datacube  
+files and extracts the temperature data that is stored along with each GPS 
+tag. Optionally, the data is interpolated to equal intervals.
 }
 \details{
-This feature is ony available for Cubes that were produced since 2015, 
-i.e., whose GPS output files also record the temperature inside the 
-logger. Generating an ACSII GPS tag file using the gipptools software 
-requires a few minutes time per daily cube file.
+This feature is ony available for  Omnirecs/Digos Datacube that were 
+produced since 2015, i.e., whose GPS output files also record the 
+temperature inside the logger. Generating an ACSII GPS tag file using the 
+gipptools software requires a few minutes time per daily file.
 }
 \examples{
 

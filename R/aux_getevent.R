@@ -1,60 +1,55 @@
-#' Load seismic data based on a time stamp
+#' Load seismic data of a user-defined event
 #' 
 #' The function loads seismic data from a data directory structure (see 
-#' \code{aux_organisecubefiles()}) based on the event start time 
-#' and duration.
-#' 
-#' This and all other aux-functions are primarily written for internal 
-#' use amongst the GFZ Geomorphology Section group members and their  
-#' usual data handling scheme. Thus, they may be of limited use when 
-#' adopted for other scopes. However, many of these functions are 
-#' internally consistent in usage. For example, data set recorded by 
-#' Omnirecs Cube data loggers can be conherently processed with the 
-#' aux-function family and will result in the envisioned data structure.
+#' \code{aux_organisecubefiles()}) based on the event start time, duration,
+#' component and station ID.
 #' 
 #' The function assumes complete data sets, i.e., not a single hourly 
-#' data set must be missing or causes problems during import. The time 
+#' data set must be missing. The time 
 #' vector is loaded only once, from the first station and its first 
 #' component. Thus, it is assumed that all loaded seismic signals are
 #' of the same sampling frequency and length.
 #' 
 #' @param start \code{POSIXct} value, start time of the data to import.
 #' 
-#' @param duration \code{numeric} value, duration of the data to import
+#' @param duration \code{Numeric} value, duration of the data to import,
 #' in seconds.
 #' 
-#' @param station \code{character} value, seismic station ID, which must
+#' @param station \code{Character} value, seismic station ID, which must
 #' correspond to the ID in the file name of the data directory structure 
-#' (cf. \code{aux_organisecubefiles()}).
+#' (cf. \code{aux_organisecubefiles}).
 #' 
-#' @param component \code{character} value, seismic component, which must
+#' @param component \code{Character} value, seismic component, which must
 #' correspond to the component name in the file name of the data directory  
-#' structure (cf. \code{aux_organisecubefiles()}). Default is 
+#' structure (cf. \code{aux_organisecubefiles}). Default is 
 #' \code{"BHZ"} (vertical component of a sac file).
 #' 
-#' @param format \code{character} value, seismic data format. One out of 
+#' @param format \code{Character} value, seismic data format. One out of 
 #' \code{"sac"} and \code{"mseed"}. Default is \code{"sac"}.
 #' 
-#' @param dir \code{character} value, path to the seismic data directory.
+#' @param dir \code{Character} value, path to the seismic data directory.
 #' 
-#' @param simplify \code{logical} value, option to simplify import output
+#' @param simplify \code{Logical} value, option to simplify output
 #' when possible. This basically means that if only data from one station 
 #' is loaded, the list object will have one level less. Default is 
 #' \code{TRUE}.
 #' 
-#' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
+#' @param eseis \code{Logical} value, option to read data to an \code{eseis}
 #' object (recommended, see documentation of 
-#' \code{aux_initiateeseis}), default is \code{FALSE}
+#' \code{aux_initiateeseis}), default is \code{TRUE}
 #' 
 #' @return A \code{list} object containing either a set of \code{eseis}
 #' objects or a data set with the time vector (\code{$time}) 
 #' and a list of seismic stations (\code{$station_ID}) with their seismic
 #' signals as data frame (\code{$signal}). If \code{simplify = TRUE} (the 
 #' default option) and only one seismic station is provided, the output  
-#' object only contains \code{$time} and \code{$signal}.
+#' object containseither just one eseis object or the vectors for 
+#' \code{$time} and \code{$signal}.
 #' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' \dontrun{
@@ -63,7 +58,7 @@
 #' start <- as.POSIXct("2015-04-06 13:22:30", tz = "UTC")
 #' duration <- 50
 #' 
-#' ## load the z-component data from a rockfall event
+#' ## load the z component data from a rockfall event
 #' data <- aux_getevent(start = start, 
 #'                       duration = duration,
 #'                       station = "LAU05",
@@ -80,7 +75,7 @@ aux_getevent <- function(
   format = "sac",
   dir,
   simplify = TRUE,
-  eseis = FALSE
+  eseis = TRUE
 ) {
   
   ## check/set arguments ------------------------------------------------------
@@ -143,7 +138,7 @@ aux_getevent <- function(
   JD_seq <- as.character(eseis::time_convert(input = hours_seq, 
                                              output = "JD"))
   
-  ## padd JDs with zeros
+  ## pad JDs with zeros
   JD_seq_pad <- JD_seq
   
   JD_seq_pad <- ifelse(test = nchar(JD_seq_pad) == 1, 

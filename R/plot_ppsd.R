@@ -1,6 +1,6 @@
-#' Plot a probabilistic spectrum, or power spectral density estimate (PPSD)
+#' Plot a probabilistic power spectral density estimate (PPSD)
 #' 
-#' The function uses the output of \code{signal_spectrogram()} to create a 
+#' The function uses the output of \code{signal_spectrogram()} to plot a 
 #' probabilistic power spectral density estimate. 
 #' 
 #' @param data \code{List} object, spectrogram to be plotted. Must be output

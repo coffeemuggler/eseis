@@ -4,9 +4,11 @@
 #' 
 #' @param data \code{Numeric} matrix or data frame, x-, y-coordinates to 
 #' be converted.
-#' @param from \code{Character} scalar, proj4 string of the current 
+#' 
+#' @param from \code{Character} value, proj4 string of the current 
 #' reference system.
-#' @param to \code{Character} scalar, proj4 string of the target 
+#' 
+#' @param to \code{Character} value, proj4 string of the target 
 #' reference system. 
 #' 
 #' @return \code{Numeric} data frame with converted coordinates.

@@ -9,19 +9,19 @@
 #' @param time \code{POSIXct} vector, time vector of the signal(s). If not 
 #' provided, a synthetic time vector will be created.
 #' 
-#' @param dt \code{Numeric} scalar, sampling period. If omitted, either 
+#' @param dt \code{Numeric} value, sampling period. If omitted, either 
 #' estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz). 
 #' 
-#' @param sta \code{Numeric} scalar, number of samples for short-term window.
+#' @param sta \code{Numeric} value, number of samples for short-term window.
 #' 
-#' @param lta \code{Numeric} scalar, number of samples for long-term window.
+#' @param lta \code{Numeric} value, number of samples for long-term window.
 #' 
-#' @param freeze \code{Logical} scalar, option to freeze lta value at start of 
+#' @param freeze \code{Logical} value, option to freeze lta value at start of 
 #' an event. Useful to avoid self-adjustment of lta for long-duration events. 
 #' 
-#' @param on \code{Numeric} scalar, threshold value for event onset.
+#' @param on \code{Numeric} value, threshold value for event onset.
 #' 
-#' @param off \code{Numeric} scalar, threshold value for event end.
+#' @param off \code{Numeric} value, threshold value for event end.
 #' 
 #' @return \code{data frame}, detected events (ID, start time, duration in 
 #' seconds).
@@ -36,17 +36,15 @@
 #' data(rockfall)
 #' 
 #' ## filter signal
-#' sf <- signal_filter(data = rockfall_z, 
-#'                     dt = 1/200, 
-#'                     f = c(1, 90), 
-#'                     p = 0.05)
+#' rockfall_f <- signal_filter(data = rockfall_eseis,
+#'                             f = c(1, 90), 
+#'                             p = 0.05)
 #'                     
 #' ## calculate signal envelope
-#' rockfall_e <- signal_envelope(data = sf)
+#' rockfall_e <- signal_envelope(data = rockfall_f)
 #' 
 #' ## pick earthquake and rockfall event
-#' signal_stalta(data = rockfall_e, 
-#'               time = rockfall_t, 
+#' signal_stalta(data = rockfall_e,
 #'               sta = 100, 
 #'               lta = 18000, 
 #'               freeze = TRUE, 

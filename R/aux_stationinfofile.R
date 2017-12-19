@@ -1,13 +1,11 @@
 #' Create station info file from cube files.
 #' 
-#' This function reads GPS tags from cube files and creates a station info 
-#' file from additional input data. It depends on the cubetools or gipptools  
-#' software package (see details). The function is at an experimental stage  
-#' and only used for data processing at the GFZ Geomorphology section, 
-#' currently.
+#' This function reads GPS tags from Omnirecs/Digos Datacube files and creates 
+#' a station info file from additional input data. It depends on the cubetools 
+#' or gipptools  software package (see details).
 #' 
 #' A station info file is an ASCII file that contains all relevant information
-#' of the individual stations of a seismic network. The variables contain a 
+#' about the individual stations of a seismic network. The variables contain a 
 #' station ID (containing not more than 5 characters), station name, latitude, 
 #' longitude, elevation, deployment depth, sensor type, logger type, sensor 
 #' ID and logger ID.\cr The function requires that the software cubetools 
@@ -104,30 +102,32 @@
 #' @keywords eseis
 #' @examples
 #'
-#' ## uncomment to use and replace dummy logger_IDs by real IDs
+#' \dontrun{
 #' 
 #' ## basic example with minimum effort
-#' # aux_stationinfofile(name = "stationinfo", 
-#' #                     input_dir = "input", 
-#' #                     logger_ID = c("864", "876", "AB1"),
-#' #                     gipptools = "software/gipptools-2015.225")
+#' aux_stationinfofile(name = "stationinfo", 
+#'                     input_dir = "input", 
+#'                     logger_ID = c("864", "876", "AB1"),
+#'                     gipptools = "software/gipptools-2015.225")
 #' 
 #' ## example with more adjustments
-#' # aux_stationinfofile(name = "stationinfo",
-#' #                     input_dir = "input",
-#' #                     output_dir = "output", 
-#' #                     logger_ID = c("864", "876", "AB1"),
-#' #                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
-#' #                     station_z = c(30, 28, 29), 
-#' #                     station_d = rep(0.5, 3), 
-#' #                     sensor_type = rep("TC120s", 3), 
-#' #                     logger_type = rep("Cube3ext", 3), 
-#' #                     unit = "utm", 
-#' #                     n = 1, 
-#' #                     cpu = 0.9,
-#' #                     gipptools = "software/gipptools-2015.225", 
-#' #                     write_raw = TRUE, 
-#' #                     write_data = TRUE)
+#' aux_stationinfofile(name = "stationinfo",
+#'                     input_dir = "input",
+#'                     output_dir = "output", 
+#'                     logger_ID = c("864", "876", "AB1"),
+#'                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
+#'                     station_z = c(30, 28, 29), 
+#'                     station_d = rep(0.5, 3), 
+#'                     sensor_type = rep("TC120s", 3), 
+#'                     logger_type = rep("Cube3ext", 3), 
+#'                     unit = "utm", 
+#'                     n = 1, 
+#'                     cpu = 0.9,
+#'                     gipptools = "software/gipptools-2015.225", 
+#'                     write_raw = TRUE, 
+#'                     write_data = TRUE)
+#' 
+#' }
 #' 
 #' @export aux_stationinfofile
 aux_stationinfofile <- function(

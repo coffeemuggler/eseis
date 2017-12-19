@@ -3,10 +3,10 @@
 #' This function queries as series of data bases for seismic stations that 
 #' match a set of criteria for seismic data. The criteria include signal time 
 #' stamp and location, and component. The returned data can be used to 
-#' download data using the function \code{aux_FDSNdata()}.
+#' download data using the function \code{aux_FDSNdata}.
 #' 
 #' The function requires a working internet connection to perform the query.
-#' It uses the following three FDSN data bases by default: 
+#' It uses the following FDSN data bases by default: 
 #' 
 #' \itemize{
 #'   \item \code{orfeus} \code{"http://www.orfeus-eu.org"}
@@ -16,32 +16,31 @@
 #' }
 #' 
 #' Other FDSN data base addresses can be provided in the same way as the 
-#' addresses in the above list. They are to be provided as character 
+#' addresses in the above list. They need to be provided as character 
 #' vector. For a list of addresses see 
 #' \code{"http://www.fdsn.org/webservices/datacenters/"} and 
 #' \code{"http://docs.obspy.org/packages/obspy.clients.fdsn.html#module-obspy.clients.fdsn"}.
 #'
 #' @param centre \code{Numeric} vector of length two, center coordinates 
-#' (\code{c(latitude, longitude)}) of the location to search data for. 
+#' of the location to search data for (\code{c(latitude, longitude)}). 
 #' Units must be decimal degrees.
 #' 
 #' @param radius \code{Numeric} value, radius within which to search for 
 #' seismic stations. Unit must be decimal degrees.
 #' 
-#' @param start \code{Posixct} value, start time of the data to query. If 
-#' omitted, stations are searched for the full time available.
+#' @param start \code{POSIXct} value, start time of the data to query. If 
+#' omitted, stations are queried for the full time available.
 #' 
 #' @param access \code{Logical} value, access type of the data. If omitted,
 #' all data sets are returned, if set \code{TRUE}, only data with access 
 #' flag \code{"open"} are returned.
 #' 
-#' @param url \code{character} vector, optional other FDSN base web 
+#' @param url \code{Character} vector, optional other FDSN base web 
 #' addresses to search for stations. See details for default addresses and 
 #' their format.
 #' 
 #' @return \code{Data frame} with query results. The data frame contains 
-#' information for all seismic stations fulfilling the defined criteria: 
-#' \code{NAME VARIABLES}.
+#' information for all seismic stations fulfilling the defined criteria.
 #' 
 #' @author Michael Dietze
 #' 
