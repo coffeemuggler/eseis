@@ -339,6 +339,7 @@ aux_organisecubefiles <- function(
                                           "/mseed_hour/", 
                                           X, 
                                           sep = ""),
+                             eseis = FALSE,
                              signal = TRUE, 
                              time = TRUE, 
                              meta = TRUE, 
