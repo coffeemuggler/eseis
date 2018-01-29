@@ -364,6 +364,12 @@ aux_organisecubefiles <- function(
       
       ## extract date elements
       JD_info <- eseis::time_convert(input = date_info, output = "JD")
+      JD_info <- ifelse(test = nchar(JD_info) == 1, 
+                        yes = paste("00", JD_info, sep = ""), 
+                        no = JD_info)
+      JD_info <- ifelse(test = nchar(JD_info) == 2, 
+                        yes = paste("0", JD_info, sep = ""), 
+                        no = JD_info)
       year_info <- format(date_info, "%y")
       hour_info <- format(date_info, "%H")
       min_info <- format(date_info, "%M")
