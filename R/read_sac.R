@@ -258,12 +258,19 @@ read_sac <- function(
                  depth = location_station[4],
                  filename = file)
     
-    data_sac <- readBin(con = file_read, 
-                        what = numeric(), 
-                        n = n_data, 
-                        size = length_object[4], 
-                        endian = endianness, 
-                        signed = TRUE)
+    if(signal == TRUE) {
+      
+      data_sac <- readBin(con = file_read, 
+                          what = numeric(), 
+                          n = n_data, 
+                          size = length_object[4], 
+                          endian = endianness, 
+                          signed = TRUE)
+      
+    } else {
+      
+      data_sac <- NA
+    }
     
     close(con = file_read)
     
