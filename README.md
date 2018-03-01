@@ -44,4 +44,4 @@ any later version.
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- [GNU General Public License](https://github.com/coffeemuggler/eseis/LICENSE) for more details.
+ [GNU General Public License](https://github.com/coffeemuggler/eseis/0.4.0/blob/LICENSE) for more details.
