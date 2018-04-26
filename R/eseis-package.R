@@ -5,8 +5,16 @@
 #' all relevant functions to read/write seismic data files, prepare, analyse
 #' and visualise seismic data, and generate reports of the processing history.
 #'
+#' \tabular{ll}{
+#' **Package:** \tab eseis \cr
+#' **Type:** \tab Package \cr
+#' **Version:** \tab 0.4.0 \cr
+#' **Date:** \tab 2018-04-25 \cr
+#' **License:** \tab GPL-3 \cr
+#' }
+#' 
 #' @name eseis
-#' @aliases eseis
+#' @aliases eseis-package
 #' @docType package
 #' @author Michael Dietze
 #' @keywords Environmental Seismology, signal processing

@@ -2,7 +2,7 @@ Package: eseis
 Type: Package
 Title: Environmental Seismology Toolbox
 Version: 0.4.0
-Date: 2017-12-20
+Date: 2018-04-25
 Author: Michael Dietze
 Maintainer: Michael Dietze <mdietze@gfz-potsdam.de>
 Description: Environmental seismoloy is a scientific field that studies the  
