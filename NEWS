@@ -1,6 +1,12 @@
 Changes for R-package eseis
 
-Version 0.4.0 (2018-04-25)
+Version 0.5.0 (n.n.)
+  - function signal_clip() added
+  - function signal_cut() added
+  - function aux_commondt() added
+  - function aux_nccpreprocess() added
+
+Version 0.4.0 (2018-05-25)
   - eseis object implemented and all functions modified to support this object
   - function aux_initiateeseis() added
   - function aux_psdsummary() added

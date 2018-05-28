@@ -26,7 +26,7 @@ becomes essential to install 'eseis' from source. Depending on your OS please do
 I recommend installing 'eseis' from Github using the R package 'devtools' (install it using `install.packages("devtools")`):
 
 ```r
-devtools::install_github(repo = "coffeemuggler/eseis", ref = "0.4.0")
+devtools::install_github(repo = "coffeemuggler/eseis")
 ```
 
 ## Note
