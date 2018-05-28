@@ -59,19 +59,33 @@ of the same sampling frequency and length.
 }
 \examples{
 
-\dontrun{
+## set seismic data directory
+dir_data <- paste0(system.file("extdata", package="eseis"), "/")
 
-## define event onset and duration
-start <- as.POSIXct("2015-04-06 13:22:30", tz = "UTC")
-duration <- 50
-
-## load the z component data from a rockfall event
-data <- aux_getevent(start = start, 
-                      duration = duration,
-                      station = "LAU05",
+## load the z component data from a station
+data <- aux_getevent(start = as.POSIXct(x = "2017-04-09 01:20:00", 
+                                        tz = "UTC"), 
+                      duration = 120,
+                      station = "RUEG1",
                       component = "BHZ",
-                      dir = "eseis/lauterbrunnen/data/sac/")
-}
+                      dir = dir_data)                       
+## plot signal
+plot_signal(data = data)
+
+## load data from two stations
+data <- aux_getevent(start = as.POSIXct(x = "2017-04-09 01:20:00", 
+                                        tz = "UTC"), 
+                     duration = 120,
+                     station = c("RUEG1", "RUEG2"),
+                     component = "BHZ",
+                     dir = dir_data)
+
+## simplify data structure
+data <- lapply(X = data, FUN = function(data) {data[[1]]})
+
+## plot both signals
+par(mfcol = c(2, 1))
+lapply(X = data, FUN = plot_signal)
                      
 }
 \author{
