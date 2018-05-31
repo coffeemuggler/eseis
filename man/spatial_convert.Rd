@@ -4,16 +4,13 @@
 \alias{spatial_convert}
 \title{Convert coordinates between reference systems}
 \usage{
-spatial_convert(data, from, to)
+spatial_convert(data, to)
 }
 \arguments{
-\item{data}{\code{Numeric} matrix or data frame, x-, y-coordinates to 
-be converted.}
+\item{data}{\code{Numeric} vector of length two or data frame, 
+x-, y-coordinates to be converted.}
 
-\item{from}{\code{Character} value, proj4 string of the current 
-reference system.}
-
-\item{to}{\code{Character} value, proj4 string of the target 
+\item{to}{\code{Character} value, proj4 string of the output 
 reference system.}
 }
 \value{
@@ -24,14 +21,22 @@ Coordinates are converted between reference systems.
 }
 \examples{
 
-xy <- cbind(13, 55)
+## create lat lon coordinates
+xy <- c(13, 55)
 
-proj_in <- "+proj=longlat + ellps=WGS84"
-
+## define output coordinate system 
 proj_out <- "+proj=utm +zone=32 +datum=WGS84"
 
+## convert coordinate pair
 spatial_convert(data = xy, 
-                from = proj_in, 
+                to = proj_out)
+                
+## define set of coordinates
+xy <- data.frame(x = c(10, 11),
+                 y = c(54, 55))
+                 
+## convert set of coordinates
+spatial_convert(data = xy, 
                 to = proj_out)
                      
 }
