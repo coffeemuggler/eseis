@@ -39,17 +39,17 @@
 #' \code{aux_organisecubefiles} for details about the required file and  
 #' directory structure.
 #' 
-#' @param window \code{Numeric} value, time window length in hours, used to 
-#' calculate individual correlations. Default is \code{24} (one day).
+#' @param window \code{Numeric} value, time window length in seconds, used to 
+#' calculate individual correlations. Default is \code{24 * 3600} (one day).
 #' 
 #' @param overlap \code{Numeric} value, fraction of window overlap. Default 
 #' is \code{0} (no overlap, but seamless succession). It is possible 
 #' to specify negative values, which will result in spaced windows. A value of
 #' for example \code{-1} will cause gaps as large as the analysis windows.
 #' 
-#' @param window_sub \code{Numeric} value, length of the sub-window in hours,  
-#' used to calculate correlations before stacking. Default is \code{1} (i.e.,
-#' 24 snippets to be stacked per day).
+#' @param window_sub \code{Numeric} value, length of the sub-window in seconds,  
+#' used to calculate correlations before stacking. Default is \code{1 * 3600} 
+#' (i.e., 24 snippets to be stacked per day).
 #' 
 #' @param overlap_sub \code{Numeric} value, fraction of sub-window overlap. 
 #' Default is \code{0} (no overlap, but seamless succession). It is possible 
@@ -662,7 +662,7 @@ aux_nccpreprocess <- function(
   dt_out <- median(do.call(c, lapply(X = correlation, 
                                      FUN = function(correlation) {
                                        correlation$dt_out
-                                     })))
+                                     })), na.rm = TRUE)
   
   ## extract correlation data
   correlation <- do.call(rbind, lapply(X = correlation, 
@@ -682,7 +682,8 @@ aux_nccpreprocess <- function(
   
   ## create lag time vector
   lag_t <- seq(from = 1, 
-               to = ncol(correlation_stack)) * dt_out - arguments$lag - dt_out
+               to = ncol(correlation_stack)) * 
+    dt_out - arguments$lag - dt_out
   
   ## create output
   data_out <- list(time = window_seq,

@@ -30,17 +30,17 @@ directory structure (cf. \code{aux_organisecubefiles}).}
 \code{aux_organisecubefiles} for details about the required file and  
 directory structure.}
 
-\item{window}{\code{Numeric} value, time window length in hours, used to 
-calculate individual correlations. Default is \code{24} (one day).}
+\item{window}{\code{Numeric} value, time window length in seconds, used to 
+calculate individual correlations. Default is \code{24 * 3600} (one day).}
 
 \item{overlap}{\code{Numeric} value, fraction of window overlap. Default 
 is \code{0} (no overlap, but seamless succession). It is possible 
 to specify negative values, which will result in spaced windows. A value of
 for example \code{-1} will cause gaps as large as the analysis windows.}
 
-\item{window_sub}{\code{Numeric} value, length of the sub-window in hours,
-used to calculate correlations before stacking. Default is \code{1} (i.e.,
-24 snippets to be stacked per day).}
+\item{window_sub}{\code{Numeric} value, length of the sub-window in seconds,
+used to calculate correlations before stacking. Default is \code{1 * 3600} 
+(i.e., 24 snippets to be stacked per day).}
 
 \item{overlap_sub}{\code{Numeric} value, fraction of sub-window overlap. 
 Default is \code{0} (no overlap, but seamless succession). It is possible 
