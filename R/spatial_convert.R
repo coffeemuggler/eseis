@@ -5,10 +5,7 @@
 #' @param data \code{Numeric} vector of length two or data frame, 
 #' x-, y-coordinates to be converted.
 #' 
-#' @param from \code{Character} value, proj4 string of the current 
-#' reference system.
-#' 
-#' @param to \code{Character} value, proj4 string of the target 
+#' @param to \code{Character} value, proj4 string of the output 
 #' reference system. 
 #' 
 #' @return \code{Numeric} data frame with converted coordinates.
@@ -22,15 +19,11 @@
 #' ## create lat lon coordinates
 #' xy <- c(13, 55)
 #'
-#' ## define input coordinate system 
-#' proj_in <- "+proj=longlat + ellps=WGS84"
-#' 
 #' ## define output coordinate system 
 #' proj_out <- "+proj=utm +zone=32 +datum=WGS84"
 #' 
 #' ## convert coordinate pair
 #' spatial_convert(data = xy, 
-#'                 from = proj_in, 
 #'                 to = proj_out)
 #'                 
 #' ## define set of coordinates
@@ -39,13 +32,11 @@
 #'                  
 #' ## convert set of coordinates
 #' spatial_convert(data = xy, 
-#'                 from = proj_in, 
 #'                 to = proj_out)
 #'                      
 #' @export spatial_convert
 spatial_convert <- function(
   data,
-  from,
   to
 ) {
   
@@ -69,7 +60,7 @@ spatial_convert <- function(
       
       ## convert vector to data frame
       data <- cbind(x = data[1],
-                         y = data[2])
+                    y = data[2])
     }
   } else {
     
@@ -77,7 +68,7 @@ spatial_convert <- function(
   }
   
   ## project data set
-  data <- rgdal::project(data, proj_out)
+  data <- rgdal::project(data, to)
   
   ## convert output to data frame
   data <- as.data.frame(data)
@@ -85,4 +76,3 @@ spatial_convert <- function(
   ## return data frame
   return(data)
 }
-
