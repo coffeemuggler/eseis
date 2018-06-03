@@ -453,8 +453,7 @@ aux_nccpreprocess <- function(
                           arguments) {
              
              window_sub <- seq(from = window_seq, 
-                               to = window_seq + arguments$window * 
-                                 arguments$spacing - 0.0001, 
+                               to = window_seq + arguments$window - 0.0001, 
                                by = arguments$window_sub * 
                                  arguments$spacing_sub)
              
@@ -529,9 +528,11 @@ aux_nccpreprocess <- function(
                                                    arguments$window_sub))))
       }
       
+      ## return NA is data import was unsuccessful
       if(class(s) == "try-error") {
         
-        return(rep(NA, times = 2 * arguments$lag * (1 / arguments$dt) + 1))
+        return(list(corr_out = NA,
+                    dt_out = NA))
       }
       
       ## get common dt of the two signals
@@ -664,11 +665,30 @@ aux_nccpreprocess <- function(
                                        correlation$dt_out
                                      })), na.rm = TRUE)
   
+  ## get correlation data set lengths
+  n_out <- do.call(c, lapply(X = correlation, 
+                             FUN = function(correlation) {
+                               length(correlation$corr_out)
+                             }))
+  
+  ## get maximum length
+  n_out_max <- max(n_out, 
+                   na.rm = TRUE)
+  
   ## extract correlation data
-  correlation <- do.call(rbind, lapply(X = correlation, 
-                                   FUN = function(correlation) {
-                                     correlation$corr_out
-                                   }))
+  correlation <- 
+    do.call(rbind, lapply(X = correlation, FUN = function(correlation, 
+                                                          n_out_max) {
+      
+      if(length(correlation$corr_out) == n_out_max) {
+        
+        return(correlation$corr_out)
+      } else {
+        
+        return(rep(NA, n_out_max))
+      }
+      
+    }, n_out_max))
   
   ## stack data within sub windows
   correlation_stack <- matrix(nrow = length(window_seq), 
@@ -677,7 +697,8 @@ aux_nccpreprocess <- function(
   for(i in 1:nrow(correlation_stack)) {
     
     correlation_stack[i,] <- 
-      colMeans(x = correlation[window_sub_seq[,1] == window_seq[i],])
+      colMeans(x = correlation[window_sub_seq[,1] == window_seq[i],], 
+               na.rm = TRUE)
   }
   
   ## create lag time vector
