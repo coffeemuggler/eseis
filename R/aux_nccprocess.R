@@ -31,10 +31,22 @@
 #' @param steps \code{Numeric} value, number of stretch steps (step 
 #' resolution). Default is \code{100}.
 #' 
+#' @param method \code{Charcter} value, method used to identify best match of 
+#' cross correlation time slices with stretched master data set. One out of 
+#' \code{"rmse"} (minimum root mean square error) and \code{"r"} (maximum 
+#' R^2). Default is \code{"r"}.
+#' 
+#' @param reject \code{Numeric} value, rejection threshold for stretch values.
+#' This value defines up to which quantile matching stretch solutions will 
+#' be treated as valid solutions. Default is \code{0} (Only the minimum RMSE
+#' value or the maximum R^2 value is returned). A chane to \code{0.05} will 
+#' return mean and standard deviation of the five best percent of the 
+#' solutions.
+#' 
 #' @param \dots Further arguments passed to the function.
 #' 
-#' @return A \code{Numeric} vector, relative velocity changes for input 
-#' time windows.
+#' @return A \code{Data frame}, mean and standard deviations of the relative 
+#' velocity changes for input time windows.
 #' 
 #' @author Michael Dietze
 #' 
@@ -43,7 +55,33 @@
 #' @examples
 #' 
 #' ## preprocess data and calculate window-wise cross-correlation functions
-#'                      
+#' cc <- aux_nccpreprocess(period = as.POSIXct(x = c("2017-04-09 00:00:00",
+#'                                                   "2017-04-09 03:00:00"),
+#'                                             tz = "UTC"),
+#'                         station = c("RUEG1", "RUEG2"),
+#'                         component = c("BHZ", "BHZ"),
+#'                         dir = paste0(system.file("extdata", 
+#'                                                  package="eseis"), "/"),
+#'                         window = 1.5 * 3600,
+#'                         overlap = 0.5,
+#'                         window_sub = 1800,
+#'                         overlap_sub = 0,
+#'                         lag = 20,
+#'                         deconvolve = TRUE,
+#'                         sensor = "TC120s",
+#'                         logger = "Cube3ext",
+#'                         gain = 1,
+#'                         f = c(0.1, 0.5),
+#'                         sign = TRUE)  
+#'                         
+#' ## calculate relative velocity change
+#' dv <- aux_nccprocess(data = cc)
+#' 
+#' ## plot velocity change time series
+#' plot(x = cc$time, 
+#'      y = dv$mean, 
+#'      type = "l")
+#'                                                               
 #' @export aux_nccprocess
 aux_nccprocess <- function(
   data,
@@ -52,6 +90,8 @@ aux_nccprocess <- function(
   sides = "both",
   range = 0.01,
   steps = 100,
+  method = "r",
+  reject = 0,
   ...
 ) {
   
@@ -76,15 +116,27 @@ aux_nccprocess <- function(
   }
   
   ## check keywords for master argument
-  if(sum(sides == c("mean", "median", "quantile")) < 1) {
+  if(sum(master == c("mean", "median", "quantile")) < 1) {
     
-    "Keyword for master not supported!"
+    stop("Keyword for master not supported!")
   }
   
   ## check keywords for sides argument
   if(sum(sides == c("both", "left", "right", "single")) < 1) {
     
-    "Keyword for sides not supported!"
+    stop("Keyword for sides not supported!")
+  }
+  
+  ## check method argument
+  if(sum(method == c("rmse", "r")) < 1) {
+    
+    "Method for finding best stretch match not supported!"
+  }
+  
+  ## check rejection threshold value
+  if(reject < 0 | reject > 1) {
+    
+    stop("Only rejection values between 0 and 1 are allowed!")
   }
   
   ## extract additional arguments
@@ -99,7 +151,9 @@ aux_nccprocess <- function(
                          MARGIN = 1, 
                          FUN = function(data) {
       
-      (data - min(data)) / (max(data) - min(data))
+                           (data - min(data, na.rm = TRUE)) / 
+                             (max(data, na.rm = TRUE) - 
+                                min(data, na.rm = TRUE))
     })) - 1
   } else {
     
@@ -108,13 +162,16 @@ aux_nccprocess <- function(
   
   if(master == "mean") {
     
-    data_master <- colMeans(data_norm)
+    data_master <- colMeans(data_norm, na.rm = TRUE)
+    
   } else if(master == "median") {
     
     data_master <- apply(X = data_norm, 
                          MARGIN = 2,
                          FUN = quantile, 
-                         probs = 0.5)
+                         probs = 0.5, 
+                         na.rm = TRUE)
+    
   } else if(master == "quantile") {
     
     ## check/set probs argument
@@ -131,7 +188,8 @@ aux_nccprocess <- function(
     data_master <- apply(X = data_norm, 
                          MARGIN = 2,
                          FUN = quantile, 
-                         probs = quantile_probs)
+                         probs = quantile_probs, 
+                         na.rm = TRUE)
   }
   
   ## generate stretch vector
@@ -164,7 +222,8 @@ aux_nccprocess <- function(
   } else {
     
     time_idx <- seq(from = 1, 
-                    to = length(data_master_ext)) - length(data_master_ext) / 2
+                    to = length(data_master_ext)) - 
+      length(data_master_ext) / 2
   }
   
   ## create spline interpolator for reference trace
@@ -179,7 +238,8 @@ aux_nccprocess <- function(
   }, time_idx)
   
   ## convert list to matrix
-  data_master_stretch <- do.call(rbind, data_master_stretch)
+  data_master_stretch <- do.call(rbind, 
+                                 data_master_stretch)
   
   ## remove extended parts
   data_master_stretch <- data_master_stretch[,-(1:n_add)]
@@ -187,29 +247,78 @@ aux_nccprocess <- function(
   
   ## convert input data row-wise to list
   data_norm_list <- as.list(as.data.frame(t(data_norm)))
-  
-  ## calculare RMS differences between stretched master traces and data
-  delta <- lapply(X = data_norm_list, FUN = function(x, data_master_stretch) {
+
+  if(method == "r") {
     
-    diff <- apply(X = t(data_master_stretch), 
-          MARGIN = 2, 
-          FUN = function(data_master_stretch) {
-            
-            sqrt(mean((data_master_stretch - x)^2))
-            
-          })
+    ## calculare max R^2 between stretched master traces and data
+    delta <- 
+      lapply(X = data_norm_list, FUN = function(x, 
+                                                data_master_stretch,
+                                                reject) {
+        
+        r <- apply(X = t(data_master_stretch), 
+                      MARGIN = 2, 
+                      FUN = function(data_master_stretch) {
+                        
+                        cor(x = x, y = data_master_stretch)^2
+                      })
+        
+        i_get <- seq(from = 1, 
+                     to = length(r))[r >= quantile(x = r, 
+                                                   probs = 1 - reject, 
+                                                   na.rm = TRUE)]
+        
+        return(i_get)
+        
+    }, data_master_stretch, reject)
     
-    i_min <- seq(from = 1, to = length(diff))[diff == min(diff)]
+  } else if(method == "rmse") {
     
-    return(i_min)
-  }, data_master_stretch)
+    ## calculare RMS differences between stretched master traces and data
+    delta <- 
+      lapply(X = data_norm_list, FUN = function(x, 
+                                                data_master_stretch,
+                                                reject) {
+        
+        diff <- apply(X = t(data_master_stretch), 
+                      MARGIN = 2, 
+                      FUN = function(data_master_stretch) {
+                        
+                        sqrt(mean((data_master_stretch - x)^2, 
+                                  na.rm = TRUE))
+                      })
+        
+        i_get <- seq(from = 1, 
+                     to = length(diff))[diff <= quantile(x = diff, 
+                                                         probs = reject, 
+                                                         na.rm = TRUE)]
+        
+        return(i_get)
+        
+    }, data_master_stretch, reject)
+  }
   
-  ## convert list to vector
-  delta <- as.numeric(do.call(c, delta))
+  ## get mean delta
+  delta_mean <- lapply(X = delta, FUN = function(delta, stretchs) {
+    
+    mean(stretchs[delta], 
+         na.rm = TRUE)
+    
+  }, stretchs)
   
-  ## assign dv vector values
-  dv <- stretchs[delta]
+  delta_mean <- do.call(c, delta_mean)
+  
+  ## get mean delta
+  delta_sd <- lapply(X = delta, FUN = function(delta, stretchs) {
+    
+    sd(stretchs[delta], 
+       na.rm = TRUE)
+    
+  }, stretchs)
+  
+  delta_sd <- do.call(c, delta_sd)
   
   ## return output
-  return(dv)
+  return(data.frame(mean = delta_mean,
+                    sd = delta_sd))
 }

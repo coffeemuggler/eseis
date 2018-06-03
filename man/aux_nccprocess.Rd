@@ -5,7 +5,7 @@
 \title{Analyse correlation data for relative velocity changes.}
 \usage{
 aux_nccprocess(data, master = "mean", normalise = TRUE, sides = "both",
-  range = 0.01, steps = 100, ...)
+  range = 0.01, steps = 100, method = "r", reject = 0, ...)
 }
 \arguments{
 \item{data}{\code{list} object, output of \code{aux_nccpreprocess},
@@ -36,11 +36,23 @@ expecting data from a single source and direction). Default is
 \item{steps}{\code{Numeric} value, number of stretch steps (step 
 resolution). Default is \code{100}.}
 
+\item{method}{\code{Charcter} value, method used to identify best match of 
+cross correlation time slices with stretched master data set. One out of 
+\code{"rmse"} (minimum root mean square error) and \code{"r"} (maximum 
+R^2). Default is \code{"r"}.}
+
+\item{reject}{\code{Numeric} value, rejection threshold for stretch values.
+This value defines up to which quantile matching stretch solutions will 
+be treated as valid solutions. Default is \code{0} (Only the minimum RMSE
+value or the maximum R^2 value is returned). A chane to \code{0.05} will 
+return mean and standard deviation of the five best percent of the 
+solutions.}
+
 \item{\dots}{Further arguments passed to the function.}
 }
 \value{
-A \code{Numeric} vector, relative velocity changes for input 
-time windows.
+A \code{Data frame}, mean and standard deviations of the relative 
+velocity changes for input time windows.
 }
 \description{
 The function calculates relative velocity changes over time based on 
@@ -49,7 +61,33 @@ cross-correlation data (i.e., the output of \code{aux_nccpreprocess}).
 \examples{
 
 ## preprocess data and calculate window-wise cross-correlation functions
-                     
+cc <- aux_nccpreprocess(period = as.POSIXct(x = c("2017-04-09 00:00:00",
+                                                  "2017-04-09 03:00:00"),
+                                            tz = "UTC"),
+                        station = c("RUEG1", "RUEG2"),
+                        component = c("BHZ", "BHZ"),
+                        dir = paste0(system.file("extdata", 
+                                                 package="eseis"), "/"),
+                        window = 1.5 * 3600,
+                        overlap = 0.5,
+                        window_sub = 1800,
+                        overlap_sub = 0,
+                        lag = 20,
+                        deconvolve = TRUE,
+                        sensor = "TC120s",
+                        logger = "Cube3ext",
+                        gain = 1,
+                        f = c(0.1, 0.5),
+                        sign = TRUE)  
+                        
+## calculate relative velocity change
+dv <- aux_nccprocess(data = cc)
+
+## plot velocity change time series
+plot(x = cc$time, 
+     y = dv$mean, 
+     type = "l")
+                                                              
 }
 \author{
 Michael Dietze
