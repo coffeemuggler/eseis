@@ -5,7 +5,7 @@
 \title{Write seismic traces as sac file to disk.}
 \usage{
 write_sac(data, file, time, component, unit, station, location, network, dt,
-  parameters, biglong = FALSE)
+  autoname = FALSE, parameters, biglong = FALSE)
 }
 \arguments{
 \item{data}{\code{eseis} object or \code{numeric} vector, data set to 
@@ -33,6 +33,9 @@ data (latitude, longitude, elevation, depth), optional.}
 
 \item{dt}{\code{Numeric} value, sampling period. Only needed if no time
 vector is provided.}
+
+\item{autoname}{\code{Logical} value, option to let the function generate 
+the file name automatically. Default is \code{FALSE}.}
 
 \item{parameters}{\code{Data frame} sac parameter list, as obtained from
 \code{list_sacparameters}. Allows user-specific modifications. If this 
