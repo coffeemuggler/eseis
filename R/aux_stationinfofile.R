@@ -167,9 +167,7 @@ aux_stationinfofile <- function(
   ## check/set output directory
   if(missing(output_dir) == TRUE) {
     
-    ## set default output directory
-    output_dir <- paste(getwd(), "", sep = "")
-    output_dir_flag <- FALSE
+    stop("Attention, output directory must be specified by user!")
   } else {
     
     output_dir_flag <- TRUE
@@ -195,7 +193,8 @@ aux_stationinfofile <- function(
   }
   
   ## get cube directories
-  input_dir_exist <- list.files(path = input_dir, full.names = TRUE)
+  input_dir_exist <- list.files(path = input_dir, 
+                                full.names = TRUE)
   
   ## check/set cube ID
   if(missing(logger_ID) == TRUE) {
