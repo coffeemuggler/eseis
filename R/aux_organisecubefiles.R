@@ -90,8 +90,8 @@
 #' directory. 
 #' 
 #' @param heapspace \code{Numeric} value, heap space assigned to the Jave 
-#' Runtime Environment. Should be increased if the cube to mseed conversion
-#' fails (announced if \code{verbose = TRUE}). Default is \code{4096}.
+#' Runtime Environment, e.g., \code{4096}. Should be increased if the cube 
+#' to mseed conversion fails (announced if \code{verbose = TRUE}).
 #' 
 #' @param mseed_manual \code{Logical} value, option to convert mseed files 
 #' manually. See details. Default is \code{FALSE}, i.e., the function converts 
@@ -127,7 +127,7 @@ aux_organisecubefiles <- function(
   fringe = "constant",
   verbose = FALSE,
   gipptools,
-  heapspace = 4096,
+  heapspace,
   mseed_manual = FALSE,
   mseed_keep = FALSE
 ){
@@ -137,8 +137,7 @@ aux_organisecubefiles <- function(
   ## check/set output directory
   if(missing(output_dir) == TRUE) {
     
-    ## set default output directory
-    output_dir <- paste(getwd(), "", sep = "")
+    stop("Attention, output directory must be specified by user!")
     output_dir_flag <- FALSE
   } else {
     
@@ -156,6 +155,12 @@ aux_organisecubefiles <- function(
   if(missing(cpu) == TRUE) {
     
     cpu <- NA
+  }
+  
+  ## check/set fraction of CPUs to use
+  if(missing(heapspace) == TRUE) {
+    
+    heapspace <- NA
   }
   
   ## save root directory
@@ -254,24 +259,42 @@ aux_organisecubefiles <- function(
       X = list_logger, 
       fun = function(X, gipptools, output_dir, heapspace, verbose, fringe) {
         
-        system(command = paste("java -Xmx", 
-                               heapspace,
-                               "m; ",
-                               "export _JAVA_OPTIONS=-Xmx", 
-                               heapspace,
-                               "m; ",
-                               gipptools, "/bin/cube2mseed", 
-                               ifelse(test = verbose == TRUE, 
-                                      yes = " --verbose", 
-                                      no = ""),
-                               " --fringe-samples=",
-                               toupper(x = fringe),
-                               " --output-dir=",
-                               output_dir,
-                               "/mseed_raw ",
-                               X,
-                               "/",
-                               sep = ""))
+        if(is.na(heapspace) == TRUE) {
+          
+          system(command = paste(gipptools, "/bin/cube2mseed", 
+                                 ifelse(test = verbose == TRUE, 
+                                        yes = " --verbose", 
+                                        no = ""),
+                                 " --fringe-samples=",
+                                 toupper(x = fringe),
+                                 " --output-dir=",
+                                 output_dir,
+                                 "/mseed_raw ",
+                                 X,
+                                 "/",
+                                 sep = ""))
+          
+        } else {
+          
+          system(command = paste("java -Xmx", 
+                                 heapspace,
+                                 "m; ",
+                                 "export _JAVA_OPTIONS=-Xmx", 
+                                 heapspace,
+                                 "m; ",
+                                 gipptools, "/bin/cube2mseed", 
+                                 ifelse(test = verbose == TRUE, 
+                                        yes = " --verbose", 
+                                        no = ""),
+                                 " --fringe-samples=",
+                                 toupper(x = fringe),
+                                 " --output-dir=",
+                                 output_dir,
+                                 "/mseed_raw ",
+                                 X,
+                                 "/",
+                                 sep = ""))
+        }
       }, 
       gipptools = gipptools,
       output_dir = output_dir, 
