@@ -21,6 +21,10 @@ becomes essential to install 'eseis' from source. Depending on your OS please do
 
 **Linux** systems usually have *gcc* pre-installed. No further action is needed.
 
+Furthermore, in order to convert seismic data recorded by a Digos Cube data logger, one needs external software. The gipptools (https://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/) are a collection of functions that are designed to convert the proprietary file format of Cube loggers to mseed files, supported by many seismic data handlign software. The gipptools are used by the function aux_stationinfofile() and aux_organisecubefiles().
+
+If the function aux_fixmseed() shall be used, the additional software dataselect (https://github.com/iris-edu/dataselect) must be installed, as well. 
+
 #### ii. Install the package
 
 I recommend installing 'eseis' from Github using the R package 'devtools' (install it using `install.packages("devtools")`):

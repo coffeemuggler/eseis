@@ -34,4 +34,7 @@ Imports:
 Suggests:
     plot3D,
     rgl
+SystemRequirements:
+    gipptools
+    dataselect
 RoxygenNote: 6.0.1
