@@ -6,7 +6,7 @@
 \usage{
 aux_organisecubefiles(stationfile, input_dir, output_dir, format = "sac",
   channel_name = "bh", cpu, fringe = "constant", verbose = FALSE,
-  gipptools, heapspace = 4096, mseed_manual = FALSE, mseed_keep = FALSE)
+  gipptools, heapspace, mseed_manual = FALSE, mseed_keep = FALSE)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 
@@ -39,8 +39,8 @@ output of cubetools operations. Default is \code{FALSE}.}
 directory.}
 
 \item{heapspace}{\code{Numeric} value, heap space assigned to the Jave 
-Runtime Environment. Should be increased if the cube to mseed conversion
-fails (announced if \code{verbose = TRUE}). Default is \code{4096}.}
+Runtime Environment, e.g., \code{4096}. Should be increased if the cube 
+to mseed conversion fails (announced if \code{verbose = TRUE}).}
 
 \item{mseed_manual}{\code{Logical} value, option to convert mseed files 
 manually. See details. Default is \code{FALSE}, i.e., the function converts 
