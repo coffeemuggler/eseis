@@ -42,12 +42,23 @@
 #' 
 #' @export aux_fixmseed
 #' 
-aux_fixmseed <- function(file, input_dir, output_dir, software) {
+aux_fixmseed <- function(
+  
+  file, 
+  input_dir, 
+  output_dir, 
+  software
+) {
   
   ## check/set parameters
   if(missing(software) == TRUE) {
     
     software <- ""
+  }
+  
+  if(missing(output_dir) == TRUE) {
+    
+    stop("Attention, output directory must be specified by user!")
   }
   
   invisible(lapply(X = file, FUN = function(

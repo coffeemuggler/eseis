@@ -33,6 +33,9 @@
 #' @param dt \code{Numeric} value, sampling period. Only needed if no time
 #' vector is provided.
 #' 
+#' @param autoname \code{Logical} value, option to let the function generate 
+#' the file name automatically. Default is \code{FALSE}.
+#' 
 #' @param parameters \code{Data frame} sac parameter list, as obtained from
 #' \code{list_sacparameters}. Allows user-specific modifications. If this 
 #' data frame is provided, it overrides all other arguments. 
@@ -68,6 +71,7 @@ write_sac <- function(
   location,
   network,
   dt,
+  autoname = FALSE,
   parameters,
   biglong = FALSE
 ) {
@@ -227,7 +231,7 @@ write_sac <- function(
   sec_2 <- ifelse(nchar(sec) < 2, paste("0", sec, sep = ""), sec)
   
   ## check/set file names
-  if(missing(file) == TRUE) {
+  if(missing(file) == TRUE & autoname == TRUE) {
     
     print("No file name provided. File name will be generated automatically.")
     
@@ -239,6 +243,10 @@ write_sac <- function(
                   sec_2, "_", 
                   component,
                   ".sac", sep = "")
+    
+  } else if(missing(file) == TRUE) {
+    
+    stop("Either provide file name or toggle autoname option!")
   }
   
   if(missing(parameters) == TRUE) {

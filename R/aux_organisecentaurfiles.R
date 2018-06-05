@@ -99,8 +99,7 @@ aux_organisecentaurfiles <- function(
   ## check/set output directory
   if(missing(output_dir) == TRUE) {
     
-    ## set default output directory
-    output_dir <- paste(getwd(), "", sep = "")
+    stop("Attention, output directory must be specified by user!")
     output_dir_flag <- FALSE
   } else {
     
