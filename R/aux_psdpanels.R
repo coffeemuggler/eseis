@@ -234,10 +234,16 @@ aux_psdpanels <- function(
   
   ## create directory structure -----------------------------------------------
   
+  ## check/set output directory
+  if(missing(output_dir) == TRUE) {
+    
+    output_dir <- file.path(tempdir(), "output")
+    print(paste("Output will be written to", output_dir))
+  }
+  
   if(dir.exists(output_dir) == FALSE) {
     
     warning("Output directory did not exist. Created by function")
-    
     dir.create(output_dir)
   }
   

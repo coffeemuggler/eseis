@@ -63,7 +63,10 @@ write_report <- function(
   ## check/set output file name
   if(missing(file) == TRUE) {
     
-    file <- "report"
+    output_dir <- file.path(tempdir(), "output")
+    print(paste("Output will be written to", output_dir))
+    
+    file <- paste(output_dir, "report", sep = "/")
   }
   
   ## check if css file exists

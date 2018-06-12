@@ -235,7 +235,11 @@ write_sac <- function(
     
     print("No file name provided. File name will be generated automatically.")
     
-    file <- paste(station, "_",
+    output_dir <- file.path(tempdir(), "output")
+    print(paste("Output will be written to", output_dir))
+    
+    file <- paste(output_dir, "/",
+                  station, "_",
                   yr, "_",
                   jd_3, "_",
                   hr_2, "_",
