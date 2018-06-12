@@ -134,21 +134,52 @@ aux_organisecubefiles <- function(
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
   
+  ## check/set station info file validity
+  if(missing(stationfile) == TRUE) {
+    
+    stop("No station info file provided!")
+  } else if(file.exists(stationfile) == FALSE) {
+    
+    stop("Station info file does not exist!")
+  } else {
+    
+    station_test <- try(read.table(file = stationfile, 
+                                   header = TRUE, 
+                                   stringsAsFactors = FALSE))
+    
+    if(class(station_test) == "try-error") {
+      
+      stop("Station info file cannot be read!")
+    } else {
+      
+      if(sum(names(station_test) == "logger_ID") < 1) {
+        
+        stop("Station info file invalid, at least logger_ID is missing!")
+      }
+    }
+  }
+  
+  ## check/set input directory
+  if(missing(input_dir) == TRUE) {
+    
+    stop("No input directory provided!")
+  } else if(dir.exists(input_dir) == FALSE) {
+    
+    stop("Input directory does not exist!")
+  }
+  
   ## check/set output directory
   if(missing(output_dir) == TRUE) {
     
-    stop("Attention, output directory must be specified by user!")
-    output_dir_flag <- FALSE
-  } else {
-    
-    output_dir_flag <- TRUE
+    output_dir <- file.path(tempdir(), "output")
+    print(paste("Output will be written to", output_dir))
   }
   
   ## check if output directory exists and, if necessary create it
-  if(dir.exists(paths = output_dir) == FALSE & output_dir_flag == TRUE) {
+  if(dir.exists(paths = output_dir) == FALSE) {
     
     dir.create(path = output_dir)
-    print("[aux_organisecubefiles]: Output directory did not exist, created.")
+    print("Output directory did not exist, created.")
   }
   
   ## check/set fraction of CPUs to use
@@ -163,20 +194,36 @@ aux_organisecubefiles <- function(
     heapspace <- NA
   }
   
-  ## save root directory
-  dir_general <- getwd()
-  
-  ## set path to input files
-  path_data <- paste(getwd(), 
-                     input_dir, 
-                     sep = "/")
+  ## check/set validity of software directory
+  if(missing(gipptools) == TRUE) {
+    
+    stop("Path to gipptools missing!")
+  } else if(dir.exists(gipptools) == FALSE) {
+    
+    stop("Path to gipptools is wrong!")
+  } else {
+    
+    if(file.exists(paste(gipptools, 
+                         "/bin/cube2mseed", 
+                         sep = "")) == FALSE) {
+      
+      stop("gipptools do not contain cbue2mseed function!")
+    }
+    
+    if(file.exists(paste(gipptools, 
+                         "/bin/mseedcut", 
+                         sep = "")) == FALSE) {
+      
+      stop("gipptools do not contain mseedcut function!")
+    }
+  }
   
   ## read station info data
   stations <- read.table(file = stationfile, 
                          header = TRUE)
   
   ## create list of logger directories to process
-  list_logger <- list.files(path = path_data, 
+  list_logger <- list.files(path = input_dir, 
                             full.names = TRUE)
   
   ## compare cube_ID with cube directories

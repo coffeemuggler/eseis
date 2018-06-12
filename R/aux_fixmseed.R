@@ -32,11 +32,11 @@
 #' 
 #' \dontrun{
 #' 
-#' # aux_fixmseed(file = list.files(path = "~/data/mseed", 
-#' #                                pattern = "miniseed"), 
-#' #                     input_dir = "~/data/mseed",
-#' #                     output_dir = "~/data/mseed/out",
-#' #                     software = "~/software/dataselect-3.17")
+#' aux_fixmseed(file = list.files(path = "~/data/mseed", 
+#'                                pattern = "miniseed"), 
+#'                     input_dir = "~/data/mseed",
+#'                     output_dir = "~/data/mseed/out",
+#'                     software = "~/software/dataselect-3.17")
 #' 
 #' }
 #' 
@@ -58,7 +58,15 @@ aux_fixmseed <- function(
   
   if(missing(output_dir) == TRUE) {
     
-    stop("Attention, output directory must be specified by user!")
+    output_dir <- file.path(tempdir(), "output")
+    print(paste("Output is written to", output_dir))
+  }
+  
+  ## check if output directory exists and, if necessary create it
+  if(dir.exists(paths = output_dir) == FALSE) {
+    
+    dir.create(path = output_dir)
+    print("[aux_fixmseed]: Output directory did not exist, created.")
   }
   
   invisible(lapply(X = file, FUN = function(

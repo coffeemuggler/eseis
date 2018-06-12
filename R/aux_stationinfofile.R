@@ -167,14 +167,12 @@ aux_stationinfofile <- function(
   ## check/set output directory
   if(missing(output_dir) == TRUE) {
     
-    stop("Attention, output directory must be specified by user!")
-  } else {
-    
-    output_dir_flag <- TRUE
+    output_dir <- file.path(tempdir(), "output")
+    print(paste("Output will be written to", output_dir))
   }
   
   ## check if output directory exists and, if necessary create it
-  if(dir.exists(paths = output_dir) == FALSE & output_dir_flag == TRUE) {
+  if(dir.exists(paths = output_dir) == FALSE) {
     
     dir.create(path = output_dir)
     print("[aux_stationinfofile]: Output directory did not exist, created.")

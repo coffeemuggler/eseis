@@ -106,6 +106,14 @@ aux_gettemperature <- function(
   ## convert list content to vector
   files_cube <- unlist(files_cube)
   
+  ## create temporary data directory
+  dir_temp <- file.path(tempdir(), "output")
+  
+  if(dir.exists(paths = dir_temp) == FALSE) {
+    
+    dir.create(path = dir_temp)
+  }
+  
   ## detect and adjust number of cores to use
   cores <- parallel::detectCores()
   
@@ -131,7 +139,7 @@ aux_gettemperature <- function(
       
       system(command = paste(gipptools, "/bin/cubeinfo", 
                              " --format=GPS --output-dir=",
-                             getwd(), " ",
+                             dir_temp, " ",
                              X,
                              sep = ""))
     }, 
@@ -143,7 +151,8 @@ aux_gettemperature <- function(
   ## Part 4 - calculations of GPS data ----------------------------------------
   
   ## get all gps raw files
-  gps_files <- list.files(pattern = ".gps.txt", 
+  gps_files <- list.files(path = dir_temp,
+                          pattern = ".gps.txt", 
                           full.names = TRUE)
   
   ## assign gps files to cubes
