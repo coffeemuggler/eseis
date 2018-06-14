@@ -124,7 +124,6 @@ aux_stationinfofile(name = "stationinfo",
 ## example with more adjustments
 aux_stationinfofile(name = "stationinfo",
                     input_dir = "input",
-                    output_dir = "output", 
                     logger_ID = c("864", "876", "AB1"),
                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
                     station_z = c(30, 28, 29), 

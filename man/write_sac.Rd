@@ -63,8 +63,7 @@ LAT, LON, ELEVATION, NETWORK.
 data("rockfall")
 
 ## write as sac file
-write_sac(data = rockfall_eseis, 
-          file = "rockfall.sac")
+write_sac(data = rockfall_eseis)
           
 }
 

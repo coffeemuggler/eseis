@@ -121,7 +121,6 @@ default, this argument is set to 4096.
 ## basic example with minimum effort
 aux_organisecubefiles(stationfile = "output/stationinfo.txt", 
                       input_dir = "input", 
-                      output_dir = "output", 
                       gipptools = "software/gipptools-2015.225/")
 
 }

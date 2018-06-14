@@ -85,8 +85,7 @@ usage.
 
 ## PSD generation with minimum input arguments
 aux_psdpanels(station = stations$ID, 
-              input_dir = "input/",
-              output_dir = "psd/")
+              input_dir = "input/")
               
 }
 

@@ -83,8 +83,7 @@ aux_psdsummary(station = c("STA01", "STA02"),
                period = as.POSIXct(x = c("2017-04-01",
                                          "2017-04-03"), 
                                    tz = "UTC"), 
-               input_dir = "~/data/seismic/sac/", 
-               output_dir = "~/data/output/PSD/")
+               input_dir = "~/data/seismic/sac/")
 
 ## PSD generation with some more arguments
 aux_psdsummary(station = c("STA01", "STA02"), 
@@ -93,8 +92,7 @@ aux_psdsummary(station = c("STA01", "STA02"),
                                          "2017-04-03"), 
                                    tz = "UTC"), 
                output = c("daily", "monthly"),
-               input_dir = "~/data/seismic/sac/", 
-               output_dir = "~/data/output/PSD/",
+               input_dir = "~/data/seismic/sac/",
                aggregate = c(2, 10), 
                n_dates = 1000,
                jpg_dim = c(1600, 900, 300, 50), 
