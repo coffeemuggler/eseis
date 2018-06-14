@@ -41,7 +41,6 @@ many thanks for pointing me at this option to process corrupt mseed files.
 aux_fixmseed(file = list.files(path = "~/data/mseed", 
                                pattern = "miniseed"), 
                     input_dir = "~/data/mseed",
-                    output_dir = "~/data/mseed/out",
                     software = "~/software/dataselect-3.17")
 
 }

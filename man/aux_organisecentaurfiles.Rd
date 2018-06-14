@@ -77,7 +77,6 @@ separated by an underscore.
 ## basic example with minimum effort
 aux_organisecentaurfiles(stationfile = "output/stationinfo.txt", 
                          input_dir = "input", 
-                         output_dir = "output", 
                          gipptools = "software/gipptools-2015.225/")
 
 }
