@@ -4,7 +4,7 @@
 \alias{signal_aggregate}
 \title{Aggregate a signal vector}
 \usage{
-signal_aggregate(data, n = 2)
+signal_aggregate(data, n = 2, type = "iir")
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
@@ -13,13 +13,19 @@ objects, data set to be processed.}
 \item{n}{\code{Numeric} value, number of samples to be aggregated to one
 new data value. Must be an integer value greater than 1. Default is 
 \code{2}.}
+
+\item{type}{\code{Character} value, filter type used for aggregation. For 
+details see documentation of \code{signal::decimate}. Default is 
+\code{"iir"}.}
 }
 \value{
 Aggregated data set.
 }
 \description{
 The signal vector \code{data} is aggregated by an integer factor \code{n}.
-If an \code{eseis} object is provided, the meta data is updated.
+If an \code{eseis} object is provided, the meta data is updated. The 
+function is a wrapper for the funcion \code{decimate} of the package
+\code{signal}.
 }
 \examples{
 
