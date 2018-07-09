@@ -73,8 +73,8 @@ e <- eseis::spatial_migrate(data = s,
                             v = 1000, 
                             dt = 1/10)
 
-## get most likely location coordinates
-xy <- sp::coordinates(e)[raster::values(e) == max(raster::values(e))]
+## get most likely location coordinates (example contains two equal points)
+xy <- sp::coordinates(e)[raster::values(e) == max(raster::values(e))][c(1, 3)]
 
 ## plot location estimate, most likely location estimate and stations
 raster::plot(e)
