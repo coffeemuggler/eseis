@@ -5,7 +5,7 @@
 \title{Calculate spectrograms (power spectral density estimates) from time series.}
 \usage{
 signal_spectrogram(data, time, dt, Welch = FALSE, window, overlap = 0.5,
-  window_sub, overlap_sub = 0.5, multitaper = FALSE, nw = 4, k = 7,
+  window_sub, overlap_sub = 0.5, method = "periodogram", nw = 4, k = 7,
   n_cores = 1, plot = FALSE, ...)
 }
 \arguments{
@@ -35,8 +35,9 @@ the sub-window length is set to 10 percent of the main window length.}
 
 \item{overlap_sub}{\code{Numeric} value, fraction of sub-window overlap.}
 
-\item{multitaper}{\code{Logical} value, option to use multitaper for the
-calculations. Can increase computation time significantly.}
+\item{method}{\code{Character} value, method to calculate the spectra. 
+One out of \code{"periodogram"}, \code{"autoregressive"} and 
+\code{"multitaper"}. Default is \code{"periodogram"}.}
 
 \item{nw}{\code{Numeric} value, multitaper time-bandwidth parameter,
 default is 4.0.}
@@ -49,7 +50,7 @@ by setting to 1. Default is 1.}
 \item{plot}{\code{Logical} value, toggle plot output. Default is
 \code{FALSE}. For more customised plotting see \code{plot_spectrogram}.}
 
-\item{\dots}{Additional arguments passed to the plot function.}
+\item{\dots}{Additional arguments passed to the function.}
 }
 \value{
 \code{List} with spectrogram matrix, time and frequency vectors.
@@ -94,7 +95,7 @@ P <- signal_spectrogram(data = s$BHZ,
 #                                window_sub = 1, 
 #                                overlap_sub = 0.9, 
 #                                Welch = TRUE,
-#                                multitaper = TRUE,
+#                                method = "multitaper",
 #                                plot = TRUE)
                       
 }

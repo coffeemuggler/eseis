@@ -32,8 +32,9 @@
 #' 
 #' @param overlap_sub \code{Numeric} value, fraction of sub-window overlap.
 #' 
-#' @param multitaper \code{Logical} value, option to use multitaper for the
-#' calculations. Can increase computation time significantly.
+#' @param method  \code{Character} value, method to calculate the spectra. 
+#' One out of \code{"periodogram"}, \code{"autoregressive"} and 
+#' \code{"multitaper"}. Default is \code{"periodogram"}.
 #' 
 #' @param nw \code{Numeric} value, multitaper time-bandwidth parameter,
 #' default is 4.0.
@@ -46,7 +47,7 @@
 #' @param plot \code{Logical} value, toggle plot output. Default is
 #' \code{FALSE}. For more customised plotting see \code{plot_spectrogram}.
 #' 
-#' @param \dots Additional arguments passed to the plot function.
+#' @param \dots Additional arguments passed to the function.
 #' 
 #' @return \code{List} with spectrogram matrix, time and frequency vectors.
 #' 
@@ -89,7 +90,7 @@
 #' #                                window_sub = 1, 
 #' #                                overlap_sub = 0.9, 
 #' #                                Welch = TRUE,
-#' #                                multitaper = TRUE,
+#' #                                method = "multitaper",
 #' #                                plot = TRUE)
 #'                       
 #' @export signal_spectrogram
@@ -102,7 +103,7 @@ signal_spectrogram <- function(
   overlap = 0.5,
   window_sub,
   overlap_sub = 0.5,
-  multitaper = FALSE,
+  method = "periodogram",
   nw = 4.0,
   k = 7,
   n_cores = 1,
@@ -123,7 +124,7 @@ signal_spectrogram <- function(
                        overlap = overlap,
                        window_sub = window_sub,
                        overlap_sub = overlap_sub,
-                       multitaper = multitaper,
+                       method = method,
                        nw = nw,
                        k = k,
                        n_cores = n_cores,
@@ -193,7 +194,7 @@ signal_spectrogram <- function(
     } else if(class(data) == "eseis") {
       
       time <- seq(from = data$meta$starttime, 
-                  by = dt, 
+                  by = data$meta$dt, 
                   length.out = data$meta$n)
     }
     
@@ -230,7 +231,7 @@ signal_spectrogram <- function(
                             overlap = overlap,
                             window_sub = window_sub,
                             overlap_sub = overlap_sub,
-                            multitaper = multitaper,
+                            method = method,
                             nw = nw,
                             k = k,
                             n_cores = n_cores,
@@ -252,6 +253,17 @@ signal_spectrogram <- function(
       
       ## set eseis flag
       eseis_class <- FALSE
+    }
+    
+    ## change method keywords
+    if(method == "periodogram") {
+      
+      method <- "pgram"
+    }
+    
+    if(method == "autoregressive") {
+      
+      method <- "ar"
     }
     
     ## CALCULATION PART -------------------------------------------------------
@@ -287,9 +299,10 @@ signal_spectrogram <- function(
     }
     
     ## define generic function to get spectra
-    spec_generic <- function(x) {
+    spec_generic <- function(x, method) {
       
       try(spectrum(x = x, 
+                   method = method,
                    plot = FALSE)$spec,
           silent = TRUE)
       
@@ -307,7 +320,7 @@ signal_spectrogram <- function(
     }
     
     ## define generic function for Welch method to get spectrae
-    spec_welch <- function(x, window_sub, overlap_sub, dt, multitaper, nw, k) {
+    spec_welch <- function(x, window_sub, overlap_sub, dt, method, nw, k) {
       
       ## get sub-window length
       length_window_sub <- round(x = window_sub * (1 / dt), 
@@ -340,7 +353,7 @@ signal_spectrogram <- function(
       }
       
       ## calculate spectrae
-      if(multitaper == TRUE) {
+      if(method == "multitaper") {
         
         S_welch <- lapply(X = data_list_sub, 
                           FUN = spec_multitaper,
@@ -350,7 +363,8 @@ signal_spectrogram <- function(
       } else {
         
         S_welch <- lapply(X = data_list_sub, 
-                          FUN = spec_generic)
+                          FUN = spec_generic,
+                          method = method)
       }
       
       ## convert list to matrix
@@ -376,23 +390,25 @@ signal_spectrogram <- function(
       ## initiate cluster
       cl <- parallel::makeCluster(n_cores)
     }
-    
-    ## calculate spectrae for each slice
+    print(method)
+    ## calculate spectra for each slice
     if(Welch == FALSE) {
       
-      if(multitaper == FALSE) {
+      if(method != "multitaper") {
         
         if(n_cores > 1) {
           
           ## non-Welch option in parallel mode
           S <- parallel::parLapply(cl = cl,
                                    X = data_list, 
-                                   fun = spec_generic)
+                                   fun = spec_generic,
+                                   method = method)
         } else {
           
           ## non-Welch option in one-core mode
           S <- lapply(X = data_list, 
-                      FUN = spec_generic)
+                      FUN = spec_generic,
+                      method = method)
         }
       } else {
         
@@ -430,7 +446,7 @@ signal_spectrogram <- function(
                                  dt = dt,
                                  nw = nw, 
                                  k = k,
-                                 multitaper = multitaper)
+                                 method = method)
       } else {
         
         ## Welch option in one-core mode
@@ -441,7 +457,7 @@ signal_spectrogram <- function(
                     dt = dt,
                     nw = nw,
                     k = k,
-                    multitaper = multitaper)
+                    method = method)
       }
       
       
