@@ -4,8 +4,8 @@
 \alias{spatial_distance}
 \title{Calculate topography-corrected distances for seismic waves.}
 \usage{
-spatial_distance(stations, dem, topography = TRUE, cores = 1, dmap = TRUE,
-  dstation = TRUE, aoi)
+spatial_distance(stations, dem, depth = 0, topography = TRUE, cpu,
+  dmap = TRUE, dstation = TRUE, aoi)
 }
 \arguments{
 \item{stations}{\code{Numeric} matrix of length two, x- and y-coordinates 
@@ -18,16 +18,21 @@ processed. The DEM must be in metric units, such as the UTM system and
 match with the reference system of the coordinates of \code{stations}. 
 See \code{raster} for supported types and how to read these to R.}
 
-\item{topography}{\code{Logical} scalar, option to enable topography
+\item{depth}{\code{Numeric} vector, depth below surface for which to 
+calculate the wave travel path lengths for each pixel. Default is 
+\code{0} (at the surface). Useful to test whether a source location is at 
+depth or at the surface.}
+
+\item{topography}{\code{Logical} value, option to enable topography
 correction, default is \code{TRUE}.}
 
-\item{cores}{\code{Numeric} scalar, number of CPU cores to use, only
-relevant for multicore computers. Default is \code{1}.}
+\item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel 
+processing. If omitted, one CPU is used.}
 
-\item{dmap}{\code{Logical} scalar, option to enable/disable calculation
+\item{dmap}{\code{Logical} value, option to enable/disable calculation
 of distance maps. Default is \code{TRUE}.}
 
-\item{dstation}{\code{Logical} scalar, option to enable/disable calculation
+\item{dstation}{\code{Logical} value, option to enable/disable calculation
 of interstation distances. Default is \code{TRUE}.}
 
 \item{aoi}{\code{Numeric} vector of length four, bounding coordinates of 
