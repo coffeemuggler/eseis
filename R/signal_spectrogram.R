@@ -390,7 +390,7 @@ signal_spectrogram <- function(
       ## initiate cluster
       cl <- parallel::makeCluster(n_cores)
     }
-    print(method)
+    
     ## calculate spectra for each slice
     if(Welch == FALSE) {
       
