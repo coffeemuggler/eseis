@@ -8,17 +8,20 @@
 #' The model uses a set of predefined constants. These can also be changed
 #' by the user, using the \code{...} argument:
 #' \itemize{
-#'   \item \code{c = 0.5}, instantaneous fluid-grain friction coefficient 
-#'   (dimensionless)
 #'   \item \code{g = 9.81}, gravitational acceleration (m/s^2)
-#'   \item \code{k = 0.5}, Kolmogrov constant (dimensionless)
+#'   \item \code{r_w = 1000}, fluid specific density (kg/m^3)
 #'   \item \code{k_s = 3 * d_s}, roughness length (m)
-#'   \item \code{h = k_s / 2}, reference height of the measurement (m)
-#'   \item \code{e_0 = 0}, exponent of Q increase with frequency 
-#'   (dimensionless)
-#'   \item \code{r_w = 1000}, specific density of the fluid (kg/m^3)
-#'   \item \code{c_w = 0.5}, instantaneous fluid-grain friction coefficient
-#'   (dimensionless)
+#'   \item \code{log_lim = c(0.0001, 100)}, limits of grain-size distribution 
+#'   function template (m)
+#'   \item \code{log_length = 10000}, length of grain-size distribution  
+#'   function template
+#'   \item \code{nu = 10^(-6)}, specific density of the fluid (kg/m^3)
+#'   \item \code{power_d = 3}, grain-size power exponent
+#'   \item \code{gamma = 0.9}, gamma parameter, after Parker (1990)
+#'   \item \code{s_c = 0.8}, drag coefficient parameter
+#'   \item \code{s_p = 3.5}, drag coefficient parameter
+#'   \item \code{c_1 = 2 / 3}, inter-impact time scaling, after 
+#'   Sklar & Dietrich (2004)
 #' }
 #' 
 #' 
