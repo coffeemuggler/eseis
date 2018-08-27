@@ -5,6 +5,7 @@ Version 0.5.0 (n.n.)
   - function signal_cut() added
   - function aux_commondt() added
   - function aux_nccpreprocess() added
+  - function model_bedload() added
 
 Version 0.4.0 (2018-05-25)
   - eseis object implemented and all functions modified to support this object
