@@ -4,14 +4,20 @@
 \alias{model_bedload}
 \title{Model the seismic spectrum due to bedload transport in rivers}
 \usage{
-model_bedload(d_s, s_s, r_s, q_s, h_w, w_w, a_w, f = c(1, 100), r_0, f_0, q_0,
-  e_0, v_0, x_0, n_0, n_c, res = 100, eseis = FALSE, ...)
+model_bedload(gsd, d_s, s_s, r_s, q_s, h_w, w_w, a_w, f = c(1, 100), r_0, f_0,
+  q_0, e_0, v_0, x_0, n_0, n_c, res = 100, eseis = FALSE, ...)
 }
 \arguments{
-\item{d_s}{\code{Numeric} value, mean sediment grain diameter (m)}
+\item{gsd}{\code{data frame} grain-size distribution function. Must be 
+provided as data frame with two variables: grain-size class (first column)
+and vol- or wgt.-percentage per class (second column). See examples for 
+details.}
+
+\item{d_s}{\code{Numeric} value, mean sediment grain diameter (m). 
+Alternative to \code{gsd}.}
 
 \item{s_s}{\code{Numeric} value, standard deviation of sediment grain 
-diameter (m)}
+diameter (m). Alternative to \code{gsd}.}
 
 \item{r_s}{\code{Numeric} value, specific sediment density (kg / m^3)}
 
@@ -80,11 +86,11 @@ by the user, using the \code{...} argument:
 \itemize{
   \item \code{g = 9.81}, gravitational acceleration (m/s^2)
   \item \code{r_w = 1000}, fluid specific density (kg/m^3)
-  \item \code{k_s = 3 * d_s}, roughness length (m)
-  \item \code{log_lim = c(0.0001, 100)}, limits of grain-size distribution 
-  function template (m)
-  \item \code{log_length = 10000}, length of grain-size distribution  
-  function template
+  \item \code{k_s = 3 * d_50}, roughness length (m)
+  \item \code{log_lim = c(0.0001, 100), limits of grain-size distribution 
+  function template (m)}
+  \item \code{log_length = 10000, length of grain-size distribution 
+  function template}
   \item \code{nu = 10^(-6)}, specific density of the fluid (kg/m^3)
   \item \code{power_d = 3}, grain-size power exponent
   \item \code{gamma = 0.9}, gamma parameter, after Parker (1990)
@@ -93,12 +99,22 @@ by the user, using the \code{...} argument:
   \item \code{c_1 = 2 / 3}, inter-impact time scaling, after 
   Sklar & Dietrich (2004)
 }
+
+When no user defined grain-size distribution function is provided,the 
+function calculates the raised cosine distribution function as defined 
+in Tsai et al. (2012) using the default range and resolution as specified 
+by \code{log_lim} and \code{log_length} (see additional arguments list 
+above). These default values are appropriate for mean sediment sizes 
+between 0.001 and 10 m and log standard deivations between 0.05 and 1. 
+When more extreme distributions are to be used, it is necessary to either 
+adjust the arguments \code{log_lim} and \code{log_length} or use a 
+user defined distribution function.
 }
 \examples{
 
 ## calculate spectrum (i.e., fig. 1b in Tsai et al., 2012)
 p_bedload <- model_bedload(d_s = 0.7,
-                           s_s = 0.01,
+                           s_s = 0.1,
                            r_s = 2650,
                            q_s = 0.001,
                            h_w = 4,
@@ -118,6 +134,52 @@ p_bedload <- model_bedload(d_s = 0.7,
 ## plot spectrum
 plot_spectrum(data = p_bedload, 
               ylim = c(-170, -110))
+              
+## define empiric grain-size distribution
+gsd_empiric <- data.frame(d = c(0.70, 0.82, 0.94, 1.06, 1.18, 1.30),
+                          p = c(0.02, 0.25, 0.45, 0.23, 0.04, 0.00))
+                  
+## calculate spectrum
+p_bedload <- model_bedload(gsd = gsd_empiric,
+                           r_s = 2650,
+                           q_s = 0.001,
+                           h_w = 4,
+                           w_w = 50,
+                           a_w = 0.005,
+                           f = c(0.1, 20),
+                           r_0 = 600,
+                           f_0 = 1,
+                           q_0 = 20,
+                           e_0 = 0,
+                           v_0 = 1295,
+                           x_0 = 0.374,
+                           n_0 = 1,
+                           res = 100,
+                           eseis = TRUE)
+                  
+## plot spectrum
+plot_spectrum(data = p_bedload, 
+              ylim = c(-170, -110))
+              
+## define mean and sigma for parametric distribution function
+d_50 <- 1
+sigma <- 0.1
+
+## define raised cosine distribution function following Tsai et al. (2012)
+d_1 <- 10^seq(log10(d_50 - 5 * sigma), 
+              log10(d_50 + 5 * sigma), 
+              length.out = 20)
+
+sigma_star <- sigma / sqrt(1 / 3 - 2 / pi^2)
+
+p_1 <- (1 / (2 * sigma_star) * 
+          (1 + cos(pi * (log(d_1) - log(d_50)) / sigma_star))) / d_1
+p_1[log(d_1) - log(d_50) > sigma_star] <- 0
+p_1[log(d_1) - log(d_50) < -sigma_star] <- 0
+p_1 <- p_1 / sum(p_1)
+
+gsd_raised_cos <- data.frame(d = d_1,
+                             p = p_1)
              
 }
 \references{

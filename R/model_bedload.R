@@ -10,11 +10,11 @@
 #' \itemize{
 #'   \item \code{g = 9.81}, gravitational acceleration (m/s^2)
 #'   \item \code{r_w = 1000}, fluid specific density (kg/m^3)
-#'   \item \code{k_s = 3 * d_s}, roughness length (m)
-#'   \item \code{log_lim = c(0.0001, 100)}, limits of grain-size distribution 
-#'   function template (m)
-#'   \item \code{log_length = 10000}, length of grain-size distribution  
-#'   function template
+#'   \item \code{k_s = 3 * d_50}, roughness length (m)
+#'   \item \code{log_lim = c(0.0001, 100), limits of grain-size distribution 
+#'   function template (m)}
+#'   \item \code{log_length = 10000, length of grain-size distribution 
+#'   function template}
 #'   \item \code{nu = 10^(-6)}, specific density of the fluid (kg/m^3)
 #'   \item \code{power_d = 3}, grain-size power exponent
 #'   \item \code{gamma = 0.9}, gamma parameter, after Parker (1990)
@@ -24,12 +24,26 @@
 #'   Sklar & Dietrich (2004)
 #' }
 #' 
+#' When no user defined grain-size distribution function is provided,the 
+#' function calculates the raised cosine distribution function as defined 
+#' in Tsai et al. (2012) using the default range and resolution as specified 
+#' by \code{log_lim} and \code{log_length} (see additional arguments list 
+#' above). These default values are appropriate for mean sediment sizes 
+#' between 0.001 and 10 m and log standard deivations between 0.05 and 1. 
+#' When more extreme distributions are to be used, it is necessary to either 
+#' adjust the arguments \code{log_lim} and \code{log_length} or use a 
+#' user defined distribution function.
 #' 
-#' 
-#' @param d_s \code{Numeric} value, mean sediment grain diameter (m)
+#' @param gsd \code{data frame} grain-size distribution function. Must be 
+#' provided as data frame with two variables: grain-size class (first column)
+#' and vol- or wgt.-percentage per class (second column). See examples for 
+#' details.
+#'
+#' @param d_s \code{Numeric} value, mean sediment grain diameter (m). 
+#' Alternative to \code{gsd}.
 #' 
 #' @param s_s \code{Numeric} value, standard deviation of sediment grain 
-#' diameter (m)
+#' diameter (m). Alternative to \code{gsd}.
 #' 
 #' @param r_s \code{Numeric} value, specific sediment density (kg / m^3)
 #' 
@@ -98,7 +112,7 @@
 #' 
 #' ## calculate spectrum (i.e., fig. 1b in Tsai et al., 2012)
 #' p_bedload <- model_bedload(d_s = 0.7,
-#'                            s_s = 0.01,
+#'                            s_s = 0.1,
 #'                            r_s = 2650,
 #'                            q_s = 0.001,
 #'                            h_w = 4,
@@ -118,11 +132,58 @@
 #' ## plot spectrum
 #' plot_spectrum(data = p_bedload, 
 #'               ylim = c(-170, -110))
+#'               
+#' ## define empiric grain-size distribution
+#' gsd_empiric <- data.frame(d = c(0.70, 0.82, 0.94, 1.06, 1.18, 1.30),
+#'                           p = c(0.02, 0.25, 0.45, 0.23, 0.04, 0.00))
+#'                   
+#' ## calculate spectrum
+#' p_bedload <- model_bedload(gsd = gsd_empiric,
+#'                            r_s = 2650,
+#'                            q_s = 0.001,
+#'                            h_w = 4,
+#'                            w_w = 50,
+#'                            a_w = 0.005,
+#'                            f = c(0.1, 20),
+#'                            r_0 = 600,
+#'                            f_0 = 1,
+#'                            q_0 = 20,
+#'                            e_0 = 0,
+#'                            v_0 = 1295,
+#'                            x_0 = 0.374,
+#'                            n_0 = 1,
+#'                            res = 100,
+#'                            eseis = TRUE)
+#'                   
+#' ## plot spectrum
+#' plot_spectrum(data = p_bedload, 
+#'               ylim = c(-170, -110))
+#'               
+#' ## define mean and sigma for parametric distribution function
+#' d_50 <- 1
+#' sigma <- 0.1
+#' 
+#' ## define raised cosine distribution function following Tsai et al. (2012)
+#' d_1 <- 10^seq(log10(d_50 - 5 * sigma), 
+#'               log10(d_50 + 5 * sigma), 
+#'               length.out = 20)
+#' 
+#' sigma_star <- sigma / sqrt(1 / 3 - 2 / pi^2)
+#' 
+#' p_1 <- (1 / (2 * sigma_star) * 
+#'           (1 + cos(pi * (log(d_1) - log(d_50)) / sigma_star))) / d_1
+#' p_1[log(d_1) - log(d_50) > sigma_star] <- 0
+#' p_1[log(d_1) - log(d_50) < -sigma_star] <- 0
+#' p_1 <- p_1 / sum(p_1)
+#' 
+#' gsd_raised_cos <- data.frame(d = d_1,
+#'                              p = p_1)
 #'              
 #' @export model_bedload
 
 model_bedload <- function(
   
+  gsd,
   d_s,
   s_s,
   r_s,
@@ -146,6 +207,41 @@ model_bedload <- function(
   
   ## CHECK AND SET DEFAULT ARGUMENTS ------------------------------------------
   
+  ## use user-defined gsd
+  if(missing(gsd) == TRUE) {
+    
+    ## define log10 sequence of possible grain-size classes
+    x_log <- 10^seq(log10(0.0001), 
+                    log10(100), 
+                    length.out = 10^(4))
+    
+    ## calculate grain-size scatter in modified units
+    s <- s_s / sqrt(1 / 3 - 2 / pi^2)
+    
+    ## calculate grain-size distribution function
+    p_s <- (1 / (2 * s) * (1 + cos(pi * (log(x_log) - log(d_s)) / s))) / x_log
+    
+    ## set values out of range to zero
+    p_s[log(x_log) - log(d_s) > s] <- 0
+    p_s[log(x_log) - log(d_s) < -s] <- 0
+    
+    ## remove grain-size classes with zero contribution
+    x_log <- x_log[p_s > 0]
+    p_s <- p_s[p_s > 0]
+    
+    ## rescale grain-size distribution to one
+    p_s = p_s / sum(p_s)
+    
+  } else {
+    
+    x_log <- gsd[,1]
+    
+    p_s <- gsd[,2]
+    
+    d_s <- x_log[abs(cumsum(p_s) - 0.5) == 
+                   min(abs(cumsum(p_s) - 0.5))][1]
+  }
+  
   ## extract additional arguments
   extraArgs <- list(...)
   
@@ -154,15 +250,15 @@ model_bedload <- function(
               yes = extraArgs$g,
               no = 9.81)
   
-  ## fluid specific density (kg/m^3)
-  r_w <- ifelse(test = "r_w" %in% names(extraArgs),
-              yes = extraArgs$r_w,
-              no = 1000)
-  
   ## assign roughness length of the river bed (m)
   k_s <- ifelse(test = "k_s" %in% names(extraArgs),
                 yes = extraArgs$k_s,
                 no = 3 * d_s)
+  
+  ## fluid specific density (kg/m^3)
+  r_w <- ifelse(test = "r_w" %in% names(extraArgs),
+                yes = extraArgs$r_w,
+                no = 1000)
   
   ## assign limits of grain-size distribution function template
   if("log_lim" %in% names(extraArgs)) {
@@ -172,41 +268,53 @@ model_bedload <- function(
     
     log_lim <- c(0.0001, 100)
   }
-
+  
   ## assign length of grain-size distribution function template
   log_length <- ifelse(test = "log_length" %in% names(extraArgs),
-                    yes = extraArgs$log_length,
-                    no = 10000)
+                       yes = extraArgs$log_length,
+                       no = 10000)
   
   ## assign dynamic fluid viscosity
   nu <- ifelse(test = "nu" %in% names(extraArgs),
-                       yes = extraArgs$nu,
-                       no = 10^(-6))
+               yes = extraArgs$nu,
+               no = 10^(-6))
   
   ## assign grain-size power exponent for eq. (7)
   power_d <- ifelse(test = "power_d" %in% names(extraArgs),
-               yes = extraArgs$power_d,
-               no = 3)
+                    yes = extraArgs$power_d,
+                    no = 3)
   
   ## assign gamma parameter, after Parker (1990)
   gamma <- ifelse(test = "gamma" %in% names(extraArgs),
-                    yes = extraArgs$gamma,
-                    no = 0.9)
+                  yes = extraArgs$gamma,
+                  no = 0.9)
   
   ## assign drag coefficient parameter
   s_c <- ifelse(test = "s_c" %in% names(extraArgs),
-                  yes = extraArgs$s_c,
-                  no = 0.8)
+                yes = extraArgs$s_c,
+                no = 0.8)
   
   ## assign drag coefficient parameter
   s_p <- ifelse(test = "s_p" %in% names(extraArgs),
-                  yes = extraArgs$s_p,
-                  no = 3.5)
+                yes = extraArgs$s_p,
+                no = 3.5)
   
   ## assign inter-impact time scaling, after Sklar & Dietrich (2004)
   c_1 <- ifelse(test = "c_1" %in% names(extraArgs),
                 yes = extraArgs$c_1,
                 no = 2 / 3)
+  
+  ## check/set d_s argument
+  if(missing(d_s) == TRUE) {
+    
+    d_s <- NA
+  }
+  
+  ## check/set s_s argument
+  if(missing(s_s) == TRUE) {
+    
+    s_s <- NA
+  }
   
   ## check/set n_c argument
   if(missing(n_c) == TRUE) {
@@ -214,11 +322,11 @@ model_bedload <- function(
     n_c <- NA
   }
   
-  
   ## ORGANISE ESEIS DATA ------------------------------------------------------
   
   ## get start time
   eseis_t_0 <- Sys.time()
+  
   
   ## collect function arguments
   eseis_arguments <- list(d_s,
@@ -270,28 +378,6 @@ model_bedload <- function(
                    0.142 * (chi^2) + 0.41 * 
                    chi - 3.14)
   
-  ## define log10 sequence of possible grain-size classes
-  x_log <- 10^seq(log10(log_lim[1]), 
-                  log10(log_lim[2]), 
-                  length.out = log_length)
-  
-  ## calculate grain-size scatter in modified units
-  s <- s_s / sqrt(1 / 3 - 2 / pi^2)
-  
-  ## calculate grain-size distribution function
-  p_s <- (1 / (2 * s) * (1 + cos(pi * (log(x_log) - log(d_s)) / s))) / x_log
-
-  ## set values out of range to zero
-  p_s[log(x_log) - log(d_s) > s] <- 0
-  p_s[log(x_log) - log(d_s) < -s] <- 0
-  
-  ## remove grain-size classes with zero contribution
-  x_log <- x_log[p_s > 0]
-  p_s <- p_s[p_s > 0]
-
-  ## rescale grain-size distribution to one
-  p_s = p_s / sum(p_s)
-
   ## define output frequency vector
   f_i <- seq(from = f[1], 
              to = f[2], 
@@ -367,7 +453,7 @@ model_bedload <- function(
   
   ## calculate particle impact velocity normal to the bed
   w_i <-  w_st * cos(a_w) * sqrt(1 - exp(-h_b_2))
-
+  
   ## calculate depth averaged settling velocity through the bed load layer
   w_s <- (h_b_2 * w_st * cos(a_w)) / 
     (2 * log(exp(h_b_2 / 2) + sqrt(exp(h_b_2) - 1)))
@@ -468,5 +554,3 @@ model_bedload <- function(
   ## return output
   return(data_out)
 }
-
-
