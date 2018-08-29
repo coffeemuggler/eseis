@@ -53,6 +53,11 @@ on the direct path as long as they are within solid matter. When the
 direct path is through air, the wave can only travel along the surface
 of the landscape. The function accounts for this effect and returns the
 corrected travel distance data set.
+
+It is also possible to calculate the distance data for a user defined 
+depth offset below the surface (of each pixel) using \code{depth}. This 
+option is usefule to locate seismic sources at depth, i.e., to apply the 
+method to a 3D space.
 }
 \examples{
 \dontrun{

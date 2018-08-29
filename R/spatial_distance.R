@@ -9,6 +9,11 @@
 #' of the landscape. The function accounts for this effect and returns the
 #' corrected travel distance data set.
 #' 
+#' It is also possible to calculate the distance data for a user defined 
+#' depth offset below the surface (of each pixel) using \code{depth}. This 
+#' option is usefule to locate seismic sources at depth, i.e., to apply the 
+#' method to a 3D space.
+#' 
 #' @param stations \code{Numeric} matrix of length two, x- and y-coordinates 
 #' of the seismic stations to be processed (column-wise orgnaised).The 
 #' coordinates must be in metric units, such as the UTM system and 
@@ -115,14 +120,30 @@ spatial_distance <- function(
   ## aoi assignment
   if(missing(aoi) == FALSE) {
     
-    dem <- raster::mask(x = dem, 
-                        mask = aoi, 
-                        inverse = TRUE)
+    ## create AOI raster with NA values throughout
+    aoi_raster <- dem * NA
+    
+    ## get AOI coordinates
+    aoi_xy <- sp::coordinates(aoi_raster)
+    
+    
+    ## replace pixels in AOI by 1
+    raster::values(aoi_raster)[aoi_xy[,1] > aoi[1] & 
+                                 aoi_xy[,1] < aoi[2] & 
+                                 aoi_xy[,2] > aoi[3] & 
+                                 aoi_xy[,2] < aoi[4]] <- 1
+    
+    ## apply AOI raster to DEM
+    dem_aoi <- dem * aoi_raster
+  } else {
+    
+    dem_aoi <- dem
   }
   
-  ## extract dem coordinates
+  ## extract dem coordinates and AOI fla
   dem_xyz <- cbind(sp::coordinates(dem), 
-                   raster::values(dem))
+                   raster::values(dem),
+                   raster::values(dem_aoi))
   
   ## convert raster to SpatialPixelsDataFrame
   dem_spdf <- as(object = dem, 
@@ -181,7 +202,7 @@ spatial_distance <- function(
           if(sum(is.na(dem_xyz_list)) == 0) {
             
             ## create line end points
-            xy_0 <- as.numeric(dem_xyz_list)
+            xy_0 <- as.numeric(dem_xyz_list[-3])
             xy_1 <- as.numeric(station_xyz_i[1:2])
             
             ## calculate line length
@@ -191,7 +212,7 @@ spatial_distance <- function(
             n_line <- as.numeric(ceiling(l_line / pars$res_mean))
             
             ## account for legth zero
-            if(n_line == 0) {
+            if(n_line < 2) {
               
               n_line <- 2
             }
@@ -255,7 +276,7 @@ spatial_distance <- function(
       raster::values(D) <- d
       
       ## assign distane map to output data set
-      D_map[[i]] <- D
+      D_map[[i]] <- as(D, "SpatialGridDataFrame")
       
       ## print progress
       print(paste("  Map", i, "of", length(D_map), "done."))
