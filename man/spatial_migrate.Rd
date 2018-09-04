@@ -51,9 +51,9 @@ sta <- data.frame(x = c(1000, 9000, 5000),
                   ID = c("A", "B", "C"))
 
 ## create synthetic signal (source in the center of the DEM)
-s <- rbind(dnorm(x = 1:1000, mean = 400, sd = 50),
-           dnorm(x = 1:1000, mean = 400, sd = 50),
-           dnorm(x = 1:1000, mean = 400, sd = 50))
+s <- rbind(dnorm(x = 1:1000, mean = 500, sd = 50),
+           dnorm(x = 1:1000, mean = 500, sd = 50),
+           dnorm(x = 1:1000, mean = 500, sd = 50))
 
 ## plot DEM and stations
 raster::plot(dem)
@@ -71,11 +71,12 @@ e <- eseis::spatial_migrate(data = s,
                             d_stations = D$stations, 
                             d_map = D$maps, 
                             v = 1000, 
-                            dt = 1/10)
+                            dt = 1/100)
 
 ## get most likely location coordinates (example contains two equal points)
-xy <- sp::coordinates(e)[raster::values(e) == max(raster::values(e))][c(1, 3)]
-
+xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
+             ncol = 2)[1,]
+             
 ## plot location estimate, most likely location estimate and stations
 raster::plot(e)
 points(xy[1], 

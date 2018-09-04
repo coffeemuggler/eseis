@@ -44,9 +44,9 @@
 #'                   ID = c("A", "B", "C"))
 #' 
 #' ## create synthetic signal (source in the center of the DEM)
-#' s <- rbind(dnorm(x = 1:1000, mean = 400, sd = 50),
-#'            dnorm(x = 1:1000, mean = 400, sd = 50),
-#'            dnorm(x = 1:1000, mean = 400, sd = 50))
+#' s <- rbind(dnorm(x = 1:1000, mean = 500, sd = 50),
+#'            dnorm(x = 1:1000, mean = 500, sd = 50),
+#'            dnorm(x = 1:1000, mean = 500, sd = 50))
 #' 
 #' ## plot DEM and stations
 #' raster::plot(dem)
@@ -64,11 +64,12 @@
 #'                             d_stations = D$stations, 
 #'                             d_map = D$maps, 
 #'                             v = 1000, 
-#'                             dt = 1/10)
+#'                             dt = 1/100)
 #' 
 #' ## get most likely location coordinates (example contains two equal points)
-#' xy <- sp::coordinates(e)[raster::values(e) == max(raster::values(e))][c(1, 3)]
-#' 
+#' xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
+#'              ncol = 2)[1,]
+#'              
 #' ## plot location estimate, most likely location estimate and stations
 #' raster::plot(e)
 #' points(xy[1], 
@@ -177,7 +178,7 @@ spatial_migrate <- function(
     
     ## calculate cross correlation function
     cc = acf(x = cbind(data[pairs[1],], 
-                       data[pairs[1],]), 
+                       data[pairs[2],]), 
              lag.max = duration * 1 / dt, 
              plot = FALSE)
     
@@ -189,15 +190,19 @@ spatial_migrate <- function(
     cors <- c(rev(cc$acf[-1, 2, 1]), 
               cc$acf[, 1, 2])
     
-    ## calculate minimum and maximum possible lag times
-    lag_min <- which.max(diff(lags >= -d_stations[pairs[1], pairs[2]] / v))
-    lag_max <- which.min(diff(lags <= d_stations[pairs[1], pairs[2]] / v))
     
+    ## calculate minimum and maximum possible lag times
+    lags_centre <- floor(length(lags) / 2)
+    lag_lim <- d_stations[pairs[1], pairs[2]] / v
+    lag_lim <- ifelse(test = lag_lim > lags_centre, 
+                      yes = lags_centre, 
+                      no = lag_lim)
+
     ## calculate lag times
-    lags <- lags[lag_min:lag_max]
+    lags <- lags[(lags_centre - lag_lim):(lags_centre + lag_lim)]
     
     ## clip correlation vector to lag ranges
-    cors <- cors[lag_min:lag_max]
+    cors <- cors[(lags_centre - lag_lim):(lags_centre + lag_lim)]
     
     ## calculate SNR normalisation factor
     if(normalise == TRUE) {
