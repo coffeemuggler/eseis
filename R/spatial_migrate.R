@@ -172,9 +172,9 @@ spatial_migrate <- function(
   pairs <- as.list(as.data.frame((pairs)))
   
   ## process all station pairs
-  maps <- lapply(X = pairs, FUN = function(pairs, data, duration, dt, 
-                                           d_stations, v, s_max, s_snr, 
-                                           d_map) {
+  maps <- 
+    lapply(X = pairs, FUN = function(pairs, data, duration, dt, 
+                                     d_stations, v, s_max, s_snr, d_map) {
     
     ## calculate cross correlation function
     cc = acf(x = cbind(data[pairs[1],], 
@@ -184,7 +184,7 @@ spatial_migrate <- function(
     
     ## build lags vector
     lags <- c(rev(cc$lag[-1, 2, 1]), 
-              cc$lag[, 1, 2])
+              cc$lag[, 1, 2]) * dt
     
     ## build correlation value vector
     cors <- c(rev(cc$acf[-1, 2, 1]), 
@@ -192,17 +192,14 @@ spatial_migrate <- function(
     
     
     ## calculate minimum and maximum possible lag times
-    lags_centre <- floor(length(lags) / 2)
-    lag_lim <- d_stations[pairs[1], pairs[2]] / v
-    lag_lim <- ifelse(test = lag_lim > lags_centre, 
-                      yes = lags_centre, 
-                      no = lag_lim)
-
+    lag_lim <- ceiling(d_stations[pairs[1], pairs[2]] / v)
+    lag_ok <-lags >= -lag_lim & lags <= lag_lim
+    
     ## calculate lag times
-    lags <- lags[(lags_centre - lag_lim):(lags_centre + lag_lim)]
+    lags <- lags[lag_ok]
     
     ## clip correlation vector to lag ranges
-    cors <- cors[(lags_centre - lag_lim):(lags_centre + lag_lim)]
+    cors <- cors[lag_ok]
     
     ## calculate SNR normalisation factor
     if(normalise == TRUE) {
