@@ -2,9 +2,10 @@
 % Please edit documentation in R/signal_filter.R
 \name{signal_filter}
 \alias{signal_filter}
-\title{Filter a seismic signal in the time domain}
+\title{Filter a seismic signal in the time or frequency domain}
 \usage{
-signal_filter(data, f, dt, type, shape = "butter", order = 2, p = 0)
+signal_filter(data, f, fft = FALSE, dt, type, shape = "butter", order = 2,
+  p = 0)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
@@ -12,6 +13,10 @@ objects, data set to be processed.}
 
 \item{f}{\code{Numeric} value or vector of length two, lower and/or 
 upper cutoff frequencies (Hz).}
+
+\item{fft}{\code{Logical} value, option to filter in the time domain 
+(\code{fft = FALSE}) or the frequency domain (\code{fft = TRUE}). Default 
+is (\code{fft = FALSE}).}
 
 \item{dt}{\code{Numeric} value, sampling period. If omitted, \code{dt} 
 is set to 1/200.}
@@ -35,7 +40,8 @@ is \code{2}. Only needed if \code{data} is no \code{eseis} object.}
 \code{Numeric} vector or list of vectors, filtered signal vector.
 }
 \description{
-The function filters the input signal vector in the time domain.
+The function filters the input signal vector in the time or
+frequency domain.
 }
 \examples{
 
@@ -52,6 +58,22 @@ rockfall_bp <- signal_taper(data = rockfall_bp,
 
 ## plot filtered signal
 plot_signal(data = rockfall_bp)
+
+## compare time domain versus frequency domain filtering
+rockfall_td <- signal_filter(data = rockfall_eseis, 
+                             f = c(10, 40), 
+                             fft = FALSE)
+                             
+rockfall_td_sp <- signal_spectrum(data = rockfall_td)
+
+rockfall_fd <- signal_filter(data = rockfall_eseis, 
+                             f = c(10, 40), 
+                             fft = TRUE)
+                             
+rockfall_fd_sp <- signal_spectrum(data = rockfall_fd)
+
+plot_spectrum(data = rockfall_td_sp)
+plot_spectrum(data = rockfall_fd_sp)
                      
 }
 \author{
