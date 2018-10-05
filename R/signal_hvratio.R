@@ -202,6 +202,9 @@ signal_hvratio <- function(
     names(eseis_data$history)[length(eseis_data$history)] <- 
       as.character(length(eseis_data$history))
     
+    ## update data type
+    eseis_data$meta$type = "hvratio"
+    
     ## set S3 class name
     class(eseis_data) <- "eseis"
     

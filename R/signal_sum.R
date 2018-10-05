@@ -66,7 +66,7 @@ signal_sum <- function(
            duration = eseis_duration)
     names(eseis_data$history)[length(eseis_data$history)] <- 
       as.character(length(eseis_data$history))
-    
+
     ## assign eseis object to output data set
     data_sum <- eseis_data
     

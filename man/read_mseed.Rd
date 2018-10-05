@@ -5,7 +5,7 @@
 \title{Read mseed files.}
 \usage{
 read_mseed(file, append = TRUE, signal = TRUE, time = TRUE, meta = TRUE,
-  header = TRUE, eseis = TRUE)
+  header = TRUE, eseis = TRUE, type = "waveform")
 }
 \arguments{
 \item{file}{\code{Character} vector, input file name(s), with extension.}
@@ -29,6 +29,11 @@ default is \code{TRUE}.}
 \item{eseis}{\code{Logical} value, option to read data to an \code{eseis}
 object (recommended, see documentation of 
 \code{aux_initiateeseis}), default is \code{TRUE}}
+
+\item{type}{\code{Character} value, type keyword of the data. One out of 
+\code{"waveform"}, \code{"envelope"}, \code{"fft"}, \code{"spectrum"}, 
+\code{"spectrogram"}, \code{"other"}, \code{hilbert}, \code{hvratio}. 
+Default is \code{"waveform"}.}
 }
 \value{
 \code{List} object, optionally of class \code{eseis}

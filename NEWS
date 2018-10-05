@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.5.0 (n.n.)
+  - signal type meta element added
   - function signal_clip() added
   - function signal_cut() added
   - function aux_commondt() added

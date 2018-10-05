@@ -42,6 +42,11 @@
 #' @param biglong \code{Logical} value, number coding format. Default 
 #' is \code{FALSE}.
 #' 
+#' @param type \code{Character} value, type keyword of the data. One out of 
+#' \code{"waveform"}, \code{"envelope"}, \code{"fft"}, \code{"spectrum"}, 
+#' \code{"spectrogram"}, \code{"other"}, \code{hilbert}, \code{hvratio}. 
+#' Default is \code{"waveform"}.
+#' 
 #' @return \code{List} object, optionally of class \code{eseis}.
 #' 
 #' @author Michael Dietze
@@ -74,7 +79,8 @@ read_sac <- function(
   header = TRUE,
   eseis = TRUE,
   endianness = "little",
-  biglong = FALSE
+  biglong = FALSE,
+  type = "waveform"
 ) {
   
   ## collect function arguments
@@ -86,7 +92,8 @@ read_sac <- function(
                           header = header,
                           eseis = eseis,
                           endianness = endianness,
-                          biglong = biglong)
+                          biglong = biglong,
+                          type = type)
   
   ## check/select files
   if(sum(grepl(pattern = "[*]", x = file)) > 0) {
@@ -256,7 +263,8 @@ read_sac <- function(
                  longitude = location_station[2],
                  elevation = location_station[3],
                  depth = location_station[4],
-                 filename = file)
+                 filename = file,
+                 type = eseis_arguments$type)
     
     if(signal == TRUE) {
       

@@ -292,8 +292,12 @@ model_turbulence <- function(
     names(eseis_data$history)[length(eseis_data$history)] <- 
       as.character(length(eseis_data$history))
     
+    ## update data type
+    eseis_data$meta$type = "spectrum"
+    
     ## assign eseis object to output data set
     data_out <- eseis_data
+    
   } else {
     
     data_out <- P

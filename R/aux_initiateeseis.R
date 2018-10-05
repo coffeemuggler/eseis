@@ -55,7 +55,8 @@ aux_initiateeseis <- function(
                             latitude = NA,
                             longitude = NA,
                             elevation = NA,
-                            filename = NA),
+                            filename = NA,
+                            type = NA),
                 header = list(),
                 history = list("1" = list(system = sessionInfo())))
   

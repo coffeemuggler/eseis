@@ -5,7 +5,8 @@
 \title{Read sac files.}
 \usage{
 read_sac(file, append = TRUE, signal = TRUE, time = TRUE, meta = TRUE,
-  header = TRUE, eseis = TRUE, endianness = "little", biglong = FALSE)
+  header = TRUE, eseis = TRUE, endianness = "little", biglong = FALSE,
+  type = "waveform")
 }
 \arguments{
 \item{file}{\code{Character} vector, input file name(s), with extension.}
@@ -36,6 +37,11 @@ is \code{"little"}.}
 
 \item{biglong}{\code{Logical} value, number coding format. Default 
 is \code{FALSE}.}
+
+\item{type}{\code{Character} value, type keyword of the data. One out of 
+\code{"waveform"}, \code{"envelope"}, \code{"fft"}, \code{"spectrum"}, 
+\code{"spectrogram"}, \code{"other"}, \code{hilbert}, \code{hvratio}. 
+Default is \code{"waveform"}.}
 }
 \value{
 \code{List} object, optionally of class \code{eseis}.
