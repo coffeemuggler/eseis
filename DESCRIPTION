@@ -30,6 +30,7 @@ Imports:
     IRISSeismic,
     XML,
     rmarkdown,
+    reticulate, 
     Rcpp (>= 0.12.5)
 Suggests:
     plot3D,
