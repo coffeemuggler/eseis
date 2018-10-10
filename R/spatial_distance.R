@@ -9,11 +9,6 @@
 #' of the landscape. The function accounts for this effect and returns the
 #' corrected travel distance data set.
 #' 
-#' It is also possible to calculate the distance data for a user defined 
-#' depth offset below the surface (of each pixel) using \code{depth}. This 
-#' option is usefule to locate seismic sources at depth, i.e., to apply the 
-#' method to a 3D space.
-#' 
 #' @param stations \code{Numeric} matrix of length two, x- and y-coordinates 
 #' of the seismic stations to be processed (column-wise orgnaised).The 
 #' coordinates must be in metric units, such as the UTM system and 
@@ -24,21 +19,16 @@
 #' match with the reference system of the coordinates of \code{stations}. 
 #' See \code{raster} for supported types and how to read these to R.
 #' 
-#' @param depth \code{Numeric} vector, depth below surface for which to 
-#' calculate the wave travel path lengths for each pixel. Default is 
-#' \code{0} (at the surface). Useful to test whether a source location is at 
-#' depth or at the surface. 
-#' 
-#' @param topography \code{Logical} value, option to enable topography
+#' @param topography \code{Logical} scalar, option to enable topography
 #' correction, default is \code{TRUE}.
 #' 
-#' @param cpu \code{Numeric} value, fraction of CPUs to use for parallel 
-#' processing. If omitted, one CPU is used.
+#' @param cores \code{Numeric} scalar, number of CPU cores to use, only
+#' relevant for multicore computers. Default is \code{1}.
 #' 
-#' @param dmap \code{Logical} value, option to enable/disable calculation
+#' @param dmap \code{Logical} scalar, option to enable/disable calculation
 #' of distance maps. Default is \code{TRUE}.
 #' 
-#' @param dstation \code{Logical} value, option to enable/disable calculation
+#' @param dstation \code{Logical} scalar, option to enable/disable calculation
 #' of interstation distances. Default is \code{TRUE}.
 #' 
 #' @param aoi \code{Numeric} vector of length four, bounding coordinates of 
@@ -89,207 +79,300 @@
 spatial_distance <- function(
   stations,
   dem, 
-  depth = 0,
   topography = TRUE,
-  cpu,
+  cores = 1,
   dmap = TRUE,
   dstation = TRUE,
   aoi
 ) {
   
   ## PART 1 - calculate distance maps -----------------------------------------
-
-  ## check/set fraction of CPUs to use
-  if(missing(cpu) == TRUE) {
-    
-    cpu <- NA
-  }
   
-  ## detect and adjust number of cores to use
-  cores <- parallel::detectCores()
-
-  if(is.na(cpu) == FALSE) {
-    
-    n_cpu <- floor(cores * cpu)
-    cores <- ifelse(cores < n_cpu, cores, n_cpu)
-  } else {
-    
-    cores <- 1
-  }
-
-  ## aoi assignment
-  if(missing(aoi) == FALSE) {
-    
-    ## create AOI raster with NA values throughout
-    aoi_raster <- dem * NA
-    
-    ## get AOI coordinates
-    aoi_xy <- sp::coordinates(aoi_raster)
-    
-    
-    ## replace pixels in AOI by 1
-    raster::values(aoi_raster)[aoi_xy[,1] > aoi[1] & 
-                                 aoi_xy[,1] < aoi[2] & 
-                                 aoi_xy[,2] > aoi[3] & 
-                                 aoi_xy[,2] < aoi[4]] <- 1
-    
-    ## apply AOI raster to DEM
-    dem_aoi <- dem * aoi_raster
-  } else {
-    
-    dem_aoi <- dem
-  }
-  
-  ## extract dem coordinates and AOI fla
-  dem_xyz <- cbind(sp::coordinates(dem), 
-                   raster::values(dem),
-                   raster::values(dem_aoi))
-  
-  ## convert raster to SpatialPixelsDataFrame
-  dem_spdf <- as(object = dem, 
-                 Class = "SpatialPixelsDataFrame")
-  
-  ## get mean dem resolution
-  res_mean <- mean(raster::res(dem))
-  
-  ## extract elevation at station
-  station_z <- sp::over(
-    x = sp::SpatialPointsDataFrame(coords = cbind(stations[,1],
-                                                  stations[,2]), 
-                                   data = data.frame(id = 1:nrow(stations))),
-    y = dem_spdf)
-  
-  ## create station xyz coordinates
-  station_xyz <- cbind(stations, station_z)
-  colnames(station_xyz) <- c("x", "y", "z")
-  
-  ## create parameter list
-  pars <- list(res_mean = res_mean,
-               depth = depth,
-               topography = topography)
-
-  ## PART 2 - CALCULATE WAVE LENGTHS FOR EACH GRID CELL -----------------------
+  ## optionally calculate distance maps
   if(dmap == TRUE) {
     
-    ## print progress
-    print("Processing distance matrices")
-    
-    ## create output object
-    D_map <- vector(mode = "list", 
-                    length = nrow(stations))
-    
-    ## initiate cluster
-    cl <- parallel::makeCluster(getOption("mc.cores", cores))
-    
-    for(i in 1:length(D_map)) {
+    ## run in non-parallel mode
+    if(cores == 1) {
       
-      ## get station coordinates to process
-      station_xyz_i <- as.numeric(station_xyz[i,])
+      ## create output data set
+      maps <- vector(mode = "list", length = nrow(stations))
       
-      ## convert dem coordinates to list
-      dem_xyz_list <- as.list(as.data.frame(t(dem_xyz)))
+      ## convert DEM to SpatialGridDataFrame
+      dem <- methods::as(dem, "SpatialGridDataFrame")
       
-      ## calculate wave path lengths for each pixel
-      d <- parallel::parLapply(
-        cl = cl,
-        X = dem_xyz_list, 
-        fun = function(dem_xyz_list,
-                       dem_xyz,
-                       station_xyz_i,
-                       pars) {
+      ## get mean dem grid size
+      mean_cell_size <- mean(dem@grid@cellsize, na.rm = TRUE)
+      
+      ## convert xy-coordinates of stations to SpatialPoints
+      xy <- sp::SpatialPoints(coords = stations[,1:2], 
+                              proj4string = sp::CRS(raster::projection(dem)))
+      
+      ## optionally assign DEM z-value to stations
+      z <- as.numeric(sp::over(x = xy, y = dem)[,1])
+      
+      ## check/set aoi
+      if(missing(aoi) == TRUE) {
+        
+        map_coords <- sp::coordinates(obj = dem)
+        
+        aoi <- c(min(map_coords[,1]), 
+                 max(map_coords[,1]),
+                 min(map_coords[,2]), 
+                 max(map_coords[,2]))
+      }
+      
+      aoi_flag <- dem
+      aoi_flag@data <- aoi_flag@data * 0
+      aoi_xy <- sp::coordinates(aoi_flag)
+      aoi_flag@data[[1]][aoi_xy[,1] >= aoi[1] & aoi_xy[,1] <= aoi[2] &
+                           aoi_xy[,2] >= aoi[3] & aoi_xy[,2] <= aoi[4]] <- 1
+      
+      ## create preliminary output variables
+      map_i <- dem
+      
+      ## loop through all stations
+      for(i in 1:length(xy)) {
+        
+        ## print progress
+        print(paste("Processing station", i))
+        
+        ## calculate euclidian distances
+        dem_x <- sp::coordinates(dem)[,1]
+        dem_y <- sp::coordinates(dem)[,2]
+        
+        dx <- dem_x - sp::coordinates(xy)[i,1]
+        dy <- dem_y - sp::coordinates(xy)[i,2]
+        dt <- sqrt(dx^2 + dy^2)
+        
+        ## loop through all grid cells
+        for(j in 1:length(dt)) {
           
-          ## check if pixel to process is in AOI
-          if(sum(is.na(dem_xyz_list)) == 0) {
+          ## check aoi containment
+          if(aoi_flag@data[[1]][j] == 1) {
             
-            ## create line end points
-            xy_0 <- as.numeric(dem_xyz_list[-3])
-            xy_1 <- as.numeric(station_xyz_i[1:2])
+            ## calculate number of points to interpolate
+            n_i <- round(x = dt[j] / (0.1 * mean_cell_size), digits = 0)
             
-            ## calculate line length
-            l_line <- sqrt((xy_0[1] - xy_1[1])^2 + (xy_0[2] - xy_1[2])^2)
+            ## correct for zero points
+            n_i <- ifelse(n_i == 0, 1, n_i)
             
-            ## calculate number of nodes along which to interpolate
-            n_line <- as.numeric(ceiling(l_line / pars$res_mean))
+            ## create x-vector
+            x_i <- seq(from = sp::coordinates(xy)[i,1], 
+                       to = sp::coordinates(dem)[j,1],
+                       length.out = n_i)
             
-            ## account for legth zero
-            if(n_line < 2) {
+            ## create y-vector
+            y_i <- seq(from = sp::coordinates(xy)[i,2], 
+                       to = sp::coordinates(dem)[j,2],
+                       length.out = n_i)
+            
+            ## convert x and y vector to SpatialPoints coordinates
+            xy_i <- sp::SpatialPoints(
+              coords = cbind(x_i, y_i), 
+              proj4string = sp::CRS(raster::projection(dem)))
+            
+            ## interpolate xy by DEM
+            z_i <- sp::over(x = xy_i, y = dem)[,1]
+            
+            ## calculate direct line elevantion
+            z_d <- seq(from = z[i], 
+                       to = dem@data[[1]][j], 
+                       length.out = length(z_i))
+            
+            ## calculate difference of DEM to direct elevation change
+            d_e <- z_d - z_i
+            
+            ## calculate elevation path
+            if(topography == TRUE) {
               
-              n_line <- 2
+              z_e <- ifelse(d_e < 0, z_i, z_d)
+              
+            } else {
+              
+              z_e <- z_d
+              
             }
             
-            ## interpolate direct distance from pixel to station
-            z_direct <- seq(from = dem_xyz_list[3] - pars$depth, 
-                            to = station_xyz_i[3], 
-                            length.out = n_line)
+            ## calculate path length
+            l <- sqrt((x_i[length(x_i)] - x_i[1])^2 + 
+                        (y_i[length(x_i)] - y_i[1])^2 +
+                        sum(diff(z_e))^2)
             
-            ## calculate wave path height
-            z_line <- z_direct
-            
-            ## optionally, correct for topography effect
-            if(pars$topography == TRUE) {
-
-              ## calculate node coordinates
-              x_line <- seq(from = xy_0[1], 
-                            to = xy_1[1], 
-                            length.out = n_line)  
-              
-              y_line <- seq(from = xy_0[2], 
-                            to = xy_1[2], 
-                            length.out = n_line)  
-              
-              xy_line <- sp::SpatialPoints(coords = cbind(x_line, y_line))
-              
-              # ## extract elevation along line
-              z_surface <- sp::over(x = xy_line, 
-                                    y = dem_spdf)[,1] 
-              
-              ## get elevation values above surface
-              z_above <- z_direct > z_surface
-              
-              ## correct for topography
-              z_line[z_above == TRUE] <- z_surface[z_above]
-            }
-            
-            ## get absolute path length
-            xyz_length <- sqrt((x_line[n_line] - x_line[1])^2 +
-                                 (y_line[n_line] - y_line[1])^2 +
-                                 sum(diff(z_line))^2)
-            
+            ## assign topography-corrected distance to grid data set
+            map_i@data[[1]][j] <- l
           } else {
             
-            xyz_length <- NA
-            
+            map_i@data[[1]][j] <- NA
           }
+        }
+        maps[[i]] <- map_i
+      }
+      
+    } else {
+      ## run in parallel mode
+      
+      ## detect number of cores
+      n_cores <- parallel::detectCores()
+      n_cores <- ifelse(n_cores < cores, n_cores, cores)
+      
+      ## initiate cluster
+      cl <- parallel::makeCluster(getOption("mc.cores", n_cores))
+      
+      ## create output data set
+      maps <- vector(mode = "list", 
+                     length = nrow(stations))
+      
+      ## convert DEM to SpatialGridDataFrame
+      dem <- as(dem, "SpatialGridDataFrame")
+      
+      ## convert xy-coordinates of stations to SpatialPoints
+      xy <- sp::SpatialPoints(coords = stations[,1:2], 
+                              proj4string = sp::CRS(raster::projection(dem)))
+      
+      ## assign DEM z-value to stations
+      z <- as.numeric(sp::over(x = xy, y = dem)[,1])
+      
+      ## create preliminary output variables
+      map_i <- dem
+      
+      ## define parallel mode function
+      work_parallel <- function(x, dem) {
+        
+        ## extract input parameters from input string
+        x_sep <- strsplit(x = x, split = "__", fixed = TRUE)
+        
+        topo_option <- as.numeric(x_sep[[1]][1])
+        dt <- as.numeric(x_sep[[1]][2])
+        dem_cellsize <- as.numeric(x_sep[[1]][3])
+        dem_projection <- as.character(x_sep[[1]][4])
+        x_station <- as.numeric(x_sep[[1]][5])
+        y_station <- as.numeric(x_sep[[1]][6])
+        z_station <- as.numeric(x_sep[[1]][7])
+        x_dem <- as.numeric(x_sep[[1]][8])
+        y_dem <- as.numeric(x_sep[[1]][9])
+        z_dem <- as.numeric(x_sep[[1]][10])
+        
+        
+        ## calculate number of points to interpolate
+        n_i <- round(x = dt / (0.1 * dem_cellsize), 
+                     digits = 0)
+        
+        ## correct for zero points
+        n_i <- ifelse(n_i == 0, 1, n_i)
+        
+        ## create x-vector
+        x_i <- seq(from = x_station, 
+                   to = x_dem,
+                   length.out = n_i)
+        
+        ## create y-vector
+        y_i <- seq(from = y_station, 
+                   to = y_dem,
+                   length.out = n_i)
+        
+        ## convert x and y vector to SpatialPoints coordinates
+        xy_i <- sp::SpatialPoints(coords = cbind(x_i, y_i), 
+                                  proj4string = sp::CRS(dem_projection))
+        
+        ## interpolate xy by DEM
+        z_i <- sp::over(x = xy_i, y = dem)[,1]
+        
+        ## calculate direct line elevantion
+        z_d <- seq(from = z_station, 
+                   to = z_dem, 
+                   length.out = length(z_i))
+        
+        ## calculate difference of DEM to direct elevation change
+        d_e <- z_d - z_i
+        
+        ## calculate elevation path
+        if(topo_option == 1) {
           
-          ## return output
-          return(xyz_length)
+          z_e <- ifelse(d_e < 0, z_i, z_d)
           
-        }, dem_xyz, station_xyz_i, pars)
+        } else {
+          
+          z_e <- z_d
+          
+        }
+        
+        ## calculate path length
+        l <- sqrt((x_i[length(x_i)] - x_i[1])^2 + 
+                    (y_i[length(x_i)] - y_i[1])^2 +
+                    sum(diff(z_e))^2)
+        
+        ## return output
+        return(l)
+        
+      }
       
-      ## convert list to vector
-      d <- as.numeric(do.call(c, d))
+      ## loop through all stations
+      for(i in 1:length(xy)) {
+        
+        ## print progress
+        print(paste("Processing map for station", i))
+        
+        ## calculate euclidian distances
+        dx <- sp::coordinates(dem)[,1] - sp::coordinates(xy)[i,1]
+        dy <- sp::coordinates(dem)[,2] - sp::coordinates(xy)[i,2]
+        
+        ## assign input data for parallel helper function
+        n_data <- nrow(dem)
+        
+        topo_option <- rep(x = as.numeric(topography), 
+                           times = n_data)
+        dt <- sqrt(dx^2 + dy^2)
+        dem_cellsize <- rep(x = mean(dem@grid@cellsize, na.rm = TRUE), 
+                            times = n_data)
+        dem_projection <- rep(x = as.character(
+          sp::CRS(raster::projection(dem))), 
+          times = n_data)
+        
+        x_station <- rep(x = as.numeric(sp::coordinates(xy)[i,1]), 
+                         times = n_data)
+        y_station <- rep(x = as.numeric(sp::coordinates(xy)[i,2]), 
+                         times = n_data)
+        z_station <- rep(x = z[i],
+                         times = n_data)
+        
+        x_dem <- as.numeric(sp::coordinates(dem)[,1])
+        y_dem <- as.numeric(sp::coordinates(dem)[,2])
+        z_dem <- as.numeric(dem@data[[1]])
+        
+        input_parallel <- paste(topo_option,
+                                dt, 
+                                dem_cellsize,
+                                dem_projection,
+                                x_station,
+                                y_station,
+                                z_station,
+                                x_dem,
+                                y_dem,
+                                z_dem,
+                                sep = "__")
+        
+        
+        ## calculate distance data
+        l <- parallel::parLapply(cl, 
+                                 X = input_parallel, 
+                                 fun = work_parallel,
+                                 dem = dem)
+        
+        ## assign topography-corrected distance to grid data set
+        map_i@data[[1]] <- unlist(l)
+        
+        maps[[i]] <- map_i
+      }
       
-      ## create output object
-      D <- dem
-      
-      ## assign output values
-      raster::values(D) <- d
-      
-      ## assign distane map to output data set
-      D_map[[i]] <- as(D, "SpatialGridDataFrame")
-      
-      ## print progress
-      print(paste("  Map", i, "of", length(D_map), "done."))
+      ## stop cluster
+      parallel::stopCluster(cl)
     }
-    
-    ## stop cluster
-    parallel::stopCluster(cl = cl)
   } else {
     
-    D_map <- vector(mode = "list",
-                    length = nrow(stations))
+    maps <- vector(mode = "list", length = nrow(stations))
   }
-  
+
+
   ## PART 2 - calculate station distances -------------------------------------
   
   if(dstation == TRUE) {
@@ -303,67 +386,63 @@ spatial_distance <- function(
     rownames(distances) <- rownames(stations)
     colnames(distances) <- rownames(stations)
     
+    ## convert xy-coordinates of stations to SpatialPoints
+    xy <- sp::SpatialPoints(coords = stations[,1:2], 
+                            proj4string = sp::CRS(raster::projection(dem)))
+    
+    ## convert DEM to SpatialGridDataFrame
+    dem <- methods::as(dem, "SpatialGridDataFrame")
+    
     ## loop through all stations
-    for(i in 1:nrow(distances)) {
+    for(i in 1:length(xy)) {
+      
+      ## calculate euclidian xy-distances between stations
+      dx_stations <- sp::coordinates(xy)[,1] - sp::coordinates(xy)[i,1]
+      dy_stations <- sp::coordinates(xy)[,2] - sp::coordinates(xy)[i,2]
+      dt_stations <- sqrt(dx_stations^2 + dy_stations^2)
+      
+      ## assign DEM z-value to stations
+      z <- sp::over(x = xy, y = dem)
       
       ## loop through all stations
-      for(j in 1:ncol(distances)) {
+      for(j in 1:length(dt_stations)) {
         
-        ## create line end points
-        xy_0 <- as.numeric(station_xyz[i,1:2])
-        xy_1 <- as.numeric(station_xyz[j,1:2])
+        ## calculate number of points to interpolate
+        n_i <- round(x = dt_stations[j] / (0.1 * mean(
+          dem@grid@cellsize, na.rm = TRUE)), 
+          digits = 0)
         
-        ## calculate line length
-        l_line <- sqrt((xy_0[1] - xy_1[1])^2 + 
-                         (xy_0[2] - xy_1[2])^2)
+        ## correct for zero points
+        n_i <- ifelse(n_i == 0, 1, n_i)
         
-        ## calculate number of nodes along which to interpolate
-        n_line <- as.numeric(ceiling(l_line / pars$res_mean))
+        ## create x-vector
+        x_i <- seq(from = sp::coordinates(xy)[i,1], 
+                   to = sp::coordinates(xy)[j,1],
+                   length.out = n_i)
         
-        ## account for legth zero
-        if(n_line == 0) {
-          
-          n_line <- 1
-        }
+        ## create y-vector
+        y_i <- seq(from = sp::coordinates(xy)[i,2], 
+                   to = sp::coordinates(xy)[j,2],
+                   length.out = length(x_i))
         
-        ## interpolate direct distance from pixel to station
-        z_direct <- seq(from = station_xyz[i,3], 
-                        to = station_xyz[j,3], 
-                        length.out = n_line)
+        ## convert x and y vector to SpatialPoints coordinates
+        xy_i <- sp::SpatialPoints(coords = cbind(x_i, y_i), 
+                                  proj4string = sp::CRS(raster::projection(dem)))
         
-        ## calculate wave path height
-        z_line <- z_direct
+        ## interpolate xy by DEM
+        z_i <- as.numeric(unlist(sp::over(x = xy_i, y = dem)))
         
-        ## optionally, correct for topography effect
-        if(pars$topography == TRUE) {
-          
-          ## calculate node coordinates
-          x_line <- seq(from = xy_0[1], 
-                        to = xy_1[1], 
-                        length.out = n_line)  
-          
-          y_line <- seq(from = xy_0[2], 
-                        to = xy_1[2], 
-                        length.out = n_line)  
-          
-          xy_line <- sp::SpatialPoints(coords = cbind(x_line, y_line))
-          
-          # ## extract elevation along line
-          z_surface <- sp::over(x = xy_line, 
-                                y = dem_spdf)[,1] 
-          
-          ## get elevation values above surface
-          z_above <- z_direct > z_surface
-          
-          ## correct for topography
-          z_line[z_above == TRUE] <- z_surface[z_above]
-        }
+        ## calculate direct line elevantion
+        z_d <- seq(from = z[i,], to = z[j,], length.out = length(z_i))
         
-        ## get absolute path length
-        distances[i,j] <- sqrt((x_line[n_line] - x_line[1])^2 +
-                                 (y_line[n_line] - y_line[1])^2 +
-                                 sum(diff(z_line))^2)
+        ## calculate difference of DEm to direct elevation change
+        d_e <- z_d - z_i
         
+        ## calculate elevation path
+        z_e <- ifelse(d_e < 0, z_i, z_d)
+        
+        ## calculate path length and assign it to output data set
+        distances[i,j] <- sum(sqrt(diff(x_i)^2 + diff(y_i)^2 + diff(z_e)^2))
       }
     }
   } else {
@@ -373,8 +452,8 @@ spatial_distance <- function(
     rownames(distances) <- rownames(stations)
     colnames(distances) <- rownames(stations)
   }
-  
+
   ## return distance matrices
-  return(list(maps = D_map,
+  return(list(maps = maps,
               stations = distances))
 }
