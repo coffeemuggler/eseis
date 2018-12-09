@@ -183,7 +183,7 @@ read_mseed <- function(
   ## optionally assign header part
   if(header == TRUE) {
     
-    header_list <- data 
+    header_list <- data
     
     for(i in 1:length(header_list)) {
       
@@ -212,10 +212,10 @@ read_mseed <- function(
                         logger = NA,
                         starttime = data[[i]]@traces[[1]]@stats@starttime,
                         dt = data[[i]]@traces[[1]]@stats@delta,
-                        latitude = NA,
-                        longitude = NA,
-                        elevation = NA,
-                        depth = NA,
+                        latitude = data[[i]]@traces[[1]]@stats@latitude,
+                        longitude = data[[i]]@traces[[1]]@stats@longitude,
+                        elevation = data[[i]]@traces[[1]]@stats@elevation,
+                        depth = data[[i]]@traces[[1]]@stats@depth,
                         filename = data[[i]]@url,
                         type = eseis_arguments$type)
     }

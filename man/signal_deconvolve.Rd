@@ -4,15 +4,13 @@
 \alias{signal_deconvolve}
 \title{Deconvolve a signal vector.}
 \usage{
-signal_deconvolve(data, dt, sensor = "TC120s", logger = "Cube3extBOB",
-  gain = 1, p = 10^-6, waterlevel = 10^-6, na.replace = FALSE)
+signal_deconvolve(data, sensor = "TC120s", logger = "Cube3BOB", gain = 1,
+  use_metadata = FALSE, dt, p = 10^-6, waterlevel = 10^-6,
+  na.replace = FALSE)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
-
-\item{dt}{\code{Numeric} value, sampling rate. Only needed if \code{data} 
-is not an \code{eseis} object}
 
 \item{sensor}{\code{Character} value or \code{list} object, 
 seismic sensor name. Must be present in the sensor library 
@@ -25,6 +23,14 @@ added manually. Default is \code{"Cube3extBOB"}.}
 
 \item{gain}{\code{Numeric} value, signal gain level of the logger. Default 
 is \code{1}.}
+
+\item{use_metadata}{\code{Logical} value, option to take keywords for 
+\code{sensor}, \code{logger} and \code{gain} from eseis object meta data
+element instead of using explicitly provided arguments. Default is 
+\code{FALSE}.}
+
+\item{dt}{\code{Numeric} value, sampling rate. Only needed if \code{data} 
+is not an \code{eseis} object}
 
 \item{p}{\code{Numeric} value, proportion of signal to be tapered. Default
 is\code{10^-6}.}

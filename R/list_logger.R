@@ -19,7 +19,17 @@
 #' @export list_logger
 list_logger <- function(
 ) {
-  
+
+  ## define Cube3 parameters
+  Cube3 <- list(
+    ID = "Cube3",
+    name = "Cube 3",
+    manufacturer = "Digos",
+    type = "The greatest data logger in the world",
+    n_components = 3,
+    comment = "",
+    AD = 2.4414e-07)
+    
   ## define Cube3ext parameters
   Cube3ext <- list(
     ID = "Cube3ext",
@@ -30,7 +40,7 @@ list_logger <- function(
     comment = "",
     AD = 2.4414e-07)
   
-  ## define Cube3ext parameters
+  ## define Cube3ext with BOB parameters
   Cube3extBOB <- list(
     ID = "Cube3extBOB",
     name = "Cube 3ext with breakout box",
@@ -40,15 +50,25 @@ list_logger <- function(
     comment = "",
     AD = 2.4414e-06)
   
-  ## define Cube3ext parameters
+  ## define Cube3 with BOB parameters
+  Cube3BOB <- list(
+    ID = "Cube3BOB",
+    name = "Cube 3 with breakout box",
+    manufacturer = "Digos",
+    type = "The greatest data logger in the world",
+    n_components = 3,
+    comment = "",
+    AD = 2.4414e-06)
+  
+  ## define Centaur parameters
   Centaur <- list(
     ID = "Centaur",
     name = "Centaur",
     manufacturer = "Nanometrics",
     type = "NA",
     n_components = 3,
-    comment = "Important! SD is defined for 20 V. Change if needed.",
-    AD = 20/(2^24))
+    comment = "Important! AD value is defined for 40 Vpp.",
+    AD = 40/(2^24))
 
   ## define Cube3ext parameters
   Taurus <- list(
@@ -103,6 +123,8 @@ list_logger <- function(
   ## build sensor library
   loggers <- list("Cube3ext" = Cube3ext,
                   "Cube3extBOB" = Cube3extBOB,
+                  "Cube3" = Cube3,
+                  "Cube3BOB" = Cube3BOB,
                   "Centaur" = Centaur,
                   "Taurus" = Taurus,
                   "Osiris" = Osiris,

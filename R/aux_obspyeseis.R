@@ -26,6 +26,9 @@
 #' ## (requires ObsPy to be installed on the computer)
 #' obspy <- reticulate::import("obspy")
 #' 
+#' ## set seismic data directory
+#' dir_data <- paste0(system.file("extdata", package="eseis"), "/")
+#' 
 #' ## read miniseed file to stream object via ObsPy
 #' x <- obspy$read(pathname_or_url = "dir_data/2017/99/RUEG1.17.99.00.00.00.BHZ.SAC")
 #' 

@@ -165,11 +165,11 @@ write_sac <- function(
     component <- data$meta$component
     
     ## try to convert component to keyword
-    component <- c("p1", "p2", "p0")[match(x = component, 
-                                               table = c("BHE", 
-                                                         "BHN", 
-                                                         "BHZ"), 
-                                               nomatch = NA)]
+    # component <- c("p1", "p2", "p0")[match(x = component, 
+    #                                            table = c("BHE", 
+    #                                                      "BHN", 
+    #                                                      "BHZ"), 
+    #                                            nomatch = NA)]
     
     ## account for missing information
     if(is.na(component) == TRUE) {
@@ -200,6 +200,11 @@ write_sac <- function(
     
     ## sampling period 
     dt <- data$meta$dt
+    
+    ## extract instrument data
+    sensor <- data$meta$sensor
+    logger <- data$meta$logger
+    gain <- data$meta$gain
     
     ## start time
     start <- data$meta$starttime
@@ -342,6 +347,12 @@ write_sac <- function(
     sac_parameters$value[113] <- "XX"
     
     sac_parameters$value[114:129] <- rep(x = "-12345", times = 16)
+    
+    sac_parameters$value[127] <- sensor
+    
+    sac_parameters$value[128] <- logger
+    
+    sac_parameters$value[129] <- gain
     
     sac_parameters$value[130] <- component
     

@@ -148,8 +148,10 @@ write_mseed <- function(
     mseed_out$meta$logger <- "NA"
     mseed_out$meta$starttime <- start
     mseed_out$meta$dt <- dt
-    mseed_out$meta$latitude <- "NA"
-    mseed_out$meta$longitude <- "NA"
+    mseed_out$meta$latitude <- location[1]
+    mseed_out$meta$longitude <- location[2]
+    mseed_out$meta$elevation <- location[3]
+    mseed_out$meta$depth <- location[4]
     mseed_out$meta$filename <- "NA"
     mseed_out$meta$type <- "waveform"
     

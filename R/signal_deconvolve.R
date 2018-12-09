@@ -13,6 +13,11 @@
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
+#' @param use_metadata \code{Logical} value, option to take keywords for 
+#' \code{sensor}, \code{logger} and \code{gain} from eseis object meta data
+#' element instead of using explicitly provided arguments. Default is 
+#' \code{FALSE}.
+#' 
 #' @param dt \code{Numeric} value, sampling rate. Only needed if \code{data} 
 #' is not an \code{eseis} object
 #' 
@@ -84,10 +89,11 @@
 #' 
 signal_deconvolve <- function(
   data,
-  dt,
   sensor = "TC120s",
-  logger = "Cube3extBOB",
+  logger = "Cube3BOB",
   gain = 1,
+  use_metadata = FALSE,
+  dt,
   p = 10^-6,
   waterlevel = 10^-6,
   na.replace = FALSE
@@ -104,10 +110,11 @@ signal_deconvolve <- function(
     ## apply function to list
     data_out <- lapply(X = data, 
                        FUN = eseis::signal_deconvolve, 
-                       dt = dt,
                        sensor = sensor,
                        logger = logger,
                        gain = gain,
+                       use_metadata = use_metadata,
+                       dt = dt,
                        p = p,
                        waterlevel = waterlevel)
     
@@ -122,9 +129,15 @@ signal_deconvolve <- function(
     ## collect function arguments
     eseis_arguments <- list(data = "",
                             dt = dt,
-                            sensor = sensor,
-                            logger = logger,
-                            gain = gain,
+                            sensor = ifelse(test = use_metadata == TRUE,
+                                            yes = data$meta$sensor,
+                                            no = sensor),
+                            logger = ifelse(test = use_metadata == TRUE,
+                                            yes = data$meta$logger,
+                                            no = logger),
+                            gain = ifelse(test = use_metadata == TRUE,
+                                          yes = data$meta$gain,
+                                          no = gain),
                             p = p,
                             waterlevel = waterlevel)
     

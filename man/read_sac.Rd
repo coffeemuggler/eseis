@@ -5,8 +5,8 @@
 \title{Read sac files.}
 \usage{
 read_sac(file, append = TRUE, signal = TRUE, time = TRUE, meta = TRUE,
-  header = TRUE, eseis = TRUE, endianness = "little", biglong = FALSE,
-  type = "waveform")
+  header = TRUE, eseis = TRUE, get_instrumentdata = FALSE,
+  endianness = "little", biglong = FALSE, type = "waveform")
 }
 \arguments{
 \item{file}{\code{Character} vector, input file name(s), with extension.}
@@ -30,6 +30,10 @@ default is \code{TRUE}.}
 \item{eseis}{\code{Logical} value, option to read data to an \code{eseis}
 object (recommended, see documentation of 
 \code{aux_initiateeseis}), default is \code{TRUE}}
+
+\item{get_instrumentdata}{\code{Logical} value, option to fill meta 
+information (sensor name, logger name, logger gain) from SAC user fields 
+(field 127-129, KUSER0-KUSER2). Default is \code{FALSE}.}
 
 \item{endianness}{\code{Logical} value, endianness of the sac file. One
 out of \code{"little"}, \code{"big"} and \code{"swap"}. Default 
