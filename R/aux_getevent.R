@@ -136,9 +136,19 @@ aux_getevent <- function(
   stop <- start + duration
   
   ## create hour sequence
-  hours_seq <- seq(from = start, 
-                   to = stop, 
-                   by = 3600)
+  if(as.numeric(difftime(time1 = stop, 
+                         time2 = start, 
+                         units = "secs")) < 3600) {
+    
+    hours_seq <- seq(from = start, 
+                     to = stop + 3600, 
+                     by = 3600)
+  } else {
+    
+    hours_seq <- seq(from = start, 
+                     to = stop, 
+                     by = 3600)
+  }
   
   ## extract hour(s) for start and end
   hour <- format(x = hours_seq, 
