@@ -151,7 +151,17 @@ write_sac <- function(
     
     ## get first time entry
     start <- time[1]
-  } else {
+    
+    ## add sensor keyword
+    sensor <- -12345
+
+    ## add logger keyword
+    logger <- -12345
+    
+    ## add gain keyword
+    gain <- -12345
+    
+} else {
     
     ## extract meta information from eseis object
     
@@ -193,18 +203,44 @@ write_sac <- function(
     if(unit == "acceleration") {unit <- 5}
     
     ## location information
-    location <- c(data$meta$latitude,
-                  data$meta$longitude,
-                  data$meta$elevation,
-                  data$meta$depth)
+    location <- try(c(data$meta$latitude,
+                      data$meta$longitude,
+                      data$meta$elevation,
+                      data$meta$depth), silent = TRUE)
+    
+    ## account for missing location slot
+    if(class(location) == "try-error" | 
+       is.null(location) | 
+       length(location) != 4) {
+      
+      location <- rep(x = -12345, times = 4)
+    }
     
     ## sampling period 
     dt <- data$meta$dt
     
     ## extract instrument data
-    sensor <- data$meta$sensor
-    logger <- data$meta$logger
-    gain <- data$meta$gain
+    sensor <- try(data$meta$sensor, silent = TRUE)
+    logger <- try(data$meta$logger, silent = TRUE)
+    gain <- try(data$meta$gain, silent = TRUE)
+    
+    ## account for missing sensor data
+    if(class(sensor) == "try-error" | is.null(sensor)) {
+      
+      sensor <- -12345
+    }
+    
+    ## account for missing logger data
+    if(class(logger) == "try-error" | is.null(logger)) {
+      
+      logger <- -12345
+    }
+    
+    ## account for missing gain data
+    if(class(gain) == "try-error" | is.null(gain)) {
+      
+      gain <- -12345
+    }
     
     ## start time
     start <- data$meta$starttime
