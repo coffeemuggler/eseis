@@ -13,9 +13,6 @@
 #' parameters after function execution. Useful for adding further data to the 
 #' PSD plot. Default is \code{FALSE} (parameters are reset to original values).
 #' 
-#' @param col \code{Character} scalar, colour palette to use. Default is 
-#' \code{"gradient_1"}.
-#' 
 #' @param agg \code{Integer} vector of length two, factors of image 
 #' aggregation, i.e. in time and frequency dimension. Useful to decrease 
 #' image size. Default is \code{c(1, 1)} (no aggregation).
@@ -47,7 +44,7 @@
 #'                  main = "Power spectral density estimate", 
 #'                  legend = TRUE, 
 #'                  zlim = c(-220, -70),
-#'                  col = "rainbow")
+#'                  col = rainbow(100))
 #' 
 #'                      
 #' @export plot_spectrogram
@@ -55,7 +52,6 @@ plot_spectrogram <- function(
   data,
   legend = FALSE,
   keep_par = FALSE,
-  col = "gradient_1",
   agg = c(1, 1),
   ...
 ) {
@@ -64,19 +60,6 @@ plot_spectrogram <- function(
   if(class(data) == "eseis") {
     
     data <- data$PSD
-  }
-  
-  ## define colours
-  if(col == "gradient_1") {
-    
-    col <- colorRampPalette(colors = c("darkblue", 
-                                       "blue", 
-                                       "cyan", 
-                                       "lightgreen", 
-                                       "yellow", 
-                                       "red", 
-                                       "brown", 
-                                       "grey30"))
   }
   
   ## read additional plot arguments
@@ -156,6 +139,23 @@ plot_spectrogram <- function(
     format <- ""
   }
   
+  ## handle colour scheme
+  if ("col" %in% names(extraArgs)) {
+    col <- extraArgs$col
+  }
+  else {
+    
+      col <- colorRampPalette(colors = c("darkblue",
+                                         "blue",
+                                         "cyan",
+                                         "lightgreen",
+                                         "yellow",
+                                         "red",
+                                         "brown",
+                                         "grey30"))
+      col <- col(200)
+  }
+  
   ## remove keywords from plot arguments
   keywords <- c("main", 
                 "xlab", 
@@ -163,7 +163,8 @@ plot_spectrogram <- function(
                 "zlab",
                 "zlim", 
                 "format", 
-                "axes")
+                "axes",
+                "col")
   
   extraArgs <- extraArgs[!names(extraArgs)%in%keywords]
   
@@ -212,8 +213,7 @@ plot_spectrogram <- function(
             args = c(list(x = data$t[t_out], 
                           y = data$f[f_out], 
                           z = t(data$S[f_out, t_out]), 
-                          col = do.call(what = col, 
-                                        args = list(200)),
+                          col = col,
                           axes = FALSE,
                           main = main,
                           xlab = xlab,
@@ -262,8 +262,7 @@ plot_spectrogram <- function(
                           y = data$f[f_out], 
                           z = t(data$S[f_out, t_out]), 
                           axes = FALSE,
-                          col = do.call(what = col, 
-                                        args = list(200)),
+                          col = col,
                           main = main,
                           xlab = xlab,
                           ylab = ylab,
@@ -314,8 +313,7 @@ plot_spectrogram <- function(
       graphics::polygon(x = polygons[i,1:4], 
                         y = polygons[i,5:8], 
                         border = NA, 
-                        col = do.call(what = col, 
-                                      args = list(200))[i])
+                        col = col[i])
     }
     
     ## draw polygon around colour scale bar
