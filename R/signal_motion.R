@@ -35,7 +35,7 @@
 #' @param order \code{Character} value, order of the seismic components. 
 #' Describtion must contain the letters \code{"x"},\code{"y"} and
 #' \code{"z"} in the order according to the input data set. Default is 
-#' \code{"xyz"} (NS-EW-vertical).
+#' \code{"xyz"} (EW-NS-vertical).
 #' 
 #' @return A List object with eigenvalue ratios (\code{eigen}), 
 #' azimuth (\code{azimuth}) and inclination (\code{inclination}) as well

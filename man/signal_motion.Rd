@@ -33,7 +33,7 @@ size is set to 50 percent of the window size by default.}
 \item{order}{\code{Character} value, order of the seismic components. 
 Describtion must contain the letters \code{"x"},\code{"y"} and
 \code{"z"} in the order according to the input data set. Default is 
-\code{"xyz"} (NS-EW-vertical).}
+\code{"xyz"} (EW-NS-vertical).}
 }
 \value{
 A List object with eigenvalue ratios (\code{eigen}), 
