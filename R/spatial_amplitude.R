@@ -16,6 +16,12 @@
 #' @param d_map \code{List} object, distance maps for each station (i.e., 
 #' \code{SpatialGridDataFrame} objects). Output of \code{distance_map}.
 #' 
+#' @param aoi \code{SpatialGridDataFrame} or \code{raster} object that 
+#' defines which pixels are used to locate the source. If omitted, the entire 
+#' distance map extent is used. \code{aoi} and \code{d_map} objects must have
+#' the same extents, projections and pixel sizes. The \code{aoi} map must 
+#' be of logical values.
+#' 
 #' @param v \code{Numeric} value, mean velocity of seismic waves (m/s).
 #' 
 #' @param q \code{Numeric} value, quality factor of the ground.
@@ -55,6 +61,7 @@ spatial_amplitude <- function (
   data, 
   coupling,
   d_map, 
+  aoi,
   v,
   q, 
   f, 
@@ -82,18 +89,32 @@ spatial_amplitude <- function (
     
     a_0 <- 100 * max(a_d)
   }
-  
+
   ## convert distance data sets to matrix with distance values
   d <- do.call(cbind, lapply(X = d_map, 
                                   FUN = function(d_map) {d_map@data[,1]}))
+  
+  ## check if aoi is provided and create aoi index vector
+  if(missing(aoi) == FALSE) {
+    
+    px_ok <- aoi@data[,1]
+  } else {
+    
+    px_ok <- rep(1, nrow(d))
+  }
+  
+  d <- cbind(px_ok, d)
+  
+  ## convert distance data to list
   d <- as.list(as.data.frame(t(d)))
+  
   
   ## define amplitude function
   model_fun <- a_d ~ a_0 / sqrt(d) * exp(-((pi * f * d) / (q * v)))
   
   ## create model parameter list
   model_par <- list(a_d = a_d, 
-                    d = rep(NA, length(data)),
+                    d = rep(NA, length(a_d)),
                     f = f,
                     q = q,
                     v = v)
@@ -105,18 +126,28 @@ spatial_amplitude <- function (
   r <- 
     lapply(X = d, FUN = function(d, model_fun, model_par, model_start) {
       
-      model_par$d <- d
+      process <- d[1]
       
-      mod <- try(nls(formula = model_fun, 
-                     data = model_par,
-                     start = model_start))
-      
-      res <- try(sum(residuals(mod)^2))
-      
-      if(class(res) != "try-error") {
+      if(process == 1) {
         
-        return(res)
+        model_par$d <- d[-1]
+        
+        mod <- try(nls(formula = model_fun, 
+                       data = model_par,
+                       start = model_start))
+        
+        res <- try(sum(residuals(mod)^2))
+        
+        if(class(res) != "try-error") {
+          
+          return(res)
+        }
+      } else {
+        
+        return(NA)
       }
+      
+      
     }, model_fun, model_par, model_start)
   
   ## convert list to vector

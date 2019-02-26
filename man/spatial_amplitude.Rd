@@ -4,7 +4,7 @@
 \alias{spatial_amplitude}
 \title{Locate the source of a seismic event by modelling amplutide attenuation}
 \usage{
-spatial_amplitude(data, coupling, d_map, v, q, f, a_0, normalise = TRUE)
+spatial_amplitude(data, coupling, d_map, aoi, v, q, f, a_0, normalise = TRUE)
 }
 \arguments{
 \item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals 
@@ -18,6 +18,12 @@ to this one.}
 
 \item{d_map}{\code{List} object, distance maps for each station (i.e., 
 \code{SpatialGridDataFrame} objects). Output of \code{distance_map}.}
+
+\item{aoi}{\code{SpatialGridDataFrame} or \code{raster} object that 
+defines which pixels are used to locate the source. If omitted, the entire 
+distance map extent is used. \code{aoi} and \code{d_map} objects must have
+the same extents, projections and pixel sizes. The \code{aoi} map must 
+be of logical values.}
 
 \item{v}{\code{Numeric} value, mean velocity of seismic waves (m/s).}
 
