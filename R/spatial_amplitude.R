@@ -156,7 +156,8 @@ spatial_amplitude <- function (
   ## optionally normalise data
   if(normalise == TRUE) {
     
-    r <- (r - min(r)) / (max(r) - min(r))
+    r <- (r - min(r, na.rm = TRUE)) / 
+      (max(r, na.rm = TRUE) - min(r, na.rm = TRUE))
   }
   
   ## convert data structure to raster
