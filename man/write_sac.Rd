@@ -4,8 +4,8 @@
 \alias{write_sac}
 \title{Write seismic traces as sac file to disk.}
 \usage{
-write_sac(data, file, time, component, unit, station, location, network, dt,
-  autoname = FALSE, parameters, biglong = FALSE)
+write_sac(data, file, time, component, unit, station, location, network,
+  dt, autoname = FALSE, parameters, biglong = FALSE)
 }
 \arguments{
 \item{data}{\code{eseis} object or \code{numeric} vector, data set to 

@@ -4,8 +4,9 @@
 \alias{aux_nccprocess}
 \title{Analyse correlation data for relative velocity changes.}
 \usage{
-aux_nccprocess(data, master = "mean", normalise = TRUE, sides = "both",
-  range = 0.01, steps = 100, method = "r", reject = 0, ...)
+aux_nccprocess(data, master = "mean", normalise = TRUE,
+  sides = "both", range = 0.01, steps = 100, method = "r",
+  reject = 0, ...)
 }
 \arguments{
 \item{data}{\code{list} object, output of \code{aux_nccpreprocess},

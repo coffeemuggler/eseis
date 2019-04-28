@@ -4,9 +4,7 @@
 \name{rockfall}
 \alias{rockfall}
 \alias{rockfall_z}
-\alias{rockfall}
 \alias{rockfall_t}
-\alias{rockfall}
 \alias{rockfall_eseis}
 \title{Seismic trace of a rockfall event.}
 \format{The format is: num [1:98400] 65158 65176 65206 65194 65155 ...}

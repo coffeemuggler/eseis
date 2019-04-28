@@ -5,8 +5,9 @@
 \title{Generate spectrograms for seismic stations at different time periods}
 \usage{
 aux_psdsummary(station, component = "BHZ", period, output = c("daily",
-  "weekly", "monthly", "total"), input_dir, output_dir, aggregate = c(1, 5),
-  n_dates = 2000, jpg_dim = c(4444, 2500, 300, 90), verbose = FALSE, ...)
+  "weekly", "monthly", "total"), input_dir, output_dir, aggregate = c(1,
+  5), n_dates = 2000, jpg_dim = c(4444, 2500, 300, 90),
+  verbose = FALSE, ...)
 }
 \arguments{
 \item{station}{\code{Character} value, seismic station ID, which must

@@ -4,7 +4,6 @@
 \name{earthquake}
 \alias{earthquake}
 \alias{s}
-\alias{earthquake}
 \alias{t}
 \title{Seismic traces of a small earthquake}
 \format{The format is: 

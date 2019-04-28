@@ -4,7 +4,6 @@
 \name{eseis}
 \alias{eseis}
 \alias{eseis-package}
-\alias{eseis-package}
 \title{eseis: Environmental Seismology Toolbox}
 \description{
 Environmental seismoloy is a scientific field that studies the seismic 

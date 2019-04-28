@@ -2,49 +2,40 @@
 % Please edit documentation in R/signal_whiten.R
 \name{signal_whiten}
 \alias{signal_whiten}
-\title{Spectral whitening of a signal}
+\title{Perform spectral whitening of a signal vector}
 \usage{
-signal_whiten(data, fft = FALSE)
+signal_whiten(data, f, dt)
 }
 \arguments{
-\item{data}{\code{eseis} object, \code{numeric} vector or list of 
-objects, data set to be processed.}
+\item{data}{\code{eseis} object, or \code{complex} vector, data set to 
+be processed.}
 
-\item{fft}{\code{Logical} value, optin to run the function with an already 
-Fast Fourier transformed data set. Default is \code{FALSE}, i.e., a normal 
-time series is FFT processed, manipulated and back transformed.}
+\item{f}{\code{Numeric} vector of length two, frequency window within 
+which to normalise. If omitted, the entire bandwidth is normalised.}
+
+\item{dt}{\code{Numeric} value, sampling period. Only needed if the input 
+object is not an \code{eseis} object}
 }
 \value{
-\code{Numeric} vector or list of vectors, Spectrally whitened data 
-set.
+\code{Numeric} vector or eseis object, whitened signal vector.
 }
 \description{
-Thsi function performs spectral whitening of a signal. If the input signal 
-is not already a FFT vector (or Fast Fourier transformed \code{eseis} 
-object), i.e., \code{fft = TRUE} it is transformed and multiplied with a 
-Hanning window to avoid spectral leakage. The magnitude of the FFT signal 
-is set to 1 throughout and the pahse is extracted. Both vectors are 
-combined (magnitude times exponential values of imaginary phase). If 
-\code{fft == FALSE} the result is transformed back to the time domain and 
-returned.
-}
-\details{
-The function is a simplified version of the Matlab function whitening (see: 
-https://de.mathworks.com/matlabcentral/fileexchange/65345-spectral-whitening).
+The function normalises the input signal within a given frequency 
+window. If a time series is provided, it is converted to the spectral 
+domain, whitening is performed, and it is transformed back to the time 
+domain.
 }
 \examples{
 
-## load and detrend example data set
-data(rockfall)
-data <- signal_detrend(rockfall_eseis)
+## load example data set
+data("rockfall")
 
-## whiten data set
-data_whitened <- signal_whiten(data = data)
-
-## plot spectra of the two data sets
-par(mfcol = c(2, 1))
-plot_spectrum(signal_spectrum(data))
-plot_spectrum(signal_spectrum(data_whitened))
+## whiten data set between 10 and 30 Hz
+rockfall_2 <- signal_whiten(data = rockfall_eseis, 
+                            f = c(10, 30))
+                            
+## plot whitened data set
+plot(rockfall_2)
 
 }
 \author{

@@ -4,9 +4,9 @@
 \alias{aux_nccpreprocess}
 \title{Preprocess and correlate seismic signals for ambient noise cross correlation}
 \usage{
-aux_nccpreprocess(data, period, station, component, dir, window, overlap = 0,
-  window_sub, overlap_sub = 0, lag = 120, dt, deconvolve, taper = 0.01, f,
-  cut, sign, normalise, cpu, ...)
+aux_nccpreprocess(data, period, station, component, dir, window,
+  overlap = 0, window_sub, overlap_sub = 0, lag = 120, dt,
+  deconvolve, taper = 0.01, f, cut, sign, normalise, cpu, ...)
 }
 \arguments{
 \item{data}{\code{list} object of length two, containing two \code{eseis} 

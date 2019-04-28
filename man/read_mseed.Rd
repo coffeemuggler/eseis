@@ -4,8 +4,8 @@
 \alias{read_mseed}
 \title{Read mseed files.}
 \usage{
-read_mseed(file, append = TRUE, signal = TRUE, time = TRUE, meta = TRUE,
-  header = TRUE, eseis = TRUE, type = "waveform")
+read_mseed(file, append = TRUE, signal = TRUE, time = TRUE,
+  meta = TRUE, header = TRUE, eseis = TRUE, type = "waveform")
 }
 \arguments{
 \item{file}{\code{Character} vector, input file name(s), with extension.}

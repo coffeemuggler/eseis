@@ -4,8 +4,8 @@
 \alias{signal_filter}
 \title{Filter a seismic signal in the time or frequency domain}
 \usage{
-signal_filter(data, f, fft = FALSE, dt, type, shape = "butter", order = 2,
-  p = 0)
+signal_filter(data, f, fft = FALSE, dt, type, shape = "butter",
+  order = 2, p = 0)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 

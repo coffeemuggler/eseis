@@ -4,8 +4,9 @@
 \alias{aux_organisecentaurfiles}
 \title{Reorganise seismic files recorded by Nanometrics Centaur loggers}
 \usage{
-aux_organisecentaurfiles(stationfile, input_dir, output_dir, format = "sac",
-  channel_name = "bh", cpu, gipptools, file_key = "miniseed", network)
+aux_organisecentaurfiles(stationfile, input_dir, output_dir,
+  format = "sac", channel_name = "bh", cpu, gipptools,
+  file_key = "miniseed", network)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 

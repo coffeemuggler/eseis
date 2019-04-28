@@ -4,9 +4,10 @@
 \alias{read_sac}
 \title{Read sac files.}
 \usage{
-read_sac(file, append = TRUE, signal = TRUE, time = TRUE, meta = TRUE,
-  header = TRUE, eseis = TRUE, get_instrumentdata = FALSE,
-  endianness = "little", biglong = FALSE, type = "waveform")
+read_sac(file, append = TRUE, signal = TRUE, time = TRUE,
+  meta = TRUE, header = TRUE, eseis = TRUE,
+  get_instrumentdata = FALSE, endianness = "little", biglong = FALSE,
+  type = "waveform")
 }
 \arguments{
 \item{file}{\code{Character} vector, input file name(s), with extension.}

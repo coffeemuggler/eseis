@@ -1,26 +1,20 @@
-#' Spectral whitening of a signal
+#' Perform spectral whitening of a signal vector
 #' 
-#' Thsi function performs spectral whitening of a signal. If the input signal 
-#' is not already a FFT vector (or Fast Fourier transformed \code{eseis} 
-#' object), i.e., \code{fft = TRUE} it is transformed and multiplied with a 
-#' Hanning window to avoid spectral leakage. The magnitude of the FFT signal 
-#' is set to 1 throughout and the pahse is extracted. Both vectors are 
-#' combined (magnitude times exponential values of imaginary phase). If 
-#' \code{fft == FALSE} the result is transformed back to the time domain and 
-#' returned.
+#' The function normalises the input signal within a given frequency 
+#' window. If a time series is provided, it is converted to the spectral 
+#' domain, whitening is performed, and it is transformed back to the time 
+#' domain.
 #' 
-#' The function is a simplified version of the Matlab function whitening (see: 
-#' https://de.mathworks.com/matlabcentral/fileexchange/65345-spectral-whitening).
+#' @param data \code{eseis} object, or \code{complex} vector, data set to 
+#' be processed. 
 #' 
-#' @param data \code{eseis} object, \code{numeric} vector or list of 
-#' objects, data set to be processed.
+#' @param f \code{Numeric} vector of length two, frequency window within 
+#' which to normalise. If omitted, the entire bandwidth is normalised.
 #' 
-#' @param fft \code{Logical} value, optin to run the function with an already 
-#' Fast Fourier transformed data set. Default is \code{FALSE}, i.e., a normal 
-#' time series is FFT processed, manipulated and back transformed.
+#' @param dt \code{Numeric} value, sampling period. Only needed if the input 
+#' object is not an \code{eseis} object
 #' 
-#' @return \code{Numeric} vector or list of vectors, Spectrally whitened data 
-#' set.
+#' @return \code{Numeric} vector or eseis object, whitened signal vector.
 #' 
 #' @author Michael Dietze
 #' 
@@ -28,43 +22,65 @@
 #' 
 #' @examples
 #' 
-#' ## load and detrend example data set
-#' data(rockfall)
-#' data <- signal_detrend(rockfall_eseis)
+#' ## load example data set
+#' data("rockfall")
 #' 
-#' ## whiten data set
-#' data_whitened <- signal_whiten(data = data)
-#' 
-#' ## plot spectra of the two data sets
-#' par(mfcol = c(2, 1))
-#' plot_spectrum(signal_spectrum(data))
-#' plot_spectrum(signal_spectrum(data_whitened))
+#' ## whiten data set between 10 and 30 Hz
+#' rockfall_2 <- signal_whiten(data = rockfall_eseis, 
+#'                             f = c(10, 30))
+#'                             
+#' ## plot whitened data set
+#' plot(rockfall_2)
 #' 
 #' @export signal_whiten
 #' 
 signal_whiten <- function(
-  
-  data, 
-  fft = FALSE
+  data,
+  f,
+  dt
 ) {
+  
+  ## check/set dt
+  if(missing(dt) == TRUE && class(data) != "eseis") {
+    
+    if(class(data[[1]]) != "eseis") {
+      
+      warning("Sampling frequency missing! Set to 1/200")
+    }
+    
+    dt <- 1 / 200
+    
+  } else if(missing(dt) == TRUE){
+    
+    dt <- data$meta$dt
+  }
+  
+  ## check/set frequency window
+  if(missing(f) == TRUE) {
+    
+    f <- NA
+  }
   
   ## check data structure
   if(class(data) == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
-                       FUN = eseis::signal_whiten)
+                       FUN = eseis::signal_whiten,
+                       dt = dt,
+                       f = f)
     
     ## return output
     return(data_out)
-    
   } else {
     
     ## get start time
     eseis_t_0 <- Sys.time()
     
     ## collect function arguments
-    eseis_arguments <- list(data = "")
+    eseis_arguments <- list(data = "",
+                            dt = dt,
+                            f = f)
     
     ## check if input object is of class eseis
     if(class(data) == "eseis") {
@@ -78,49 +94,77 @@ signal_whiten <- function(
       ## extract signal vector
       data <- eseis_data$signal
       
+      ## extract number of samples
+      n <- eseis_data$meta$n
+      
+      ## extract data type
+      type <- eseis_data$meta$type
+      
     } else {
       
       ## set eseis flag
       eseis_class <- FALSE
+      
+      ## get number of samples
+      n <- length(data)
+      
+      ## set data type
+      type <- "spectrum"
     }
     
-    ## define Hanning window size
-    n_hanning <- eseis_data$meta$n - 1
-    
-    ## build Hanning window vector
-    hanning <- 0.5 - 0.5 * cos(2 * pi * (0:n_hanning) / n_hanning)
-    
-    ## if necessary FFT transform data set
-    if(fft == FALSE) {
+    ## optionally go to frequency domain
+    if(type == "waveform") {
       
-      data_fft <- fftw::FFT(data)
+      ## calculate FFT
+      data_fft <- fftw::FFT(x = data)
+      
     } else {
       
+      ## maintain data set
       data_fft <- data
     }
     
-    ## apply Hanning window
-    data_fft <- data_fft * hanning
-    
-    ## Set signal magnitude to one
-    magnitude <- rep(1, length(data_fft))
-    
-    ## get signal phase
-    phase <- Arg(data_fft)
-    
-    ## whiten signal
-    data_whitened <- magnitude * exp(complex(real = 0, 
-                                             imaginary = 1) * phase)
-    
-    ## optionally, back transform data set
-    if(fft == FALSE) {
+    ## calculate normalisation vector
+    if(is.na(f[1]) == TRUE) {
       
-      data_out <- Re(fftw::IFFT(data_whitened))
+      norm <- rep(1, times = n)
     } else {
       
-      data_out <- data_whitened
+      ## create frequency vector
+      f_data <- seq(from = 1/dt / length(data), 
+                    to = 1/dt, 
+                    by = 1/dt / length(data))
+      
+      ## get corner frequency boundaries
+      boundaries <- (1:length(f_data))[f_data >= f[1] & f_data <= f[2]]
+      boundaries <- c(boundaries[1], boundaries[length(boundaries)])
+      
+      ## calculate step size for rounding of corners
+      stepsize <- max(c(3, round(abs(boundaries[1] - boundaries[2]) / 100)))
+      
+      ## calculate sinusoidal corner smoother
+      smoother <- (sin(seq(from = -1, 
+                           to = 1, 
+                           by = 2 / (stepsize - 1)) * pi / 2) + 1) / 2
+      
+      ## initiate normalisation vector
+      norm <- rep(0, length(f_data))
+      
+      ## set valid frequency range to 1
+      norm[boundaries[1]:boundaries[2]] <- 1
+      
+      ## round corners
+      norm[(boundaries[1] - stepsize + 1):boundaries[1]] <- smoother
+      norm[boundaries[2]:(boundaries[2] + stepsize - 1)] <- rev(smoother)
+      norm <- norm + rev(norm)
     }
     
+    ## apply normalisation
+    data_norm <- data_fft / abs(data_fft) * norm
+    
+    ## go back to time domain
+    data_out <- Re(fftw::FFT(x = data_norm, 
+                             inverse = TRUE)) / length(f_data)
     
     ## optionally rebuild eseis object
     if(eseis_class == TRUE) {
@@ -146,7 +190,7 @@ signal_whiten <- function(
       data_out <- eseis_data
     }
     
-    ## return whitened data set
-    return(invisible(data_out)) 
+    ## return output
+    return(data_out) 
   }
 }

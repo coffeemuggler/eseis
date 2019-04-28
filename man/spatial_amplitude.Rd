@@ -4,7 +4,8 @@
 \alias{spatial_amplitude}
 \title{Locate the source of a seismic event by modelling amplutide attenuation}
 \usage{
-spatial_amplitude(data, coupling, d_map, aoi, v, q, f, a_0, normalise = TRUE)
+spatial_amplitude(data, coupling, d_map, aoi, v, q, f, a_0,
+  normalise = TRUE)
 }
 \arguments{
 \item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals 

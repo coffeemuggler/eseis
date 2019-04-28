@@ -4,9 +4,9 @@
 \alias{signal_deconvolve}
 \title{Deconvolve a signal vector.}
 \usage{
-signal_deconvolve(data, sensor = "TC120s", logger = "Cube3BOB", gain = 1,
-  use_metadata = FALSE, dt, p = 10^-6, waterlevel = 10^-6,
-  na.replace = FALSE)
+signal_deconvolve(data, sensor = "TC120s", logger = "Cube3BOB",
+  gain = 1, use_metadata = FALSE, dt, p = 10^-6,
+  waterlevel = 10^-6, na.replace = FALSE)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
