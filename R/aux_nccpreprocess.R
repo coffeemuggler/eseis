@@ -109,8 +109,8 @@
 #' @examples
 #' 
 #' ## preprocess data and calculate window-wise cross-correlation functions
-#' cc <- aux_nccpreprocess(period = as.POSIXct(x = c("2017-04-09 00:00:00",
-#'                                                   "2017-04-09 03:00:00"),
+#' cc <- ncc_preprocess(period = as.POSIXct(x = c("2017-04-09 00:00:00",
+#'                                                "2017-04-09 03:00:00"),
 #'                                             tz = "UTC"),
 #'                         station = c("RUEG1", "RUEG2"),
 #'                         component = c("BHZ", "BHZ"),
@@ -137,8 +137,8 @@
 #'       z = cc$correlation, 
 #'       col = cp(200))
 #'                      
-#' @export aux_nccpreprocess
-aux_nccpreprocess <- function(
+#' @export ncc_preprocess
+ncc_preprocess <- function(
   data,
   period,
   station,

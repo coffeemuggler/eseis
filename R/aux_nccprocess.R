@@ -55,7 +55,7 @@
 #' @examples
 #' 
 #' ## preprocess data and calculate window-wise cross-correlation functions
-#' cc <- aux_nccpreprocess(period = as.POSIXct(x = c("2017-04-09 00:00:00",
+#' cc <- ncc_preprocess(period = as.POSIXct(x = c("2017-04-09 00:00:00",
 #'                                                   "2017-04-09 03:00:00"),
 #'                                             tz = "UTC"),
 #'                         station = c("RUEG1", "RUEG2"),
@@ -75,15 +75,15 @@
 #'                         sign = TRUE)  
 #'                         
 #' ## calculate relative velocity change
-#' dv <- aux_nccprocess(data = cc)
+#' dv <- ncc_process(data = cc)
 #' 
 #' ## plot velocity change time series
 #' plot(x = cc$time, 
 #'      y = dv$mean, 
 #'      type = "l")
 #'                                                               
-#' @export aux_nccprocess
-aux_nccprocess <- function(
+#' @export ncc_process
+ncc_process <- function(
   data,
   master = "mean",
   normalise = TRUE,
