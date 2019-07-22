@@ -4,7 +4,7 @@
 \alias{fmi_inversion}
 \title{Invert fluvial data set based on reference spectra catalogue}
 \usage{
-fmi_inversion(reference, data)
+fmi_inversion(reference, data, n_cores = 1)
 }
 \arguments{
 \item{reference}{\code{List} containing lists with precalculated model 
@@ -13,6 +13,9 @@ spectra.}
 \item{data}{\code{eseis} object or \code{numeric} matrix (spectra organised
 by columns), empiric spectra which are used to identify the best matching 
 target parameters of the reference data set.}
+
+\item{n_cores}{\code{Numeric} value, number of CPU cores to use. Disabled 
+by setting to 1. Default is 1.}
 }
 \value{
 \code{List} object containing the inversion results.

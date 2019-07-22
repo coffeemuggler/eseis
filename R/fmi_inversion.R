@@ -15,6 +15,9 @@
 #' by columns), empiric spectra which are used to identify the best matching 
 #' target parameters of the reference data set.
 #' 
+#' @param n_cores \code{Numeric} value, number of CPU cores to use. Disabled 
+#' by setting to 1. Default is 1.
+#'  
 #' @return \code{List} object containing the inversion results.
 #' 
 #' @author Michael Dietze
@@ -118,7 +121,8 @@
 fmi_inversion <- function (
   
   reference,
-  data
+  data,
+  n_cores = 1
 ) {
   
   ## convert empiric data set to list
@@ -149,41 +153,96 @@ fmi_inversion <- function (
   reference_parameters <- as.data.frame(reference_parameters)
   
   ## run the inversion process
-  inversion <- lapply(X = psd_list, FUN = function(psd, reference) {
+  if(n_cores > 1) {
     
-    if(sum(is.na(psd)) == 0) {
-      
-      ## calculate differences to model spectra
-      d <- t(t(reference_spectra) - psd)
-  
-      ## calculate RMSE    
-      rmse <- sqrt(apply(X = d^2,
-                         MARGIN = 1, 
-                         FUN = mean))
-      
-      ## get minimum RMSE among reference spectra
-      rmse_min <- min(rmse)
-
-      ## find best model      
-      mod_best <- which(rmse == rmse_min)[1]
-      
-      ## get frequency-resolved RMSE for best model
-      rmse_f <- sqrt((reference_spectra[mod_best,] - psd)^2)
-      
-    } else {
-      
-      ## account for inevaluable data sets
-      mod_best <- NA
-      rmse_f <- rep(NA, length(psd))
-      rmse <- NA
-      rmse_min <- NA
-    }
+    ## detect number of CPU cores
+    n_cores_system <- parallel::detectCores()
+    n_cores <- ifelse(test = n_cores > n_cores_system, 
+                      yes = n_cores_system,
+                      no = n_cores)
     
-    ## return output
-    return(list(rmse_f = rmse_f,
-                rmse = rmse_min,
-                mod_best = mod_best))
-  }, reference)
+    ## initiate cluster
+    cl <- parallel::makeCluster(n_cores)
+    
+    ## invert the data set
+    inversion <- 
+      parallel::parLapply(cl = cl, X = psd_list, fun = function(psd, reference) {
+      
+      if(sum(is.na(psd)) == 0) {
+        
+        ## calculate differences to model spectra
+        d <- t(t(reference_spectra) - psd)
+        
+        ## calculate RMSE    
+        rmse <- sqrt(apply(X = d^2,
+                           MARGIN = 1, 
+                           FUN = mean))
+        
+        ## get minimum RMSE among reference spectra
+        rmse_min <- min(rmse)
+        
+        ## find best model      
+        mod_best <- which(rmse == rmse_min)[1]
+        
+        ## get frequency-resolved RMSE for best model
+        rmse_f <- sqrt((reference_spectra[mod_best,] - psd)^2)
+        
+      } else {
+        
+        ## account for inevaluable data sets
+        mod_best <- NA
+        rmse_f <- rep(NA, length(psd))
+        rmse <- NA
+        rmse_min <- NA
+      }
+      
+      ## return output
+      return(list(rmse_f = rmse_f,
+                  rmse = rmse_min,
+                  mod_best = mod_best))
+    }, reference)
+    
+    ## stop cluster
+    parallel::stopCluster(cl = cl)
+    
+  } else {
+    
+    inversion <- lapply(X = psd_list, FUN = function(psd, reference) {
+      
+      if(sum(is.na(psd)) == 0) {
+        
+        ## calculate differences to model spectra
+        d <- t(t(reference_spectra) - psd)
+        
+        ## calculate RMSE    
+        rmse <- sqrt(apply(X = d^2,
+                           MARGIN = 1, 
+                           FUN = mean))
+        
+        ## get minimum RMSE among reference spectra
+        rmse_min <- min(rmse)
+        
+        ## find best model      
+        mod_best <- which(rmse == rmse_min)[1]
+        
+        ## get frequency-resolved RMSE for best model
+        rmse_f <- sqrt((reference_spectra[mod_best,] - psd)^2)
+        
+      } else {
+        
+        ## account for inevaluable data sets
+        mod_best <- NA
+        rmse_f <- rep(NA, length(psd))
+        rmse <- NA
+        rmse_min <- NA
+      }
+      
+      ## return output
+      return(list(rmse_f = rmse_f,
+                  rmse = rmse_min,
+                  mod_best = mod_best))
+    }, reference)
+  }
   
   ## isolate index of best fit model
   model_best = as.numeric(unlist(lapply(inversion, FUN = function(x) {
