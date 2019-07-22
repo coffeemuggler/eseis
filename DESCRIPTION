@@ -30,6 +30,7 @@ Imports:
     methods,
     IRISSeismic,
     XML,
+    shiny,
     rmarkdown,
     reticulate, 
     Rcpp (>= 0.12.5)
