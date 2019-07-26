@@ -200,7 +200,7 @@ ncc_process <- function(
   ## generate stretching factors for time lag vector
   k <- exp(-stretchs)
   
-  ## taper reference trace and extend it to avoid interploation artefacts
+  ## taper reference trace and extend it to avoid interpolation artefacts
   n_add <- round(length(data_master) * 0.05, 0)
   
   data_master_taper <- signal_taper(data = data_master, 
@@ -250,7 +250,7 @@ ncc_process <- function(
 
   if(method == "r") {
     
-    ## calculare max R^2 between stretched master traces and data
+    ## calculate max R^2 between stretched master traces and data
     delta <- 
       lapply(X = data_norm_list, FUN = function(x, 
                                                 data_master_stretch,
@@ -301,7 +301,7 @@ ncc_process <- function(
   ## get mean delta
   delta_mean <- lapply(X = delta, FUN = function(delta, stretchs) {
     
-    mean(stretchs[delta], 
+    -mean(stretchs[delta], 
          na.rm = TRUE)
     
   }, stretchs)
