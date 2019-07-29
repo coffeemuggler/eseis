@@ -39,9 +39,9 @@
 #' @param reject \code{Numeric} value, rejection threshold for stretch values.
 #' This value defines up to which quantile matching stretch solutions will 
 #' be treated as valid solutions. Default is \code{0} (Only the minimum RMSE
-#' value or the maximum R^2 value is returned). A chane to \code{0.05} will 
-#' return mean and standard deviation of the five best percent of the 
-#' solutions.
+#' value or the maximum R^2 value is returned, and the returned standard 
+#' deviation will be NA). A change to \code{0.05} will return mean and 
+#' standard deviation of the five best percent of the solutions.
 #' 
 #' @param \dots Further arguments passed to the function.
 #' 
@@ -81,6 +81,46 @@
 #' plot(x = cc$time, 
 #'      y = dv$mean, 
 #'      type = "l")
+#'      
+#' ## EXAMPLE II - SYNTHETIC DATA SET INVERSION
+#' 
+#' ## create synthetic correlation function
+#' s_0 <- sin(x = seq(from = 0, to = 12 * pi, length.out = 200)) * 
+#'   dnorm(x = 1:200, mean = 100, sd = 20)
+#' 
+#' ## define stretch value sequence and arbitrary time vector
+#' e <- seq(from = 0, to = 0.05, length.out = 20)
+#' e <- sin(x = seq(from = 0, to = 4 * pi, length.out = length(s_0))) * 0.05
+#' t <- 1:length(s_0) - mean(1:length(s_0))
+#' t_2 <- seq( from = -1, to = 1, length.out = length(e))
+#' 
+#' ## create synthetic correlation matrix with shifting velocity
+#' S <- do.call(cbind, lapply(X = e, FUN = function(e, s_0, t) {
+#' 
+#'   spline(x = t, 
+#'          y = s_0, 
+#'          xout = t * (1 + e))$y
+#' }, s_0, t))
+#' 
+#' ## plot synthetic data set, velocity increases linearly by 5 %
+#' image(x = 1:length(e), y = t, z = t(S))
+#' 
+#' ## create suitable object structure for processing
+#' cc_2 <- list(time = 1:10,
+#'              lag = seq(-10, 10, length.out = length(e)),
+#'              correlation = t(S))
+#' 
+#' ## calculate dv/v
+#' dv <- eseis::ncc_process(data = cc_2, 
+#'                          range = 0.1,
+#'                          steps = 100,
+#'                          reject = 0.05)
+#' 
+#' ## plot results
+#' plot(dv$mean, type = "l")
+#' lines(dv$mean - dv$sd, col = "grey")
+#' lines(dv$mean + dv$sd, col = "grey")
+#' lines(e, col = 4)
 #'                                                               
 #' @export ncc_process
 ncc_process <- function(
@@ -203,8 +243,8 @@ ncc_process <- function(
   ## taper reference trace and extend it to avoid interpolation artefacts
   n_add <- round(length(data_master) * 0.05, 0)
   
-  data_master_taper <- signal_taper(data = data_master, 
-                                    p = 0.01)
+  data_master_taper <- eseis::signal_taper(data = data_master, 
+                                           p = 0.01)
   data_master_ext <- caTools::runmean(x = c(rep(NA, n_add), 
                                             data_master_taper, 
                                             rep(NA, n_add)), 
@@ -274,7 +314,7 @@ ncc_process <- function(
     
   } else if(method == "rmse") {
     
-    ## calculare RMS differences between stretched master traces and data
+    ## calculate RMS differences between stretched master traces and data
     delta <- 
       lapply(X = data_norm_list, FUN = function(x, 
                                                 data_master_stretch,
