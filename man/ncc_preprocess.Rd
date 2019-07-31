@@ -70,7 +70,9 @@ to avoid edge effects. Default is \code{0.01} (1 percent).}
 one or two. If of length one, the filter type must be specified, 
 additionally (\code{type = "HP"} or \code{type = "LP"}). Otherwise it is 
 assumed that the filter is a bandpass one (\code{type = "BP"}). See
-\code{signal_filter} for details. If not specified, no filtering is done.}
+\code{signal_filter} for details. If not specified, no filtering is done.
+Alternatively, a list of vectors, in which case the preprocessing is done 
+for all the list elements.}
 
 \item{cut}{\code{Numeric} value, option to cut the signal vectors above a 
 provided threshold denoting n times to standard deviations of the signals. 
@@ -92,7 +94,9 @@ processing. If omitted, one CPU is used.}
 A \code{list} object containing the stacked correlation results and 
 meta information. The element \code{correlation} contains a \code{matrix} 
 with correlation data organised in rows. The element \code{meta} holds the 
-respective meta information.
+respective meta information. If the argument \code{f} is provided as a list 
+of different filter frequencies, the output is organised as a list with 
+the corresponding cross correlation results by frequencies.
 }
 \description{
 The function processes snippets of two seismic signals to perform ambient

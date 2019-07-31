@@ -80,6 +80,8 @@
 #' additionally (\code{type = "HP"} or \code{type = "LP"}). Otherwise it is 
 #' assumed that the filter is a bandpass one (\code{type = "BP"}). See
 #' \code{signal_filter} for details. If not specified, no filtering is done.
+#' Alternatively, a list of vectors, in which case the preprocessing is done 
+#' for all the list elements.
 #' 
 #' @param cut \code{Numeric} value, option to cut the signal vectors above a 
 #' provided threshold denoting n times to standard deviations of the signals. 
@@ -100,7 +102,9 @@
 #' @return A \code{list} object containing the stacked correlation results and 
 #' meta information. The element \code{correlation} contains a \code{matrix} 
 #' with correlation data organised in rows. The element \code{meta} holds the 
-#' respective meta information.
+#' respective meta information. If the argument \code{f} is provided as a list 
+#' of different filter frequencies, the output is organised as a list with 
+#' the corresponding cross correlation results by frequencies.
 #' 
 #' @author Michael Dietze
 #' 
@@ -337,7 +341,13 @@ ncc_preprocess <- function(
   ## check/set filter frequency argument
   if(missing(f) == TRUE) {
     
-    f <- NA
+    f <- list(NA)
+  } else {
+    
+    if(class(f) != "list") {
+      
+      f <- list(f)
+    }
   }
   
   ## check/set cut argument
@@ -393,17 +403,22 @@ ncc_preprocess <- function(
   ## check/set filter type arguments
   if ("type" %in% names(args)) {
     
-    type <- args$type
+    type <- rep(args$type, length(f))
+    
   }
   else {
     
-    if(length(f) == 2) {
+    type <- vector(mode = "list", length = length(f))
+    for(i in 1:length(type)) {
       
-      type <- "BP"
-    } else {
-      
-      type <- NA
-      f <- NA
+      if(length(f[[i]]) == 2) {
+
+        type[[i]] <- "BP"
+      } else {
+        
+        type[[i]] <- NA
+        f[[i]] <- NA
+      }
     }
   }
   
@@ -469,6 +484,10 @@ ncc_preprocess <- function(
   window_sub_seq <- do.call(rbind, 
                             window_sub_seq)
   
+  ## extend argument list
+  arguments$window_seq <- window_seq
+  arguments$window_sub_seq <- window_sub_seq
+  
   ## convert data frame to list
   windows <- vector(mode = "list", 
                     length = nrow(window_sub_seq))
@@ -529,188 +548,244 @@ ncc_preprocess <- function(
       }
       
       ## return NA is data import was unsuccessful
-      if(class(s) == "try-error") {
+      if(class(s) != "try-error") {
         
-        return(list(corr_out = NA,
-                    dt_out = NA))
-      }
-      
-      ## get common dt of the two signals
-      if(arguments$dt_flag == FALSE) {
-
-        dt_common <- eseis::aux_commondt(data = s)
-        dt_out <- dt_common$dt
-        agg_out <- dt_common$agg
-
-        print(paste("Common sampling interval is", dt_out))
-      } else {
-
-        dt_common <- eseis::aux_commondt(data = s,
-                                         dt = arguments$dt)
-        dt_out <- dt_common$dt
-        agg_out <- dt_common$agg
-      }
-      
-      ## optionally, aggregate signals
-      if(sum(agg_out != 1) > 0) {
-        
-        s <- list(x = eseis::signal_aggregate(data = s[[1]],
-                                              n = agg_out[1]),
-                  y = eseis::signal_aggregate(data = s[[2]],
-                                              n = agg_out[2]))
-      }
-      
-      ## remove mean from signals
-      s <- eseis::signal_demean(data = s)
-      
-      ## detrend data
-      s <- eseis::signal_detrend(data = s)
-
-      ## optionally taper signals
-      if(arguments$taper > 0) {
-        
-        s <- eseis::signal_taper(data = s, 
-                                 p = arguments$taper)
-      }
-      
-      ## optionally filter signals
-      if(!is.na(arguments$f[1]) == TRUE) {
-        
-        s <- eseis::signal_filter(data = s, 
-                                  f = arguments$f,
-                                  type = arguments$type)
-      }
-      
-      ## optionally deconvolve signals
-      if(!is.na(arguments$deconvolve) == TRUE) {
-        
-        s <- eseis::signal_deconvolve(data = s, 
-                                      sensor = arguments$sensor, 
-                                      logger = arguments$logger, 
-                                      gain = arguments$gain)
-      }
-      
-      ## detrend data
-      s <- eseis::signal_detrend(data = s)
-      
-      ## optionally sd-cut signals
-      if(is.na(arguments$cut) == FALSE) {
-        
-        s <- eseis::signal_cut(data = s, 
-                               k = arguments$cut)
-      }
-      
-      ## optionally sign-cut signals
-      if(arguments$sign == TRUE) {
-
-        s$x$signal <- sign(s$x$signal)
-        s$y$signal <- sign(s$y$signal)
-      }
-      
-      ## get number of samples before padding
-      n_samples <- lapply(X = s, FUN = function(s) {
-        
-        s$meta$n
-      })
-      n_samples <- mean(unlist(n_samples))
-      
-      ## pad signals with zeros
-      s <- eseis::signal_pad(data = s)
-      
-      ## Fourier transform signals
-      s_fft <- lapply(X = s, FUN = function(s) {
-        
-        s$signal <- fftw::FFT(x = s$signal)
-        
-        return(s)
-      })
-      
-      ## calculate cross-correlation function
-      corr <- Conj(s_fft$x$signal) * s_fft$y$signal
-      corr <- Re(fftw::IFFT(x = corr)) / length(corr)
-      corr <- c(corr[(length(corr) - n_samples + 1):length(corr)], 
-                corr[1:(n_samples)])
-      
-      ## optionally normalise correlation function
-      if(arguments$normalise == TRUE) {
-        
-        e <- lapply(X = s_fft, FUN = function(s_fft) {
+        ## get common dt of the two signals
+        if(arguments$dt_flag == FALSE) {
           
-          Re(sqrt(mean(fftw::IFFT(s_fft$signal)^2)))
-        })
-        e <- prod(unlist(e))
+          dt_common <- eseis::aux_commondt(data = s)
+          dt_out <- dt_common$dt
+          agg_out <- dt_common$agg
+          
+          print(paste("Common sampling interval is", dt_out))
+        } else {
+          
+          dt_common <- eseis::aux_commondt(data = s,
+                                           dt = arguments$dt)
+          dt_out <- dt_common$dt
+          agg_out <- dt_common$agg
+        }
         
-        corr <- corr / e
+        ## optionally, aggregate signals
+        if(sum(agg_out != 1) > 0) {
+          
+          s <- list(x = eseis::signal_aggregate(data = s[[1]],
+                                                n = agg_out[1]),
+                    y = eseis::signal_aggregate(data = s[[2]],
+                                                n = agg_out[2]))
+        }
+        
+        ## remove mean from signals
+        s <- eseis::signal_demean(data = s)
+        
+        ## detrend data
+        s <- eseis::signal_detrend(data = s)
+        
+        ## optionally taper signals
+        if(arguments$taper > 0) {
+          
+          s <- eseis::signal_taper(data = s, 
+                                   p = arguments$taper)
+        }
+        
+        ## optionally deconvolve signals
+        if(!is.na(arguments$deconvolve) == TRUE) {
+          
+          s <- eseis::signal_deconvolve(data = s, 
+                                        sensor = arguments$sensor, 
+                                        logger = arguments$logger, 
+                                        gain = arguments$gain)
+        }
+        
+        ## detrend data
+        s <- eseis::signal_detrend(data = s)
+        
+        ## optionally filter signals
+        if(is.na(arguments$f[1]) == FALSE) {
+          
+          s <- 
+            lapply(X = 1:length(arguments$f), FUN = function(i, s, arguments) {
+              eseis::signal_filter(data = s, 
+                                   f = arguments$f[[i]],
+                                   type = arguments$type[[i]])
+            }, s, arguments)
+        } else {
+          
+          s <- list(s)
+        }
+        
+        s_list <- 
+          lapply(X = s, FUN = function(s, arguments, dt_out) {
+            
+            ## optionally sd-cut signals
+            if(is.na(arguments$cut) == FALSE) {
+              
+              s <- eseis::signal_cut(data = s, 
+                                     k = arguments$cut)
+            }
+            
+            ## optionally sign-cut signals
+            if(arguments$sign == TRUE) {
+              
+              s$x$signal <- sign(s$x$signal)
+              s$y$signal <- sign(s$y$signal)
+            }
+            
+            ## get number of samples before padding
+            n_samples <- lapply(X = s, FUN = function(s) {
+              
+              s$meta$n
+            })
+            n_samples <- mean(unlist(n_samples))
+            
+            ## pad signals with zeros
+            s <- eseis::signal_pad(data = s)
+            
+            ## Fourier transform signals
+            s_fft <- lapply(X = s, FUN = function(s) {
+              
+              s$signal <- fftw::FFT(x = s$signal)
+              
+              return(s)
+            })
+            
+            ## calculate cross-correlation function
+            corr <- Conj(s_fft$x$signal) * s_fft$y$signal
+            corr <- Re(fftw::IFFT(x = corr)) / length(corr)
+            corr <- c(corr[(length(corr) - n_samples + 1):length(corr)], 
+                      corr[1:(n_samples)])
+            
+            ## optionally normalise correlation function
+            if(arguments$normalise == TRUE) {
+              
+              e <- lapply(X = s_fft, FUN = function(s_fft) {
+                
+                Re(sqrt(mean(fftw::IFFT(s_fft$signal)^2)))
+              })
+              e <- prod(unlist(e))
+              
+              corr <- corr / e
+            }
+            
+            ## clip correlation function to lag time of interest
+            lag_samples <- arguments$lag * (1 / dt_out)
+            
+            i_lag <- abs(seq(from = -n_samples + 1, to = n_samples))
+            
+            corr_out <- corr[i_lag <= lag_samples]
+            
+            ## return output
+            return(list(corr_out = corr_out,
+                        dt_out = dt_out))
+            
+          }, arguments = arguments, dt_out = dt_out)
+      } else {
+        
+        s_list <- vector(mode = "list", length = length(arguments$f))
+        s_list[1:length(s_list)] <- list(list(corr_out = NA,
+                                         dt_out = NA))
+          
+          
       }
       
-      ## clip correlation function to lag time of interest
-      lag_samples <- arguments$lag * (1 / dt_out)
-      
-      i_lag <- abs(seq(from = -n_samples + 1, to = n_samples))
-      
-      corr_out <- corr[i_lag <= lag_samples]
-
       ## return output
-      return(list(corr_out = corr_out,
-                  dt_out = dt_out))
+      return(s_list)
       
     }, data = data, arguments = arguments)
   
   ## stop cluster
   parallel::stopCluster(cl = cl)
   
-  ## extract output sampling period
-  dt_out <- median(do.call(c, lapply(X = correlation, 
-                                     FUN = function(correlation) {
-                                       correlation$dt_out
-                                     })), na.rm = TRUE)
+  ## reorganise list by frequency
+  correlation_help <- vector(mode = "list", length = length(f))
   
-  ## get correlation data set lengths
-  n_out <- do.call(c, lapply(X = correlation, 
-                             FUN = function(correlation) {
-                               length(correlation$corr_out)
-                             }))
-  
-  ## get maximum length
-  n_out_max <- max(n_out, 
-                   na.rm = TRUE)
-  
-  ## extract correlation data
-  correlation <- 
-    do.call(rbind, lapply(X = correlation, FUN = function(correlation, 
-                                                          n_out_max) {
-      
-      if(length(correlation$corr_out) == n_out_max) {
-        
-        return(correlation$corr_out)
-      } else {
-        
-        return(rep(NA, n_out_max))
-      }
-      
-    }, n_out_max))
-  
-  ## stack data within sub windows
-  correlation_stack <- matrix(nrow = length(window_seq), 
-                              ncol = ncol(correlation))
-  
-  for(i in 1:nrow(correlation_stack)) {
+  for(i in 1:length(correlation_help)) {
     
-    correlation_stack[i,] <- 
-      colMeans(x = correlation[window_sub_seq[,1] == window_seq[i],], 
-               na.rm = TRUE)
+    correlation_help[[i]] <- lapply(X = correlation, FUN = function(x, i) {
+      
+      return(x[[i]])
+    }, i)
   }
   
-  ## create lag time vector
-  lag_t <- seq(from = 1, 
-               to = ncol(correlation_stack)) * 
-    dt_out - arguments$lag - dt_out
+  correlation <- correlation_help
+  rm(correlation_help)
   
-  ## create output
-  data_out <- list(time = window_seq,
-                   lag = lag_t,
-                   correlation = correlation_stack)
+  ## extract correlation data and stack results
+  correlation_stack <- lapply(X = correlation, FUN = function(x, arguments) {
+    
+    ## isolate correlation data
+    y <- lapply(X = x, FUN = function(y) {
+      
+      y[[1]]
+    })
+    
+    ## get sampling period
+    dt_out <- median(unlist(lapply(X = x, FUN = function(x) {
+      
+      x$dt_out
+    })), na.rm = TRUE)
+    
+    ## get maximum (i.e., expected) number of values
+    n_max <- max(unlist(lapply(X = y, FUN = length)), na.rm = TRUE)
+    
+    ## set deviating data to NA
+    z <- lapply(X = y, FUN = function(z, n_max) {
+      
+      if(length(z) != n_max) {z <- rep(NA, n_max)}
+      
+      return(z)
+    }, n_max)
+    
+    ## convert list to matrix
+    z <- do.call(rbind, z)
+    
+    ## creat stacked data set output object
+    z_stack <- matrix(nrow = length(arguments$window_seq), 
+                      ncol = n_max)
+    
+    ## stack data within sub windows
+    for(i in 1:nrow(z_stack)) {
+      
+      mean_col <- try(colMeans(x = z[arguments$window_sub_seq[,1] == 
+                                       arguments$window_seq[i],], 
+                               na.rm = TRUE))
+      
+      if(class(mean_col) == "try-error") {
+        
+        mean_col <- rep(NA, times = n_max)
+      }
+      
+      z_stack[i,] <- mean_col
+        
+    }
+    
+    ## create lag time vector
+    lag_t <- seq(from = 1, 
+                 to = n_max) * 
+      dt_out - arguments$lag - dt_out
+    
+    ## create output
+    data_out <- list(time = arguments$window_seq,
+                     lag = lag_t,
+                     correlation = z_stack)
+    
+    return(data_out)
+  }, arguments)
+  
+  ## assign list element names
+  ID_stack <- unlist(lapply(X = arguments$f, FUN = function(x) {
+    
+    paste(x, collapse = "-")
+  }))
+  
+  names(correlation_stack) <- ID_stack
+  
+  ## simplify structure if only one frequency window is given
+  if(length(correlation_stack) == 1) {
+    
+    correlation_stack <- correlation_stack[[1]]
+  }
   
   ## return output
-  return(data_out)
+  return(correlation_stack)
 }
