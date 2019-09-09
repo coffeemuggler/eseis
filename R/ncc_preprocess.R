@@ -551,7 +551,7 @@ ncc_preprocess <- function(
       if(class(s) != "try-error") {
         
         ## get common dt of the two signals
-        if(arguments$dt_flag == FALSE) {
+        try(if(arguments$dt_flag == FALSE) {
           
           dt_common <- eseis::aux_commondt(data = s)
           dt_out <- dt_common$dt
@@ -564,54 +564,55 @@ ncc_preprocess <- function(
                                            dt = arguments$dt)
           dt_out <- dt_common$dt
           agg_out <- dt_common$agg
-        }
+        })
         
         ## optionally, aggregate signals
-        if(sum(agg_out != 1) > 0) {
+        try(if(sum(agg_out != 1) > 0) {
           
           s <- list(x = eseis::signal_aggregate(data = s[[1]],
                                                 n = agg_out[1]),
                     y = eseis::signal_aggregate(data = s[[2]],
                                                 n = agg_out[2]))
-        }
+        })
         
         ## remove mean from signals
-        s <- eseis::signal_demean(data = s)
+        s <- try(eseis::signal_demean(data = s))
         
         ## detrend data
-        s <- eseis::signal_detrend(data = s)
+        s <- try(eseis::signal_detrend(data = s))
         
         ## optionally taper signals
         if(arguments$taper > 0) {
           
-          s <- eseis::signal_taper(data = s, 
-                                   p = arguments$taper)
+          s <- try(eseis::signal_taper(data = s, 
+                                   p = arguments$taper))
         }
         
         ## optionally deconvolve signals
         if(!is.na(arguments$deconvolve) == TRUE) {
           
-          s <- eseis::signal_deconvolve(data = s, 
+          s <- try(eseis::signal_deconvolve(data = s, 
                                         sensor = arguments$sensor, 
                                         logger = arguments$logger, 
-                                        gain = arguments$gain)
+                                        gain = arguments$gain))
         }
         
         ## detrend data
-        s <- eseis::signal_detrend(data = s)
+        s <- try(eseis::signal_detrend(data = s))
         
         ## optionally filter signals
         if(is.na(arguments$f[1]) == FALSE) {
           
-          s <- 
+          s <- try(
             lapply(X = 1:length(arguments$f), FUN = function(i, s, arguments) {
               eseis::signal_filter(data = s, 
                                    f = arguments$f[[i]],
                                    type = arguments$type[[i]])
-            }, s, arguments)
+            }, s, arguments))
+          
         } else {
           
-          s <- list(s)
+          s <- try(list(s))
         }
         
         s_list <- 
@@ -620,63 +621,71 @@ ncc_preprocess <- function(
             ## optionally sd-cut signals
             if(is.na(arguments$cut) == FALSE) {
               
-              s <- eseis::signal_cut(data = s, 
-                                     k = arguments$cut)
+              s <- try(eseis::signal_cut(data = s, 
+                                     k = arguments$cut))
             }
             
             ## optionally sign-cut signals
             if(arguments$sign == TRUE) {
               
-              s$x$signal <- sign(s$x$signal)
-              s$y$signal <- sign(s$y$signal)
+              s$x$signal <- try(sign(s$x$signal))
+              s$y$signal <- try(sign(s$y$signal))
             }
             
             ## get number of samples before padding
-            n_samples <- lapply(X = s, FUN = function(s) {
+            n_samples <- try(lapply(X = s, FUN = function(s) {
               
               s$meta$n
-            })
-            n_samples <- mean(unlist(n_samples))
+            }))
+            n_samples <- try(mean(unlist(n_samples)))
             
             ## pad signals with zeros
-            s <- eseis::signal_pad(data = s)
+            s <- try(eseis::signal_pad(data = s))
             
             ## Fourier transform signals
-            s_fft <- lapply(X = s, FUN = function(s) {
+            s_fft <- try(lapply(X = s, FUN = function(s) {
               
               s$signal <- fftw::FFT(x = s$signal)
               
               return(s)
-            })
+            }))
             
             ## calculate cross-correlation function
-            corr <- Conj(s_fft$x$signal) * s_fft$y$signal
-            corr <- Re(fftw::IFFT(x = corr)) / length(corr)
-            corr <- c(corr[(length(corr) - n_samples + 1):length(corr)], 
-                      corr[1:(n_samples)])
+            corr <- try(Conj(s_fft$x$signal) * s_fft$y$signal)
+            corr <- try(Re(fftw::IFFT(x = corr)) / length(corr))
+            corr <- try(c(corr[(length(corr) - n_samples + 1):length(corr)], 
+                      corr[1:(n_samples)]))
             
             ## optionally normalise correlation function
             if(arguments$normalise == TRUE) {
               
-              e <- lapply(X = s_fft, FUN = function(s_fft) {
+              e <- try(lapply(X = s_fft, FUN = function(s_fft) {
                 
                 Re(sqrt(mean(fftw::IFFT(s_fft$signal)^2)))
-              })
-              e <- prod(unlist(e))
+              }))
+              e <- try(prod(unlist(e)))
               
-              corr <- corr / e
+              corr <- try(corr / e)
             }
             
             ## clip correlation function to lag time of interest
-            lag_samples <- arguments$lag * (1 / dt_out)
+            lag_samples <- try(arguments$lag * (1 / dt_out))
             
-            i_lag <- abs(seq(from = -n_samples + 1, to = n_samples))
+            i_lag <- try(abs(seq(from = -n_samples + 1, to = n_samples)))
             
-            corr_out <- corr[i_lag <= lag_samples]
+            corr_out <- try(corr[i_lag <= lag_samples])
             
             ## return output
-            return(list(corr_out = corr_out,
-                        dt_out = dt_out))
+            if(class(corr_out) != "try-error" & 
+               class(dt_out) != "try-error") {
+
+              return(list(corr_out = corr_out,
+                          dt_out = dt_out))
+            } else {
+             
+              return(list(corr_out = NA,
+                          dt_out = NA))
+            }
             
           }, arguments = arguments, dt_out = dt_out)
       } else {
@@ -684,8 +693,6 @@ ncc_preprocess <- function(
         s_list <- vector(mode = "list", length = length(arguments$f))
         s_list[1:length(s_list)] <- list(list(corr_out = NA,
                                          dt_out = NA))
-          
-          
       }
       
       ## return output
@@ -714,10 +721,10 @@ ncc_preprocess <- function(
   correlation_stack <- lapply(X = correlation, FUN = function(x, arguments) {
     
     ## isolate correlation data
-    y <- lapply(X = x, FUN = function(y) {
+    y <- try(lapply(X = x, FUN = function(y) {
       
       y[[1]]
-    })
+    }))
     
     ## get sampling period
     dt_out <- median(unlist(lapply(X = x, FUN = function(x) {
