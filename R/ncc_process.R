@@ -284,7 +284,7 @@ ncc_process <- function(
   ## remove extended parts
   data_master_stretch <- data_master_stretch[,-(1:n_add)]
   data_master_stretch <- data_master_stretch[,1:ncol(data_norm)]
-  
+
   ## convert input data row-wise to list
   data_norm_list <- as.list(as.data.frame(t(data_norm)))
 
@@ -308,7 +308,8 @@ ncc_process <- function(
                                                    probs = 1 - reject, 
                                                    na.rm = TRUE)]
         
-        return(i_get)
+        return(list(i_get = i_get,
+                    r_all = r))
         
     }, data_master_stretch, reject)
     
@@ -333,15 +334,31 @@ ncc_process <- function(
                                                          probs = reject, 
                                                          na.rm = TRUE)]
         
-        return(i_get)
+        return(list(i_get = i_get,
+                    r_all = r))
         
     }, data_master_stretch, reject)
   }
   
-  ## get mean delta
-  delta_mean <- lapply(X = delta, FUN = function(delta, stretchs) {
+  ## separate outputs
+  delta_r <- lapply(X = delta, FUN = function(x) {
     
-    -mean(stretchs[delta], 
+    x$r_all
+  })
+  
+  delta_max <- lapply(X = delta, FUN = function(x) {
+    
+    x$i_get
+  })
+  
+  ## convert correlation coefficients to matrix
+  delta_r <- do.call(cbind, delta_r)
+  delta_r <- delta_r[nrow(delta_r):1,]
+  
+  ## get mean delta
+  delta_mean <- lapply(X = delta_max, FUN = function(delta_max, stretchs) {
+    
+    -mean(stretchs[delta_max], 
          na.rm = TRUE)
     
   }, stretchs)
@@ -349,9 +366,9 @@ ncc_process <- function(
   delta_mean <- do.call(c, delta_mean)
   
   ## get mean delta
-  delta_sd <- lapply(X = delta, FUN = function(delta, stretchs) {
+  delta_sd <- lapply(X = delta_max, FUN = function(delta_max, stretchs) {
     
-    sd(stretchs[delta], 
+    sd(stretchs[delta_max], 
        na.rm = TRUE)
     
   }, stretchs)
@@ -359,6 +376,11 @@ ncc_process <- function(
   delta_sd <- do.call(c, delta_sd)
   
   ## return output
-  return(data.frame(mean = delta_mean,
-                    sd = delta_sd))
+  return(list(mean = delta_mean,
+              sd = delta_sd,
+              r = list(t = seq(from = min(data$time), 
+                               to = max(data$time),
+                               length.out = ncol(delta_r)),
+                       dv = stretchs,
+                       r = delta_r)))
 }
