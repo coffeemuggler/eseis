@@ -335,7 +335,7 @@ ncc_process <- function(
                                                          na.rm = TRUE)]
         
         return(list(i_get = i_get,
-                    r_all = r))
+                    r_all = diff))
         
     }, data_master_stretch, reject)
   }
