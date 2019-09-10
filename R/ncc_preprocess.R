@@ -628,8 +628,8 @@ ncc_preprocess <- function(
             ## optionally sign-cut signals
             if(arguments$sign == TRUE) {
               
-              s$x$signal <- try(sign(s$x$signal))
-              s$y$signal <- try(sign(s$y$signal))
+              try(s$x$signal <- sign(s$x$signal))
+              try(s$y$signal <- sign(s$y$signal))
             }
             
             ## get number of samples before padding
