@@ -5,7 +5,7 @@
 \title{Load seismic data of a user-defined event}
 \usage{
 aux_getevent(start, duration, station, component = "BHZ",
-  format = "sac", dir, simplify = TRUE, eseis = TRUE)
+  format = "sac", dir, simplify = TRUE, eseis = TRUE, try = FALSE)
 }
 \arguments{
 \item{start}{\code{POSIXct} value, start time of the data to import.}
@@ -35,6 +35,10 @@ is loaded, the list object will have one level less. Default is
 \item{eseis}{\code{Logical} value, option to read data to an \code{eseis}
 object (recommended, see documentation of 
 \code{aux_initiateeseis}), default is \code{TRUE}}
+
+\item{try}{\code{Logical} value, option to run the fuction in try-mode, 
+i.e., to let it return \code{NA} in case an error occurs during data
+import. Default is \code{FALSE}.}
 }
 \value{
 A \code{list} object containing either a set of \code{eseis}

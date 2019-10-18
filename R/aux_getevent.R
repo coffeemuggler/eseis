@@ -38,6 +38,10 @@
 #' object (recommended, see documentation of 
 #' \code{aux_initiateeseis}), default is \code{TRUE}
 #' 
+#' @param try \code{Logical} value, option to run the fuction in try-mode, 
+#' i.e., to let it return \code{NA} in case an error occurs during data
+#' import. Default is \code{FALSE}.
+#' 
 #' @return A \code{list} object containing either a set of \code{eseis}
 #' objects or a data set with the time vector (\code{$time}) 
 #' and a list of seismic stations (\code{$station_ID}) with their seismic
@@ -89,11 +93,12 @@ aux_getevent <- function(
   format = "sac",
   dir,
   simplify = TRUE,
-  eseis = TRUE
+  eseis = TRUE,
+  try = FALSE
 ) {
   
   ## check/set arguments ------------------------------------------------------
-  
+
   ## check start time format
   if(class(start)[1] != "POSIXct") {
     
@@ -105,7 +110,7 @@ aux_getevent <- function(
     
     dir <- ""
   }
-  
+
   ## get system time zone
   tz_system <- Sys.timezone()
   
@@ -215,83 +220,189 @@ aux_getevent <- function(
   ## process files station-wise
   for(i in 1:length(data)) {
     
-    data[[i]] <- as.data.frame(do.call(cbind, lapply(
-      X = component, 
-      FUN = function(x, files_station, i, format, start, stop) {
-        
-        ## isolate component of interest
-        files_cmp <- files_station[[i]]
-        files_cmp <- files_cmp[grepl(x = files_cmp, 
-                                     pattern = x)]
-        
-        ## import files based on specified format
-        if(format == "sac") {
+    if(try == TRUE) {
+      
+      data[[i]] <- try(as.data.frame(do.call(cbind, lapply(
+        X = component, 
+        FUN = function(x, files_station, i, format, start, stop) {
           
-          x <- eseis::read_sac(file = files_cmp, 
-                               eseis = TRUE,
-                               append = TRUE)
-        } else if(format == "mseed") {
+          ## isolate component of interest
+          files_cmp <- files_station[[i]]
+          files_cmp <- files_cmp[grepl(x = files_cmp, 
+                                       pattern = x)]
           
-          x <- eseis::read_mseed(file = files_cmp, 
+          ## import files based on specified format
+          if(format == "sac") {
+            
+            x <- eseis::read_sac(file = files_cmp, 
                                  eseis = TRUE,
                                  append = TRUE)
-        }
+          } else if(format == "mseed") {
+            
+            x <- eseis::read_mseed(file = files_cmp, 
+                                   eseis = TRUE,
+                                   append = TRUE)
+          }
+          
+          ## clip signal at start and end time
+          x <- eseis::signal_clip(data = x, 
+                                  limits = c(start, stop))
+          
+          ## return processed seismic signal
+          return(x)
+        }, 
+        files_station = files_station,
+        i = i,
+        format = format,
+        start = start,
+        stop = stop))))
         
-        ## clip signal at start and end time
-        x <- eseis::signal_clip(data = x, 
-                                limits = c(start, stop))
-
-        ## return processed seismic signal
-        return(x)
-      }, 
-      files_station = files_station,
-      i = i,
-      format = format,
-      start = start,
-      stop = stop)))
-    
-    names(data[[i]]) <- component
-    
-    for(j in 1:length(data[[i]])) {
+        try(names(data[[i]]) <- component)
+        
+        try(for(j in 1:length(data[[i]])) {
+          
+          class(data[[i]][[j]]) <- "eseis"
+        })
+    } else {
       
-      class(data[[i]][[j]]) <- "eseis"
+      data[[i]] <- as.data.frame(do.call(cbind, lapply(
+        X = component, 
+        FUN = function(x, files_station, i, format, start, stop) {
+          
+          ## isolate component of interest
+          files_cmp <- files_station[[i]]
+          files_cmp <- files_cmp[grepl(x = files_cmp, 
+                                       pattern = x)]
+          
+          ## import files based on specified format
+          if(format == "sac") {
+            
+            x <- eseis::read_sac(file = files_cmp, 
+                                 eseis = TRUE,
+                                 append = TRUE)
+          } else if(format == "mseed") {
+            
+            x <- eseis::read_mseed(file = files_cmp, 
+                                   eseis = TRUE,
+                                   append = TRUE)
+          }
+          
+          ## clip signal at start and end time
+          x <- eseis::signal_clip(data = x, 
+                                  limits = c(start, stop))
+          
+          ## return processed seismic signal
+          return(x)
+        }, 
+        files_station = files_station,
+        i = i,
+        format = format,
+        start = start,
+        stop = stop)))
+      
+      names(data[[i]]) <- component
+      
+      for(j in 1:length(data[[i]])) {
+        
+        class(data[[i]][[j]]) <- "eseis"
+      }
     }
   }
   
   ## Data cleaning and output section -----------------------------------------
-  
+
   ## optionally convert data structures
-  if(eseis == FALSE) {
+  if(try == TRUE) {
     
-    ## generate time vector
-    time <- seq(from = data[[1]][[1]]$meta$starttime, 
-                by = data[[1]][[1]]$meta$dt, 
-                length.out = data[[1]][[1]]$meta$n)
-    
-    ## extract signal vectors
-    for(i in 1:length(data)) {
+    if(eseis == FALSE) {
       
-      data[[i]] <- lapply(X = data[[i]], FUN = function(X) {
+      ## generate time vector
+      time <- try(seq(from = data[[1]][[1]]$meta$starttime, 
+                  by = data[[1]][[1]]$meta$dt, 
+                  length.out = data[[1]][[1]]$meta$n))
+      
+      if(class(time) == "try-error") {
         
-        X$signal
-      })
+        time <- NA
+      }
+      
+      ## extract signal vectors
+      for(i in 1:length(data)) {
+        
+        data[[i]] <- try(lapply(X = data[[i]], FUN = function(X) {
+          
+          X$signal
+        }))
+        
+        ## assign names to vectors
+        try(names(data[[i]]) <- component[i])
+        
+        ## account for try-errors
+        if(class(data[[i]]) == "try-error") {
+          
+          data <- NA
+        }
+      }
       
       ## assign names to vectors
-      names(data[[i]]) <- component[i]
-    }
-    
-    ## assign names to vectors
-    names(data) <- station
+      try(names(data) <- station)
+      
+      ## create output data set
+      data_out <- list(time = time, 
+                       signal = data)
+      
+    } else {
 
-    ## create output data set
-    data_out <- list(time = time, 
-                     signal = data)
-    
+      names(data) <- station
+      
+      ## account for try-errors
+      data <- lapply(X = data, FUN = function(data) {
+        
+        if(class(data) == "try-error") {
+          
+          return(NA)
+        } else {
+          
+          return(data)
+        }
+      })
+      
+      data_out <- data
+    }
   } else {
     
-    names(data) <- station
-    
-    data_out <- data
+    if(eseis == FALSE) {
+      
+      ## generate time vector
+      time <- seq(from = data[[1]][[1]]$meta$starttime, 
+                  by = data[[1]][[1]]$meta$dt, 
+                  length.out = data[[1]][[1]]$meta$n)
+      
+      ## extract signal vectors
+      for(i in 1:length(data)) {
+        
+        data[[i]] <- lapply(X = data[[i]], FUN = function(X) {
+          
+          X$signal
+        })
+        
+        ## assign names to vectors
+        names(data[[i]]) <- component[i]
+      }
+      
+      ## assign names to vectors
+      names(data) <- station
+      
+      ## create output data set
+      data_out <- list(time = time, 
+                       signal = data)
+      
+    } else {
+      
+      names(data) <- station
+      
+      data_out <- data
+    }    
   }
   
   ## optionally simplify data structure
