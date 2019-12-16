@@ -1,13 +1,13 @@
 #' Extract temperature data from cube files.
 #' 
-#' This function reads auxiliary information stored in cube files and 
-#' extracts the temperature data that is stored along with each GPS tag. 
-#' Optionally, the data is interpolated to equal intervals.
+#' This function reads auxiliary information stored in Omnirecs/Digos Datacube  
+#' files and extracts the temperature data that is stored along with each GPS 
+#' tag. Optionally, the data is interpolated to equal intervals.
 #' 
-#' This feature is ony available for Cubes that were produced since 2015, 
-#' i.e., whose GPS output files also record the temperature inside the 
-#' logger. Generating an ACSII GPS tag file using the gipptools software 
-#' requires a few minutes time per daily cube file.
+#' This feature is ony available for  Omnirecs/Digos Datacube that were 
+#' produced since 2015, i.e., whose GPS output files also record the 
+#' temperature inside the logger. Generating an ACSII GPS tag file using the 
+#' gipptools software requires a few minutes time per daily file.
 #' 
 #' @param input_dir \code{Character} value, path to directory where all cube 
 #' files to be processed as stored. Each set of files from one logger must be 
@@ -15,7 +15,7 @@
 #'
 #' @param logger_ID \code{Character} vector, logger ID.
 #' 
-#' @param interval \code{Numeric} value, time interval (minutes )to which  
+#' @param interval \code{Numeric} value, time interval (minutes) to which  
 #' temperature data is interpolated. No interpolation is performed if this 
 #' argument is omitted.
 #' 
@@ -106,6 +106,14 @@ aux_gettemperature <- function(
   ## convert list content to vector
   files_cube <- unlist(files_cube)
   
+  ## create temporary data directory
+  dir_temp <- file.path(tempdir(), "output")
+  
+  if(dir.exists(paths = dir_temp) == FALSE) {
+    
+    dir.create(path = dir_temp)
+  }
+  
   ## detect and adjust number of cores to use
   cores <- parallel::detectCores()
   
@@ -131,7 +139,7 @@ aux_gettemperature <- function(
       
       system(command = paste(gipptools, "/bin/cubeinfo", 
                              " --format=GPS --output-dir=",
-                             getwd(), " ",
+                             dir_temp, " ",
                              X,
                              sep = ""))
     }, 
@@ -143,7 +151,8 @@ aux_gettemperature <- function(
   ## Part 4 - calculations of GPS data ----------------------------------------
   
   ## get all gps raw files
-  gps_files <- list.files(pattern = ".gps.txt", 
+  gps_files <- list.files(path = dir_temp,
+                          pattern = ".gps.txt", 
                           full.names = TRUE)
   
   ## assign gps files to cubes

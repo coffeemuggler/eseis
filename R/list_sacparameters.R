@@ -3,13 +3,16 @@
 #' The function returns a data frame with all header values of a sac file. It 
 #' may be used for advanced modifications by the user.
 #' 
-#' @return \code{List} object, supported sensors with their parameters.
+#' @return \code{List} object, parameters supported by a sac file.
+#' 
 #' @author Michael Dietze
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
-#' ## show sensors
-#' list_sensor
+#' ## show sac parameters
+#' list_sacparameters()
 #'                      
 #' @export list_sacparameters
 list_sacparameters <- function(

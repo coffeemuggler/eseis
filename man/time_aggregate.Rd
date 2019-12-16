@@ -7,14 +7,14 @@
 time_aggregate(data, n = 2)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, time to be processed.}
+\item{data}{\code{POSIXct} vector, time to be processed.}
 
-\item{n}{\code{Numeric} scalar, number of samples to be aggregated to one
+\item{n}{\code{Numeric} value, number of samples to be aggregated to one
 new data value. Must be an integer value greater than 1. Default is 
 \code{2}.}
 }
 \value{
-\code{Numeric} vector, aggregated data.
+\code{POSIXct} vector, aggregated data.
 }
 \description{
 The time series \code{x} is aggregated by an integer factor \code{n}.
@@ -22,18 +22,18 @@ The time series \code{x} is aggregated by an integer factor \code{n}.
 \examples{
 
 ## load example data set
-data(rockfall, envir = environment())
+data(rockfall)
 
 ## aggregate time series
-t_agg <- time_aggregate(data = t, 
+rockfall_t_agg <- time_aggregate(data = rockfall_t, 
                           n = 2)
 
 ## compare results
-range(t)
-diff(t)
+range(rockfall_t)
+diff(rockfall_t)
 
-range(t_agg)
-diff(t_agg)
+range(rockfall_t_agg)
+diff(rockfall_t_agg)
 
 }
 \author{

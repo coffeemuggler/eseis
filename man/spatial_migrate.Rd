@@ -7,7 +7,8 @@
 spatial_migrate(data, d_stations, d_map, snr, v, dt, normalise = TRUE)
 }
 \arguments{
-\item{data}{\code{Numeric} matrix, seismic signals to cross-correlate.}
+\item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals 
+to cross-correlate.}
 
 \item{d_stations}{\code{Numeric} matrix, inter-station distances. Output 
 of \code{distance_stations}.}
@@ -36,7 +37,54 @@ the location of a seismic signal.
 }
 \examples{
 
-## No examples ready, yet.
+\dontrun{
+
+## create synthetic DEM
+dem <- raster::raster(nrows = 20, ncols = 20, 
+                      xmn = 0, xmx = 10000, 
+                      ymn= 0, ymx = 10000, 
+                      vals = rep(0, 400))
+
+## define station coordinates
+sta <- data.frame(x = c(1000, 9000, 5000),
+                  y = c(1000, 1000, 9000),
+                  ID = c("A", "B", "C"))
+
+## create synthetic signal (source in the center of the DEM)
+s <- rbind(dnorm(x = 1:1000, mean = 500, sd = 50),
+           dnorm(x = 1:1000, mean = 500, sd = 50),
+           dnorm(x = 1:1000, mean = 500, sd = 50))
+
+## plot DEM and stations
+raster::plot(dem)
+
+text(x = sta$x, 
+     y = sta$y, 
+     labels = sta$ID)
+
+## calculate spatial distance maps and inter-station distances
+D <- eseis::spatial_distance(stations = sta[,1:2],
+                             dem = dem)
+
+## locate signal
+e <- eseis::spatial_migrate(data = s, 
+                            d_stations = D$stations, 
+                            d_map = D$maps, 
+                            v = 1000, 
+                            dt = 1/100)
+
+## get most likely location coordinates (example contains two equal points)
+xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
+             ncol = 2)[1,]
+             
+## plot location estimate, most likely location estimate and stations
+raster::plot(e)
+points(xy[1], 
+       xy[2],
+       pch = 20)
+points(sta[,1:2])
+
+}
 
 }
 \author{

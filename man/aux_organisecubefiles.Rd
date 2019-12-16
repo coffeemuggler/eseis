@@ -2,18 +2,18 @@
 % Please edit documentation in R/aux_organisecubefiles.R
 \name{aux_organisecubefiles}
 \alias{aux_organisecubefiles}
-\title{Convert cube files to mseed or sac files and organise in directory structure.}
+\title{Convert Omnirecs/Digos Datacube files to mseed or sac files and organise in directory structure.}
 \usage{
 aux_organisecubefiles(stationfile, input_dir, output_dir, format = "sac",
   channel_name = "bh", cpu, fringe = "constant", verbose = FALSE,
-  gipptools)
+  gipptools, heapspace, mseed_manual = FALSE, mseed_keep = FALSE)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 
 file, with extension. See \code{aux_stationinfofile}.}
 
 \item{input_dir}{\code{Character} value, path to directory where all cube 
-files to be processed as stored. Each set of files from one logger must be 
+files to be processed are stored. Each set of files from one logger must be 
 stored in a separate sub-directory named after the cube ID.}
 
 \item{output_dir}{\code{Character} value, path to directory where output 
@@ -37,17 +37,26 @@ output of cubetools operations. Default is \code{FALSE}.}
 
 \item{gipptools}{\code{Character} value, path to gipptools or cubetools 
 directory.}
+
+\item{heapspace}{\code{Numeric} value, heap space assigned to the Jave 
+Runtime Environment, e.g., \code{4096}. Should be increased if the cube 
+to mseed conversion fails (announced if \code{verbose = TRUE}).}
+
+\item{mseed_manual}{\code{Logical} value, option to convert mseed files 
+manually. See details. Default is \code{FALSE}, i.e., the function converts 
+cube files to mseed files using the GIPP tools.}
+
+\item{mseed_keep}{\code{Logical} value, option to keep mseed files instead 
+of deleting them. Default is \code{FALSE}.}
 }
 \value{
 A set of hourly seismic files written to disk.
 }
 \description{
-This function converts cube files to hourly mseed or sac files and 
-organises these in a coherent directory structure, by year, Julian day, 
-(station, hour and channel). It depends on the cubetools or gipptools  
-software package (see details). The function is at an experimental stage  
-and only used for data processing at the GFZ Geomorphology section, 
-currently.
+This function converts Omnirecs/Digos Datacube files to hourly mseed or 
+sac files and organises these in a coherent directory structure, by year, 
+Julian day, (station, hour and channel). It depends on the cubetools or   
+gipptools software package (see details).
 }
 \details{
 The function converts seismic data from the cube file format to either 
@@ -55,7 +64,8 @@ mseed (cf. \code{read_mseed}) or sac (cf. \code{read_sac}) and cuts the
 daily cube files to hourly files. These hourly files are organised in a 
 coherent directory structure which is organised by year and Julian day. 
 In each Julian day directory the hourly files are placed and named after 
-the following scheme: STATIONID.YEAR.JULIANDAY.HOUR.MINUTE.SEC.CHANNEL.\cr
+the following scheme: 
+STATIONID.YEAR.JULIANDAY.HOUR.MINUTE.SECOND.CHANNEL.\cr
 The function requires that the software cubetools 
 (\code{http://www.omnirecs.de/documents.html}) or gipptools 
 (\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/}) 
@@ -80,16 +90,40 @@ appropriate structure would be something like: \cr
       }
    }
 }
+
+With one of the latest updates of either R or Java the cache size for 
+converting cube files to mseed files has been reduced. 
+Thus, in several cases the conversion 
+stops due to buffer overruns. This effect has been particularly observed 
+when trying to convert more than about 20 consecutive days of cube files
+at once. In such a case, it is appropriate to set the function argument
+mseed_manual to \code{TRUE}. This will stop the function just at the point
+where the function would call the GIPPtools function cube2mseed. The user 
+will see a confirmation command line in the R console, which asks 
+to first copy all manually converted mseed files to the directory 
+\code{mseed_raw} before confirming to continue with the R function. To 
+convert all cube files to mseed files it is advised to open a terminal and 
+run the function \code{GIPPtools/bin/cube2mseed} with the following 
+parameters: \code{GIPPtools/bin/cube2mseed --verbose --output-dir=./mseed_raw/ ./input_dir/}
+without further adjustments, except for the fringe sample option, as 
+specified in \code{aux_organisecubefiles}. Please also see the documentation 
+of the cube2mseed program from the gipptools for further information.
+
+Alternatively, increasing the heap space of the Java Runtime Environment, 
+required for converting the cube files, can solve the above mentioned 
+issue. To increase the heap space, use the argument \code{heapspace}. By 
+default, this argument is set to 4096.
 }
 \examples{
 
-## uncomment to use
+\dontrun{
 
 ## basic example with minimum effort
-# aux_organisecubefiles(stationfile = "output/stationinfo.txt", 
-#                       input_dir = "input", 
-#                       output_dir = "output", 
-#                       gipptools = "software/gipptools-2015.225/")
+aux_organisecubefiles(stationfile = "output/stationinfo.txt", 
+                      input_dir = "input", 
+                      gipptools = "software/gipptools-2015.225/")
+
+}
                         
 }
 \author{

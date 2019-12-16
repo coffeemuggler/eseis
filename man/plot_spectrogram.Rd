@@ -2,19 +2,21 @@
 % Please edit documentation in R/plot_spectrogram.R
 \name{plot_spectrogram}
 \alias{plot_spectrogram}
-\title{Calculate spectrograms (power spectral density estimates) from time series.}
+\title{Plot spectrograms (power spectral density estimates)}
 \usage{
-plot_spectrogram(data, legend, col = "gradient_1", agg = c(1, 1), ...)
+plot_spectrogram(data, legend = FALSE, keep_par = FALSE, agg = c(1,
+  1), ...)
 }
 \arguments{
 \item{data}{\code{List} object, spectrogram to be plotted. Must be output
-of \code{signal_spectrogram()} or of equivalent structure.}
+of \code{signal_spectrogram} or of equivalent structure.}
 
-\item{legend}{\code{Character} scalar, label of the legend colour scale.
-When omitted, no legend is plotted.}
+\item{legend}{\code{Logical} value, option to add colour bar legend. Legend
+label can be changed by \code{zlab}.}
 
-\item{col}{\code{Character} scalar, colour palette to use. Default is 
-\code{"gradient_1"}.}
+\item{keep_par}{\code{Logical} value, option to omit resetting plot 
+parameters after function execution. Useful for adding further data to the 
+PSD plot. Default is \code{FALSE} (parameters are reset to original values).}
 
 \item{agg}{\code{Integer} vector of length two, factors of image 
 aggregation, i.e. in time and frequency dimension. Useful to decrease 
@@ -26,8 +28,8 @@ image size. Default is \code{c(1, 1)} (no aggregation).}
 Graphic output of a spectrogram.
 }
 \description{
-This function creates spectrograms from seismic signals. It supports the
-standard spectrogram apporach, multitaper, and the Welch method.
+This function plots spectrograms of seismic signals. It uses the output 
+of \code{signal_spectrogram}.
 }
 \examples{
 
@@ -35,10 +37,10 @@ standard spectrogram apporach, multitaper, and the Welch method.
 data(rockfall)
 
 ## deconvolve signal
-rockfall <- signal_deconvolve(data = rockfall, dt = 1/200)
+rockfall <- signal_deconvolve(data = rockfall_eseis)
 
 ## calculate spectrogram
-PSD <- signal_spectrogram(data = rockfall, time = t, dt = 1/200)
+PSD <- signal_spectrogram(data = rockfall)
 
 ## plot spectrogram
 plot_spectrogram(data = PSD)
@@ -48,9 +50,9 @@ plot_spectrogram(data = PSD,
                  xlab = "Time (min)", 
                  ylab = "f (Hz)", 
                  main = "Power spectral density estimate", 
-                 legend = "dB", 
+                 legend = TRUE, 
                  zlim = c(-220, -70),
-                 col = "rainbow")
+                 col = rainbow(100))
 
                      
 }

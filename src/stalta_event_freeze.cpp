@@ -20,7 +20,7 @@ NumericVector stalta_event_freeze(int event_length, NumericVector data_sta, Nume
     ratio = data_sta[i] / data_lta[i];
     
     //reset
-    if(ratio > on | T2 == 1) {
+    if((ratio > on) | (T2 == 1)) {
       
       data_lta[i + 1] = data_lta[i];
       T1 = 1;
@@ -30,7 +30,7 @@ NumericVector stalta_event_freeze(int event_length, NumericVector data_sta, Nume
       T1 = 0;
       
     }
-    if(T1 == 1 & ratio > off) {
+    if((T1 == 1) & (ratio > off)) {
       
       T1 = 1;
       T2 = 1;

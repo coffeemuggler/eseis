@@ -7,24 +7,25 @@
 signal_stalta(data, time, dt, sta, lta, freeze = FALSE, on, off)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list, input signal envelope vector(s).}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
 \item{time}{\code{POSIXct} vector, time vector of the signal(s). If not 
 provided, a synthetic time vector will be created.}
 
-\item{dt}{\code{Numeric} scalar, sampling period. If omitted, either 
+\item{dt}{\code{Numeric} value, sampling period. If omitted, either 
 estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz).}
 
-\item{sta}{\code{Numeric} scalar, number of samples for short-term window.}
+\item{sta}{\code{Numeric} value, number of samples for short-term window.}
 
-\item{lta}{\code{Numeric} scalar, number of samples for long-term window.}
+\item{lta}{\code{Numeric} value, number of samples for long-term window.}
 
-\item{freeze}{\code{Logical} scalar, option to freeze lta value at start of 
+\item{freeze}{\code{Logical} value, option to freeze lta value at start of 
 an event. Useful to avoid self-adjustment of lta for long-duration events.}
 
-\item{on}{\code{Numeric} scalar, threshold value for event onset.}
+\item{on}{\code{Numeric} value, threshold value for event onset.}
 
-\item{off}{\code{Numeric} scalar, threshold value for event end.}
+\item{off}{\code{Numeric} value, threshold value for event end.}
 }
 \value{
 \code{data frame}, detected events (ID, start time, duration in 
@@ -40,17 +41,15 @@ long-term-average of the input signal.
 data(rockfall)
 
 ## filter signal
-sf <- signal_filter(data = rockfall, 
-                    dt = 1/200, 
-                    f = c(1, 90), 
-                    p = 0.05)
+rockfall_f <- signal_filter(data = rockfall_eseis,
+                            f = c(1, 90), 
+                            p = 0.05)
                     
 ## calculate signal envelope
-e <- signal_envelope(data = sf)
+rockfall_e <- signal_envelope(data = rockfall_f)
 
 ## pick earthquake and rockfall event
-signal_stalta(data = e, 
-              time = t, 
+signal_stalta(data = rockfall_e,
               sta = 100, 
               lta = 18000, 
               freeze = TRUE, 

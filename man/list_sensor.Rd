@@ -23,7 +23,7 @@ the sensor.
 \examples{
 
 ## show sensors
-list_sensor
+list_sensor()
                      
 }
 \author{

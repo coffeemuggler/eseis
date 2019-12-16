@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // stalta_event_freeze
 NumericVector stalta_event_freeze(int event_length, NumericVector data_sta, NumericVector data_lta, double on, double off);
-RcppExport SEXP eseis_stalta_event_freeze(SEXP event_lengthSEXP, SEXP data_staSEXP, SEXP data_ltaSEXP, SEXP onSEXP, SEXP offSEXP) {
+RcppExport SEXP _eseis_stalta_event_freeze(SEXP event_lengthSEXP, SEXP data_staSEXP, SEXP data_ltaSEXP, SEXP onSEXP, SEXP offSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,7 +22,7 @@ END_RCPP
 }
 // stalta_event_nofreeze
 NumericVector stalta_event_nofreeze(int event_length, NumericVector ratio, double on, double off);
-RcppExport SEXP eseis_stalta_event_nofreeze(SEXP event_lengthSEXP, SEXP ratioSEXP, SEXP onSEXP, SEXP offSEXP) {
+RcppExport SEXP _eseis_stalta_event_nofreeze(SEXP event_lengthSEXP, SEXP ratioSEXP, SEXP onSEXP, SEXP offSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;

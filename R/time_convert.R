@@ -1,7 +1,7 @@
 #' Convert Julian Day to Date and vice versa
 #' 
-#' The function converts a Julian Day value to a date, if a year is provided, 
-#' to \code{POSIXct}, otherwise to \code{POSIXlt}.
+#' The function converts a Julian Day value to a date, to \code{POSIXct} if a 
+#' year is provided, otherwise to \code{POSIXlt}.
 #' 
 #' @param input \code{Numeric} vector, input time Supported formats are 
 #' \code{YYYY-MM-DD}, \code{JD} and \code{POSIXct}.

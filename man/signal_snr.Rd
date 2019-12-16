@@ -7,14 +7,14 @@
 signal_snr(data, detrend = FALSE)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors , input signal 
-vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
-\item{detrend}{\code{Logical} scalar, optionally detrend data set before
+\item{detrend}{\code{Logical} value, optionally detrend data set before
 calcualting snr.}
 }
 \value{
-\code{Numeric} scalar, signal-to-noise ratio.
+\code{Numeric} value, signal-to-noise ratio.
 }
 \description{
 The function calculates the signal-to-noise ratio of an input signal 
@@ -26,8 +26,12 @@ vector as the ratio between mean and max.
 data(rockfall)
 
 ## calculate snr with detrend option off and on
-signal_snr(data = rockfall)
-signal_snr(data = rockfall, detrend = TRUE)
+snr <- signal_snr(data = rockfall_eseis)
+print(snr$snr)
+
+snr <- signal_snr(data = rockfall_eseis, 
+                  detrend = TRUE)
+print(snr$snr)
                      
 }
 \author{

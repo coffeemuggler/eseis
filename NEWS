@@ -1,6 +1,49 @@
 Changes for R-package eseis
 
-Version 0.3.2 (2017-07-24)
+Version 0.5.0 (n.n.)
+  - function signal_filter(): frequency domain filtering implemented
+  - signal type meta element added
+  - function write_mseed() added
+  - function aux_obspyeseis() added
+  - functionaux_eseisobspy() added
+  - function signal_clip() added
+  - function signal_cut() added
+  - function aux_commondt() added
+  - function model_bedload() added
+  - function spatial_amplitude() added
+  - function spatial_crop() added
+  - function spatial_pmax() added
+  - function fmi_parameters() added
+  - function fmi_spectra() added
+  - function fmi_inversion() added
+  - function ncc_preprocess() added
+  - function ncc_process() added
+
+Version 0.4.0 (2018-05-25)
+  - eseis object implemented and all functions modified to support this object
+  - function aux_initiateeseis() added
+  - function aux_psdsummary() added
+  - function plot_spectrum() added
+  - function aux_getFDSNstation() added
+  - function aux_getFDSNdata() added
+  - function plot_ppsd() added
+  - function aux_psdpanels() added
+  - function write_report() added
+  - function model_turbulence() added
+  - functions aux_getIRISstation() and aux_getIRISdata() renamed
+  - plot_signal(), speed increased by factor ten
+  - plot_spectrogram(), time shift bug fixed, log-y option added, default labels added, option to keep plot arguments added 
+  - plot functions, time axis format option added
+  - aux_organisecubefiles(), manual mseed conversion option added
+  - aux_organisecubefiles(), JRE heap space modification added
+  - aux_organisecubefiles(), temp directory removal changed to unlink()
+  - aux_stationinfofile(), removal of outliers implemented
+  - aux_psdsummary(), bug removed
+  - aux_organisecubefiles(), feature added (mseed_keep)
+  - aux_getfdsnstation(), option added to only return ftl links
+  - aux_getevent(), time zone conflicts issue solved
+
+Version 0.3.2 (2017-07-26)
   - inherited internal issues without relevance for functionality solved
   - function aux_loadevent() added
   - function plot_components() added

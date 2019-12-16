@@ -1,16 +1,17 @@
-#' Calculate spectrograms (power spectral density estimates) from time series.
+#' Plot spectrograms (power spectral density estimates)
 #' 
-#' This function creates spectrograms from seismic signals. It supports the
-#' standard spectrogram apporach, multitaper, and the Welch method.
+#' This function plots spectrograms of seismic signals. It uses the output 
+#' of \code{signal_spectrogram}.
 #' 
 #' @param data \code{List} object, spectrogram to be plotted. Must be output
-#' of \code{signal_spectrogram()} or of equivalent structure.
+#' of \code{signal_spectrogram} or of equivalent structure.
 #' 
-#' @param legend \code{Character} scalar, label of the legend colour scale.
-#' When omitted, no legend is plotted.
+#' @param legend \code{Logical} value, option to add colour bar legend. Legend
+#' label can be changed by \code{zlab}.
 #' 
-#' @param col \code{Character} scalar, colour palette to use. Default is 
-#' \code{"gradient_1"}.
+#' @param keep_par \code{Logical} value, option to omit resetting plot 
+#' parameters after function execution. Useful for adding further data to the 
+#' PSD plot. Default is \code{FALSE} (parameters are reset to original values).
 #' 
 #' @param agg \code{Integer} vector of length two, factors of image 
 #' aggregation, i.e. in time and frequency dimension. Useful to decrease 
@@ -28,10 +29,10 @@
 #' data(rockfall)
 #' 
 #' ## deconvolve signal
-#' rockfall <- signal_deconvolve(data = rockfall, dt = 1/200)
+#' rockfall <- signal_deconvolve(data = rockfall_eseis)
 #' 
 #' ## calculate spectrogram
-#' PSD <- signal_spectrogram(data = rockfall, time = t, dt = 1/200)
+#' PSD <- signal_spectrogram(data = rockfall)
 #' 
 #' ## plot spectrogram
 #' plot_spectrogram(data = PSD)
@@ -41,32 +42,131 @@
 #'                  xlab = "Time (min)", 
 #'                  ylab = "f (Hz)", 
 #'                  main = "Power spectral density estimate", 
-#'                  legend = "dB", 
+#'                  legend = TRUE, 
 #'                  zlim = c(-220, -70),
-#'                  col = "rainbow")
+#'                  col = rainbow(100))
 #' 
 #'                      
 #' @export plot_spectrogram
 plot_spectrogram <- function(
   data,
-  legend,
-  col = "gradient_1",
+  legend = FALSE,
+  keep_par = FALSE,
   agg = c(1, 1),
   ...
 ) {
   
-  ## define colours
-  if(col == "gradient_1") {
+  ## check for eseis object
+  if(class(data) == "eseis") {
     
-    col <- colorRampPalette(colors = c("darkblue", 
-                                       "blue", 
-                                       "cyan", 
-                                       "lightgreen", 
-                                       "yellow", 
-                                       "red", 
-                                       "brown", 
-                                       "grey30"))
+    data <- data$PSD
   }
+  
+  ## read additional plot arguments
+  extraArgs <- list(...)
+  
+  ## check/set plot title
+  if ("main" %in% names(extraArgs)) {
+    
+    main <- extraArgs$main
+  }
+  else {
+    
+    main <- paste("PSD")
+  }
+  
+  ## check/set plot x-axis label
+  if ("xlab" %in% names(extraArgs)) {
+    
+    xlab <- extraArgs$xlab
+  }
+  else {
+    xlab <- "Time"
+  }
+  
+  ## check/set plot y-axis label
+  if ("ylab" %in% names(extraArgs)) {
+    
+    ylab <- extraArgs$ylab
+  }
+  else {
+    ylab <- "Frequency (Hz)"
+  }
+  
+  ## check/set plot z-axis label
+  if ("zlab" %in% names(extraArgs)) {
+    
+    zlab <- extraArgs$zlab
+  }
+  else {
+    
+    zlab <- expression(paste("10 ", log[10], " (", m^2, "/", s^2, 
+                             ") /", " Hz", sep = ""))
+  }
+  
+  ## set z-limits
+  if("zlim" %in% names(extraArgs)) {
+    
+    zlim_psd <- extraArgs$zlim
+  } else {
+    
+    zlim_psd <- range(data$S, na.rm = TRUE)
+  }
+  
+  ## get range of z-values
+  if("zlim" %in% names(extraArgs)) {
+    
+    legend_values <- pretty(range(extraArgs$zlim, na.rm = TRUE))
+  } else {
+    
+    legend_values <- pretty(data$S, na.rm = TRUE)
+  }
+  
+  if ("axes" %in% names(extraArgs)) {
+    axes <- extraArgs$axes
+  }
+  else {
+    
+    axes <- TRUE
+  }
+  
+  ## handle date formats
+  if ("format" %in% names(extraArgs)) {
+    format <- extraArgs$format
+  }
+  else {
+    
+    format <- ""
+  }
+  
+  ## handle colour scheme
+  if ("col" %in% names(extraArgs)) {
+    col <- extraArgs$col
+  }
+  else {
+    
+      col <- colorRampPalette(colors = c("darkblue",
+                                         "blue",
+                                         "cyan",
+                                         "lightgreen",
+                                         "yellow",
+                                         "red",
+                                         "brown",
+                                         "grey30"))
+      col <- col(200)
+  }
+  
+  ## remove keywords from plot arguments
+  keywords <- c("main", 
+                "xlab", 
+                "ylab", 
+                "zlab",
+                "zlim", 
+                "format", 
+                "axes",
+                "col")
+  
+  extraArgs <- extraArgs[!names(extraArgs)%in%keywords]
   
   ## check input data
   if(class(data) != "spectrogram") {
@@ -81,15 +181,6 @@ plot_spectrogram <- function(
     }
   }
   
-  ## set z-limits
-  if("zlim" %in% names(list(...))) {
-    
-    zlim_psd <- list(...)$zlim
-  } else {
-    
-    zlim_psd <- range(data$S, na.rm = TRUE)
-  }
-  
   data$S[data$S < zlim_psd[1]] <- zlim_psd[1]
   data$S[data$S > zlim_psd[2]] <- zlim_psd[2]
   
@@ -98,29 +189,52 @@ plot_spectrogram <- function(
                to = length(data$t),
                by = agg[1])
   
+  t_plot <- as.POSIXct(x = data$t[t_out], 
+                       tz = format(data$t[1], 
+                                   format="%Z"))
+  
   f_out <- seq(from = 1, 
                to = length(data$f),
                by = agg[2])
-
-  if(missing(legend) == TRUE) {
+  
+  ## optionally remove zero value for log y-axis
+  if("log" %in% names(extraArgs)) {
+    
+    if(extraArgs$log == "y") {
+      
+      f_out <- f_out[-1]
+    }
+  }
+  
+  if(legend == FALSE) {
     
     ## plot image map of PSD
-    image(x = data$t[t_out], 
-          y = data$f[f_out], 
-          z = t(data$S[f_out, t_out]), 
-          col = do.call(what = col, 
-                        args = list(200)),
-          ...)
-  } else {
+    do.call(what = graphics::image, 
+            args = c(list(x = data$t[t_out], 
+                          y = data$f[f_out], 
+                          z = t(data$S[f_out, t_out]), 
+                          col = col,
+                          axes = FALSE,
+                          main = main,
+                          xlab = xlab,
+                          ylab = ylab,
+                          zlim = zlim_psd), 
+                     extraArgs))
     
-    ## get range of values
-    if("zlim" %in% names(list(...))) {
+    ## optionally add axes
+    if(axes == TRUE) {
       
-      legend_values <- pretty(range(list(...)$zlim, na.rm = TRUE))
-    } else {
+      graphics::axis.POSIXct(side = 1, 
+                             x = data$t[t_out], 
+                             format = format)
       
-      legend_values <- pretty(data$S, na.rm = TRUE)
+      graphics::axis(side = 2)
     }
+    
+    ## add box
+    box(which = "plot")
+    
+  } else {
     
     ## get maximum number of characters
     legend_nchar <- max(nchar(legend_values))
@@ -143,12 +257,27 @@ plot_spectrogram <- function(
     graphics::par(mai = mai_new)
 
     ## plot image map of PSD
-    image(x = data$t[t_out], 
-          y = data$f[f_out], 
-          z = t(data$S[f_out, t_out]), 
-          col = do.call(what = col, 
-                        args = list(200)),
-          ...)
+    do.call(what = graphics::image, 
+            args = c(list(x = data$t[t_out], 
+                          y = data$f[f_out], 
+                          z = t(data$S[f_out, t_out]), 
+                          axes = FALSE,
+                          col = col,
+                          main = main,
+                          xlab = xlab,
+                          ylab = ylab,
+                          zlim = zlim_psd), 
+                     extraArgs))
+    
+    ## optionally add axes
+    if(axes == TRUE) {
+      
+      graphics::axis.POSIXct(side = 1, 
+                             x = data$t[t_out], 
+                             format = format)
+      
+      graphics::axis(side = 2)
+    }
     
     ## allow overplotting
     xpd_in <- graphics::par()$xpd
@@ -184,8 +313,7 @@ plot_spectrogram <- function(
       graphics::polygon(x = polygons[i,1:4], 
                         y = polygons[i,5:8], 
                         border = NA, 
-                        col = do.call(what = col, 
-                                      args = list(200))[i])
+                        col = col[i])
     }
     
     ## draw polygon around colour scale bar
@@ -210,12 +338,19 @@ plot_spectrogram <- function(
     }
     
     ## add z-axis label
-    graphics::mtext(side = 4, line = 5, text = legend)
+    graphics::mtext(side = 4, line = 5, text = zlab)
     
-    ## restore initial plot parameters
-    graphics::par(xpd = xpd_in,
-                  mai = mai_in)
+    ## add box
+    box(which = "plot")
+    
+    ## restore overplotting option
+    graphics::par(xpd = xpd_in)
+    
+    ## optionally restore initial plot parameters
+    if(keep_par == FALSE) {
+      
+      graphics::par(mai = mai_in)
+    }
   }
-  
   
 }

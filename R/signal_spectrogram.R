@@ -10,45 +10,54 @@
 #' be processed.
 #' 
 #' @param time \code{POSIX.ct} vector with time values. If omitted, an 
-#' artificial time vector will be created, based on \code{dt}.
+#' artificial time vector will be created, based on \code{dt}. Only needed 
+#' if \code{data} is no \code{eseis} object.
 #' 
-#' @param dt \code{Numeric} scalar, sampling period. If omitted, either 
-#' estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz). 
+#' @param dt \code{Numeric} value, sampling period. If omitted, either 
+#' estimated from \code{time} or set to 0.01 s (i.e., f = 100 Hz). Only needed 
+#' if \code{data} is no \code{eseis} object.
 #' 
-#' @param Welch \code{Logical} scalar, option to use the Welch method for
-#' calcualtions.
+#' @param Welch \code{Logical} value, option to use the Welch method for
+#' calculations.
 #' 
-#' @param window \code{Numeric} scalar, time window length in seconds used to 
+#' @param window \code{Numeric} value, time window length in seconds used to 
 #' calculate individual spectra. Set to 1 percent of the time series length 
 #' by default.
 #' 
-#' @param overlap \code{Numeric} scalar, fraction of window overlap.
+#' @param overlap \code{Numeric} value, fraction of window overlap.
 #' 
-#' @param window_sub \code{Numeric} scalar, length of the sub-window in seconds 
-#' used to calculate spectrae. Only relevant if \code{Welch = TRUE}. If omitted, 
+#' @param window_sub \code{Numeric} value, length of the sub-window in seconds 
+#' used to calculate spectra. Only relevant if \code{Welch = TRUE}. If omitted, 
 #' the sub-window length is set to 10 percent of the main window length.
 #' 
-#' @param overlap_sub \code{Numeric} scalar, fraction of sub-window overlap.
+#' @param overlap_sub \code{Numeric} value, fraction of sub-window overlap.
 #' 
-#' @param multitaper \code{Logical} scalar, option to use multitaper for the
-#' calculations. Can increase computation time significantly.
+#' @param method  \code{Character} value, method to calculate the spectra. 
+#' One out of \code{"periodogram"}, \code{"autoregressive"} and 
+#' \code{"multitaper"}. Default is \code{"periodogram"}.
 #' 
-#' @param nw \code{Numeric} scalar, multitaper time-bandwidth parameter,
+#' @param nw \code{Numeric} value, multitaper time-bandwidth parameter,
 #' default is 4.0.
 #' 
-#' @param k \code{Numeric} scalar, multitaper number of tapers, default is 7.
+#' @param k \code{Numeric} value, multitaper number of tapers, default is 7.
 #' 
-#' @param n_cores \code{Numeric} scalar, number of CPU cores to use. Disabled 
+#' @param n_cores \code{Numeric} value, number of CPU cores to use. Disabled 
 #' by setting to 1. Default is 1.
 #' 
-#' @param plot \code{logical} scalar, toggle plot output. Default is
-#' \code{FALSE}. For more customised plotting see \code{plot_spectrogram()}.
+#' @param plot \code{Logical} value, toggle plot output. Default is
+#' \code{FALSE}. For more customised plotting see \code{plot_spectrogram}.
+#' 
+#' @param \dots Additional arguments passed to the function.
 #' 
 #' @return \code{List} with spectrogram matrix, time and frequency vectors.
+#' 
 #' @author Michael Dietze
+#' 
 #' @seealso \code{\link{spectrum}}, \code{\link{spec.pgram}}, 
 #' \code{\link{spec.mtm}}
+#' 
 #' @keywords eseis
+#' 
 #' @examples
 #' 
 #' ## load example data set
@@ -81,7 +90,7 @@
 #' #                                window_sub = 1, 
 #' #                                overlap_sub = 0.9, 
 #' #                                Welch = TRUE,
-#' #                                multitaper = TRUE,
+#' #                                method = "multitaper",
 #' #                                plot = TRUE)
 #'                       
 #' @export signal_spectrogram
@@ -94,11 +103,12 @@ signal_spectrogram <- function(
   overlap = 0.5,
   window_sub,
   overlap_sub = 0.5,
-  multitaper = FALSE,
+  method = "periodogram",
   nw = 4.0,
   k = 7,
   n_cores = 1,
-  plot = FALSE
+  plot = FALSE,
+  ...
 ) {
   
   ## check data structure
@@ -114,7 +124,7 @@ signal_spectrogram <- function(
                        overlap = overlap,
                        window_sub = window_sub,
                        overlap_sub = overlap_sub,
-                       multitaper = multitaper,
+                       method = method,
                        nw = nw,
                        k = k,
                        n_cores = n_cores,
@@ -122,23 +132,37 @@ signal_spectrogram <- function(
     
     ## return output
     return(data_out)
+    
   } else {
     
-    ## handle missing dt value
-    if(missing(dt) == TRUE) {
+    ## check/store presence of time vector
+    if(missing(time) == TRUE) {
+      
+      time_in <- NULL
+    } else {
+      
+      time_in <- time
+    }
+    
+    ## check/set dt
+    if(missing(dt) == TRUE && class(data) != "eseis") {
       
       if(missing(time) == TRUE) {
         
-        dt = 0.01
-        warning("No dt provided. Set to 0.01 s by default!")
+        dt <- 1 / 200
+        
+        warning("No dt provided. Set to 1 / 200 s by default!")
+        
       } else {
         
         if(length(time) > 1000) {
           
           time_dt <- time[1:1000]
+          
         } else {
           
           time_dt <- time
+          
         }
         
         dt_estimate <- mean(x = diff(x = as.numeric(time)), 
@@ -147,11 +171,17 @@ signal_spectrogram <- function(
                     signif(x = dt_estimate),
                     " s)",
                     sep = ""))
+        
+        dt <- dt_estimate
       }
+      
+    } else if(class(data) == "eseis") {
+      
+      dt <- data$meta$dt
     }
     
     ## handle missing time vector
-    if(missing(time) == TRUE) {
+    if(missing(time) == TRUE && class(data) != "eseis") {
       
       time <- seq(from = as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
                                                  format = "%Y-%m-%d %H:%M:%S", 
@@ -160,6 +190,12 @@ signal_spectrogram <- function(
                   length.out = length(data))
       
       print("No or non-POSIXct time data provided. Default data generated!")
+      
+    } else if(class(data) == "eseis") {
+      
+      time <- seq(from = data$meta$starttime, 
+                  by = data$meta$dt, 
+                  length.out = data$meta$n)
     }
     
     ## handle missing window length
@@ -169,15 +205,66 @@ signal_spectrogram <- function(
     }
     
     ## handle missing sub-window length
-    if(Welch == TRUE & missing(window_sub) == TRUE) {
+    if(Welch == TRUE && missing(window_sub) == TRUE) {
       
       window_sub <- 0.1 * window
+      
+    } else if(Welch == FALSE) {
+      
+      window_sub <- NULL
     }
     
     ## identify NA values
     i_na <- is.na(data)
     
     data[i_na] <- 0
+    
+    ## get start time
+    eseis_t_0 <- Sys.time()
+    
+    ## collect function arguments
+    eseis_arguments <- list(data = "",
+                            time = time_in,
+                            dt = dt,
+                            Welch = Welch,
+                            window = window,
+                            overlap = overlap,
+                            window_sub = window_sub,
+                            overlap_sub = overlap_sub,
+                            method = method,
+                            nw = nw,
+                            k = k,
+                            n_cores = n_cores,
+                            plot = plot)
+    
+    ## homogenise data structure
+    if(class(data) == "eseis") {
+      
+      ## set eseis flag
+      eseis_class <- TRUE
+      
+      ## store initial object
+      eseis_data <- data
+      
+      ## extract signal vector
+      data <- eseis_data$signal
+ 
+    } else {
+      
+      ## set eseis flag
+      eseis_class <- FALSE
+    }
+    
+    ## change method keywords
+    if(method == "periodogram") {
+      
+      method <- "pgram"
+    }
+    
+    if(method == "autoregressive") {
+      
+      method <- "ar"
+    }
     
     ## CALCULATION PART -------------------------------------------------------
     
@@ -191,11 +278,6 @@ signal_spectrogram <- function(
     ## truncate time series to fit window sizes
     data_trunc <- data[1:(length_window * n_window)]
     time_trunc <- time[1:(length_window * n_window)]
-    
-    if(length(data) != length(data_trunc)) {
-      
-      #print("Time series truncated to n times the window length.")
-    }
     
     ## get overlap length
     length_overlap <- round(x = length_window * overlap, 
@@ -217,9 +299,10 @@ signal_spectrogram <- function(
     }
     
     ## define generic function to get spectra
-    spec_generic <- function(x) {
+    spec_generic <- function(x, method) {
       
       try(spectrum(x = x, 
+                   method = method,
                    plot = FALSE)$spec,
           silent = TRUE)
       
@@ -237,7 +320,7 @@ signal_spectrogram <- function(
     }
     
     ## define generic function for Welch method to get spectrae
-    spec_welch <- function(x, window_sub, overlap_sub, dt, multitaper, nw, k) {
+    spec_welch <- function(x, window_sub, overlap_sub, dt, method, nw, k) {
       
       ## get sub-window length
       length_window_sub <- round(x = window_sub * (1 / dt), 
@@ -270,7 +353,7 @@ signal_spectrogram <- function(
       }
       
       ## calculate spectrae
-      if(multitaper == TRUE) {
+      if(method == "multitaper") {
         
         S_welch <- lapply(X = data_list_sub, 
                           FUN = spec_multitaper,
@@ -280,7 +363,8 @@ signal_spectrogram <- function(
       } else {
         
         S_welch <- lapply(X = data_list_sub, 
-                          FUN = spec_generic)
+                          FUN = spec_generic,
+                          method = method)
       }
       
       ## convert list to matrix
@@ -307,22 +391,24 @@ signal_spectrogram <- function(
       cl <- parallel::makeCluster(n_cores)
     }
     
-    ## calculate spectrae for each slice
+    ## calculate spectra for each slice
     if(Welch == FALSE) {
       
-      if(multitaper == FALSE) {
+      if(method != "multitaper") {
         
         if(n_cores > 1) {
           
           ## non-Welch option in parallel mode
           S <- parallel::parLapply(cl = cl,
                                    X = data_list, 
-                                   fun = spec_generic)
+                                   fun = spec_generic,
+                                   method = method)
         } else {
           
           ## non-Welch option in one-core mode
           S <- lapply(X = data_list, 
-                      FUN = spec_generic)
+                      FUN = spec_generic,
+                      method = method)
         }
       } else {
         
@@ -360,7 +446,7 @@ signal_spectrogram <- function(
                                  dt = dt,
                                  nw = nw, 
                                  k = k,
-                                 multitaper = multitaper)
+                                 method = method)
       } else {
         
         ## Welch option in one-core mode
@@ -371,7 +457,7 @@ signal_spectrogram <- function(
                     dt = dt,
                     nw = nw,
                     k = k,
-                    multitaper = multitaper)
+                    method = method)
       }
       
       
@@ -384,7 +470,7 @@ signal_spectrogram <- function(
     }
     
     
-    ## convert spectrae list to matrix
+    ## convert spectra list to matrix
     S <- do.call(cbind, S)
     
     ## convert data to db
@@ -394,6 +480,7 @@ signal_spectrogram <- function(
     f_spectrum <- seq(from = 0, 
                       to = 0.5 / dt, 
                       length.out = nrow(S))
+    
     t_spectrum <- time[slice_start]
     
     ## assign row- and col-names
@@ -424,7 +511,40 @@ signal_spectrogram <- function(
     
     ## optionally plot spectrogram
     if(plot == TRUE) {
-      plot_spectrogram(data = S)
+      
+      plot_spectrogram(data = S, ...)
+      
+    }
+    
+    ## optionally rebuild eseis object
+    if(eseis_class == TRUE) {
+      
+      ## assign aggregated signal vector
+      eseis_data <- list(PSD = S,
+                         history = eseis_data$history)
+      
+      ## calculate function call duration
+      eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                            time2 = eseis_t_0, 
+                                            units = "secs"))
+      
+      ## update object history
+      eseis_data$history[[length(eseis_data$history) + 1]] <- 
+        list(time = Sys.time(),
+             call = "signal_spectrogram()",
+             arguments = eseis_arguments,
+             duration = eseis_duration)
+      names(eseis_data$history)[length(eseis_data$history)] <- 
+        as.character(length(eseis_data$history))
+      
+      ## update data type
+      eseis_data$meta$type = "spectrogram"
+      
+      ## set S3 class name
+      class(eseis_data) <- "eseis"
+      
+      ## assign eseis object to output data set
+      S <- eseis_data
     }
     
     ## return output

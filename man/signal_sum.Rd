@@ -7,8 +7,8 @@
 signal_sum(...)
 }
 \arguments{
-\item{\dots}{\code{Numeric} vectors, input signal vectors, that 
-must be of the same length.}
+\item{\dots}{\code{Numeric} vectors or \code{eseis} objects, input 
+signal, that must be of the same length.}
 }
 \value{
 \code{Numeric} vector, signal vector sum.

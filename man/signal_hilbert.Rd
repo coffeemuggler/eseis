@@ -7,7 +7,8 @@
 signal_hilbert(data)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 }
 \value{
 \code{Numeric} vector or list of vectors, Hilbert transform.
@@ -17,8 +18,12 @@ The function calculates the Hilbert transform of the input signal vector.
 }
 \examples{
 
-## NOT DONE YET
-                     
+## load example data
+data(rockfall)
+
+## calculate hilbert transform
+rockfall_h <- signal_hilbert(data = rockfall_eseis)
+
 }
 \author{
 Michael Dietze

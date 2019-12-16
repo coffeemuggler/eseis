@@ -4,8 +4,8 @@
 \alias{spatial_distance}
 \title{Calculate topography-corrected distances for seismic waves.}
 \usage{
-spatial_distance(stations, dem, topography = TRUE, cores = 1, dmap = TRUE,
-  dstation = TRUE, aoi)
+spatial_distance(stations, dem, topography = TRUE, cores = 1,
+  dmap = TRUE, dstation = TRUE, aoi)
 }
 \arguments{
 \item{stations}{\code{Numeric} matrix of length two, x- and y-coordinates 
@@ -43,7 +43,7 @@ The function calculates topography-corrected distances either between
 seismic stations or from seismic stations to pixels of an input raster.
 }
 \details{
-Topography correction is necessary because seismic wave can only travel 
+Topography correction is necessary because seismic waves can only travel 
 on the direct path as long as they are within solid matter. When the 
 direct path is through air, the wave can only travel along the surface
 of the landscape. The function accounts for this effect and returns the

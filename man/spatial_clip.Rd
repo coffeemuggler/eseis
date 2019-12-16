@@ -19,14 +19,25 @@ values are clipped.}
 threshold quantile between 0 and 1. Default is \code{TRUE}.}
 }
 \value{
-\code{raster} object,clipped spatial data set.
+\code{raster} object, data set with clipped values.
 }
 \description{
 The function replaces raster values based on different thresholds.
 }
 \examples{
 
-## TO BE DONE
+## load example data set
+data(volcano)
+
+## convert matrix to raster object
+volcano <- raster::raster(volcano)
+
+## clip values to those > quantile 0.5
+volcano_clip <- spatial_clip(data = volcano, 
+                                    quantile = 0.5)
+                                    
+## plot clipped data set
+raster::plot(volcano_clip)
                      
 }
 \author{

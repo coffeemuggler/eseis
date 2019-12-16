@@ -7,13 +7,13 @@
 signal_spectrum(data, dt, method = "periodogram", ...)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, data set to be 
-processed.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
-\item{dt}{\code{Numeric} scalar, sampling period. If omitted, \code{dt} 
-is set to 1/200.}
+\item{dt}{\code{Numeric} value, sampling period. If omitted, \code{dt} 
+is set to 1/200. Only needed if \code{data} is no \code{eseis} object.}
 
-\item{method}{\code{Character} scalar, calculation method. One out of 
+\item{method}{\code{Character} value, calculation method. One out of 
 \code{"periodogram"} , \code{"autoregressive"} and \code{"multitaper"}, 
 default is \code{"periodogram"}.}
 
@@ -24,19 +24,19 @@ default is \code{"periodogram"}.}
 \code{Data frame} with spectrum and frequency vector
 }
 \description{
-The spectral density estimate of the time series is calculated using 
+The power spectral density estimate of the time series is calculated using 
 different approaches.
 }
 \examples{
 
 ## load example data set
-data(rockfall, envir = environment())
+data(rockfall)
 
 ## calculate spectrum with standard setup
-s <- signal_spectrum(data = rockfall, dt = 1/200)
+s <- signal_spectrum(data = rockfall_eseis)
 
 ## plot spectrum
-plot(s, type = "l", log = "y")
+plot_spectrum(data = s)
 
 }
 \author{

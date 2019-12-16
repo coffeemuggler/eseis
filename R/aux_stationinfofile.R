@@ -1,13 +1,11 @@
 #' Create station info file from cube files.
 #' 
-#' This function reads GPS tags from cube files and creates a station info 
-#' file from additional input data. It depends on the cubetools or gipptools  
-#' software package (see details). The function is at an experimental stage  
-#' and only used for data processing at the GFZ Geomorphology section, 
-#' currently.
+#' This function reads GPS tags from Omnirecs/Digos Datacube files and creates 
+#' a station info file from additional input data. It depends on the cubetools 
+#' or gipptools  software package (see details).
 #' 
 #' A station info file is an ASCII file that contains all relevant information
-#' of the individual stations of a seismic network. The variables contain a 
+#' about the individual stations of a seismic network. The variables contain a 
 #' station ID (containing not more than 5 characters), station name, latitude, 
 #' longitude, elevation, deployment depth, sensor type, logger type, sensor 
 #' ID and logger ID.\cr The function requires that the software cubetools 
@@ -76,6 +74,11 @@
 #' @param random \code{Logical} value, option to draw \code{n} cube files 
 #' randomly instead of ordered by date. Default is \code{TRUE}.
 #' 
+#' @param quantile \code{Numeric} value, quantile size to which the extracted 
+#' coordinate sample size is restricted. This is mainly used to remove 
+#' coordinate outliers, due to spurious GPS signals. Default is 
+#' \code{0.95}. Set to \code{1} to omit any sample rejection.
+#' 
 #' @param cpu \code{Numeric} value, fraction of CPUs to use for parallel 
 #' processing. If omitted, one CPU is used.
 #' 
@@ -99,30 +102,31 @@
 #' @keywords eseis
 #' @examples
 #'
-#' ## uncomment to use and replace dummy logger_IDs by real IDs
+#' \dontrun{
 #' 
 #' ## basic example with minimum effort
-#' # aux_stationinfofile(name = "stationinfo", 
-#' #                     input_dir = "input", 
-#' #                     logger_ID = c("864", "876", "AB1"),
-#' #                     gipptools = "software/gipptools-2015.225")
+#' aux_stationinfofile(name = "stationinfo", 
+#'                     input_dir = "input", 
+#'                     logger_ID = c("864", "876", "AB1"),
+#'                     gipptools = "software/gipptools-2015.225")
 #' 
 #' ## example with more adjustments
-#' # aux_stationinfofile(name = "stationinfo",
-#' #                     input_dir = "input",
-#' #                     output_dir = "output", 
-#' #                     logger_ID = c("864", "876", "AB1"),
-#' #                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
-#' #                     station_z = c(30, 28, 29), 
-#' #                     station_d = rep(0.5, 3), 
-#' #                     sensor_type = rep("TC120s", 3), 
-#' #                     logger_type = rep("Cube3ext", 3), 
-#' #                     unit = "utm", 
-#' #                     n = 1, 
-#' #                     cpu = 0.9,
-#' #                     gipptools = "software/gipptools-2015.225", 
-#' #                     write_raw = TRUE, 
-#' #                     write_data = TRUE)
+#' aux_stationinfofile(name = "stationinfo",
+#'                     input_dir = "input",
+#'                     logger_ID = c("864", "876", "AB1"),
+#'                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
+#'                     station_z = c(30, 28, 29), 
+#'                     station_d = rep(0.5, 3), 
+#'                     sensor_type = rep("TC120s", 3), 
+#'                     logger_type = rep("Cube3ext", 3), 
+#'                     unit = "utm", 
+#'                     n = 1, 
+#'                     cpu = 0.9,
+#'                     gipptools = "software/gipptools-2015.225", 
+#'                     write_raw = TRUE, 
+#'                     write_data = TRUE)
+#' 
+#' }
 #' 
 #' @export aux_stationinfofile
 aux_stationinfofile <- function(
@@ -139,6 +143,7 @@ aux_stationinfofile <- function(
   logger_ID,
   unit = "dd",
   n,
+  quantile = 0.95,
   random = TRUE,
   cpu,
   gipptools,
@@ -161,16 +166,12 @@ aux_stationinfofile <- function(
   ## check/set output directory
   if(missing(output_dir) == TRUE) {
     
-    ## set default output directory
-    output_dir <- paste(getwd(), "", sep = "")
-    output_dir_flag <- FALSE
-  } else {
-    
-    output_dir_flag <- TRUE
+    output_dir <- file.path(tempdir(), "output")
+    print(paste("Output will be written to", output_dir))
   }
   
   ## check if output directory exists and, if necessary create it
-  if(dir.exists(paths = output_dir) == FALSE & output_dir_flag == TRUE) {
+  if(dir.exists(paths = output_dir) == FALSE) {
     
     dir.create(path = output_dir)
     print("[aux_stationinfofile]: Output directory did not exist, created.")
@@ -189,7 +190,8 @@ aux_stationinfofile <- function(
   }
   
   ## get cube directories
-  input_dir_exist <- list.files(path = input_dir, full.names = TRUE)
+  input_dir_exist <- list.files(path = input_dir, 
+                                full.names = TRUE)
   
   ## check/set cube ID
   if(missing(logger_ID) == TRUE) {
@@ -429,6 +431,23 @@ aux_stationinfofile <- function(
     return(cbind(lat, lon))
   })
   
+  ## remove outliers
+  gps_cube <- lapply(X = gps_cube, FUN = function(gps_cube, qt) {
+    
+    lat_median_diff <- abs(median(x = gps_cube[,1]) - gps_cube[,1])
+    lon_median_diff <- abs(median(x = gps_cube[,2]) - gps_cube[,2])
+    
+    lat_diff_quantile <- stats::quantile(x = lat_median_diff, qt)
+    lon_diff_quantile <- stats::quantile(x = lon_median_diff, qt)
+    
+    gps_cube[lat_median_diff > lat_diff_quantile,1] <- NA
+    gps_cube[lon_median_diff > lon_diff_quantile,1] <- NA
+    
+    gps_cube <- gps_cube[stats::complete.cases(gps_cube),]
+    
+    return(gps_cube)
+  }, qt = quantile)
+  
   ## optionally convert decimal degrees to UTM coordinates
   if(unit == "utm") {
     
@@ -447,7 +466,8 @@ aux_stationinfofile <- function(
   }
   
   ## calculate average coordinates
-  gps_cube_mean <- lapply(X = gps_cube, FUN = colMeans)
+  gps_cube_mean <- lapply(X = gps_cube,
+                          FUN = colMeans)
   
   ## convert station info file and average gps data to data frames
   station_info <- as.data.frame(do.call(rbind, station_info), 

@@ -7,7 +7,8 @@
 signal_demean(data)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 }
 \value{
 \code{Numeric} vector or list of vectors, data set with mean 
@@ -22,14 +23,14 @@ The function removes the mean from a signal vector.
 data(rockfall)
 
 ## remove mean from data set
-rockfall_demean <- signal_demean(data = rockfall)
+rockfall_demean <- signal_demean(data = rockfall_eseis)
 
 ## compare data ranges
-range(rockfall)
-range(rockfall_demean)
+range(rockfall_eseis$signal)
+range(rockfall_demean$signal)
 
-## chow mean of initial signal
-mean(rockfall)
+## show mean of initial signal
+mean(rockfall_eseis$signal)
                      
 }
 \author{

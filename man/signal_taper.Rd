@@ -7,16 +7,17 @@
 signal_taper(data, p = 0, n)
 }
 \arguments{
-\item{data}{\code{Numeric} vector, input signal vector}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
-\item{p}{\code{Numeric} scalar, proportion of the signal vector to be 
+\item{p}{\code{Numeric} value, proportion of the signal vector to be 
 tapered. Alternative to \code{n}.}
 
-\item{n}{\code{Numeric} scalar, number of samples to be tapered at each
+\item{n}{\code{Numeric} value, number of samples to be tapered at each
 end of the signal vector.}
 }
 \value{
-\code{Numeric} scalar, tapered signal vector.
+\code{Data frame}, tapered signal vector.
 }
 \description{
 The function tapers a signal vector with a cosine bell taper, either of a
@@ -28,17 +29,17 @@ given proportion or a discrete number of samples.
 data(rockfall)
 
 ## remove mean from data set
-rockfall <- signal_demean(data = rockfall)
+rockfall <- signal_demean(data = rockfall_eseis)
 
 ## create artefact at the beginning
-rockfall[1:100] <- runif(n = 100, min = -5000, max = 5000)
+rockfall_eseis$signal[1:100] <- runif(n = 100, min = -5000, max = 5000)
 
 ## taper signal
 rockfall_taper <- signal_taper(data = rockfall, n = 1000)
 
 ## plot both data sets
-plot(rockfall[1:5000], type = "l")
-plot(rockfall_taper[1:5000], type = "l")
+plot_signal(data = rockfall_eseis)
+plot_signal(rockfall_taper)
                      
 }
 \author{

@@ -6,8 +6,8 @@
 \usage{
 aux_stationinfofile(name, input_dir, output_dir, station_ID, station_name,
   station_z, station_d, sensor_type, logger_type, sensor_ID, logger_ID,
-  unit = "dd", n, random = TRUE, cpu, gipptools, write_file = TRUE,
-  write_raw = FALSE, write_data = FALSE)
+  unit = "dd", n, quantile = 0.95, random = TRUE, cpu, gipptools,
+  write_file = TRUE, write_raw = FALSE, write_data = FALSE)
 }
 \arguments{
 \item{name}{\code{Character} value, file name of the output station info 
@@ -46,6 +46,11 @@ Default is \code{"dd"}.}
 \item{n}{\code{Numeric} value, number of cube file to process for GPS 
 coordinate extraction. If omitted, all files are processed.}
 
+\item{quantile}{\code{Numeric} value, quantile size to which the extracted 
+coordinate sample size is restricted. This is mainly used to remove 
+coordinate outliers, due to spurious GPS signals. Default is 
+\code{0.95}. Set to \code{1} to omit any sample rejection.}
+
 \item{random}{\code{Logical} value, option to draw \code{n} cube files 
 randomly instead of ordered by date. Default is \code{TRUE}.}
 
@@ -70,15 +75,13 @@ A set of files written to disk and a data frame with seismic
 station information.
 }
 \description{
-This function reads GPS tags from cube files and creates a station info 
-file from additional input data. It depends on the cubetools or gipptools  
-software package (see details). The function is at an experimental stage  
-and only used for data processing at the GFZ Geomorphology section, 
-currently.
+This function reads GPS tags from Omnirecs/Digos Datacube files and creates 
+a station info file from additional input data. It depends on the cubetools 
+or gipptools  software package (see details).
 }
 \details{
 A station info file is an ASCII file that contains all relevant information
-of the individual stations of a seismic network. The variables contain a 
+about the individual stations of a seismic network. The variables contain a 
 station ID (containing not more than 5 characters), station name, latitude, 
 longitude, elevation, deployment depth, sensor type, logger type, sensor 
 ID and logger ID.\cr The function requires that the software cubetools 
@@ -110,30 +113,31 @@ appropriate structure would be something like: \cr
 }
 \examples{
 
-## uncomment to use and replace dummy logger_IDs by real IDs
+\dontrun{
 
 ## basic example with minimum effort
-# aux_stationinfofile(name = "stationinfo", 
-#                     input_dir = "input", 
-#                     logger_ID = c("864", "876", "AB1"),
-#                     gipptools = "software/gipptools-2015.225")
+aux_stationinfofile(name = "stationinfo", 
+                    input_dir = "input", 
+                    logger_ID = c("864", "876", "AB1"),
+                    gipptools = "software/gipptools-2015.225")
 
 ## example with more adjustments
-# aux_stationinfofile(name = "stationinfo",
-#                     input_dir = "input",
-#                     output_dir = "output", 
-#                     logger_ID = c("864", "876", "AB1"),
-#                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
-#                     station_z = c(30, 28, 29), 
-#                     station_d = rep(0.5, 3), 
-#                     sensor_type = rep("TC120s", 3), 
-#                     logger_type = rep("Cube3ext", 3), 
-#                     unit = "utm", 
-#                     n = 1, 
-#                     cpu = 0.9,
-#                     gipptools = "software/gipptools-2015.225", 
-#                     write_raw = TRUE, 
-#                     write_data = TRUE)
+aux_stationinfofile(name = "stationinfo",
+                    input_dir = "input",
+                    logger_ID = c("864", "876", "AB1"),
+                    station_name = c("KTZ01", "KTZ02", "KTZ03"), 
+                    station_z = c(30, 28, 29), 
+                    station_d = rep(0.5, 3), 
+                    sensor_type = rep("TC120s", 3), 
+                    logger_type = rep("Cube3ext", 3), 
+                    unit = "utm", 
+                    n = 1, 
+                    cpu = 0.9,
+                    gipptools = "software/gipptools-2015.225", 
+                    write_raw = TRUE, 
+                    write_data = TRUE)
+
+}
 
 }
 \author{

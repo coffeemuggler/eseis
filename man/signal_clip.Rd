@@ -7,9 +7,11 @@
 signal_clip(data, time, limits)
 }
 \arguments{
-\item{data}{\code{Numeric} vector or list of vectors, input signal vector.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed.}
 
-\item{time}{\code{POSIXct} vector, corresponding time vector.}
+\item{time}{\code{POSIXct} vector, corresponding time vector. Only needed 
+if \code{data} is no \code{eseis} object.}
 
 \item{limits}{\code{POSIXct} vector of length two, time limits for 
 clipping.}
@@ -18,12 +20,25 @@ clipping.}
 \code{Numeric} data set clipped to provided time interval.
 }
 \description{
-The function clips signals based on the correpsonding time vector.
+The function clips a seismic signal based on the corresponding time vector.
 }
 \examples{
 
-## TO BE DONE
+## load example data
+data(rockfall)
+
+## define limits (second 10 to 20 of the signal)
+limits <- c(rockfall_t[1] + 10, rockfall_t[1] + 20)
+
+## clip signal 
+rockfall_clip <- signal_clip(data = rockfall_z, 
+                             time = rockfall_t, 
+                             limits = limits)
                      
+## clip signal using the eseis object
+rockfall_clip <- signal_clip(data = rockfall_eseis, 
+                             limits = limits)
+                             
 }
 \author{
 Michael Dietze

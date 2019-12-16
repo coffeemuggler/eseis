@@ -3,7 +3,7 @@
 #' The function calculates topography-corrected distances either between 
 #' seismic stations or from seismic stations to pixels of an input raster.
 #' 
-#' Topography correction is necessary because seismic wave can only travel 
+#' Topography correction is necessary because seismic waves can only travel 
 #' on the direct path as long as they are within solid matter. When the 
 #' direct path is through air, the wave can only travel along the surface
 #' of the landscape. The function accounts for this effect and returns the

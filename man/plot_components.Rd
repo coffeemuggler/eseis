@@ -8,8 +8,9 @@ plot_components(data, type = "2D", order = "xyz", ...)
 }
 \arguments{
 \item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic
-componenents to be plotted. If \code{data} is a matrix, the components 
-must be organised as columns.}
+componenents to be processed. If \code{data} is a matrix, the components 
+must be organised as columns. Also, \code{data} can be a list of 
+\code{eseis} objects.}
 
 \item{type}{\code{Character} value, plot type. One out of \code{"2D"} 
 (panel of three 2-dimensional plots), \code{"3D"} (perspective 3D plot)

@@ -2,68 +2,87 @@
 % Please edit documentation in R/read_sac.R
 \name{read_sac}
 \alias{read_sac}
-\title{Read sac-files.}
+\title{Read sac files.}
 \usage{
-read_sac(file, append = TRUE, signal = TRUE, time = TRUE, meta = TRUE,
-  header = TRUE, endianness = "little", biglong = FALSE)
+read_sac(file, append = TRUE, signal = TRUE, time = TRUE,
+  meta = TRUE, header = TRUE, eseis = TRUE,
+  get_instrumentdata = FALSE, endianness = "little", biglong = FALSE,
+  type = "waveform")
 }
 \arguments{
-\item{file}{\code{Character} vector, input file name(s), with extension. 
-Wildcards may be used (see details and examples).}
+\item{file}{\code{Character} vector, input file name(s), with extension.}
 
-\item{append}{\code{Logical} scalar, option append single files to one
-continuous file, keeping only the header information of the first file.}
-
-\item{signal}{\code{Logical} scalar, option to import the signal vector, 
+\item{append}{\code{Logical} value, option append single files to one
+continuous file, keeping only the header information of the first file,
 default is \code{TRUE}.}
 
-\item{time}{\code{Logical} scalar, option to create the time vector. The 
+\item{signal}{\code{Logical} value, option to import the signal vector, 
+default is \code{TRUE}.}
+
+\item{time}{\code{Logical} value, option to create the time vector. The 
 timezone is automatically set to \code{"UTC"}, default is \code{TRUE}.}
 
-\item{meta}{\code{Logical} scalar, option to append the meta data part, 
+\item{meta}{\code{Logical} value, option to append the meta data part, 
 default is \code{TRUE}.}
 
-\item{header}{\code{Logical} scalar, option to append the header part, 
+\item{header}{\code{Logical} value, option to append the header part, 
 default is \code{TRUE}.}
 
-\item{endianness}{\code{Logical} scalar, endianness of the sac file. One
+\item{eseis}{\code{Logical} value, option to read data to an \code{eseis}
+object (recommended, see documentation of 
+\code{aux_initiateeseis}), default is \code{TRUE}}
+
+\item{get_instrumentdata}{\code{Logical} value, option to fill meta 
+information (sensor name, logger name, logger gain) from SAC user fields 
+(field 127-129, KUSER0-KUSER2). Default is \code{FALSE}.}
+
+\item{endianness}{\code{Logical} value, endianness of the sac file. One
 out of \code{"little"}, \code{"big"} and \code{"swap"}. Default 
 is \code{"little"}.}
 
-\item{biglong}{\code{Logical} scalar, number coding format. Default 
+\item{biglong}{\code{Logical} value, number coding format. Default 
 is \code{FALSE}.}
+
+\item{type}{\code{Character} value, type keyword of the data. One out of 
+\code{"waveform"}, \code{"envelope"}, \code{"fft"}, \code{"spectrum"}, 
+\code{"spectrogram"}, \code{"other"}, \code{hilbert}, \code{hvratio}. 
+Default is \code{"waveform"}.}
 }
 \value{
-\code{List} object.
+\code{List} object, optionally of class \code{eseis}.
 }
 \description{
-This function reads sac-files.
+This function reads sac files.
 }
 \details{
 The function reads one or more sac-files. If \code{append = TRUE}, all
 files will be appended to the first one in the order as they are provided. 
-In the append-case the function returns a list of length 4 with the elements 
-\code{signal}, \code{time}, \code{meta} and \code{header}. If 
-\code{append = FALSE} and nmore than one file is provided, the function
-returns a list of the length of the input files, each containing the above
-elements. \cr\cr The sac data format is implemented as descibed on the IRIS
-website (https://ds.iris.edu/files/sac-manual/manual/file_format.html).
+In the append-case the function returns a either a list with the elements 
+\code{signal}, \code{time}, \code{meta} and \code{header} or a list of the 
+class \code{eseis} (see documentation of 
+\code{aux_initiateeseis}). If \code{append = FALSE} and more than one file 
+is provided, the function returns a list of the length of the input files, 
+each containing the above elements. \cr\cr The sac data format is 
+implemented as descibed on the IRIS website 
+(https://ds.iris.edu/files/sac-manual/manual/file_format.html).
 }
 \examples{
 
-## Not run - read one file
-# file1 <- "~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC"
+\dontrun{
+## read one file
+file1 <- "~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC"
 
-# sac1 <- read_sac(file = file1)
+sac1 <- read_sac(file = file1)
 
-# signal <- sac1$signal
-# time <- sac1$time
+## read two (or more files) without meta and header parts
+file2 <- c("~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC",
+           "~/Data/sac/EXMP01.14.213.02.00.00.BHE.SAC")
 
-## Not run - read two (or more files) without meta and header parts
-# file2 <- c("~/Data/sac/EXMP01.14.213.01.00.00.BHE.SAC",
-#            "~/Data/sac/EXMP01.14.213.02.00.00.BHE.SAC")
-
-# sac2 <- read_sac(file = file2, meta = FALSE, header = FALSE)
+sac2 <- read_sac(file = file2, 
+                 meta = FALSE, 
+                 header = FALSE,
+                 eseis = FALSE)
+}
 
 }
 \author{

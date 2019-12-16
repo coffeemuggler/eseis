@@ -1,18 +1,17 @@
-#' Convert cube files to mseed or sac files and organise in directory structure.
+#' Convert Omnirecs/Digos Datacube files to mseed or sac files and organise in directory structure.
 #' 
-#' This function converts cube files to hourly mseed or sac files and 
-#' organises these in a coherent directory structure, by year, Julian day, 
-#' (station, hour and channel). It depends on the cubetools or gipptools  
-#' software package (see details). The function is at an experimental stage  
-#' and only used for data processing at the GFZ Geomorphology section, 
-#' currently.
+#' This function converts Omnirecs/Digos Datacube files to hourly mseed or 
+#' sac files and organises these in a coherent directory structure, by year, 
+#' Julian day, (station, hour and channel). It depends on the cubetools or   
+#' gipptools software package (see details). 
 #' 
 #' The function converts seismic data from the cube file format to either 
 #' mseed (cf. \code{read_mseed}) or sac (cf. \code{read_sac}) and cuts the 
 #' daily cube files to hourly files. These hourly files are organised in a 
 #' coherent directory structure which is organised by year and Julian day. 
 #' In each Julian day directory the hourly files are placed and named after 
-#' the following scheme: STATIONID.YEAR.JULIANDAY.HOUR.MINUTE.SEC.CHANNEL.\cr
+#' the following scheme: 
+#' STATIONID.YEAR.JULIANDAY.HOUR.MINUTE.SECOND.CHANNEL.\cr
 #' The function requires that the software cubetools 
 #' (\code{http://www.omnirecs.de/documents.html}) or gipptools 
 #' (\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/}) 
@@ -38,11 +37,34 @@
 #'    }
 #' }
 #' 
+#' With one of the latest updates of either R or Java the cache size for 
+#' converting cube files to mseed files has been reduced. 
+#' Thus, in several cases the conversion 
+#' stops due to buffer overruns. This effect has been particularly observed 
+#' when trying to convert more than about 20 consecutive days of cube files
+#' at once. In such a case, it is appropriate to set the function argument
+#' mseed_manual to \code{TRUE}. This will stop the function just at the point
+#' where the function would call the GIPPtools function cube2mseed. The user 
+#' will see a confirmation command line in the R console, which asks 
+#' to first copy all manually converted mseed files to the directory 
+#' \code{mseed_raw} before confirming to continue with the R function. To 
+#' convert all cube files to mseed files it is advised to open a terminal and 
+#' run the function \code{GIPPtools/bin/cube2mseed} with the following 
+#' parameters: \code{GIPPtools/bin/cube2mseed --verbose --output-dir=./mseed_raw/ ./input_dir/}
+#' without further adjustments, except for the fringe sample option, as 
+#' specified in \code{aux_organisecubefiles}. Please also see the documentation 
+#' of the cube2mseed program from the gipptools for further information.
+#' 
+#' Alternatively, increasing the heap space of the Java Runtime Environment, 
+#' required for converting the cube files, can solve the above mentioned 
+#' issue. To increase the heap space, use the argument \code{heapspace}. By 
+#' default, this argument is set to 4096. 
+#' 
 #' @param stationfile \code{Character} value, file name of the station info 
 #' file, with extension. See \code{aux_stationinfofile}.
 #'
 #' @param input_dir \code{Character} value, path to directory where all cube 
-#' files to be processed as stored. Each set of files from one logger must be 
+#' files to be processed are stored. Each set of files from one logger must be 
 #' stored in a separate sub-directory named after the cube ID.
 #' 
 #' @param output_dir \code{Character} value, path to directory where output 
@@ -67,19 +89,31 @@
 #' @param gipptools \code{Character} value, path to gipptools or cubetools 
 #' directory. 
 #' 
+#' @param heapspace \code{Numeric} value, heap space assigned to the Jave 
+#' Runtime Environment, e.g., \code{4096}. Should be increased if the cube 
+#' to mseed conversion fails (announced if \code{verbose = TRUE}).
+#' 
+#' @param mseed_manual \code{Logical} value, option to convert mseed files 
+#' manually. See details. Default is \code{FALSE}, i.e., the function converts 
+#' cube files to mseed files using the GIPP tools.
+#' 
+#' @param mseed_keep \code{Logical} value, option to keep mseed files instead 
+#' of deleting them. Default is \code{FALSE}. 
+#' 
 #' @return A set of hourly seismic files written to disk.
 #' 
 #' @author Michael Dietze
 #' @keywords eseis
 #' @examples
 #'
-#' ## uncomment to use
+#' \dontrun{
 #' 
 #' ## basic example with minimum effort
-#' # aux_organisecubefiles(stationfile = "output/stationinfo.txt", 
-#' #                       input_dir = "input", 
-#' #                       output_dir = "output", 
-#' #                       gipptools = "software/gipptools-2015.225/")
+#' aux_organisecubefiles(stationfile = "output/stationinfo.txt", 
+#'                       input_dir = "input", 
+#'                       gipptools = "software/gipptools-2015.225/")
+#' 
+#' }
 #'                         
 #' @export aux_organisecubefiles
 aux_organisecubefiles <- function(
@@ -91,27 +125,60 @@ aux_organisecubefiles <- function(
   cpu,
   fringe = "constant",
   verbose = FALSE,
-  gipptools
+  gipptools,
+  heapspace,
+  mseed_manual = FALSE,
+  mseed_keep = FALSE
 ){
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
   
+  ## check/set station info file validity
+  if(missing(stationfile) == TRUE) {
+    
+    stop("No station info file provided!")
+  } else if(file.exists(stationfile) == FALSE) {
+    
+    stop("Station info file does not exist!")
+  } else {
+    
+    station_test <- try(read.table(file = stationfile, 
+                                   header = TRUE, 
+                                   stringsAsFactors = FALSE))
+    
+    if(class(station_test) == "try-error") {
+      
+      stop("Station info file cannot be read!")
+    } else {
+      
+      if(sum(names(station_test) == "logger_ID") < 1) {
+        
+        stop("Station info file invalid, at least logger_ID is missing!")
+      }
+    }
+  }
+  
+  ## check/set input directory
+  if(missing(input_dir) == TRUE) {
+    
+    stop("No input directory provided!")
+  } else if(dir.exists(input_dir) == FALSE) {
+    
+    stop("Input directory does not exist!")
+  }
+  
   ## check/set output directory
   if(missing(output_dir) == TRUE) {
     
-    ## set default output directory
-    output_dir <- paste(getwd(), "", sep = "")
-    output_dir_flag <- FALSE
-  } else {
-    
-    output_dir_flag <- TRUE
+    output_dir <- file.path(tempdir(), "output")
+    print(paste("Output will be written to", output_dir))
   }
   
   ## check if output directory exists and, if necessary create it
-  if(dir.exists(paths = output_dir) == FALSE & output_dir_flag == TRUE) {
+  if(dir.exists(paths = output_dir) == FALSE) {
     
     dir.create(path = output_dir)
-    print("[aux_organisecubefiles]: Output directory did not exist, created.")
+    print("Output directory did not exist, created.")
   }
   
   ## check/set fraction of CPUs to use
@@ -120,20 +187,42 @@ aux_organisecubefiles <- function(
     cpu <- NA
   }
   
-  ## save root directory
-  dir_general <- getwd()
+  ## check/set fraction of CPUs to use
+  if(missing(heapspace) == TRUE) {
+    
+    heapspace <- NA
+  }
   
-  ## set path to input files
-  path_data <- paste(getwd(), 
-                     input_dir, 
-                     sep = "/")
+  ## check/set validity of software directory
+  if(missing(gipptools) == TRUE) {
+    
+    stop("Path to gipptools missing!")
+  } else if(dir.exists(gipptools) == FALSE) {
+    
+    stop("Path to gipptools is wrong!")
+  # } else {
+  #   
+  #   if(file.exists(paste(gipptools, 
+  #                        "/bin/cube2mseed", 
+  #                        sep = "")) == FALSE) {
+  #     
+  #     stop("gipptools do not contain cbue2mseed function!")
+  #   }
+  #   
+  #   if(file.exists(paste(gipptools, 
+  #                        "/bin/mseedcut", 
+  #                        sep = "")) == FALSE) {
+  #     
+  #     stop("gipptools do not contain mseedcut function!")
+  #   }
+  }
   
   ## read station info data
   stations <- read.table(file = stationfile, 
                          header = TRUE)
   
   ## create list of logger directories to process
-  list_logger <- list.files(path = path_data, 
+  list_logger <- list.files(path = input_dir, 
                             full.names = TRUE)
   
   ## compare cube_ID with cube directories
@@ -188,27 +277,77 @@ aux_organisecubefiles <- function(
   ## initiate cluster
   cl <- parallel::makeCluster(getOption("mc.cores", cores))
   
-  ## convert cube to mseed files
-  invisible(parallel::parLapply(
-    cl = cl, 
-    X = list_logger, 
-    fun = function(X, gipptools, output_dir) {
+  ## convert mseed files or use manually converted files
+  if(mseed_manual == TRUE) {
+    
+    print(paste("Copy all mseed files to 'mseed_raw' and press any key",
+                "to continue (or 'q' to quit).", 
+                sep = " "))
+    
+    go_on <- scan(what = "character",
+                  n = 1,
+                  quiet = TRUE)
+    
+    if(length(go_on) == 0) {
+      go_on <- "go_on"
+    }
+    
+    if(go_on == "q") {
       
-      system(command = paste(gipptools, "/bin/cube2mseed", 
-                             ifelse(test = verbose == TRUE, 
-                                    yes = " --verbose", 
-                                    no = ""),
-                             " --fringe-samples=",
-                             toupper(x = fringe),
-                             " --output-dir=",
-                             output_dir,
-                             "/mseed_raw ",
-                             X,
-                             "/",
-                             sep = ""))
-    }, 
-    gipptools = gipptools,
-    output_dir = output_dir))
+      stop("Manual function abort.")
+    }
+    
+  } else {
+    
+    ## convert cube to mseed files
+    invisible(parallel::parLapply(
+      cl = cl, 
+      X = list_logger, 
+      fun = function(X, gipptools, output_dir, heapspace, verbose, fringe) {
+        
+        if(is.na(heapspace) == TRUE) {
+          
+          system(command = paste(gipptools, "/bin/cube2mseed", 
+                                 ifelse(test = verbose == TRUE, 
+                                        yes = " --verbose", 
+                                        no = ""),
+                                 " --fringe-samples=",
+                                 toupper(x = fringe),
+                                 " --output-dir=",
+                                 output_dir,
+                                 "/mseed_raw ",
+                                 X,
+                                 "/",
+                                 sep = ""))
+          
+        } else {
+          
+          system(command = paste("java -Xmx", 
+                                 heapspace,
+                                 "m; ",
+                                 "export _JAVA_OPTIONS=-Xmx", 
+                                 heapspace,
+                                 "m; ",
+                                 gipptools, "/bin/cube2mseed", 
+                                 ifelse(test = verbose == TRUE, 
+                                        yes = " --verbose", 
+                                        no = ""),
+                                 " --fringe-samples=",
+                                 toupper(x = fringe),
+                                 " --output-dir=",
+                                 output_dir,
+                                 "/mseed_raw ",
+                                 X,
+                                 "/",
+                                 sep = ""))
+        }
+      }, 
+      gipptools = gipptools,
+      output_dir = output_dir, 
+      heapspace = heapspace,
+      verbose = verbose,
+      fringe = fringe))
+  }
   
   ## create list of generated mseed files
   files_mseed_raw <- list.files(path = paste(output_dir, 
@@ -239,10 +378,13 @@ aux_organisecubefiles <- function(
                                                   "/mseed_raw/",
                                                   sep = ""), 
                                      full.names = TRUE)
+  
   invisible(file.remove(files_mseed_raw_full))
-  invisible(file.remove(paste(output_dir, 
+  
+  try(invisible(unlink(paste(output_dir, 
                               "/mseed_raw", 
-                              sep = "")))
+                              sep = ""), 
+                       recursive = TRUE)))
   
   ## create hourly mseed file lists
   files_mseed_hour <- list.files(path = paste(output_dir,
@@ -266,6 +408,7 @@ aux_organisecubefiles <- function(
                                           "/mseed_hour/", 
                                           X, 
                                           sep = ""),
+                             eseis = FALSE,
                              signal = TRUE, 
                              time = TRUE, 
                              meta = TRUE, 
@@ -290,6 +433,12 @@ aux_organisecubefiles <- function(
       
       ## extract date elements
       JD_info <- eseis::time_convert(input = date_info, output = "JD")
+      JD_info <- ifelse(test = nchar(JD_info) == 1, 
+                        yes = paste("00", JD_info, sep = ""), 
+                        no = JD_info)
+      JD_info <- ifelse(test = nchar(JD_info) == 2, 
+                        yes = paste("0", JD_info, sep = ""), 
+                        no = JD_info)
       year_info <- format(date_info, "%y")
       hour_info <- format(date_info, "%H")
       min_info <- format(date_info, "%M")
@@ -353,14 +502,26 @@ aux_organisecubefiles <- function(
     gipptools = gipptools))
   
   ## remove old mseed files
-  invisible(file.remove(paste(output_dir, "/mseed_hour", 
-                              files_mseed_hour,
-                              sep = "/")))
-  
-  ## make new file list
-  files_new <- list.files(path = paste(output_dir, 
-                                       "/mseed_hour", 
-                                       sep = ""))
+  if(mseed_keep == FALSE) {
+    
+    invisible(file.remove(paste(output_dir, "/mseed_hour", 
+                                files_mseed_hour,
+                                sep = "/")))
+    
+    ## make new file list
+    files_new <- list.files(path = paste(output_dir, 
+                                         "/mseed_hour", 
+                                         sep = ""))
+  } else {
+    
+    ## make new file list
+    files_new <- list.files(path = paste(output_dir, 
+                                         "/mseed_hour", 
+                                         sep = ""))
+    
+    ## remove original mseed files from new file list
+    files_new <- files_new[!(files_new %in% files_mseed_hour)]
+  }
   
   ## extract date information from hourly files
   files_year <- unlist(lapply(X = files_new, FUN = function(X) {
@@ -417,9 +578,13 @@ aux_organisecubefiles <- function(
   }
   
   ## remove temporary directory
-  invisible(file.remove(paste(output_dir, 
-                              "/mseed_hour",
-                              sep = "")))
+  if(mseed_keep == FALSE) {
+    
+    try(invisible(unlink(paste(output_dir, 
+                               "/mseed_hour",
+                               sep = ""), 
+                         recursive = TRUE)))
+  }
   
   ## stop cluster
   parallel::stopCluster(cl = cl)
