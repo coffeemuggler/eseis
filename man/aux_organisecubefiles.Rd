@@ -4,9 +4,20 @@
 \alias{aux_organisecubefiles}
 \title{Convert Omnirecs/Digos Datacube files to mseed or sac files and organise in directory structure.}
 \usage{
-aux_organisecubefiles(stationfile, input_dir, output_dir, format = "sac",
-  channel_name = "bh", cpu, fringe = "constant", verbose = FALSE,
-  gipptools, heapspace, mseed_manual = FALSE, mseed_keep = FALSE)
+aux_organisecubefiles(
+  stationfile,
+  input_dir,
+  output_dir,
+  format = "sac",
+  channel_name = "bh",
+  cpu,
+  fringe = "constant",
+  verbose = FALSE,
+  gipptools,
+  heapspace,
+  mseed_manual = FALSE,
+  mseed_keep = FALSE
+)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 

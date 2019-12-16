@@ -181,7 +181,7 @@ aux_gettemperature <- function(
                     silent = TRUE)
       
       ## append successfully extracted data
-      if(class(data_i) != "try-error") {
+      if(class(data_i)[1] != "try-error") {
         
         ## extract time
         time <- c(time, as.character(substr(x = data_i$V5, 

@@ -261,7 +261,7 @@ aux_getevent <- function(
         
         try(for(j in 1:length(data[[i]])) {
           
-          class(data[[i]][[j]]) <- "eseis"
+          class(data[[i]][[j]])[1] <- "eseis"
         })
     } else {
       
@@ -304,7 +304,7 @@ aux_getevent <- function(
       
       for(j in 1:length(data[[i]])) {
         
-        class(data[[i]][[j]]) <- "eseis"
+        class(data[[i]][[j]])[1] <- "eseis"
       }
     }
   }
@@ -321,7 +321,7 @@ aux_getevent <- function(
                   by = data[[1]][[1]]$meta$dt, 
                   length.out = data[[1]][[1]]$meta$n))
       
-      if(class(time) == "try-error") {
+      if(class(time)[1] == "try-error") {
         
         time <- NA
       }
@@ -338,7 +338,7 @@ aux_getevent <- function(
         try(names(data[[i]]) <- component[i])
         
         ## account for try-errors
-        if(class(data[[i]]) == "try-error") {
+        if(class(data[[i]])[1] == "try-error") {
           
           data <- NA
         }
@@ -358,7 +358,7 @@ aux_getevent <- function(
       ## account for try-errors
       data <- lapply(X = data, FUN = function(data) {
         
-        if(class(data) == "try-error") {
+        if(class(data)[1] == "try-error") {
           
           return(NA)
         } else {

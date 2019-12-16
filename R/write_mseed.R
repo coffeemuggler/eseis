@@ -79,7 +79,7 @@ write_mseed <- function(
   }
   
   ## check arguments when no eseis object is provided
-  if(class(data) != "eseis") {
+  if(class(data)[1] != "eseis") {
     
     ## check/set station
     if(missing(station) == TRUE) {

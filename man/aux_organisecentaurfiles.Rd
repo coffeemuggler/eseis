@@ -4,9 +4,17 @@
 \alias{aux_organisecentaurfiles}
 \title{Reorganise seismic files recorded by Nanometrics Centaur loggers}
 \usage{
-aux_organisecentaurfiles(stationfile, input_dir, output_dir,
-  format = "sac", channel_name = "bh", cpu, gipptools,
-  file_key = "miniseed", network)
+aux_organisecentaurfiles(
+  stationfile,
+  input_dir,
+  output_dir,
+  format = "sac",
+  channel_name = "bh",
+  cpu,
+  gipptools,
+  file_key = "miniseed",
+  network
+)
 }
 \arguments{
 \item{stationfile}{\code{Character} value, file name of the station info 
@@ -63,7 +71,7 @@ are installed. \cr Specifying an input directory
 (\code{input_dir}) is mandatory. This input directory must only contain the 
 subdirectories with mseed data for each Centaur logger. The subdirectory 
 must be named after the four digit Centaur ID and contain only mseed files,
-regardless if further subdirectories are used (e.g., for calendar days).
+regardless if further subdirectories are used (e.g., for calendar days). 
 
 In the case a six-channel Centaur is used to record signals from two
 sensors, in the station info file (cf. \code{aux_stationinfofile()})

@@ -4,8 +4,28 @@
 \alias{model_bedload}
 \title{Model the seismic spectrum due to bedload transport in rivers}
 \usage{
-model_bedload(gsd, d_s, s_s, r_s, q_s, h_w, w_w, a_w, f = c(1, 100), r_0,
-  f_0, q_0, e_0, v_0, x_0, n_0, n_c, res = 100, eseis = FALSE, ...)
+model_bedload(
+  gsd,
+  d_s,
+  s_s,
+  r_s,
+  q_s,
+  h_w,
+  w_w,
+  a_w,
+  f = c(1, 100),
+  r_0,
+  f_0,
+  q_0,
+  e_0,
+  v_0,
+  x_0,
+  n_0,
+  n_c,
+  res = 100,
+  eseis = FALSE,
+  ...
+)
 }
 \arguments{
 \item{gsd}{\code{data frame} grain-size distribution function. Must be 

@@ -146,7 +146,7 @@ aux_organisecubefiles <- function(
                                    header = TRUE, 
                                    stringsAsFactors = FALSE))
     
-    if(class(station_test) == "try-error") {
+    if(class(station_test)[1] == "try-error") {
       
       stop("Station info file cannot be read!")
     } else {

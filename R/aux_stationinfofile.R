@@ -413,7 +413,7 @@ aux_stationinfofile <- function(
                     silent = TRUE)
       
       ## append successfully extracted data
-      if(class(data_i) != "try-error") {
+      if(class(data_i)[1] != "try-error") {
         
         ## extract latitude
         lat <- c(lat, as.numeric(substr(x = data_i$V8, 

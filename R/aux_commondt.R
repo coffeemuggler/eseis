@@ -33,12 +33,12 @@ aux_commondt <- function(
 ) {
   
   ## check/set input data
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     ## get classes of list elements
     list_classes <- do.call(c, lapply(X = data, FUN = function(data) {
       
-      class(data)
+      class(data)[1]
     }))
     
     ## check if list elements are eseis objects
@@ -53,7 +53,7 @@ aux_commondt <- function(
         data$meta$dt
       }))
     }
-  } else if(class(data) == "numeric") {
+  } else if(class(data)[1] == "numeric") {
     
     dt_data <- data
   } else {

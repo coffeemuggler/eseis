@@ -138,7 +138,7 @@ spatial_amplitude <- function (
         
         res <- try(sum(residuals(mod)^2))
         
-        if(class(res) != "try-error") {
+        if(class(res)[1] != "try-error") {
           
           return(res)
         }

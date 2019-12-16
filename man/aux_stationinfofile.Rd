@@ -4,10 +4,28 @@
 \alias{aux_stationinfofile}
 \title{Create station info file from cube files.}
 \usage{
-aux_stationinfofile(name, input_dir, output_dir, station_ID, station_name,
-  station_z, station_d, sensor_type, logger_type, sensor_ID, logger_ID,
-  unit = "dd", n, quantile = 0.95, random = TRUE, cpu, gipptools,
-  write_file = TRUE, write_raw = FALSE, write_data = FALSE)
+aux_stationinfofile(
+  name,
+  input_dir,
+  output_dir,
+  station_ID,
+  station_name,
+  station_z,
+  station_d,
+  sensor_type,
+  logger_type,
+  sensor_ID,
+  logger_ID,
+  unit = "dd",
+  n,
+  quantile = 0.95,
+  random = TRUE,
+  cpu,
+  gipptools,
+  write_file = TRUE,
+  write_raw = FALSE,
+  write_data = FALSE
+)
 }
 \arguments{
 \item{name}{\code{Character} value, file name of the output station info 

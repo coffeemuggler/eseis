@@ -230,7 +230,7 @@ aux_getFDSNdata <- function(
                             silent = TRUE))
       
       ## fill meta information and return data
-      if(class(s) != "try-error") {
+      if(class(s)[1] != "try-error") {
         
         s$meta$latitude <- as.numeric(s_meta$Network$Station$Latitude)
         s$meta$longitude <- as.numeric(s_meta$Network$Station$Longitude)

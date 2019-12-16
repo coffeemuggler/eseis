@@ -37,7 +37,7 @@ download data using the function \code{aux_FDSNdata}.
 }
 \details{
 The function requires a working internet connection to perform the query.
-It uses the following FDSN data bases by default:
+It uses the following FDSN data bases by default: 
 
 \itemize{
   \item \code{orfeus} \code{"http://www.orfeus-eu.org"}

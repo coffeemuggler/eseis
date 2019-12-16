@@ -4,8 +4,15 @@
 \alias{spatial_distance}
 \title{Calculate topography-corrected distances for seismic waves.}
 \usage{
-spatial_distance(stations, dem, topography = TRUE, cores = 1,
-  dmap = TRUE, dstation = TRUE, aoi)
+spatial_distance(
+  stations,
+  dem,
+  topography = TRUE,
+  cores = 1,
+  dmap = TRUE,
+  dstation = TRUE,
+  aoi
+)
 }
 \arguments{
 \item{stations}{\code{Numeric} matrix of length two, x- and y-coordinates 

@@ -69,10 +69,10 @@ plot_components(data = s_d,
                 type = "2D",
                 col = col_user(n = length(s$BHE)))
 
-## plot components as 3D plot
-plot_components(data = s_d, 
-                type = "3D",
-                col = rainbow(n = length(s$BHE)))
+## plot components as 3D plot, uncomment to use
+#plot_components(data = s_d, 
+#                 type = "3D",
+#                 col = rainbow(n = length(s$BHE)))
                 
 }
 \author{

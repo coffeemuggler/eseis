@@ -48,7 +48,7 @@ plot_signal <- function(
 ) {
   
   ## check if input object is of class eseis
-  if(class(data) == "eseis") {
+  if(class(data)[1] == "eseis") {
     
     ## set eseis flag
     eseis_class <- TRUE

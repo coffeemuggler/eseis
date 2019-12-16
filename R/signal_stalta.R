@@ -82,7 +82,7 @@ signal_stalta <- function(
   }
 
   ## check data structure
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
@@ -114,7 +114,7 @@ signal_stalta <- function(
                             off = off)
     
     ## homogenise data structure
-    if(class(data) == "eseis") {
+    if(class(data)[1] == "eseis") {
       
       ## set eseis flag
       eseis_class <- TRUE
@@ -275,7 +275,7 @@ signal_stalta <- function(
         as.character(length(eseis_data$history))
       
       ## set S3 class name
-      class(eseis_data) <- "eseis"
+      class(eseis_data)[1] <- "eseis"
       
       ## assign eseis object to output data set
       data_out <- eseis_data

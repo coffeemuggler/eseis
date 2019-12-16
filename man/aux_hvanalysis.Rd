@@ -4,8 +4,18 @@
 \alias{aux_hvanalysis}
 \title{Perform H-V-spectral ratio analysis of a seismic data set}
 \usage{
-aux_hvanalysis(data, time, window, overlap = 0, dt,
-  method = "periodogram", kernel, order = "xyz", plot = FALSE, ...)
+aux_hvanalysis(
+  data,
+  time,
+  window,
+  overlap = 0,
+  dt,
+  method = "periodogram",
+  kernel,
+  order = "xyz",
+  plot = FALSE,
+  ...
+)
 }
 \arguments{
 \item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic

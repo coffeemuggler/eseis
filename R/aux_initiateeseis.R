@@ -63,7 +63,7 @@ aux_initiateeseis <- function(
                 history = list("1" = list(system = sessionInfo())))
   
   ## provide eseis class name
-  class(eseis) <- "eseis"
+  class(eseis)[1] <- "eseis"
   
   ## return eseis object
   return(eseis)

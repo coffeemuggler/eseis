@@ -82,7 +82,7 @@ aux_fixmseed <- function(
                                     input_dir, "/", file, sep = "")), 
              silent = TRUE)
     
-    if(class(x) == "try-error") {
+    if(class(x)[1] == "try-error") {
       
       warning(paste("File", file, "not fixed!"))
     }

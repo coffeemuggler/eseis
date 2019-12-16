@@ -82,9 +82,9 @@ signal_filter <- function(
 ) {
   
   ## check/set dt
-  if(missing(dt) == TRUE && class(data) != "eseis") {
+  if(missing(dt) == TRUE && class(data)[1] != "eseis") {
     
-    if(class(data[[1]]) != "eseis") {
+    if(class(data[[1]])[1] != "eseis") {
       
       warning("Sampling frequency missing! Set to 1/200")
     }
@@ -97,7 +97,7 @@ signal_filter <- function(
   }
   
   ## check data structure
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
@@ -146,7 +146,7 @@ signal_filter <- function(
                             p = p)
     
     ## check if input object is of class eseis
-    if(class(data) == "eseis") {
+    if(class(data)[1] == "eseis") {
       
       ## set eseis flag
       eseis_class <- TRUE

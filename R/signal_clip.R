@@ -48,7 +48,7 @@ signal_clip <- function(
   }
   
   ## check data structure
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
@@ -69,7 +69,7 @@ signal_clip <- function(
                             time = time,
                             limits = limits)
     
-    if(class(data) == "eseis") {
+    if(class(data)[1] == "eseis") {
       
       ## get start index
       i_start <- as.numeric(difftime(time1 = limits[1], 

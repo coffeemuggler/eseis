@@ -212,7 +212,7 @@ model_turbulence <- function(
   psi <- 2 * log(1 + (1 / beta)) * exp(-2 * beta) + (1 - exp(-beta)) * 
     exp(-beta) * sqrt(2 * pi / beta)
 
-  ## clacluate auxiliary variables
+  ## calcluate auxiliary variables
   c_p_0 <- 4 * (1 - (1 / 4 * k_s / h_w))
   
   c_k_s <- 8 * (1 - (k_s / (2 * h_w)))

@@ -112,7 +112,7 @@ signal_spectrogram <- function(
 ) {
   
   ## check data structure
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
@@ -145,7 +145,7 @@ signal_spectrogram <- function(
     }
     
     ## check/set dt
-    if(missing(dt) == TRUE && class(data) != "eseis") {
+    if(missing(dt) == TRUE && class(data)[1] != "eseis") {
       
       if(missing(time) == TRUE) {
         
@@ -175,13 +175,13 @@ signal_spectrogram <- function(
         dt <- dt_estimate
       }
       
-    } else if(class(data) == "eseis") {
+    } else if(class(data)[1] == "eseis") {
       
       dt <- data$meta$dt
     }
     
     ## handle missing time vector
-    if(missing(time) == TRUE && class(data) != "eseis") {
+    if(missing(time) == TRUE && class(data)[1] != "eseis") {
       
       time <- seq(from = as.POSIXct(x = strptime(x = "0000-01-01 00:00:00",
                                                  format = "%Y-%m-%d %H:%M:%S", 
@@ -191,7 +191,7 @@ signal_spectrogram <- function(
       
       print("No or non-POSIXct time data provided. Default data generated!")
       
-    } else if(class(data) == "eseis") {
+    } else if(class(data)[1] == "eseis") {
       
       time <- seq(from = data$meta$starttime, 
                   by = data$meta$dt, 
@@ -238,7 +238,7 @@ signal_spectrogram <- function(
                             plot = plot)
     
     ## homogenise data structure
-    if(class(data) == "eseis") {
+    if(class(data)[1] == "eseis") {
       
       ## set eseis flag
       eseis_class <- TRUE
@@ -507,7 +507,7 @@ signal_spectrogram <- function(
     S <- list(S = S,
               t = t_spectrum,
               f = f_spectrum)
-    class(S) <- "spectrogram"
+    class(S)[1] <- "spectrogram"
     
     ## optionally plot spectrogram
     if(plot == TRUE) {
@@ -541,7 +541,7 @@ signal_spectrogram <- function(
       eseis_data$meta$type = "spectrogram"
       
       ## set S3 class name
-      class(eseis_data) <- "eseis"
+      class(eseis_data)[1] <- "eseis"
       
       ## assign eseis object to output data set
       S <- eseis_data

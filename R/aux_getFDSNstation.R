@@ -126,7 +126,7 @@ aux_getFDSNstation <- function (
                 silent = TRUE)
     
     ## check if query returned any results
-    if(class(meta) != "try-error") {
+    if(class(meta)[1] != "try-error") {
       
       ## remove irrelevant header and tail data
       networks <- meta[-(1:3)]

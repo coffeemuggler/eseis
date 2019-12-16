@@ -43,13 +43,13 @@ signal_spectrum <- function(
 ) {
 
   ## check/set dt
-  if(missing(dt) == TRUE && class(data) != "eseis") {
+  if(missing(dt) == TRUE && class(data)[1] != "eseis") {
 
     ## try to get object class
-    class_data <- try(class(data[[1]]) == "eseis", 
+    class_data <- try(class(data[[1]])[1] == "eseis", 
                       silent = TRUE)
     
-    if(class(class_data) == "try-error " | class_data == FALSE) {
+    if(class(class_data)[1] == "try-error " | class_data == FALSE) {
       
       warning("Sampling frequency missing! Set to 1/200")
       
@@ -62,7 +62,7 @@ signal_spectrum <- function(
   }
 
   ## check data structure
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
@@ -85,7 +85,7 @@ signal_spectrum <- function(
                             method = method)
     
     ## check if input object is of class eseis
-    if(class(data) == "eseis") {
+    if(class(data)[1] == "eseis") {
       
       ## set eseis flag
       eseis_class <- TRUE

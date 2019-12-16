@@ -57,7 +57,7 @@ plot_spectrogram <- function(
 ) {
   
   ## check for eseis object
-  if(class(data) == "eseis") {
+  if(class(data)[1] == "eseis") {
     
     data <- data$PSD
   }
@@ -169,13 +169,13 @@ plot_spectrogram <- function(
   extraArgs <- extraArgs[!names(extraArgs)%in%keywords]
   
   ## check input data
-  if(class(data) != "spectrogram") {
+  if(class(data)[1] != "spectrogram") {
     
-    if(class(data) != "list" | 
+    if(class(data)[1] != "list" | 
        length(data) != 3 | 
-       class(data[[1]]) != "matrix" |
+       class(data[[1]])[1] != "matrix" |
        class(data[[2]])[1] != "POSIXct" | 
-       class(data[[3]]) != "numeric") {
+       class(data[[3]])[1] != "numeric") {
       
       stop("Input data is not appropriate!")
     }

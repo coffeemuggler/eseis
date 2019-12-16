@@ -107,7 +107,7 @@ aux_getIRISdata <- function (
                                                  endtime = start + duration), 
                             silent = TRUE))
     
-    if(class(data_i) == "try-error") {
+    if(class(data_i)[1] == "try-error") {
       
       data_i <- NA
     } else {

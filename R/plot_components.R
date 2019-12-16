@@ -63,10 +63,10 @@
 #'                 type = "2D",
 #'                 col = col_user(n = length(s$BHE)))
 #' 
-#' ## plot components as 3D plot
-#' plot_components(data = s_d, 
-#'                 type = "3D",
-#'                 col = rainbow(n = length(s$BHE)))
+#' ## plot components as 3D plot, uncomment to use
+#' #plot_components(data = s_d, 
+#' #                 type = "3D",
+#' #                 col = rainbow(n = length(s$BHE)))
 #'                 
 #' @export plot_components
 #' 
@@ -176,7 +176,7 @@ plot_components <- function(
   }
   
   ## homogenise data structure
-  if(class(data[[1]]) == "eseis") {
+  if(class(data[[1]])[1] == "eseis") {
     
     ## store initial object
     eseis_data <- data
@@ -193,7 +193,7 @@ plot_components <- function(
   }
   
   ## homogenise data structure
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     data <- do.call(cbind, data)
   }

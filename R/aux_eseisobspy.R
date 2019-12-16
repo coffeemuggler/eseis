@@ -49,7 +49,7 @@ aux_eseisobspy <- function(
 ) {
   
   ## check if input data is obspy stream object
-  if(class(data) != "eseis") {
+  if(class(data)[1] != "eseis") {
     
     stop("Input object seems to be no or not a single eseis object!")
   }

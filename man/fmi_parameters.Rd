@@ -4,8 +4,27 @@
 \alias{fmi_parameters}
 \title{Create reference model reference parameter catalogue}
 \usage{
-fmi_parameters(n, d_s, s_s, r_s, q_s, h_w, w_w, a_w, f_min, f_max, r_0,
-  f_0, q_0, v_0, p_0, e_0, n_0_a, n_0_b, res)
+fmi_parameters(
+  n,
+  d_s,
+  s_s,
+  r_s,
+  q_s,
+  h_w,
+  w_w,
+  a_w,
+  f_min,
+  f_max,
+  r_0,
+  f_0,
+  q_0,
+  v_0,
+  p_0,
+  e_0,
+  n_0_a,
+  n_0_b,
+  res
+)
 }
 \arguments{
 \item{n}{\code{Numeric} value, number of output reference spectra.}

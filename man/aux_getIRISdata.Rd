@@ -4,8 +4,14 @@
 \alias{aux_getIRISdata}
 \title{Download seismic data from IRIS data base}
 \usage{
-aux_getIRISdata(start, duration, sncl, quality = "D",
-  ID_iris = "IrisClient", eseis = TRUE)
+aux_getIRISdata(
+  start,
+  duration,
+  sncl,
+  quality = "D",
+  ID_iris = "IrisClient",
+  eseis = TRUE
+)
 }
 \arguments{
 \item{start}{\code{POSIXct} value, start time of the data to query.}

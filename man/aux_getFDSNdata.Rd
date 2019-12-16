@@ -4,8 +4,16 @@
 \alias{aux_getFDSNdata}
 \title{Download seismic data from FDSN data base}
 \usage{
-aux_getFDSNdata(start, duration, channel = "BHZ", network, station, url,
-  link_only = FALSE, eseis = TRUE)
+aux_getFDSNdata(
+  start,
+  duration,
+  channel = "BHZ",
+  network,
+  station,
+  url,
+  link_only = FALSE,
+  eseis = TRUE
+)
 }
 \arguments{
 \item{start}{\code{POSIXct} value, start time of the data to query.}

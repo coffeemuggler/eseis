@@ -110,7 +110,7 @@ aux_hvanalysis <- function(
   eseis_t_0 <- Sys.time()
   
   ## check/set time
-  if(class(data[[1]]) != "eseis") {
+  if(class(data[[1]])[1] != "eseis") {
     
     ## set eseis flag
     eseis_class <- FALSE
@@ -131,7 +131,7 @@ aux_hvanalysis <- function(
     }
     
     ## homogenise data structure
-    if(class(data) != "list") {
+    if(class(data)[1] != "list") {
       
       data <- as.list(as.data.frame(data))
     }
@@ -275,7 +275,7 @@ aux_hvanalysis <- function(
       as.character(length(eseis_data$history))
     
     ## set S3 class name
-    class(eseis_data) <- "eseis"
+    class(eseis_data)[1] <- "eseis"
     
     ## assign eseis object to output data set
     hv <- eseis_data

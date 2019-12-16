@@ -105,7 +105,7 @@ signal_deconvolve <- function(
   }
   
   ## check data structure
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
@@ -142,14 +142,14 @@ signal_deconvolve <- function(
                             waterlevel = waterlevel)
     
     ## get sensor information
-    if(class(sensor) == "character") {
+    if(class(sensor)[1] == "character") {
       
       sensor <- try(list_sensor()[[sensor]], silent = TRUE)
       
-      if(class(sensor) == "try-error") {
+      if(class(sensor)[1] == "try-error") {
         stop("Sensor keyword not in library! Consider adding manually.")
       }
-    } else if(class(sensor) == "list") {
+    } else if(class(sensor)[1] == "list") {
       
       if(length(match(x = names(sensor), 
                       table = names(list_sensor()[[1]]))) != 10) {
@@ -167,15 +167,15 @@ signal_deconvolve <- function(
     k <- sensor$k
     
     ## get logger information
-    if(class(logger) == "character") {
+    if(class(logger)[1] == "character") {
       
       logger <- try(list_logger()[[logger]], silent = TRUE)
       
-      if(class(logger) == "try-error") {
+      if(class(logger)[1] == "try-error") {
         
         stop("Logger keyword not in library! Consider adding manually.")
       }      
-    } else if(class(logger) == "list") {
+    } else if(class(logger)[1] == "list") {
       
       if(length(match(x = names(logger), 
                       table = names(list_logger()[[1]]))) != 7) {
@@ -190,7 +190,7 @@ signal_deconvolve <- function(
     AD <- logger$AD
     
     ## extract eseis object signal vector
-    if(class(data) == "eseis") {
+    if(class(data)[1] == "eseis") {
       
       ## set eseis flag
       eseis_class <- TRUE

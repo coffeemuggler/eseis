@@ -33,7 +33,7 @@ signal_sum <- function(
   data <- list(...)
   
   ## check if input object is of class eseis
-  if(class(data[[1]]) == "eseis") {
+  if(class(data[[1]])[1] == "eseis") {
     
     ## store initial object
     eseis_data <- data[[1]]

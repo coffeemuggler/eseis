@@ -4,10 +4,22 @@
 \alias{signal_spectrogram}
 \title{Calculate spectrograms (power spectral density estimates) from time series.}
 \usage{
-signal_spectrogram(data, time, dt, Welch = FALSE, window,
-  overlap = 0.5, window_sub, overlap_sub = 0.5,
-  method = "periodogram", nw = 4, k = 7, n_cores = 1,
-  plot = FALSE, ...)
+signal_spectrogram(
+  data,
+  time,
+  dt,
+  Welch = FALSE,
+  window,
+  overlap = 0.5,
+  window_sub,
+  overlap_sub = 0.5,
+  method = "periodogram",
+  nw = 4,
+  k = 7,
+  n_cores = 1,
+  plot = FALSE,
+  ...
+)
 }
 \arguments{
 \item{data}{\code{Numeric} vector or list of vectors, seismic signal to 

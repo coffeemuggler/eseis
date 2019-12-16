@@ -84,7 +84,7 @@ write_sac <- function(
     ifloat <- 4
   }
   
-  if(class(data) != "eseis") {
+  if(class(data)[1] != "eseis") {
     
     ## check/set station
     if(missing(station) == TRUE) {
@@ -209,7 +209,7 @@ write_sac <- function(
                       data$meta$depth), silent = TRUE)
     
     ## account for missing location slot
-    if(class(location) == "try-error" | 
+    if(class(location)[1] == "try-error" | 
        is.null(location) | 
        length(location) != 4) {
       
@@ -225,19 +225,19 @@ write_sac <- function(
     gain <- try(data$meta$gain, silent = TRUE)
     
     ## account for missing sensor data
-    if(class(sensor) == "try-error" | is.null(sensor)) {
+    if(class(sensor)[1] == "try-error" | is.null(sensor)) {
       
       sensor <- -12345
     }
     
     ## account for missing logger data
-    if(class(logger) == "try-error" | is.null(logger)) {
+    if(class(logger)[1] == "try-error" | is.null(logger)) {
       
       logger <- -12345
     }
     
     ## account for missing gain data
-    if(class(gain) == "try-error" | is.null(gain)) {
+    if(class(gain)[1] == "try-error" | is.null(gain)) {
       
       gain <- -12345
     }
@@ -297,7 +297,7 @@ write_sac <- function(
     
     ## get default sac parameter definition
     sac_parameters <- list_sacparameters()
-    class(sac_parameters$value) <- "character"
+    class(sac_parameters$value)[1] <- "character"
     
     ## update sac parameters
     sac_parameters$value[1] <- as.character(dt)

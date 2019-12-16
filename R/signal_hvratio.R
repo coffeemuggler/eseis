@@ -78,7 +78,7 @@ signal_hvratio <- function(
 ) {
   
   ## check/set dt
-  if(missing(dt) == TRUE && class(data[[1]]) != "eseis") {
+  if(missing(dt) == TRUE && class(data[[1]])[1] != "eseis") {
     
     warning("Sampling frequency missing! Set to 1/200")
     
@@ -105,7 +105,7 @@ signal_hvratio <- function(
                           order = order)
   
   ## homogenise data structure
-  if(class(data[[1]]) == "eseis") {
+  if(class(data[[1]])[1] == "eseis") {
     
     ## set eseis flag
     eseis_class <- TRUE
@@ -131,7 +131,7 @@ signal_hvratio <- function(
     eseis_class <- FALSE
   }
     
-  if(class(data) != "list") {
+  if(class(data)[1] != "list") {
     
     data <- as.list(as.data.frame(data))
   }
@@ -206,7 +206,7 @@ signal_hvratio <- function(
     eseis_data$meta$type = "hvratio"
     
     ## set S3 class name
-    class(eseis_data) <- "eseis"
+    class(eseis_data)[1] <- "eseis"
     
     ## assign eseis object to output data set
     hv <- eseis_data

@@ -5,7 +5,7 @@
 #' @method plot eseis
 #' @export
 plot.eseis <- function(x, y, ...) {
-  if (class(x) == "eseis") {
+  if (class(x)[1] == "eseis") {
     
     if(x$meta$type == "waveform" | 
        x$meta$type == "envelope" | 

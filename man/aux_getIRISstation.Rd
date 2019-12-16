@@ -4,8 +4,14 @@
 \alias{aux_getIRISstation}
 \title{Query IRIS data base for stations}
 \usage{
-aux_getIRISstation(start, duration, location, radius = 10,
-  component = "BHZ", ID_iris = "IrisClient")
+aux_getIRISstation(
+  start,
+  duration,
+  location,
+  radius = 10,
+  component = "BHZ",
+  ID_iris = "IrisClient"
+)
 }
 \arguments{
 \item{start}{\code{POSIXct} value, start time of the data to query.}

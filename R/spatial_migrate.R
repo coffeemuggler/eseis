@@ -93,13 +93,13 @@ spatial_migrate <- function(
   ## check/set data structure
   if(is.matrix(data) == FALSE) {
     
-    if(class(data) == "list") {
+    if(class(data)[1] == "list") {
       
       ## extract sampling period from first eseis object
       dt <- try(data[[1]]$meta$dt)
       
       ## check if dt can be extracted, otherwise stop function
-      if(class(dt) == "try-error") {
+      if(class(dt)[1] == "try-error") {
         
         stop("Signal object seems to contain no eseis objects!")
       }
@@ -128,7 +128,7 @@ spatial_migrate <- function(
     stop("Distance maps must be list objects with SpatialGridDataFrames!")
   }
   
-  if(class(d_map[[1]]) != "SpatialGridDataFrame") {
+  if(class(d_map[[1]])[1] != "SpatialGridDataFrame") {
     stop("Distance maps must be list objects with SpatialGridDataFrames!")
   }
   

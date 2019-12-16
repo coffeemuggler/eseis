@@ -41,7 +41,7 @@ spatial_convert <- function(
 ) {
   
   ## check input data
-  if(class(data) == "data.frame") {
+  if(class(data)[1] == "data.frame") {
     
     if(ncol(data) != 2) {
       
@@ -51,7 +51,7 @@ spatial_convert <- function(
       ## convert data to matrix
       data <- as.matrix(data)
     }
-  } else if(class(data) == "numeric" | class(data) == "atomic") {
+  } else if(class(data)[1] == "numeric" | class(data)[1] == "atomic") {
     
     if(length(data) != 2) {
       

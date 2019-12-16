@@ -4,8 +4,7 @@
 \alias{write_report}
 \title{Create a HTML report for (RLum) objects}
 \usage{
-write_report(object, file, title = "eseis report", browser = FALSE,
-  css)
+write_report(object, file, title = "eseis report", browser = FALSE, css)
 }
 \arguments{
 \item{object, }{\code{eseis} object to be reported on}

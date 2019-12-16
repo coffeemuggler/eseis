@@ -4,10 +4,19 @@
 \alias{aux_psdsummary}
 \title{Generate spectrograms for seismic stations at different time periods}
 \usage{
-aux_psdsummary(station, component = "BHZ", period, output = c("daily",
-  "weekly", "monthly", "total"), input_dir, output_dir, aggregate = c(1,
-  5), n_dates = 2000, jpg_dim = c(4444, 2500, 300, 90),
-  verbose = FALSE, ...)
+aux_psdsummary(
+  station,
+  component = "BHZ",
+  period,
+  output = c("daily", "weekly", "monthly", "total"),
+  input_dir,
+  output_dir,
+  aggregate = c(1, 5),
+  n_dates = 2000,
+  jpg_dim = c(4444, 2500, 300, 90),
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{station}{\code{Character} value, seismic station ID, which must
@@ -67,7 +76,7 @@ the seismic files are imported as eseis objects using
 \code{sensor = "TC120s"} and \code{logger = "Cube3extBOB"}.
 Then, the signals are bandpass filtered with \code{signal_filter}, using 
 \code{f = c(1, 90)}. The PSDs are calculated with \code{signal_spectrogram} 
-using \code{Welch = TRUE}, \code{window = 90} and \code{window_sub = 30}.
+using \code{Welch = TRUE}, \code{window = 90} and \code{window_sub = 30}. 
 
 This and all other aux-functions are primarily written for internal use 
 amongst the GFZ Geomorphology Section group members and their usual data 

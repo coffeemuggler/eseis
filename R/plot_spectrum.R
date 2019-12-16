@@ -43,7 +43,7 @@ plot_spectrum <- function(
 ) {
   
   ## check data structure
-  if(class(data) == "list") {
+  if(class(data)[1] == "list") {
     
     ## apply function to list
     data_out <- lapply(X = data, 
@@ -60,7 +60,7 @@ plot_spectrum <- function(
     eseis_arguments <- list(data = "")
     
     ## check if input object is of class eseis
-    if(class(data) == "eseis") {
+    if(class(data)[1] == "eseis") {
       
       ## set eseis flag
       eseis_class <- TRUE
@@ -77,7 +77,7 @@ plot_spectrum <- function(
       eseis_class <- FALSE
       
       ## check if appropriate data is present
-      if(class(data) != "data.frame") {
+      if(class(data)[1] != "data.frame") {
         
         stop("Spectrum data is no data frame!")
       }

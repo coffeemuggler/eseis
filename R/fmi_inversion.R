@@ -126,7 +126,7 @@ fmi_inversion <- function (
 ) {
   
   ## convert empiric data set to list
-  if(class(data) == "eseis") {
+  if(class(data)[1] == "eseis") {
     if(data$meta$type == "spectrogram") {
       
       psd_list <- as.list(as.data.frame(data$PSD$S))

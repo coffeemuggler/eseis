@@ -54,7 +54,7 @@ write_report <- function(
   ## INITIAL TESTS AND CHECKS -------------------------------------------------
   
   ## check if submitted object is of class eseis
-  if(class(object) != "eseis") {
+  if(class(object)[1] != "eseis") {
     
     stop("Submitted object is no eseis object!")
   }

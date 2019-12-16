@@ -4,8 +4,24 @@
 \alias{model_turbulence}
 \title{Model the seismic spectrum due to hydraulic turbulence}
 \usage{
-model_turbulence(d_s, s_s, r_s = 2650, h_w, w_w, a_w, f = c(1, 100),
-  r_0, f_0, q_0, v_0, p_0, n_0, res = 1000, eseis = FALSE, ...)
+model_turbulence(
+  d_s,
+  s_s,
+  r_s = 2650,
+  h_w,
+  w_w,
+  a_w,
+  f = c(1, 100),
+  r_0,
+  f_0,
+  q_0,
+  v_0,
+  p_0,
+  n_0,
+  res = 1000,
+  eseis = FALSE,
+  ...
+)
 }
 \arguments{
 \item{d_s}{\code{Numeric} value, mean sediment grain diameter (m)}

@@ -52,7 +52,7 @@ signal_rotate <- function(
                             angle = angle)
     
     ## homogenise data structure
-    if(class(data[[1]]) == "eseis") {
+    if(class(data[[1]])[1] == "eseis") {
       
       ## set eseis flag
       eseis_class <- TRUE

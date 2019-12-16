@@ -4,8 +4,17 @@
 \alias{aux_getevent}
 \title{Load seismic data of a user-defined event}
 \usage{
-aux_getevent(start, duration, station, component = "BHZ",
-  format = "sac", dir, simplify = TRUE, eseis = TRUE, try = FALSE)
+aux_getevent(
+  start,
+  duration,
+  station,
+  component = "BHZ",
+  format = "sac",
+  dir,
+  simplify = TRUE,
+  eseis = TRUE,
+  try = FALSE
+)
 }
 \arguments{
 \item{start}{\code{POSIXct} value, start time of the data to import.}
