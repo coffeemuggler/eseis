@@ -15,7 +15,61 @@
 #' @export shinyServer
 
 # Define server logic required to draw a histogram
-shinyServer <- function(input, output) {
+shinyServer <- function(input, output, session) {
+  
+  observe({
+    updateSliderInput(session, "d_s",
+                      min = input$d_s_min,
+                      max = input$d_s_max)
+    
+    updateSliderInput(session, "s_s",
+                      min = input$s_s_min,
+                      max = input$s_s_max)
+    
+    updateSliderInput(session, "r_s",
+                      min = input$r_s_min,
+                      max = input$r_s_max)
+    
+    updateSliderInput(session, "q_s",
+                      min = input$q_s_min,
+                      max = input$q_s_max)
+    
+    updateSliderInput(session, "h_w",
+                      min = input$h_w_min,
+                      max = input$h_w_max)
+    
+    updateSliderInput(session, "w_w",
+                      min = input$w_w_min,
+                      max = input$w_w_max)
+    
+    updateSliderInput(session, "a_w",
+                      min = input$a_w_min,
+                      max = input$a_w_max)
+    
+    updateSliderInput(session, "r_0",
+                      min = input$r_0_min,
+                      max = input$r_0_max)
+    
+    updateSliderInput(session, "q_0",
+                      min = input$q_0_min,
+                      max = input$q_0_max)
+    
+    updateSliderInput(session, "v_0",
+                      min = input$v_0_min,
+                      max = input$v_0_max)
+    
+    updateSliderInput(session, "p_0",
+                      min = input$p_0_min,
+                      max = input$p_0_max)
+    
+    updateSliderInput(session, "e_0",
+                      min = input$e_0_min,
+                      max = input$e_0_max)
+    
+    updateSliderInput(session, "n_0",
+                      min = input$n_0_min,
+                      max = input$n_0_max)
+  })
   
   output$main_plot <- renderPlot({
     
@@ -36,7 +90,7 @@ shinyServer <- function(input, output) {
     
     if(input$plot_river) {
       
-      p_turbulence <- eseis::model_turbulence(d_s = 10^(input$d_s),
+      p_turbulence <- eseis::model_turbulence(d_s = input$d_s,
                                               s_s = input$s_s,
                                               r_s = input$r_s,
                                               h_w = input$h_w,
@@ -65,7 +119,7 @@ shinyServer <- function(input, output) {
     
     if(input$plot_bedload) {
       
-      p_bedload <- eseis::model_bedload(d_s = 10^(input$d_s),
+      p_bedload <- eseis::model_bedload(d_s = input$d_s,
                                         s_s = input$s_s,
                                         r_s = input$r_s,
                                         q_s = input$q_s / input$r_s,
