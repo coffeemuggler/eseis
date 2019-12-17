@@ -23,12 +23,4 @@ and visualise seismic data, and generate reports of the processing history.
 \author{
 Michael Dietze
 }
-\keyword{Earth}
-\keyword{Environmental}
-\keyword{Geomorphology,}
-\keyword{Natural}
-\keyword{Signal}
-\keyword{hazard,}
-\keyword{processing,}
-\keyword{science}
-\keyword{seismology,}
+\keyword{package}

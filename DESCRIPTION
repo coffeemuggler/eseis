@@ -16,7 +16,7 @@ Description: Environmental seismology is a scientific field that studies the
 License: GPL-3
 Encoding: UTF-8
 Depends:
-    R (>= 3.5.0)
+    R (>= 3.6.0)
 LinkingTo: Rcpp (>= 0.12.5)
 Imports:
     sp,
