@@ -17,7 +17,7 @@
 #' @aliases eseis-package
 #' @docType package
 #' @author Michael Dietze
-#' @keywords Environmental Seismology, signal processing
+#' @keywords Environmental seismology, Signal processing, Natural hazard, Geomorphology, Earth science
 #' @importFrom graphics image plot plot.default axis axis.POSIXct box mtext
 #' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals
 #' @importFrom methods as new
