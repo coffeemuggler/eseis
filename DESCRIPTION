@@ -15,6 +15,7 @@ Description: Environmental seismology is a scientific field that studies the
     history.
 License: GPL-3
 Encoding: UTF-8
+LazyData: true
 Depends:
     R (>= 3.6.0)
 LinkingTo: Rcpp (>= 0.12.5)

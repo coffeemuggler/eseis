@@ -9,10 +9,6 @@
 #' (sensitivity) given in Vs/m. The value k is the normalisation factor of 
 #' the sensor.
 #' 
-#' @param test_examples \code{Logical} value, option to test example data 
-#' objects. Only implemented to follow CRAN test routines. This option is not 
-#' needed in general.
-#' 
 #' @return \code{List} object, supported sensors with their parameters.
 #' @author Michael Dietze
 #' @keywords eseis
@@ -23,8 +19,6 @@
 #'                      
 #' @export list_sensor
 list_sensor <- function(
-  
-  test_examples = FALSE
 ) {
   
   ## define TC120s parameters
@@ -300,15 +294,6 @@ list_sensor <- function(
                   "IHR1C" = IHR1C,
                   "KINKEI" = KINKEI,
                   "PE6B" = PE6B)
-  
-  ## EXAMPLE DATA TEST ROUTINE ------------------------------------------------
-  if(test_examples == TRUE) {
-    
-    try(rockfall_z <- 1, silent = TRUE)
-    try(rockfall_t <- 1, silent = TRUE)
-    try(s <- 1, silent = TRUE)
-    try(t <- 1, silent = TRUE)
-  }
   
   ## return output
   return(sensors)

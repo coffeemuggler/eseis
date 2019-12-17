@@ -4,12 +4,7 @@
 \alias{list_sensor}
 \title{List sensor library.}
 \usage{
-list_sensor(test_examples = FALSE)
-}
-\arguments{
-\item{test_examples}{\code{Logical} value, option to test example data 
-objects. Only implemented to follow CRAN test routines. This option is not 
-needed in general.}
+list_sensor()
 }
 \value{
 \code{List} object, supported sensors with their parameters.
