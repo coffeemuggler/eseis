@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.6.0
+  - function model_bedload() corrected for wide GSD cases
 
 Version 0.5.0 (2019-12-16)
   - function signal_filter(): frequency domain filtering implemented
