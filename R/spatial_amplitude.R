@@ -82,7 +82,7 @@ spatial_amplitude <- function (
   }))
   
   ## normalise by coupling efficiency
-  a_d <- a_d * coupling
+  a_d <- a_d * 1 / coupling
   
   ## check/set source amplitude
   if(missing(a_0) == TRUE) {
@@ -107,7 +107,6 @@ spatial_amplitude <- function (
   
   ## convert distance data to list
   d <- as.list(as.data.frame(t(d)))
-  
   
   ## define amplitude function
   model_fun <- a_d ~ a_0 / sqrt(d) * exp(-((pi * f * d) / (q * v)))
