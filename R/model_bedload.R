@@ -39,8 +39,8 @@
 #' such cases, the unadjusted version tends to underestimate seismic power. 
 #' 
 #' @param gsd \code{data frame} grain-size distribution function. Must be 
-#' provided as data frame with two variables: grain-size class (first column)
-#' and distribution density per class (second column). See examples for 
+#' provided as data frame with two variables: grain-size class (in m, first 
+#' column) and wgt/vol percentage per class (second column). See examples for 
 #' details.
 #'
 #' @param d_s \code{Numeric} value, mean sediment grain diameter (m). 
@@ -222,7 +222,7 @@ model_bedload <- function(
     ## define log10 sequence of possible grain-size classes
     x_log <- 10^seq(log10(0.0001), 
                     log10(10), 
-                    length.out = 10^(4))
+                    length.out = 10^4)
     
     ## calculate grain-size scatter in modified units
     s <- s_s / sqrt(1 / 3 - 2 / pi^2)
@@ -235,8 +235,8 @@ model_bedload <- function(
     p_s[log(x_log) - log(d_s) < -s] <- 0
 
     ## remove grain-size classes with zero contribution
-     x_log <- x_log[p_s > 0]
-     p_s <- p_s[p_s > 0]
+    x_log <- x_log[p_s > 0]
+    p_s <- p_s[p_s > 0]
     
     ## rescale grain-size distribution to one
     if(adjust == FALSE) {
@@ -245,9 +245,30 @@ model_bedload <- function(
     
   } else {
     
+    ## calculate lower and upper grain-size limits, rounded to power 10
+    d_min <- 10^ceiling(log10(min(gsd[,1]) / 10))
+    d_max <- 10^ceiling(log10(max(gsd[,1])))
+    
     ## assign objects from input data
-    x_log <- gsd[,1]
-    p_s <- gsd[,2]
+    x_log <- 10^seq(from = log10(d_min),
+                    to = log10(d_max),
+                    length.out = 10^4)
+    
+    ## approximate GSD based on new x values
+    p_s_gsd <- stats::approx(x = gsd[,1], 
+                         y = gsd[,2], 
+                         xout = x_log,
+                         method = "linear")$y
+    
+    ## remove NA-values
+    x_log <- x_log[!is.na(p_s_gsd)]
+    p_s_gsd <- p_s_gsd[!is.na(p_s_gsd)]
+    
+    ## calculate density conversion factor
+    f_density = sum(p_s_gsd * c(diff(x_log), 0))
+    
+    ## convert GSD to density function
+    p_s <- p_s_gsd / f_density
     
     ## calculate D_50 value from empirical data
     d_s <- x_log[abs(cumsum(p_s) - 0.5) == 

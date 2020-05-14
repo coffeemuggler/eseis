@@ -30,8 +30,8 @@ model_bedload(
 }
 \arguments{
 \item{gsd}{\code{data frame} grain-size distribution function. Must be 
-provided as data frame with two variables: grain-size class (first column)
-and distribution density per class (second column). See examples for 
+provided as data frame with two variables: grain-size class (in m, first 
+column) and wgt/vol percentage per class (second column). See examples for 
 details.}
 
 \item{d_s}{\code{Numeric} value, mean sediment grain diameter (m). 
