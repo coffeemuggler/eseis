@@ -3,6 +3,7 @@ Changes for R-package eseis
 Version 0.6.0
   - function added, signal_stats()
   - function added, aux_sonifysignal()
+  - function added, aux_cubeinfo()
   - function model_bedload() corrected for wide GSD cases
   - function spatial_amplitude() bugfix, coupling factor implementation
   - function signal_filter() feature added, lazy option added
