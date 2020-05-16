@@ -37,7 +37,8 @@ Imports:
     Rcpp (>= 0.12.5)
 Suggests:
     plot3D,
-    rgl
+    rgl,
+    seewave
 SystemRequirements:
     gipptools
     dataselect
