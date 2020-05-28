@@ -4,7 +4,16 @@
 \alias{spatial_migrate}
 \title{Migrate signals of a seismic event through a grid of locations.}
 \usage{
-spatial_migrate(data, d_stations, d_map, snr, v, dt, normalise = TRUE)
+spatial_migrate(
+  data,
+  d_stations,
+  d_map,
+  snr,
+  v,
+  dt,
+  normalise = TRUE,
+  silent = FALSE
+)
 }
 \arguments{
 \item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals 
@@ -26,6 +35,9 @@ from input signals.}
 
 \item{normalise}{\code{Logical} value, option to normalise stations 
 correlations by signal-to-noise-ratios.}
+
+\item{silent}{\code{Logical} value, option to suppress messages during 
+function execution. Default is \code{FALSE}.}
 }
 \value{
 A SpatialGridDataFrame-object with Gaussian probability density

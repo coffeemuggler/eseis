@@ -23,6 +23,9 @@
 #' @param normalise \code{Logical} value, option to normalise stations 
 #' correlations by signal-to-noise-ratios.
 #' 
+#' @param silent \code{Logical} value, option to suppress messages during 
+#' function execution. Default is \code{FALSE}.
+#' 
 #' @return A SpatialGridDataFrame-object with Gaussian probability density
 #' function values for each grid cell.
 #' 
@@ -87,7 +90,8 @@ spatial_migrate <- function(
   snr,
   v,
   dt,
-  normalise = TRUE
+  normalise = TRUE,
+  silent = FALSE
 ) {
   
   ## check/set data structure
@@ -135,7 +139,10 @@ spatial_migrate <- function(
   ## assign snr values for normalisation
   if(normalise == TRUE & missing(snr) == TRUE) {
     
-    print("No snr given. Will be calculated from signals")
+    if(silent == FALSE) {
+      
+      print("No snr given. Will be calculated from signals")
+    }
     
     snr_flag = TRUE
     
