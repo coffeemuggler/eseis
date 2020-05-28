@@ -7,7 +7,19 @@
 \alias{rockfall_t}
 \alias{rockfall_eseis}
 \title{Seismic trace of a rockfall event.}
-\format{The format is: num [1:98400] 65158 65176 65206 65194 65155 ...}
+\format{
+The format is: num [1:98400] 65158 65176 65206 65194 65155 ...
+
+The format is: POSIXct[1:98400], format: "2015-04-06 13:16:54" ...
+
+List of 4
+         $ signal : num [1:98399] 65211 65192 65158 65176 65206 ...
+         $ meta   :List of 12
+          ..$ station  : chr "789     "
+          ..$ network  : chr "XX      "
+          ..$ component: chr "p0      "
+          ..$ n        : int 98399
+}
 \usage{
 rockfall_z
 
