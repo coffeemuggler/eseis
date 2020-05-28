@@ -42,6 +42,9 @@
 #' i.e., to let it return \code{NA} in case an error occurs during data
 #' import. Default is \code{FALSE}.
 #' 
+#' @param silent \code{Logical} value, option to suppress messages during 
+#' function execution. Default is \code{TRUE}.
+#' 
 #' @return A \code{list} object containing either a set of \code{eseis}
 #' objects or a data set with the time vector (\code{$time}) 
 #' and a list of seismic stations (\code{$station_ID}) with their seismic
@@ -94,7 +97,8 @@ aux_getevent <- function(
   dir,
   simplify = TRUE,
   eseis = TRUE,
-  try = FALSE
+  try = FALSE,
+  silent = TRUE
 ) {
   
   ## check/set arguments ------------------------------------------------------
@@ -132,7 +136,10 @@ aux_getevent <- function(
                         sep = "")
     
     ## inform about time zone change
-    print(tz_message)
+    if(silent == FALSE) {
+      
+      print(tz_message)
+    }
   }
   
   ## composition of the file name patterns ------------------------------------
@@ -245,8 +252,15 @@ aux_getevent <- function(
           }
           
           ## clip signal at start and end time
-          x <- eseis::signal_clip(data = x, 
-                                  limits = c(start, stop))
+          if(silent == FALSE)  {
+            
+            x <- eseis::signal_clip(data = x, 
+                                    limits = c(start, stop))
+          } else {
+            
+            x <- suppressWarnings(eseis::signal_clip(data = x, 
+                                                     limits = c(start, stop)))
+          }
           
           ## return processed seismic signal
           return(x)

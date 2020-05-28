@@ -13,7 +13,8 @@ aux_getevent(
   dir,
   simplify = TRUE,
   eseis = TRUE,
-  try = FALSE
+  try = FALSE,
+  silent = TRUE
 )
 }
 \arguments{
@@ -48,6 +49,9 @@ object (recommended, see documentation of
 \item{try}{\code{Logical} value, option to run the fuction in try-mode, 
 i.e., to let it return \code{NA} in case an error occurs during data
 import. Default is \code{FALSE}.}
+
+\item{silent}{\code{Logical} value, option to suppress messages during 
+function execution. Default is \code{TRUE}.}
 }
 \value{
 A \code{list} object containing either a set of \code{eseis}
