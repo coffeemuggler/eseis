@@ -29,7 +29,7 @@ an event. Useful to avoid self-adjustment of lta for long-duration events.}
 }
 \value{
 \code{data frame}, detected events (ID, start time, duration in 
-seconds).
+seconds, STA-LTA vaue).
 }
 \description{
 The function calculates the ratio of the short-term-average and 

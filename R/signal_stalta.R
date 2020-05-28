@@ -24,7 +24,7 @@
 #' @param off \code{Numeric} value, threshold value for event end.
 #' 
 #' @return \code{data frame}, detected events (ID, start time, duration in 
-#' seconds).
+#' seconds, STA-LTA vaue).
 #' 
 #' @author Michael Dietze
 #' 
@@ -199,6 +199,9 @@ signal_stalta <- function(
                                  endrule = "NA",
                                  align = "right")
     
+    ## calculate stalta vector
+    data_stalta <- data_sta / data_lta
+    
     ## create output data set
     event <- rep(x = 0, 
                  times = length(data))
@@ -235,6 +238,9 @@ signal_stalta <- function(
                                           time2 = event_on, 
                                           units = "sec"))
     
+    ## get sta-lta value at event onset
+    event_stalta <- data_stalta[event_diff == 1]
+    
     ## create ID vector
     ID <- seq(from = 1, 
               along.with = event_duration)
@@ -244,13 +250,15 @@ signal_stalta <- function(
       
       data_out <- data.frame(ID = ID,
                              start = event_on,
-                             duration = event_duration)
+                             duration = event_duration,
+                             stalta = event_stalta)
       
     } else {
       
       data_out <- data.frame(ID = NA,
                              start = NA,
-                             duration = NA)[-1,]
+                             duration = NA,
+                             stalta = NA)[-1,]
     }
     
     ## optionally rebuild eseis object
