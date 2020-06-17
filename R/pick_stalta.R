@@ -44,16 +44,17 @@
 #' rockfall_e <- signal_envelope(data = rockfall_f)
 #' 
 #' ## pick earthquake and rockfall event
-#' signal_stalta(data = rockfall_e,
-#'               sta = 100, 
-#'               lta = 18000, 
-#'               freeze = TRUE, 
-#'               on = 5, 
-#'               off = 3)
-#'               
+#' p <- pick_stalta(data = rockfall_e,
+#'                  sta = 100, 
+#'                  lta = 18000, 
+#'                  freeze = TRUE, 
+#'                  on = 5, 
+#'                  off = 3)
+#'                  
+#' p$picks
 #'                      
-#' @export signal_stalta
-signal_stalta <- function(
+#' @export pick_stalta
+pick_stalta <- function(
   data,
   time,
   dt,
@@ -86,7 +87,7 @@ signal_stalta <- function(
     
     ## apply function to list
     data_out <- lapply(X = data, 
-                       FUN = eseis::signal_stalta,
+                       FUN = eseis::pick_stalta,
                        time = time_in,
                        dt = dt,
                        sta = sta,
@@ -276,7 +277,7 @@ signal_stalta <- function(
       ## update object history
       eseis_data$history[[length(eseis_data$history) + 1]] <- 
         list(time = Sys.time(),
-             call = "signal_stalta()",
+             call = "pick_stalta()",
              arguments = eseis_arguments,
              duration = eseis_duration)
       names(eseis_data$history)[length(eseis_data$history)] <- 
