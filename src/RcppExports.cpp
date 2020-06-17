@@ -5,6 +5,18 @@
 
 using namespace Rcpp;
 
+// kurtosis_event
+NumericVector kurtosis_event(NumericVector x, int k);
+RcppExport SEXP _eseis_kurtosis_event(SEXP xSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(kurtosis_event(x, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // stalta_event_freeze
 NumericVector stalta_event_freeze(int event_length, NumericVector data_sta, NumericVector data_lta, double on, double off);
 RcppExport SEXP _eseis_stalta_event_freeze(SEXP event_lengthSEXP, SEXP data_staSEXP, SEXP data_ltaSEXP, SEXP onSEXP, SEXP offSEXP) {
