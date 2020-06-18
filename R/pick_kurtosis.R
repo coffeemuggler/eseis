@@ -263,12 +263,12 @@ pick_kurtosis <- function(
     i_ok <- which(t_diff >= dur_min)
     t_start <- t_start[i_ok]
     i_onset <- i_onset[i_ok]
-    
-    ## create ID vector
-    ID <- seq(from = 1, to = length(i_onset))
-    
+
     ## calculate duration and build output data set
-    if(length(ID) > 0) {
+    if(length(i_onset) > 0) {
+  
+      ## create ID vector
+      ID <- seq(from = 1, to = length(i_onset))
       
       ## calculate running mean
       amp <- caTools::runmean(x = data, 
