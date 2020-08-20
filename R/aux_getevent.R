@@ -269,14 +269,15 @@ aux_getevent <- function(
         i = i,
         format = format,
         start = start,
-        stop = stop))))
+        stop = stop))),
+        silent = TRUE)
         
         try(names(data[[i]]) <- component)
         
         try(for(j in 1:length(data[[i]])) {
           
           class(data[[i]][[j]])[1] <- "eseis"
-        })
+        }, silent = TRUE)
     } else {
       
       data[[i]] <- as.data.frame(do.call(cbind, lapply(
@@ -333,7 +334,8 @@ aux_getevent <- function(
       ## generate time vector
       time <- try(seq(from = data[[1]][[1]]$meta$starttime, 
                   by = data[[1]][[1]]$meta$dt, 
-                  length.out = data[[1]][[1]]$meta$n))
+                  length.out = data[[1]][[1]]$meta$n), 
+                  silent = TRUE)
       
       if(class(time)[1] == "try-error") {
         
@@ -346,10 +348,10 @@ aux_getevent <- function(
         data[[i]] <- try(lapply(X = data[[i]], FUN = function(X) {
           
           X$signal
-        }))
+        }), silent = TRUE)
         
         ## assign names to vectors
-        try(names(data[[i]]) <- component[i])
+        try(names(data[[i]]) <- component[i], silent = TRUE)
         
         ## account for try-errors
         if(class(data[[i]])[1] == "try-error") {
@@ -359,7 +361,7 @@ aux_getevent <- function(
       }
       
       ## assign names to vectors
-      try(names(data) <- station)
+      try(names(data) <- station, silent = TRUE)
       
       ## create output data set
       data_out <- list(time = time, 
