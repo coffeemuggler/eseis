@@ -133,13 +133,18 @@ spatial_amplitude <- function (
         
         mod <- try(nls(formula = model_fun, 
                        data = model_par,
-                       start = model_start))
+                       start = model_start), 
+                   silent = TRUE)
         
-        res <- try(sum(residuals(mod)^2))
+        res <- try(sum(residuals(mod)^2), 
+                   silent = TRUE)
         
         if(class(res)[1] != "try-error") {
           
           return(res)
+        } else {
+          
+          return(NA)
         }
       } else {
         
