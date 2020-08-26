@@ -16,7 +16,7 @@
 #' @param d_map \code{List} object, distance maps for each station (i.e., 
 #' \code{SpatialGridDataFrame} objects). Output of \code{distance_map}.
 #' 
-#' @param aoi \code{SpatialGridDataFrame} or \code{raster} object that 
+#' @param aoi \code{raster} object that 
 #' defines which pixels are used to locate the source. If omitted, the entire 
 #' distance map extent is used. \code{aoi} and \code{d_map} objects must have
 #' the same extents, projections and pixel sizes. The \code{aoi} map must 
@@ -97,7 +97,7 @@ spatial_amplitude <- function (
   ## check if aoi is provided and create aoi index vector
   if(missing(aoi) == FALSE) {
     
-    px_ok <- aoi@data[,1]
+    px_ok <- raster::values(aoi)
   } else {
     
     px_ok <- rep(1, nrow(d))

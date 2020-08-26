@@ -19,7 +19,7 @@ to this one.}
 \item{d_map}{\code{List} object, distance maps for each station (i.e., 
 \code{SpatialGridDataFrame} objects). Output of \code{distance_map}.}
 
-\item{aoi}{\code{SpatialGridDataFrame} or \code{raster} object that 
+\item{aoi}{\code{raster} object that 
 defines which pixels are used to locate the source. If omitted, the entire 
 distance map extent is used. \code{aoi} and \code{d_map} objects must have
 the same extents, projections and pixel sizes. The \code{aoi} map must 
