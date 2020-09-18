@@ -1,8 +1,15 @@
 Changes for R-package eseis
 
 Version 0.6.0
+  - bug fixed, list_sensor() L4C sensor poles definition corrected
+  - bug fixed, spatial_amplitude() error catch implemented
+  - feature added, plot_ppsd() xlim and ylim options added
+  - feature added, aux_getevent() screen output suppression
+  - function renamed, signal_stalta() to pick_stalta()
   - function added, signal_stats()
   - function added, signal_fill()
+  - function added, pick_kurtosis()
+  - function added, pick_correlation()
   - function added, aux_sonifysignal()
   - function added, aux_cubeinfo()
   - function model_bedload() corrected for wide GSD cases
