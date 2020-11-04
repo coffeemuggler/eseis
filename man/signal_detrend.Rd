@@ -4,17 +4,26 @@
 \alias{signal_detrend}
 \title{Detrend a signal vector.}
 \usage{
-signal_detrend(data)
+signal_detrend(data, method = "linear")
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
+
+\item{method}{\code{Character} value, method used for detrending. 
+One out of \code{"simple"} and \code{"linear"}. Default is 
+\code{"linear"}.}
 }
 \value{
 \code{Numeric} vector or list of vectors, detrended data set.
 }
 \description{
-The function removes a linear trend from a signal vector.
+The function removes a trend from a signal vector.
+}
+\details{
+The method \code{"simple"} subtracts a linear trend built from 
+the first and last sample of the data set. The method \code{"linear"} 
+uses the linear function as implemented in pracma::detrend.
 }
 \examples{
 
