@@ -60,7 +60,7 @@ is \code{"variance"}.}
 by setting to 1. Default is 1.}
 }
 \value{
-A raster object with the sums of squared model residuals for each
+A raster object with the location output metrics for each
 grid cell.
 }
 \description{
