@@ -124,17 +124,17 @@ signal_whiten <- function(
       data_fft <- data
     }
     
+    ## create frequency vector
+    f_data <- seq(from = 1/dt / length(data), 
+                  to = 1/dt, 
+                  by = 1/dt / length(data))
+    
     ## calculate normalisation vector
     if(is.na(f[1]) == TRUE) {
       
       norm <- rep(1, times = n)
     } else {
-      
-      ## create frequency vector
-      f_data <- seq(from = 1/dt / length(data), 
-                    to = 1/dt, 
-                    by = 1/dt / length(data))
-      
+
       ## get corner frequency boundaries
       boundaries <- (1:length(f_data))[f_data >= f[1] & f_data <= f[2]]
       boundaries <- c(boundaries[1], boundaries[length(boundaries)])
