@@ -18,8 +18,8 @@
 #' @docType package
 #' @author Michael Dietze
 #' @keywords package
-#' @importFrom graphics image plot plot.default axis axis.POSIXct box mtext
-#' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals
+#' @importFrom graphics image plot plot.default axis axis.POSIXct box mtext par
+#' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals spline fft
 #' @importFrom methods as new
 #' @importFrom Rcpp evalCpp
 #' @importFrom IRISSeismic readMiniseedFile getNetwork getStation getSNCL
@@ -27,6 +27,7 @@
 #' @importFrom rmarkdown render
 #' @importFrom utils combn read.delim write.table read.table sessionInfo download.file browseURL
 #' @importFrom XML xmlParse xmlToList
+#' @importFrom extraDistr rkumar dkumar rtriang dtriang
 #' @useDynLib eseis
 NULL
 

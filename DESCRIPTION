@@ -32,8 +32,12 @@ Imports:
     IRISSeismic,
     XML,
     shiny,
+    shinyFiles,
     rmarkdown,
     reticulate, 
+    EMMAgeo,
+    limSolve,
+    extraDistr,
     Rcpp (>= 0.12.5)
 Suggests:
     plot3D,
@@ -42,4 +46,4 @@ Suggests:
 SystemRequirements:
     gipptools
     dataselect
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
