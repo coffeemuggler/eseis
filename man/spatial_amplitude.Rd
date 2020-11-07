@@ -101,7 +101,7 @@ D <- eseis::spatial_distance(stations = sta[,1:2],
 ## locate signal
 e <- spatial_amplitude(data = s, 
                       d_map = D$maps, 
-                      v = 1000, 
+                      v = 500, 
                       q = 50, 
                       f = 10)
 
