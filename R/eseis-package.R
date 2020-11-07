@@ -19,7 +19,7 @@
 #' @author Michael Dietze
 #' @keywords package
 #' @importFrom graphics image plot plot.default axis axis.POSIXct box mtext par
-#' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals spline fft
+#' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals spline fft coefficients
 #' @importFrom methods as new
 #' @importFrom Rcpp evalCpp
 #' @importFrom IRISSeismic readMiniseedFile getNetwork getStation getSNCL
