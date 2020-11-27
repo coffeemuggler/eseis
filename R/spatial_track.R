@@ -223,7 +223,7 @@ spatial_track <- function(
     
     raster::values(raster::raster(d_map) * aoi)
   }, aoi))
-  t_diff <- max(d_all) / v
+  t_diff <- max(d_all, na.rm = TRUE) / v
   
   ## optionally print verbose output
   if(verbose == TRUE) {
@@ -318,7 +318,7 @@ spatial_track <- function(
   ## detect and adjust number of cores to use
   cores <- parallel::detectCores()
   
-  if(is.na(cpu) == FALSE) {
+  if(missing(cpu) == FALSE) {
     
     n_cpu <- floor(cores * cpu)
     cores <- ifelse(cores < n_cpu, cores, n_cpu)
