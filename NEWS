@@ -6,6 +6,7 @@ Version 0.6.0
   - feature added, plot_ppsd() xlim and ylim options added
   - feature added, aux_getevent() screen output suppression
   - function renamed, signal_stalta() to pick_stalta()
+  - function added, spatial_track()
   - function added, model_amplitude()
   - function added, gui_explore()
   - function added, signal_stats()
