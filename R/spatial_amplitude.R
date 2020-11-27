@@ -14,7 +14,7 @@
 #' to this one.
 #'
 #' @param d_map \code{List} object, distance maps for each station (i.e.,
-#' \code{SpatialGridDataFrame} objects). Output of \code{distance_map}.
+#' \code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.
 #'
 #' @param aoi \code{raster} object that
 #' defines which pixels are used to locate the source. If omitted, the entire
@@ -116,7 +116,7 @@ spatial_amplitude <- function (
   n_cores = 1
 ) {
   
-  ## check/format inout data
+  ## check/format input data
   if(class(data)[1] != "list") {
     
     data_mat <- data

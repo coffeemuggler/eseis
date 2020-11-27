@@ -20,10 +20,10 @@ spatial_migrate(
 to cross-correlate.}
 
 \item{d_stations}{\code{Numeric} matrix, inter-station distances. Output 
-of \code{distance_stations}.}
+of \code{spatial_distance}.}
 
 \item{d_map}{\code{List} object, distance maps for each station (i.e., 
-\code{SpatialGridDataFrame} objects). Output of \code{distance_map}.}
+\code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.}
 
 \item{snr}{\code{Numeric} vector, optional signal-to-noise-ratios for 
 each signal trace, used for normalisation. If omitted it is calculated

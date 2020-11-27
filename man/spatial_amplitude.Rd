@@ -29,7 +29,7 @@ amplification) must receive \code{1}, the others must be scaled relatively
 to this one.}
 
 \item{d_map}{\code{List} object, distance maps for each station (i.e.,
-\code{SpatialGridDataFrame} objects). Output of \code{distance_map}.}
+\code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.}
 
 \item{aoi}{\code{raster} object that
 defines which pixels are used to locate the source. If omitted, the entire

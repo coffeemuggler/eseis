@@ -7,10 +7,10 @@
 #' to cross-correlate.
 #' 
 #' @param d_stations \code{Numeric} matrix, inter-station distances. Output 
-#' of \code{distance_stations}.
+#' of \code{spatial_distance}.
 #' 
 #' @param d_map \code{List} object, distance maps for each station (i.e., 
-#' \code{SpatialGridDataFrame} objects). Output of \code{distance_map}.
+#' \code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.
 #' 
 #' @param v \code{Numeric} value, mean velocity of seismic waves (m/s).
 #' 
