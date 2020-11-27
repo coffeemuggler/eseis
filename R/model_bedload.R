@@ -569,7 +569,7 @@ model_bedload <- function(
     ## update object history
     eseis_data$history[[length(eseis_data$history) + 1]] <- 
       list(time = Sys.time(),
-           call = "model_turbulence()",
+           call = "model_bedload()",
            arguments = eseis_arguments,
            duration = eseis_duration)
     names(eseis_data$history)[length(eseis_data$history)] <- 
