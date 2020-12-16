@@ -192,9 +192,16 @@ aux_getevent <- function(
                         sep = "")
   
   ## make file list for JDs
-  files <- lapply(X = files_hourly, 
-                  FUN = list.files,
-                  full.names = TRUE)
+  files <- try(lapply(X = files_hourly, 
+                      FUN = list.files,
+                      full.names = TRUE), 
+               silent = TRUE)
+  
+  ## check for file presence
+  if(class(files)[1] == "try-error") {
+    
+    stop("No files exist for this time window!")
+  }
   
   ## isolate hours of interest
   for(i in 1:length(files)) {
@@ -208,6 +215,12 @@ aux_getevent <- function(
   ## convert list to vector
   files <- unlist(files)
   
+  ## check for file presence
+  if(length(files) < 1) {
+    
+    stop("No files exist for this time window!")
+  }
+  
   ## regroup files by station
   files_station <- vector(mode = "list", 
                           length = length(station))
@@ -216,6 +229,12 @@ aux_getevent <- function(
     
     files_station[[i]] <- files[grepl(x = files, 
                                       pattern = station[i])]
+  }
+  
+  ## check for file presence
+  if(length(unlist(files_station)) < 1) {
+    
+    stop("No files of that station(s) exist for this time window!")
   }
   
   ## Data import section ------------------------------------------------------
