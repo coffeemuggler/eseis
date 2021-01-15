@@ -223,7 +223,7 @@ signal_stats <- function(
   ## calculate data derivatives -----------------------------------------------
   
   ## create time vector
-  t <- seq(from = , by = dt, length.out = length(data))
+  t <- seq(from = 0, by = dt, length.out = length(data))
   
   ## demean and detrend data
   data <- eseis::signal_demean(data = data)
