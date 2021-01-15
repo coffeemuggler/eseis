@@ -81,6 +81,9 @@ progress. Default is FALSE.}
 \item{plot}{\code{Logical} value, enable graphical output of key results. 
 Default is \code{FALSE}.}
 }
+\value{
+A \code{List} object with summarising statistics of the fits.
+}
 \description{
 This function allows tracking a spatially mobile seismic source and 
 thereby estimating the source amplitude and the model's variance 

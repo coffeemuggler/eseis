@@ -38,6 +38,7 @@ Imports:
     EMMAgeo,
     limSolve,
     extraDistr,
+    minpack.lm,
     Rcpp (>= 0.12.5)
 Suggests:
     plot3D,

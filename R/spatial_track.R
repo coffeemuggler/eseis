@@ -131,6 +131,8 @@
 #' @param plot \code{Logical} value, enable graphical output of key results. 
 #' Default is \code{FALSE}.
 #' 
+#' @return A \code{List} object with summarising statistics of the fits.
+#' 
 #' @examples 
 #' 
 #' \dontrun{
@@ -363,7 +365,7 @@ spatial_track <- function(
         if(process == 1) {
           
           ## convert distance to time shifts
-          t_shift <- try(t_0 - d_i[-1] / model_par$v, 
+          t_shift <- try(t_0 + d_i[-1] / model_par$v, 
                          silent = !verbose)
           
           ## clip signals to adjusted time windows and get maximum amplitude
@@ -389,9 +391,9 @@ spatial_track <- function(
                             silent = !verbose)
           
           ## model source amplitude
-          mod <- try(nls(formula = model_fun,
-                         data = model_par,
-                         start = model_start),
+          mod <- try(minpack.lm::nlsLM(formula = model_fun,
+                                       data = model_par,
+                                       start = model_start),
                      silent = !verbose)
           
           ## get source amplitude
@@ -401,7 +403,8 @@ spatial_track <- function(
                             no = NA)
           
           ## get residuals
-          mod_res <- try(sum(residuals(mod)^2),
+          mod_res <- try(sqrt(mean(residuals(mod)^2, 
+                                   na.rm = TRUE)),
                          silent = !verbose)
           mod_res <- ifelse(test = class(mod_res)[1] != "try-error", 
                             yes = mod_res, 
