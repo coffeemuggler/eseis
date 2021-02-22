@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.6.0
+  - function updated, signal_filter() conversion of signal vector from ts to numeric added
   - bug fixed, list_sensor() L4C sensor poles definition corrected
   - bug fixed, spatial_amplitude() error catch implemented
   - feature added, plot_ppsd() xlim and ylim options added

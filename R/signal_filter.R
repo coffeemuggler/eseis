@@ -279,6 +279,9 @@ signal_filter <- function(
       stop("Filter shape not supported, yet!")
     }
     
+    ## convert ts object to numeric vector
+    data_out <- as.numeric(data_out)
+    
     ## optionally apply taper
     if(p > 0) {
       
