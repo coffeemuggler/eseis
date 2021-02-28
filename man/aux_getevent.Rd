@@ -97,9 +97,6 @@ data <- aux_getevent(start = as.POSIXct(x = "2017-04-09 01:20:00",
                      component = "BHZ",
                      dir = dir_data)
 
-## simplify data structure
-data <- lapply(X = data, FUN = function(data) {data[[1]]})
-
 ## plot both signals
 par(mfcol = c(2, 1))
 lapply(X = data, FUN = plot_signal)
