@@ -107,11 +107,11 @@ list_logger <- function(
     manufacturer = "Reftek",
     type = "NA",
     n_components = 3,
-    comment = "Not tested, values copied from A. Burtins data base.",
-    AD = 1.589e-06)
+    comment = "Not tested",
+    AD = 2.756e-06)
   
   ## define CMG6TD parameters
-  RT130 <- list(
+  CMG6TD <- list(
     ID = "CMG6TD",
     name = "Guralp 6TD",
     manufacturer = "Guralp",
@@ -129,7 +129,8 @@ list_logger <- function(
                   "Taurus" = Taurus,
                   "Osiris" = Osiris,
                   "RT72A08" = RT72A08,
-                  "RT130" = RT130)
+                  "RT130" = RT130,
+                  "CMG6TD" = CMG6TD)
   
   ## return output
   return(loggers)
