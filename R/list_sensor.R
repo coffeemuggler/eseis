@@ -296,6 +296,22 @@ list_sensor <- function(
     s = 2.000000e+03,
     k =  6.082850E+07)
   
+  RT151B120 <- list(
+    ID = "RT151B120",
+    name = "RT-151B-120",
+    manufacturer = "Reftek",
+    type = "broadband seismometer",
+    n_components = 3,
+    comment = "Data from REFTEK data sheet",
+    poles = as.complex(c(-0.03702+0.03702i,
+                         -0.03702-0.03702i,
+                         -177.72+177.72i,
+                         -177.72-177.72i)),
+    zeros = as.complex(c(0+0i,
+                         0+0i)),
+    s = 1990,
+    k =  6.082850E+07)
+  
   
   ## build sensor library
   sensors <- list("TC120s" = TC120s,
@@ -313,7 +329,8 @@ list_sensor <- function(
                   "IHR1C" = IHR1C,
                   "KINKEI" = KINKEI,
                   "PE6B" = PE6B,
-                  "RT151120" = RT151120)
+                  "RT151120" = RT151120,
+                  "RT151B120" = RT151B120)
   
   ## return output
   return(sensors)
