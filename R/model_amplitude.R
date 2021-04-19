@@ -35,7 +35,7 @@
 #' **SurfSpreadAtten**
 #' The model is based on Eq. 17 from Burtin et al. (2016):
 #' 
-#' \deqn{a_0 = a_d / sqrt(d) * exp(-(pi * f * d) / (q * v))}
+#' \deqn{a_d = a_0 / sqrt(d) * exp(-(pi * f * d) / (q * v))}
 #' 
 #' where a_0 is the source amplitude, a_d the amplitude as recorded by a sensor 
 #' at distance d, f is the center frequency of the signal, q the ground quality 
@@ -44,7 +44,7 @@
 #' **BodySpreadAtten**
 #' The model is based on Eq. 16 from Burtin et al. (2016):
 #' 
-#' \deqn{a_0 = a_d / d * exp(-(pi * f * d) / (q * v))}
+#' \deqn{a_d = a_0 / d * exp(-(pi * f * d) / (q * v))}
 #' 
 #' where a_0 is the source amplitude, a_d the amplitude as recorded by a sensor 
 #' at distance d, f is the center frequency of the signal, q the ground quality 
@@ -53,7 +53,7 @@
 #' **SurfBodySpreadAtten**
 #' The model based on Eqs. 16 and 17 from Burtin et al. (2016):
 #' 
-#' \deqn{a_0 = k * a_d / sqrt(d) * exp(-(pi * f * d) / (q * v)) + (1 - k) * a_d / d * exp(-(pi * f * d) / (q * v))}
+#' \deqn{a_d = k * a_0 / sqrt(d) * exp(-(pi * f * d) / (q * v)) + (1 - k) * a_0 / d * exp(-(pi * f * d) / (q * v))}
 #' 
 #' where a_0 is the source amplitude, a_d the amplitude as recorded by a sensor 
 #' at distance d, f is the center frequency of the signal, q the ground quality 
@@ -63,7 +63,7 @@
 #' **BodySpread**
 #' The model is simply accounting for geometric spreading
 #' 
-#' \deqn{a_0 = a_d / d}
+#' \deqn{a_d = a_0 / d}
 #' 
 #' where a_0 is the source amplitude, a_d the amplitude as recorded by a sensor 
 #' at distance d.
@@ -71,7 +71,7 @@
 #' **SurfSpread**
 #' The model is simply accounting for geometric spreading
 #' 
-#' \deqn{a_0 = a_d / sqrt(d)}
+#' \deqn{a_d = a_0 / sqrt(d)}
 #' 
 #' where a_0 is the source amplitude, a_d the amplitude as recorded by a sensor 
 #' at distance d.
@@ -79,7 +79,7 @@
 #' **SurfBodySpread**
 #' The model is simply accounting for geometric spreading
 #' 
-#' \deqn{a_0 = k * (a_d / d) + (1 - k) * a_d / sqrt(d)}
+#' \deqn{a_d = k * (a_0 / d) + (1 - k) * a_d / sqrt(d)}
 #' 
 #' where a_0 is the source amplitude, a_d the amplitude as recorded by a sensor 
 #' at distance d, and n and m two factors determining the relative 
