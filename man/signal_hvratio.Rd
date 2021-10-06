@@ -4,7 +4,14 @@
 \alias{signal_hvratio}
 \title{Calculate h-v-ratio of seismic components}
 \usage{
-signal_hvratio(data, dt, method = "periodogram", kernel, order = "xyz")
+signal_hvratio(
+  data,
+  dt,
+  log = TRUE,
+  method = "periodogram",
+  kernel,
+  order = "xyz"
+)
 }
 \arguments{
 \item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic
@@ -13,6 +20,10 @@ must be organised as columns. Also, \code{data} can be a list of
 \code{eseis} objects.}
 
 \item{dt}{\code{Numeric} value, sampling period.}
+
+\item{log}{\code{Logical} value, unit of spectral power. If set to 
+\code{TRUE} power will be used in dB, if set to \code{FALSE}, power 
+is used in amplitude squared. Default is \code{TRUE}.}
 
 \item{method}{\code{Character} value, method for calculating the spectra. 
 One out of \code{"periodogram"} , \code{"autoregressive"} and 
