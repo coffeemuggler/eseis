@@ -481,8 +481,8 @@ aux_stationinfofile <- function(
   ## optionally remove raw gps data
   if(write_raw == FALSE) {
     
-    file.remove(gps_files)
-    file.remove(paste(output_dir, "gps_raw", sep = "/"))
+    unlink(gps_files, recursive = TRUE)
+    unlink(paste(output_dir, "gps_raw", sep = "/"), recursive = TRUE)
   }
   
   ## Part 5 - export output data ----------------------------------------------
