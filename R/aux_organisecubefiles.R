@@ -204,21 +204,6 @@ aux_organisecubefiles <- function(
   } else if(dir.exists(gipptools) == FALSE) {
     
     stop("Path to gipptools is wrong!")
-  # } else {
-  #   
-  #   if(file.exists(paste(gipptools, 
-  #                        "/bin/cube2mseed", 
-  #                        sep = "")) == FALSE) {
-  #     
-  #     stop("gipptools do not contain cbue2mseed function!")
-  #   }
-  #   
-  #   if(file.exists(paste(gipptools, 
-  #                        "/bin/mseedcut", 
-  #                        sep = "")) == FALSE) {
-  #     
-  #     stop("gipptools do not contain mseedcut function!")
-  #   }
   }
   
   ## read station info data
