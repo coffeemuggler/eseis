@@ -239,6 +239,13 @@ pick_stalta <- function(
                                           time2 = event_on, 
                                           units = "sec"))
     
+    # ## get maximum sta-lta value
+    # stalta_max <- rep(NA, length = length(event_on))
+    # for(i in 1:length(stalta_max)) {
+    #   stalta_max[i] <- max((data_sta / data_lta)[time >= event_on[i] & 
+    #                                time <= event_off[i]])
+    # }
+
     ## get sta-lta value at event onset
     event_stalta <- data_stalta[event_diff == 1]
     
