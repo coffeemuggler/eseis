@@ -38,7 +38,7 @@
 #' object (recommended, see documentation of 
 #' \code{aux_initiateeseis}), default is \code{TRUE}
 #' 
-#' @param try \code{Logical} value, option to run the fuction in try-mode, 
+#' @param try \code{Logical} value, option to run the function in try-mode, 
 #' i.e., to let it return \code{NA} in case an error occurs during data
 #' import. Default is \code{FALSE}.
 #' 

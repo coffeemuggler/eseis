@@ -209,7 +209,7 @@ model_bedload <- function(
   n_0,
   n_c,
   res = 100,
-  adjust = FALSE,
+  adjust = TRUE,
   eseis = FALSE,
   ...
 ) {

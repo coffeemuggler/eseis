@@ -2,7 +2,7 @@ Package: eseis
 Type: Package
 Title: Environmental Seismology Toolbox
 Version: 0.6.0
-Date: 20xx-xx-xx
+Date: 2021-11-23
 Authors@R: c(
     person("Michael", "Dietze", role = c("cre", "aut", "trl"), email = "mdietze@gfz-potsdam.de"),
     person("Christoph", "Burow", role = c("ctb")),
@@ -47,4 +47,4 @@ Suggests:
 SystemRequirements:
     gipptools
     dataselect
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

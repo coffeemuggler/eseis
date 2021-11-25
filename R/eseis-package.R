@@ -9,7 +9,7 @@
 #' **Package:** \tab eseis \cr
 #' **Type:** \tab Package \cr
 #' **Version:** \tab 0.4.0 \cr
-#' **Date:** \tab 2018-04-25 \cr
+#' **Date:** \tab 2021-11-23 \cr
 #' **License:** \tab GPL-3 \cr
 #' }
 #' 

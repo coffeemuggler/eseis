@@ -95,7 +95,7 @@ station information.
 \description{
 This function reads GPS tags from Omnirecs/Digos Datacube files and creates 
 a station info file from additional input data. It depends on the cubetools 
-or gipptools  software package (see details).
+or gipptools software package (see details).
 }
 \details{
 A station info file is an ASCII file that contains all relevant information

@@ -2,6 +2,9 @@ Changes for R-package eseis
 
 Version 0.6.0
   - function updated, signal_filter() conversion of signal vector from ts to numeric added
+  - bug fixed, aux_stationinfofile() GPS extraction routine updated
+  - bug fixed, aux_stationinfofile() Windows support added
+  - bug fixed, aux_organisecubefiles() Windows support added
   - bug fixed, list_sensor() L4C sensor poles definition corrected
   - bug fixed, spatial_amplitude() error catch implemented
   - bug fixed, aux_eseisobspy() file name update propagated
