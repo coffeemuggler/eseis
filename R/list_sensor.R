@@ -95,8 +95,8 @@ list_sensor <- function(
     type = "seismometer",
     n_components = 1,
     comment = "Data taken from data base of Arnaud Burtin",
-    poles = as.complex(c(-4.443e+1+4.443i, 
-                         -4.443e+1-4.443i)),
+    poles = as.complex(c(-4.443+4.443i, 
+                         -4.443-4.443i)),
     zeros = as.complex(c(0.0e+1+0.0i, 
                          0.0e+1+0.0i)),
     s = 166.54,
@@ -277,6 +277,41 @@ list_sensor <- function(
     s = 28.8,
     k = 1)
   
+  RT151120 <- list(
+    ID = "RT151120",
+    name = "RT-151-120",
+    manufacturer = "Reftek",
+    type = "broadband seismometer",
+    n_components = 3,
+    comment = "Data from https://ds.iris.edu/NRL/sensors/reftek/",
+    poles = as.complex(c(-3.701840e-02+3.702960e-02i,
+                         -3.701840e-02-3.702960e-02i,
+                         -1.803310e+02+1.899220e+02i,
+                         -1.803310e+02-1.899220e+02i,
+                         -2.095810e+01+0.000000e+00i,
+                         -7.720300e+02+0.000000e+00)),
+    zeros = as.complex(c(0.000000e+00+0.000000e+00i,
+                         0.000000e+00+0.000000e+00i,
+                         -1.818000e+01+0.000000e+00i)),
+    s = 2.000000e+03,
+    k =  6.082850E+07)
+  
+  RT151B120 <- list(
+    ID = "RT151B120",
+    name = "RT-151B-120",
+    manufacturer = "Reftek",
+    type = "broadband seismometer",
+    n_components = 3,
+    comment = "Data from REFTEK data sheet",
+    poles = as.complex(c(-0.03702+0.03702i,
+                         -0.03702-0.03702i,
+                         -177.72+177.72i,
+                         -177.72-177.72i)),
+    zeros = as.complex(c(0+0i,
+                         0+0i)),
+    s = 1990,
+    k =  6.082850E+07)
+  
   
   ## build sensor library
   sensors <- list("TC120s" = TC120s,
@@ -293,7 +328,9 @@ list_sensor <- function(
                   "NEOMAX" = NEOMAX,
                   "IHR1C" = IHR1C,
                   "KINKEI" = KINKEI,
-                  "PE6B" = PE6B)
+                  "PE6B" = PE6B,
+                  "RT151120" = RT151120,
+                  "RT151B120" = RT151B120)
   
   ## return output
   return(sensors)

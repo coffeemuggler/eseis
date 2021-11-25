@@ -2,7 +2,7 @@
 #' 
 #' This function reads GPS tags from Omnirecs/Digos Datacube files and creates 
 #' a station info file from additional input data. It depends on the cubetools 
-#' or gipptools  software package (see details).
+#' or gipptools software package (see details).
 #' 
 #' A station info file is an ASCII file that contains all relevant information
 #' about the individual stations of a seismic network. The variables contain a 
@@ -415,15 +415,19 @@ aux_stationinfofile <- function(
       ## append successfully extracted data
       if(class(data_i)[1] != "try-error") {
         
+        ## identify required fields
+        v_lat <- which(grepl(x = data_i[1,], pattern = "lat="))
+        v_lon <- which(grepl(x = data_i[1,], pattern = "lon="))
+        
         ## extract latitude
-        lat <- c(lat, as.numeric(substr(x = data_i$V8, 
+        lat <- c(lat, as.numeric(substr(x = data_i[,v_lat], 
                                         start = 5, 
-                                        stop = nchar(data_i$V8[1]))))
+                                        stop = nchar(data_i[,v_lat][1]))))
         
         ## extract longitude
-        lon <- c(lon, as.numeric(substr(x = data_i$V9, 
+        lon <- c(lon, as.numeric(substr(x = data_i[,v_lon], 
                                         start = 5, 
-                                        stop = nchar(data_i$V9[1]))))
+                                        stop = nchar(data_i[,v_lon][1]))))
       }
     }
     
@@ -481,8 +485,8 @@ aux_stationinfofile <- function(
   ## optionally remove raw gps data
   if(write_raw == FALSE) {
     
-    file.remove(gps_files)
-    file.remove(paste(output_dir, "gps_raw", sep = "/"))
+    unlink(gps_files, recursive = TRUE)
+    unlink(paste(output_dir, "gps_raw", sep = "/"), recursive = TRUE)
   }
   
   ## Part 5 - export output data ----------------------------------------------

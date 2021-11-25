@@ -13,7 +13,8 @@ aux_getevent(
   dir,
   simplify = TRUE,
   eseis = TRUE,
-  try = FALSE
+  try = FALSE,
+  silent = TRUE
 )
 }
 \arguments{
@@ -45,9 +46,12 @@ is loaded, the list object will have one level less. Default is
 object (recommended, see documentation of 
 \code{aux_initiateeseis}), default is \code{TRUE}}
 
-\item{try}{\code{Logical} value, option to run the fuction in try-mode, 
+\item{try}{\code{Logical} value, option to run the function in try-mode, 
 i.e., to let it return \code{NA} in case an error occurs during data
 import. Default is \code{FALSE}.}
+
+\item{silent}{\code{Logical} value, option to suppress messages during 
+function execution. Default is \code{TRUE}.}
 }
 \value{
 A \code{list} object containing either a set of \code{eseis}
@@ -92,9 +96,6 @@ data <- aux_getevent(start = as.POSIXct(x = "2017-04-09 01:20:00",
                      station = c("RUEG1", "RUEG2"),
                      component = "BHZ",
                      dir = dir_data)
-
-## simplify data structure
-data <- lapply(X = data, FUN = function(data) {data[[1]]})
 
 ## plot both signals
 par(mfcol = c(2, 1))

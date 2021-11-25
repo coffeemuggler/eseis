@@ -232,7 +232,7 @@ model_turbulence <- function(
   ## define integration limits
   l <- c(exp(-s) * d_s, exp(s) * d_s)
 
-  ## integrate phi over grain-size distribition
+  ## integrate phi over grain-size distribution
   phi <- lapply(X = f_seq, FUN = function(f_seq) {
     
     f <- function(d) {

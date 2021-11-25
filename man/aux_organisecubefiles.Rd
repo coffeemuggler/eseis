@@ -44,14 +44,18 @@ GPS-tagged time span. One out of \code{"skip"}, \code{"nominal"} or
 \code{"constant"}. Default is \code{"constant"}.}
 
 \item{verbose}{\code{Logical} value, option to enable extended screen 
-output of cubetools operations. Default is \code{FALSE}.}
+output of cubetools operations. Default is \code{FALSE}. This option 
+might not work with Windows operating systems.}
 
 \item{gipptools}{\code{Character} value, path to gipptools or cubetools 
 directory.}
 
-\item{heapspace}{\code{Numeric} value, heap space assigned to the Jave 
+\item{heapspace}{\code{Numeric} value, heap space assigned to the Java 
 Runtime Environment, e.g., \code{4096}. Should be increased if the cube 
-to mseed conversion fails (announced if \code{verbose = TRUE}).}
+to mseed conversion fails (announced if \code{verbose = TRUE}). Please 
+note that this argument fails on Windows machines, and also in other 
+operating systems, it should only be used if the function returns an
+error caused by Java running out of memory.}
 
 \item{mseed_manual}{\code{Logical} value, option to convert mseed files 
 manually. See details. Default is \code{FALSE}, i.e., the function converts 

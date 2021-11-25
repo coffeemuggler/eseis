@@ -23,6 +23,16 @@ The function converts an ObsPy stream object to an eseis object. The
 functionality is mainly useful when running ObsPy through R using the 
 package 'reticulate'.
 }
+\details{
+Initiation of the reticulate-based python toolbox support can be 
+cumbersome. The following suggestions from Guthub 
+(https://github.com/rstudio/reticulate/issues/578) helped in a case 
+study:
+
+\code{library(reticulate)}
+\code{use_condaenv("r-reticulate")}
+\code{py_install("obspy", pip = TRUE)}
+}
 \examples{
 
 \dontrun{

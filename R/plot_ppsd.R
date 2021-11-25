@@ -153,9 +153,25 @@ plot_ppsd <- function(
     
     col <- col_pal(200)
   }
+  
+  if("xlim" %in% names(args)) {
+    
+    xlim <- args$"xlim"
+  } else {
+    
+    xlim <- range(f, na.rm = TRUE)
+  }
+  
+  if("ylim" %in% names(args)) {
+    
+    ylim <- args$"ylim"
+  } else {
+    
+    ylim <- range(S, na.rm = TRUE)
+  }
 
   ## remove predefined plot arguments
-  keywords <- c("x", "y", "z", "ylab", "xlab", "col")
+  keywords <- c("x", "y", "z", "ylab", "xlab", "col", "xlim", "ylim")
   args <- args[!names(args)%in%keywords]
   
   ## plot data set
@@ -166,7 +182,9 @@ plot_ppsd <- function(
                         main = main, 
                         xlab = xlab,
                         ylab = "",
-                        col = col)))
+                        col = col,
+                        xlim = xlim,
+                        ylim = ylim)))
   
   ## add y axis label
   mtext(side = 2, 

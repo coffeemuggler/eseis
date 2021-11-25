@@ -1,5 +1,31 @@
 Changes for R-package eseis
 
+Version 0.6.0
+  - function updated, signal_filter() conversion of signal vector from ts to numeric added
+  - bug fixed, aux_stationinfofile() GPS extraction routine updated
+  - bug fixed, aux_stationinfofile() Windows support added
+  - bug fixed, aux_organisecubefiles() Windows support added
+  - bug fixed, list_sensor() L4C sensor poles definition corrected
+  - bug fixed, spatial_amplitude() error catch implemented
+  - bug fixed, aux_eseisobspy() file name update propagated
+  - feature added, signal_hvratio() log-scale option added
+  - feature added, plot_ppsd() xlim and ylim options added
+  - feature added, aux_getevent() more precise error messages added
+  - feature added, aux_getevent() screen output suppression
+  - function renamed, signal_stalta() to pick_stalta()
+  - function added, spatial_track()
+  - function added, model_amplitude()
+  - function added, gui_explore()
+  - function added, signal_stats()
+  - function added, signal_fill()
+  - function added, pick_kurtosis()
+  - function added, pick_correlation()
+  - function added, aux_sonifysignal()
+  - function added, aux_cubeinfo()
+  - function model_bedload() corrected for wide GSD cases
+  - function spatial_amplitude() bugfix, coupling factor implementation
+  - function signal_filter() feature added, lazy option added
+
 Version 0.5.0 (2019-12-16)
   - function signal_filter(): frequency domain filtering implemented
   - signal type meta element added

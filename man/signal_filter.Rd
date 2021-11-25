@@ -12,7 +12,8 @@ signal_filter(
   type,
   shape = "butter",
   order = 2,
-  p = 0
+  p = 0,
+  lazy = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,10 @@ from \code{f}. If \code{f} is of length two, \code{type} is set to
 is \code{2}. Only needed if \code{data} is no \code{eseis} object.}
 
 \item{p}{\code{Numeric} value, fraction of the signal to be tapered.}
+
+\item{lazy}{\code{Logical} value, option to pre- and post-process data, 
+including detrending, demeaning and tapering (\code{p = 0.02}). Default 
+if \code{FALSE}.}
 }
 \value{
 \code{Numeric} vector or list of vectors, filtered signal vector.

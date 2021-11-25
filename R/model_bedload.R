@@ -34,9 +34,13 @@
 #' adjust the arguments \code{log_lim} and \code{log_length} or use a 
 #' user defined distribution function.
 #' 
+#' The adjustment option (implemented with package version 0.6.0) is only 
+#' relevant for wide grain-size distributions, i.e., \code{s_s} > 0.2. In 
+#' such cases, the unadjusted version tends to underestimate seismic power. 
+#' 
 #' @param gsd \code{data frame} grain-size distribution function. Must be 
-#' provided as data frame with two variables: grain-size class (first column)
-#' and vol- or wgt.-percentage per class (second column). See examples for 
+#' provided as data frame with two variables: grain-size class (in m, first 
+#' column) and wgt/vol percentage per class (second column). See examples for 
 #' details.
 #'
 #' @param d_s \code{Numeric} value, mean sediment grain diameter (m). 
@@ -90,7 +94,11 @@
 #' @param n_c \code{Numeric} value, option to include single particle hops 
 #' coherent in time, causing spectrum modulation due to secondary effects. 
 #' Omitted is no value is specified, here. Usual values may be between 2 and 
-#' 4.  
+#' 4.
+#' 
+#' @param adjust \code{Logical} value, option to adjust PSD for wide 
+#' grain-size distributions, according to implementation by Tsai et al. 
+#' (2012).
 #' 
 #' @param eseis \code{Character} value, option to return an eseis object 
 #' instead of a data frame. Default is \code{FALSE}.
@@ -201,6 +209,7 @@ model_bedload <- function(
   n_0,
   n_c,
   res = 100,
+  adjust = TRUE,
   eseis = FALSE,
   ...
 ) {
@@ -212,8 +221,8 @@ model_bedload <- function(
     
     ## define log10 sequence of possible grain-size classes
     x_log <- 10^seq(log10(0.0001), 
-                    log10(100), 
-                    length.out = 10^(4))
+                    log10(10), 
+                    length.out = 10^4)
     
     ## calculate grain-size scatter in modified units
     s <- s_s / sqrt(1 / 3 - 2 / pi^2)
@@ -224,24 +233,48 @@ model_bedload <- function(
     ## set values out of range to zero
     p_s[log(x_log) - log(d_s) > s] <- 0
     p_s[log(x_log) - log(d_s) < -s] <- 0
-    
+
     ## remove grain-size classes with zero contribution
     x_log <- x_log[p_s > 0]
     p_s <- p_s[p_s > 0]
     
     ## rescale grain-size distribution to one
-    p_s = p_s / sum(p_s)
+    if(adjust == FALSE) {
+      p_s <- p_s / sum(p_s)
+    }
     
   } else {
     
-    x_log <- gsd[,1]
+    ## calculate lower and upper grain-size limits, rounded to power 10
+    d_min <- 10^ceiling(log10(min(gsd[,1]) / 10))
+    d_max <- 10^ceiling(log10(max(gsd[,1])))
     
-    p_s <- gsd[,2]
+    ## assign objects from input data
+    x_log <- 10^seq(from = log10(d_min),
+                    to = log10(d_max),
+                    length.out = 10^4)
     
+    ## approximate GSD based on new x values
+    p_s_gsd <- stats::approx(x = gsd[,1], 
+                         y = gsd[,2], 
+                         xout = x_log,
+                         method = "linear")$y
+    
+    ## remove NA-values
+    x_log <- x_log[!is.na(p_s_gsd)]
+    p_s_gsd <- p_s_gsd[!is.na(p_s_gsd)]
+    
+    ## calculate density conversion factor
+    f_density = sum(p_s_gsd * c(diff(x_log), 0))
+    
+    ## convert GSD to density function
+    p_s <- p_s_gsd / f_density
+    
+    ## calculate D_50 value from empirical data
     d_s <- x_log[abs(cumsum(p_s) - 0.5) == 
                    min(abs(cumsum(p_s) - 0.5))][1]
   }
-  
+
   ## extract additional arguments
   extraArgs <- list(...)
   
@@ -326,7 +359,6 @@ model_bedload <- function(
   
   ## get start time
   eseis_t_0 <- Sys.time()
-  
   
   ## collect function arguments
   eseis_arguments <- list(d_s,
@@ -474,10 +506,11 @@ model_bedload <- function(
              n_0 = n_0, 
              w_i = w_i,
              p_s = p_s, 
-             n_c = n_c)
+             n_c = n_c,
+             x_log = x_log)
   
   ## calculate power spectra for each frequency interval
-  z <- lapply(X = p1, FUN = function(p1, p2) {
+  z <- lapply(X = p1, FUN = function(p1, p2, adjust) {
     
     if(is.na(p2$n_c) == FALSE) {
       
@@ -493,24 +526,22 @@ model_bedload <- function(
         (p2$v_p * p2$u_b * p2$h_b * p2$r_s^2 * p1[3]^3 * p1[4]^2)
     } else {
       
-      z <- complex(real = cos(-2 * pi * p1[1] * 
-                                p2$h_b / (p2$c_1 * p2$w_s)), 
-                   imaginary = sin(-2 * pi * p1[1] * h_b 
-                                   / (p2$c_1 * p2$w_s)))
-      
-      f_t <- (Mod(1 + z))^2 / 2
-      
       psd_raw <- (p2$c_1 * p2$w_w * p2$q_s * p2$w_s * pi^2 *
                     p1[1]^3 * p2$m^2 *p2$ w_i^2 * p1[2]) /
         (p2$v_p * p2$u_b * p2$h_b * p2$r_s^2 * p1[3]^3 * p1[4]^2)
     }
     
-    psd_f <- sum(p_s * psd_raw * n_0^2)
+    if(adjust == FALSE) {
+      psd_f <- sum(p2$p_s * psd_raw * p2$n_0^2)
+    } else {
+      psd_f <- sum(p2$p_s * psd_raw * p2$n_0^2 * 
+                     c(0, diff(x_log)))
+    }
     
     return(psd_f)
     
-  }, p2)
-  
+  }, p2, adjust)
+
   ## convert list to vector
   z <- do.call(base::c, z)
   
@@ -538,7 +569,7 @@ model_bedload <- function(
     ## update object history
     eseis_data$history[[length(eseis_data$history) + 1]] <- 
       list(time = Sys.time(),
-           call = "model_turbulence()",
+           call = "model_bedload()",
            arguments = eseis_arguments,
            duration = eseis_duration)
     names(eseis_data$history)[length(eseis_data$history)] <- 

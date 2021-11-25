@@ -6,11 +6,15 @@
 \alias{s}
 \alias{t}
 \title{Seismic traces of a small earthquake}
-\format{The format is: 
+\format{
+The format is: 
 List of 3
  $ BHE: num [1:8001] -3.95e-07 ...
  $ BHN: num [1:8001] -2.02e-07 ...
- $ BHZ: num [1:8001] -1.65e-07 ...}
+ $ BHZ: num [1:8001] -1.65e-07 ...
+
+The format is: POSIXct[1:98400], format: "2015-04-06 13:16:54" ...
+}
 \usage{
 s
 

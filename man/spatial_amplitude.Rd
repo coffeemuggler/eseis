@@ -4,60 +4,117 @@
 \alias{spatial_amplitude}
 \title{Locate the source of a seismic event by modelling amplutide attenuation}
 \usage{
-spatial_amplitude(data, coupling, d_map, aoi, v, q, f, a_0, normalise = TRUE)
+spatial_amplitude(
+  data,
+  coupling,
+  d_map,
+  aoi,
+  v,
+  q,
+  f,
+  a_0,
+  normalise = TRUE,
+  output = "variance",
+  n_cores = 1
+)
 }
 \arguments{
-\item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals 
-to work with. Since the function will calculate the maxima of the data it 
+\item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals
+to work with. Since the function will calculate the maxima of the data it
 is usually the envolopes of the data that should be used here.}
 
 \item{coupling}{\code{Numeric} vector, coupling efficiency factors for each
-seismic station. The best coupled station (or the one with the highest 
-amplification) must receive \code{1}, the others must be scaled relatively 
+seismic station. The best coupled station (or the one with the highest
+amplification) must receive \code{1}, the others must be scaled relatively
 to this one.}
 
-\item{d_map}{\code{List} object, distance maps for each station (i.e., 
-\code{SpatialGridDataFrame} objects). Output of \code{distance_map}.}
+\item{d_map}{\code{List} object, distance maps for each station (i.e.,
+\code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.}
 
-\item{aoi}{\code{SpatialGridDataFrame} or \code{raster} object that 
-defines which pixels are used to locate the source. If omitted, the entire 
+\item{aoi}{\code{raster} object that
+defines which pixels are used to locate the source. If omitted, the entire
 distance map extent is used. \code{aoi} and \code{d_map} objects must have
-the same extents, projections and pixel sizes. The \code{aoi} map must 
+the same extents, projections and pixel sizes. The \code{aoi} map must
 be of logical values.}
 
 \item{v}{\code{Numeric} value, mean velocity of seismic waves (m/s).}
 
 \item{q}{\code{Numeric} value, quality factor of the ground.}
 
-\item{f}{\code{Numeric} value, frequency for which to model the 
+\item{f}{\code{Numeric} value, frequency for which to model the
 attenuation.}
 
 \item{a_0}{\code{Logical} value, start parameter of the source amplitude,
-if not provided, a best guess is made as 100 times the maximum amplitude 
+if not provided, a best guess is made as 100 times the maximum amplitude
 value of the data set.}
 
-\item{normalise}{\code{Logical} value, option to normalise sum of 
+\item{normalise}{\code{Logical} value, option to normalise sum of
 residuals between 0 and 1. Default is \code{TRUE}.}
+
+\item{output}{\code{Character} value, type of metric the function returns.
+One out of \code{"residuals"} (sums of the squared model residuals) or
+\code{"variance"} (variance reduction, cf. Walter et al. (2017)). Default
+is \code{"variance"}.}
+
+\item{n_cores}{\code{Numeric} value, number of CPU cores to use. Disabled
+by setting to 1. Default is 1.}
 }
 \value{
-A raster object with the sums of squared model residuals for each 
+A raster object with the location output metrics for each
 grid cell.
 }
 \description{
-The function fits a model of signal amplitude attenuation for all grid 
-cells of the distance data sets and returns the residual sum as measure 
+The function fits a model of signal amplitude attenuation for all grid
+cells of the distance data sets and returns the residual sum as measure
 of the most likely source location of an event.
 }
 \examples{
 
 \dontrun{
 
-L <- spatial_amplitude(data = s_f, 
-coupling = c(1, 1, 1, 1),
-d_map = D_50$maps, 
-v = 900, 
-q = 100, 
-f = 7.5)
+## create synthetic DEM
+dem <- raster::raster(nrows = 20, ncols = 20, 
+                     xmn = 0, xmx = 10000, 
+                     ymn= 0, ymx = 10000, 
+                     vals = rep(0, 400))
+
+## define station coordinates
+sta <- data.frame(x = c(1000, 9000, 5000),
+                 y = c(1000, 1000, 9000),
+                 ID = c("A", "B", "C"))
+
+## create synthetic signal (source in towards lower left corner of the DEM)
+s <- rbind(dnorm(x = 1:1000, mean = 500, sd = 50) * 100,
+          dnorm(x = 1:1000, mean = 500, sd = 50) * 2,
+          dnorm(x = 1:1000, mean = 500, sd = 50) * 1)
+
+## plot DEM and stations
+raster::plot(dem)
+text(x = sta$x, 
+    y = sta$y, 
+    labels = sta$ID)
+
+## calculate spatial distance maps and inter-station distances
+D <- eseis::spatial_distance(stations = sta[,1:2],
+                            dem = dem)
+
+## locate signal
+e <- spatial_amplitude(data = s, 
+                      d_map = D$maps, 
+                      v = 500, 
+                      q = 50, 
+                      f = 10)
+
+## get most likely location coordinates (example contains two equal points)
+xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
+            ncol = 2)[1,]
+
+## plot output
+raster::plot(e)
+points(xy[1], 
+      xy[2],
+      pch = 20)
+points(sta[,1:2])
 
 }
 

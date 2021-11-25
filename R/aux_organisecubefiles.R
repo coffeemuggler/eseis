@@ -84,14 +84,18 @@
 #' \code{"constant"}. Default is \code{"constant"}.
 #' 
 #' @param verbose \code{Logical} value, option to enable extended screen 
-#' output of cubetools operations. Default is \code{FALSE}.
+#' output of cubetools operations. Default is \code{FALSE}. This option 
+#' might not work with Windows operating systems.
 #' 
 #' @param gipptools \code{Character} value, path to gipptools or cubetools 
 #' directory. 
 #' 
-#' @param heapspace \code{Numeric} value, heap space assigned to the Jave 
+#' @param heapspace \code{Numeric} value, heap space assigned to the Java 
 #' Runtime Environment, e.g., \code{4096}. Should be increased if the cube 
-#' to mseed conversion fails (announced if \code{verbose = TRUE}).
+#' to mseed conversion fails (announced if \code{verbose = TRUE}). Please 
+#' note that this argument fails on Windows machines, and also in other 
+#' operating systems, it should only be used if the function returns an
+#' error caused by Java running out of memory.
 #' 
 #' @param mseed_manual \code{Logical} value, option to convert mseed files 
 #' manually. See details. Default is \code{FALSE}, i.e., the function converts 
@@ -200,21 +204,6 @@ aux_organisecubefiles <- function(
   } else if(dir.exists(gipptools) == FALSE) {
     
     stop("Path to gipptools is wrong!")
-  # } else {
-  #   
-  #   if(file.exists(paste(gipptools, 
-  #                        "/bin/cube2mseed", 
-  #                        sep = "")) == FALSE) {
-  #     
-  #     stop("gipptools do not contain cbue2mseed function!")
-  #   }
-  #   
-  #   if(file.exists(paste(gipptools, 
-  #                        "/bin/mseedcut", 
-  #                        sep = "")) == FALSE) {
-  #     
-  #     stop("gipptools do not contain mseedcut function!")
-  #   }
   }
   
   ## read station info data
@@ -318,7 +307,8 @@ aux_organisecubefiles <- function(
                                  "/mseed_raw ",
                                  X,
                                  "/",
-                                 sep = ""))
+                                 sep = ""), 
+                 show.output.on.console = verbose)
           
         } else {
           
@@ -339,7 +329,8 @@ aux_organisecubefiles <- function(
                                  "/mseed_raw ",
                                  X,
                                  "/",
-                                 sep = ""))
+                                 sep = ""), 
+                 show.output.on.console = verbose)
         }
       }, 
       gipptools = gipptools,
@@ -379,7 +370,7 @@ aux_organisecubefiles <- function(
                                                   sep = ""), 
                                      full.names = TRUE)
   
-  invisible(file.remove(files_mseed_raw_full))
+  invisible(unlink(files_mseed_raw_full, recursive = TRUE))
   
   try(invisible(unlink(paste(output_dir, 
                               "/mseed_raw", 
@@ -504,9 +495,10 @@ aux_organisecubefiles <- function(
   ## remove old mseed files
   if(mseed_keep == FALSE) {
     
-    invisible(file.remove(paste(output_dir, "/mseed_hour", 
+    invisible(unlink(paste(output_dir, "/mseed_hour", 
                                 files_mseed_hour,
-                                sep = "/")))
+                                sep = "/"), 
+                     recursive = TRUE))
     
     ## make new file list
     files_new <- list.files(path = paste(output_dir, 
@@ -571,10 +563,11 @@ aux_organisecubefiles <- function(
                          sep = "/"))
     
     ## delete original file
-    file.remove(paste(output_dir, 
+    unlink(paste(output_dir, 
                       "/mseed_hour", 
                       files_new[i],
-                      sep = "/"))
+                      sep = "/"), 
+           recursive = TRUE)
   }
   
   ## remove temporary directory

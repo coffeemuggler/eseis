@@ -77,7 +77,7 @@ aux_eseisobspy <- function(
   ## import dummy data set as ObsPy stream object
   data_out <- obspy$read(
     pathname_or_url = paste0(system.file("extdata", package="eseis"), "/",
-                             "2017/099/RUEG1.17.99.00.00.00.BHZ.SAC"))
+                             "2017/099/RUEG1.17.099.00.00.00.BHZ.SAC"))
   
   ## adjust signal vector
   data_out$traces[[1]]$data <- numpy$array(data$signal)

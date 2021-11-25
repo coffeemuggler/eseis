@@ -9,7 +9,7 @@
 #' **Package:** \tab eseis \cr
 #' **Type:** \tab Package \cr
 #' **Version:** \tab 0.4.0 \cr
-#' **Date:** \tab 2018-04-25 \cr
+#' **Date:** \tab 2021-11-23 \cr
 #' **License:** \tab GPL-3 \cr
 #' }
 #' 
@@ -18,15 +18,17 @@
 #' @docType package
 #' @author Michael Dietze
 #' @keywords package
-#' @importFrom graphics image plot plot.default axis axis.POSIXct box mtext
-#' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals
+#' @importFrom graphics image plot plot.default axis axis.POSIXct box mtext par lines points polygon segments
+#' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals spline fft coefficients na.omit
 #' @importFrom methods as new
+#' @importFrom minpack.lm nlsLM
 #' @importFrom Rcpp evalCpp
 #' @importFrom IRISSeismic readMiniseedFile getNetwork getStation getSNCL
 #' @importFrom grDevices colorRampPalette dev.off jpeg
 #' @importFrom rmarkdown render
 #' @importFrom utils combn read.delim write.table read.table sessionInfo download.file browseURL
 #' @importFrom XML xmlParse xmlToList
+#' @importFrom extraDistr rkumar dkumar rtriang dtriang
 #' @useDynLib eseis
 NULL
 

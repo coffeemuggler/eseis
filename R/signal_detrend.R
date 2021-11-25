@@ -1,9 +1,17 @@
 #' Detrend a signal vector.
 #' 
-#' The function removes a linear trend from a signal vector.
+#' The function removes a trend from a signal vector.
+#' 
+#' The method \code{"simple"} subtracts a linear trend built from 
+#' the first and last sample of the data set. The method \code{"linear"} 
+#' uses the linear function as implemented in pracma::detrend.
 #' 
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
+#' 
+#' @param method \code{Character} value, method used for detrending. 
+#' One out of \code{"simple"} and \code{"linear"}. Default is 
+#' \code{"linear"}.
 #' 
 #' @return \code{Numeric} vector or list of vectors, detrended data set.
 #' @author Michael Dietze
@@ -22,7 +30,8 @@
 #'                      
 #' @export signal_detrend
 signal_detrend <- function(
-  data
+  data,
+  method = "linear"
 ) {
   
   ## check data structure
@@ -40,7 +49,8 @@ signal_detrend <- function(
     eseis_t_0 <- Sys.time()
     
     ## collect function arguments
-    eseis_arguments <- list(data = "")
+    eseis_arguments <- list(data = "",
+                            method = method)
     
     ## check if input object is of class eseis
     if(class(data)[1] == "eseis") {
@@ -59,18 +69,32 @@ signal_detrend <- function(
       eseis_class <- FALSE
     }
     
-    ## convert vector to matrix
-    data <- rbind(data)
-    
     ## detrend data set  
-    data_t <- t(data)
-    A <- cbind(rep(0, nrow(data_t)), 
-               rep(1, nrow(data_t)))
-    A[(1:nrow(data_t)), 1] <- as.matrix(1:nrow(data_t)) / nrow(data_t)
-    X <- t(data_t - A %*% qr.solve(A, data_t))
-    
-    ## convert matrix to vector
-    data_out <- as.numeric(X)
+    if(method == "linear") {
+      
+      ## convert vector to matrix
+      data <- rbind(data)
+      
+      data_t <- t(data)
+      A <- cbind(rep(0, nrow(data_t)), 
+                 rep(1, nrow(data_t)))
+      A[(1:nrow(data_t)), 1] <- as.matrix(1:nrow(data_t)) / nrow(data_t)
+      X <- t(data_t - A %*% qr.solve(A, data_t))
+      
+      ## convert matrix to vector
+      data_out <- as.numeric(X)
+    } else if(method == "simple") {
+      
+      trend_linear <- seq(from = data[1], 
+                          to = data[length(data)],
+                          length.out = length(data))
+      
+      data_out <- data - trend_linear
+    } else {
+      
+      stop("Method not supported!")
+    }
+
     
     ## optionally rebuild eseis object
     if(eseis_class == TRUE) {

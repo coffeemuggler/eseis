@@ -1,73 +1,132 @@
 #' Locate the source of a seismic event by modelling amplutide attenuation
 #'
-#' The function fits a model of signal amplitude attenuation for all grid 
-#' cells of the distance data sets and returns the residual sum as measure 
+#' The function fits a model of signal amplitude attenuation for all grid
+#' cells of the distance data sets and returns the residual sum as measure
 #' of the most likely source location of an event.
 #'
-#' @param data \code{Numeric} matrix or \code{eseis} object, seismic signals 
-#' to work with. Since the function will calculate the maxima of the data it 
+#' @param data \code{Numeric} matrix or \code{eseis} object, seismic signals
+#' to work with. Since the function will calculate the maxima of the data it
 #' is usually the envolopes of the data that should be used here.
-#' 
+#'
 #' @param coupling \code{Numeric} vector, coupling efficiency factors for each
-#' seismic station. The best coupled station (or the one with the highest 
-#' amplification) must receive \code{1}, the others must be scaled relatively 
+#' seismic station. The best coupled station (or the one with the highest
+#' amplification) must receive \code{1}, the others must be scaled relatively
 #' to this one.
-#' 
-#' @param d_map \code{List} object, distance maps for each station (i.e., 
-#' \code{SpatialGridDataFrame} objects). Output of \code{distance_map}.
-#' 
-#' @param aoi \code{SpatialGridDataFrame} or \code{raster} object that 
-#' defines which pixels are used to locate the source. If omitted, the entire 
+#'
+#' @param d_map \code{List} object, distance maps for each station (i.e.,
+#' \code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.
+#'
+#' @param aoi \code{raster} object that
+#' defines which pixels are used to locate the source. If omitted, the entire
 #' distance map extent is used. \code{aoi} and \code{d_map} objects must have
-#' the same extents, projections and pixel sizes. The \code{aoi} map must 
+#' the same extents, projections and pixel sizes. The \code{aoi} map must
 #' be of logical values.
-#' 
+#'
 #' @param v \code{Numeric} value, mean velocity of seismic waves (m/s).
-#' 
+#'
 #' @param q \code{Numeric} value, quality factor of the ground.
-#' 
-#' @param f \code{Numeric} value, frequency for which to model the 
+#'
+#' @param f \code{Numeric} value, frequency for which to model the
 #' attenuation.
-#' 
+#'
 #' @param a_0 \code{Logical} value, start parameter of the source amplitude,
-#' if not provided, a best guess is made as 100 times the maximum amplitude 
+#' if not provided, a best guess is made as 100 times the maximum amplitude
 #' value of the data set.
-#' 
-#' @param normalise \code{Logical} value, option to normalise sum of 
+#'
+#' @param normalise \code{Logical} value, option to normalise sum of
 #' residuals between 0 and 1. Default is \code{TRUE}.
-#' 
-#' @return A raster object with the sums of squared model residuals for each 
+#'
+#' @param output \code{Character} value, type of metric the function returns.
+#' One out of \code{"residuals"} (sums of the squared model residuals) or
+#' \code{"variance"} (variance reduction, cf. Walter et al. (2017)). Default
+#' is \code{"variance"}.
+#'
+#' @param n_cores \code{Numeric} value, number of CPU cores to use. Disabled
+#' by setting to 1. Default is 1.
+#'
+#' @return A raster object with the location output metrics for each
 #' grid cell.
-#' 
+#'
 #' @author Michael Dietze
-#' 
+#'
 #' @examples
 #'
 #' \dontrun{
-#' 
-#' L <- spatial_amplitude(data = s_f, 
-#' coupling = c(1, 1, 1, 1),
-#' d_map = D_50$maps, 
-#' v = 900, 
-#' q = 100, 
-#' f = 7.5)
-#' 
+#'
+#'## create synthetic DEM
+#'dem <- raster::raster(nrows = 20, ncols = 20, 
+#'                      xmn = 0, xmx = 10000, 
+#'                      ymn= 0, ymx = 10000, 
+#'                      vals = rep(0, 400))
+#'
+#'## define station coordinates
+#'sta <- data.frame(x = c(1000, 9000, 5000),
+#'                  y = c(1000, 1000, 9000),
+#'                  ID = c("A", "B", "C"))
+#'
+#'## create synthetic signal (source in towards lower left corner of the DEM)
+#'s <- rbind(dnorm(x = 1:1000, mean = 500, sd = 50) * 100,
+#'           dnorm(x = 1:1000, mean = 500, sd = 50) * 2,
+#'           dnorm(x = 1:1000, mean = 500, sd = 50) * 1)
+#'
+#'## plot DEM and stations
+#'raster::plot(dem)
+#'text(x = sta$x, 
+#'     y = sta$y, 
+#'     labels = sta$ID)
+#'
+#'## calculate spatial distance maps and inter-station distances
+#'D <- eseis::spatial_distance(stations = sta[,1:2],
+#'                             dem = dem)
+#'
+#'## locate signal
+#'e <- spatial_amplitude(data = s, 
+#'                       d_map = D$maps, 
+#'                       v = 500, 
+#'                       q = 50, 
+#'                       f = 10)
+#'
+#'## get most likely location coordinates (example contains two equal points)
+#'xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
+#'             ncol = 2)[1,]
+#'
+#'## plot output
+#'raster::plot(e)
+#'points(xy[1], 
+#'       xy[2],
+#'       pch = 20)
+#'points(sta[,1:2])
+#'
 #' }
 #'
 #' @export spatial_amplitude
 
 spatial_amplitude <- function (
   
-  data, 
+  data,
   coupling,
-  d_map, 
+  d_map,
   aoi,
   v,
-  q, 
-  f, 
+  q,
+  f,
   a_0,
-  normalise = TRUE
+  normalise = TRUE,
+  output = "variance",
+  n_cores = 1
 ) {
+  
+  ## check/format input data
+  if(class(data)[1] != "list") {
+    
+    data_mat <- data
+    data <- vector(mode = "list")
+    
+    for(i in 1:nrow(data_mat)) {
+      
+      data[[i]] <- list(signal = data_mat[i,])
+    }
+  }
   
   ## check/set coupling factors
   if(missing(coupling) == TRUE) {
@@ -82,22 +141,22 @@ spatial_amplitude <- function (
   }))
   
   ## normalise by coupling efficiency
-  a_d <- a_d * coupling
+  a_d <- a_d * 1 / coupling
   
   ## check/set source amplitude
   if(missing(a_0) == TRUE) {
     
     a_0 <- 100 * max(a_d)
   }
-
+  
   ## convert distance data sets to matrix with distance values
-  d <- do.call(cbind, lapply(X = d_map, 
-                                  FUN = function(d_map) {d_map@data[,1]}))
+  d <- do.call(cbind, lapply(X = d_map,
+                             FUN = function(d_map) {d_map@data[,1]}))
   
   ## check if aoi is provided and create aoi index vector
   if(missing(aoi) == FALSE) {
     
-    px_ok <- aoi@data[,1]
+    px_ok <- raster::values(aoi)
   } else {
     
     px_ok <- rep(1, nrow(d))
@@ -108,12 +167,11 @@ spatial_amplitude <- function (
   ## convert distance data to list
   d <- as.list(as.data.frame(t(d)))
   
-  
   ## define amplitude function
   model_fun <- a_d ~ a_0 / sqrt(d) * exp(-((pi * f * d) / (q * v)))
   
   ## create model parameter list
-  model_par <- list(a_d = a_d, 
+  model_par <- list(a_d = a_d,
                     d = rep(NA, length(a_d)),
                     f = f,
                     q = q,
@@ -122,33 +180,115 @@ spatial_amplitude <- function (
   ## create model start parameter list
   model_start <- list(a_0 = a_0)
   
-  ## model event amplitude as function of distance and get sum of residuals
-  r <- 
-    lapply(X = d, FUN = function(d, model_fun, model_par, model_start) {
-      
-      process <- d[1]
-      
-      if(process == 1) {
+  if(n_cores > 1) {
+    
+    ## detect number of CPU cores
+    n_cores_system <- parallel::detectCores()
+    n_cores <- ifelse(test = n_cores > n_cores_system,
+                      yes = n_cores_system,
+                      no = n_cores)
+    
+    ## initiate cluster
+    cl <- parallel::makeCluster(n_cores)
+    
+    ## model event amplitude as function of distance
+    r <- parallel::parLapply(
+      cl = cl,
+      X = d,
+      fun = function(d,
+                     model_fun,
+                     model_par,
+                     model_start,
+                     output) {
         
-        model_par$d <- d[-1]
+        process <- d[1]
         
-        mod <- try(nls(formula = model_fun, 
-                       data = model_par,
-                       start = model_start))
-        
-        res <- try(sum(residuals(mod)^2))
-        
-        if(class(res)[1] != "try-error") {
+        if(process == 1) {
+          
+          model_par$d <- d[-1]
+          
+          mod <- try(nls(formula = model_fun,
+                         data = model_par,
+                         start = model_start),
+                     silent = TRUE)
+          
+          if(output == "variance") {
+            res <- try(1 - (sum(residuals(object = mod)^2,
+                                na.rm = TRUE) /
+                              sum(model_par$a_d^2,
+                                  na.rm = TRUE)),
+                       silent = TRUE)
+            
+          }
+          
+          if(output == "residuals") {
+            
+            res <- try(sum(residuals(mod)^2),
+                       silent = TRUE)
+          }
+          
+          if(class(res)[1] == "try-error") {
+            
+            res <- NA
+          }
           
           return(res)
+        } else {
+          
+          return(NA)
         }
-      } else {
-        
-        return(NA)
-      }
-      
-      
-    }, model_fun, model_par, model_start)
+      }, model_fun, model_par, model_start, output)
+    
+    ## stop cluster
+    parallel::stopCluster(cl = cl)
+  } else {
+    
+    ## model event amplitude as function of distance
+    r <- lapply(X = d,
+                FUN = function(d,
+                               model_fun,
+                               model_par,
+                               model_start,
+                               output) {
+                  
+                  process <- d[1]
+                  
+                  if(process == 1) {
+                    
+                    model_par$d <- d[-1]
+                    
+                    mod <- try(nls(formula = model_fun,
+                                   data = model_par,
+                                   start = model_start),
+                               silent = TRUE)
+                    
+                    if(output == "variance") {
+                      res <- try(1 - (sum(residuals(object = mod)^2,
+                                          na.rm = TRUE) /
+                                        sum(model_par$a_d^2,
+                                            na.rm = TRUE)),
+                                 silent = TRUE)
+                      
+                    }
+                    
+                    if(output == "residuals") {
+                      
+                      res <- try(sum(residuals(mod)^2),
+                                 silent = TRUE)
+                    }
+                    
+                    if(class(res)[1] == "try-error") {
+                      
+                      res <- NA
+                    }
+                    
+                    return(res)
+                  } else {
+                    
+                    return(NA)
+                  }
+                }, model_fun, model_par, model_start, output)
+  }
   
   ## convert list to vector
   r <- do.call(c, r)
@@ -156,14 +296,14 @@ spatial_amplitude <- function (
   ## optionally normalise data
   if(normalise == TRUE) {
     
-    r <- (r - min(r, na.rm = TRUE)) / 
-      (max(r, na.rm = TRUE) - min(r, na.rm = TRUE))
+    r <- try((r - min(r, na.rm = TRUE)) /
+               (max(r, na.rm = TRUE) - min(r, na.rm = TRUE)))
   }
   
   ## convert data structure to raster
-  l <- d_map[[1]]
-  l@data[,1] <- r
-  l <- raster::raster(l)
+  l <- try(d_map[[1]])
+  try(l@data[,1] <- r)
+  l <- try(raster::raster(l))
   
   ## return output
   return(l)

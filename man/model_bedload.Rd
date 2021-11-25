@@ -23,14 +23,15 @@ model_bedload(
   n_0,
   n_c,
   res = 100,
+  adjust = TRUE,
   eseis = FALSE,
   ...
 )
 }
 \arguments{
 \item{gsd}{\code{data frame} grain-size distribution function. Must be 
-provided as data frame with two variables: grain-size class (first column)
-and vol- or wgt.-percentage per class (second column). See examples for 
+provided as data frame with two variables: grain-size class (in m, first 
+column) and wgt/vol percentage per class (second column). See examples for 
 details.}
 
 \item{d_s}{\code{Numeric} value, mean sediment grain diameter (m). 
@@ -86,6 +87,10 @@ Omitted is no value is specified, here. Usual values may be between 2 and
 \item{res}{\code{Numeric} value, output resolution, i.e. length of the 
 spectrum vector. Default is 1000.}
 
+\item{adjust}{\code{Logical} value, option to adjust PSD for wide 
+grain-size distributions, according to implementation by Tsai et al. 
+(2012).}
+
 \item{eseis}{\code{Character} value, option to return an eseis object 
 instead of a data frame. Default is \code{FALSE}.}
 
@@ -129,6 +134,10 @@ between 0.001 and 10 m and log standard deivations between 0.05 and 1.
 When more extreme distributions are to be used, it is necessary to either 
 adjust the arguments \code{log_lim} and \code{log_length} or use a 
 user defined distribution function.
+
+The adjustment option (implemented with package version 0.6.0) is only 
+relevant for wide grain-size distributions, i.e., \code{s_s} > 0.2. In 
+such cases, the unadjusted version tends to underestimate seismic power.
 }
 \examples{
 

@@ -19,6 +19,10 @@
 #' 
 #' @param dt \code{Numeric} value, sampling period.
 #' 
+#' @param log \code{Logical} value, unit of spectral power. If set to 
+#' \code{TRUE} power will be used in dB, if set to \code{FALSE}, power 
+#' is used in amplitude squared. Default is \code{FALSE}.
+#' 
 #' @param method \code{Character} value, method for calculating the spectra. 
 #' One out of \code{"periodogram"} , \code{"autoregressive"} and 
 #' \code{"multitaper"}, default is \code{"periodogram"}.
@@ -51,8 +55,7 @@
 #' hv <- signal_hvratio(data = s, 
 #'                      dt = 1 / 200)
 #' plot(hv$ratio, 
-#'      type = "l", 
-#'      log = "y")
+#'      type = "l")
 #' 
 #' ## calculate h-v-ratio using the autogressive spectrum method
 #' hv <- signal_hvratio(data = s, 
@@ -72,6 +75,7 @@ signal_hvratio <- function(
   
   data,
   dt,
+  log = FALSE,
   method = "periodogram",
   kernel,
   order = "xyz"
@@ -173,6 +177,15 @@ signal_hvratio <- function(
     s_smooth <- lapply(X = s, FUN = function(X) {
       
       X$spectrum
+    })
+  }
+  
+  ## optionally log-scale data
+  if(log == TRUE) {
+    
+    s_smooth <- lapply(X = s_smooth, FUN = function(x) {
+      
+      x <- log(x)
     })
   }
   

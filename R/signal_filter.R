@@ -31,6 +31,10 @@
 #' 
 #' @param p \code{Numeric} value, fraction of the signal to be tapered.
 #' 
+#' @param lazy \code{Logical} value, option to pre- and post-process data, 
+#' including detrending, demeaning and tapering (\code{p = 0.02}). Default 
+#' if \code{FALSE}.
+#' 
 #' @return \code{Numeric} vector or list of vectors, filtered signal vector.
 #' 
 #' @author Michael Dietze
@@ -78,7 +82,8 @@ signal_filter <- function(
   type,
   shape = "butter",
   order = 2,
-  p = 0
+  p = 0,
+  lazy = FALSE
 ) {
   
   ## check/set dt
@@ -170,6 +175,16 @@ signal_filter <- function(
       
       ## get number of samples
       n <- length(data)
+    }
+    
+    ## optionally preprocess data, using lazy option
+    if(lazy == TRUE) {
+      
+      ## demean data set
+      data <- eseis::signal_demean(data = data)
+      
+      ## detrend data set
+      data <- eseis::signal_detrend(data = data)
     }
     
     ## filter signal with Butterworth filter
@@ -264,11 +279,20 @@ signal_filter <- function(
       stop("Filter shape not supported, yet!")
     }
     
+    ## convert ts object to numeric vector
+    data_out <- as.numeric(data_out)
+    
     ## optionally apply taper
     if(p > 0) {
       
       data_out = eseis::signal_taper(data = data_out,
                                      p = p)
+    }
+    
+    ## optionally preprocess data, using lazy option
+    if(lazy == TRUE) {
+      
+      data_out <- eseis::signal_taper(data = data_out, p = 0.02)
     }
     
     ## optionally rebuild eseis object

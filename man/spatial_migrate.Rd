@@ -4,17 +4,26 @@
 \alias{spatial_migrate}
 \title{Migrate signals of a seismic event through a grid of locations.}
 \usage{
-spatial_migrate(data, d_stations, d_map, snr, v, dt, normalise = TRUE)
+spatial_migrate(
+  data,
+  d_stations,
+  d_map,
+  snr,
+  v,
+  dt,
+  normalise = TRUE,
+  silent = FALSE
+)
 }
 \arguments{
 \item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals 
 to cross-correlate.}
 
 \item{d_stations}{\code{Numeric} matrix, inter-station distances. Output 
-of \code{distance_stations}.}
+of \code{spatial_distance}.}
 
 \item{d_map}{\code{List} object, distance maps for each station (i.e., 
-\code{SpatialGridDataFrame} objects). Output of \code{distance_map}.}
+\code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.}
 
 \item{snr}{\code{Numeric} vector, optional signal-to-noise-ratios for 
 each signal trace, used for normalisation. If omitted it is calculated
@@ -26,6 +35,9 @@ from input signals.}
 
 \item{normalise}{\code{Logical} value, option to normalise stations 
 correlations by signal-to-noise-ratios.}
+
+\item{silent}{\code{Logical} value, option to suppress messages during 
+function execution. Default is \code{FALSE}.}
 }
 \value{
 A SpatialGridDataFrame-object with Gaussian probability density

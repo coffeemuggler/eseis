@@ -5,6 +5,35 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
+// correlation_event
+NumericVector correlation_event(NumericVector x, NumericVector y);
+RcppExport SEXP _eseis_correlation_event(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(correlation_event(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// kurtosis_event
+NumericVector kurtosis_event(NumericVector x, int k);
+RcppExport SEXP _eseis_kurtosis_event(SEXP xSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(kurtosis_event(x, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // stalta_event_freeze
 NumericVector stalta_event_freeze(int event_length, NumericVector data_sta, NumericVector data_lta, double on, double off);
 RcppExport SEXP _eseis_stalta_event_freeze(SEXP event_lengthSEXP, SEXP data_staSEXP, SEXP data_ltaSEXP, SEXP onSEXP, SEXP offSEXP) {

@@ -38,9 +38,12 @@
 #' object (recommended, see documentation of 
 #' \code{aux_initiateeseis}), default is \code{TRUE}
 #' 
-#' @param try \code{Logical} value, option to run the fuction in try-mode, 
+#' @param try \code{Logical} value, option to run the function in try-mode, 
 #' i.e., to let it return \code{NA} in case an error occurs during data
 #' import. Default is \code{FALSE}.
+#' 
+#' @param silent \code{Logical} value, option to suppress messages during 
+#' function execution. Default is \code{TRUE}.
 #' 
 #' @return A \code{list} object containing either a set of \code{eseis}
 #' objects or a data set with the time vector (\code{$time}) 
@@ -77,9 +80,6 @@
 #'                      component = "BHZ",
 #'                      dir = dir_data)
 #' 
-#' ## simplify data structure
-#' data <- lapply(X = data, FUN = function(data) {data[[1]]})
-#' 
 #' ## plot both signals
 #' par(mfcol = c(2, 1))
 #' lapply(X = data, FUN = plot_signal)
@@ -94,11 +94,12 @@ aux_getevent <- function(
   dir,
   simplify = TRUE,
   eseis = TRUE,
-  try = FALSE
+  try = FALSE,
+  silent = TRUE
 ) {
   
   ## check/set arguments ------------------------------------------------------
-
+  
   ## check start time format
   if(class(start)[1] != "POSIXct") {
     
@@ -110,7 +111,7 @@ aux_getevent <- function(
     
     dir <- ""
   }
-
+  
   ## get system time zone
   tz_system <- Sys.timezone()
   
@@ -123,7 +124,7 @@ aux_getevent <- function(
     ## set system time zone to input data time zone
     Sys.setenv(TZ = format(start, 
                            format = "%Z"))
-
+    
     ## create information message
     tz_message <- paste("System time zone changed to event time zone. ",
                         "Undo with Sys.setenv(TZ = '",
@@ -132,7 +133,10 @@ aux_getevent <- function(
                         sep = "")
     
     ## inform about time zone change
-    print(tz_message)
+    if(silent == FALSE) {
+      
+      print(tz_message)
+    }
   }
   
   ## composition of the file name patterns ------------------------------------
@@ -164,42 +168,63 @@ aux_getevent <- function(
                      format = "%Y")
   
   ## create JD sequence
-  JD_seq <- as.character(eseis::time_convert(input = hours_seq, 
-                                             output = "JD"))
+  JD_seq <- format(x = hours_seq, 
+                   format = "%j")
   
-  ## pad JDs with zeros
-  JD_seq_pad <- JD_seq
-  
-  JD_seq_pad <- ifelse(test = nchar(JD_seq_pad) == 1, 
-                   yes = paste("00", JD_seq_pad, sep = ""), 
-                   no = JD_seq_pad)
-  
-  JD_seq_pad <- ifelse(test = nchar(JD_seq_pad) == 2, 
-                   yes = paste("0", JD_seq_pad, sep = ""), 
-                   no = JD_seq_pad)
+  ## create JD and hour string
+  JD_hour_seq <- format(x = hours_seq, 
+                        format = "%j.%H.")
   
   ## create directory string for hourly sequence
   files_hourly <- paste(dir,
                         year_seq, "/",
-                        JD_seq_pad,
+                        JD_seq,
                         sep = "")
   
   ## make file list for JDs
-  files <- lapply(X = files_hourly, 
-                  FUN = list.files,
-                  full.names = TRUE)
+  files <- try(lapply(X = files_hourly, 
+                      FUN = list.files,
+                      full.names = TRUE), 
+               silent = TRUE)
   
-  ## isolate hours of interest
-  for(i in 1:length(files)) {
+  ## check for file presence
+  if(class(files)[1] == "try-error") {
     
-    files[[i]] <- files[[i]][grepl(x = files[[i]], 
-                                   pattern = paste(JD_seq[i], 
-                                                   hour[i], 
-                                                   sep = "."))]
+    stop("No files exist for this time window!")
   }
   
   ## convert list to vector
-  files <- unlist(files)
+  files <- do.call(c, files)
+  
+  ## remove dulicates
+  files <- unique(files)
+  
+  ## isolate hours of interest
+  files <- lapply(X = JD_hour_seq, FUN = function(x, files) {
+    
+    files[grepl(x = files, pattern = x)]
+  }, files)
+  
+  ## convert list to vector
+  files <- do.call(c, files)
+  
+  ## remove dulicates
+  files <- unique(files)
+  
+  ## check for file presence
+  if(length(files) < 1) {
+    
+    stop("No files exist for this time window!")
+  }
+  
+  ## check if station IDs are available
+  for(i in 1:length(station)) {
+    
+    if(sum(grepl(pattern = station[i], x = files)) < 1) {
+      
+      stop(paste("Station", station[i], "not present!"))
+    }
+  }
   
   ## regroup files by station
   files_station <- vector(mode = "list", 
@@ -209,6 +234,12 @@ aux_getevent <- function(
     
     files_station[[i]] <- files[grepl(x = files, 
                                       pattern = station[i])]
+  }
+  
+  ## check for file presence
+  if(length(unlist(files_station)) < 1) {
+    
+    stop("No files of that station(s) exist for this time window!")
   }
   
   ## Data import section ------------------------------------------------------
@@ -245,8 +276,15 @@ aux_getevent <- function(
           }
           
           ## clip signal at start and end time
-          x <- eseis::signal_clip(data = x, 
-                                  limits = c(start, stop))
+          if(silent == FALSE)  {
+            
+            x <- eseis::signal_clip(data = x, 
+                                    limits = c(start, stop))
+          } else {
+            
+            x <- suppressWarnings(eseis::signal_clip(data = x, 
+                                                     limits = c(start, stop)))
+          }
           
           ## return processed seismic signal
           return(x)
@@ -255,14 +293,15 @@ aux_getevent <- function(
         i = i,
         format = format,
         start = start,
-        stop = stop))))
+        stop = stop))),
+        silent = TRUE)
+      
+      try(names(data[[i]]) <- component)
+      
+      try(for(j in 1:length(data[[i]])) {
         
-        try(names(data[[i]]) <- component)
-        
-        try(for(j in 1:length(data[[i]])) {
-          
-          class(data[[i]][[j]])[1] <- "eseis"
-        })
+        class(data[[i]][[j]])[1] <- "eseis"
+      }, silent = TRUE)
     } else {
       
       data[[i]] <- as.data.frame(do.call(cbind, lapply(
@@ -310,7 +349,7 @@ aux_getevent <- function(
   }
   
   ## Data cleaning and output section -----------------------------------------
-
+  
   ## optionally convert data structures
   if(try == TRUE) {
     
@@ -318,8 +357,9 @@ aux_getevent <- function(
       
       ## generate time vector
       time <- try(seq(from = data[[1]][[1]]$meta$starttime, 
-                  by = data[[1]][[1]]$meta$dt, 
-                  length.out = data[[1]][[1]]$meta$n))
+                      by = data[[1]][[1]]$meta$dt, 
+                      length.out = data[[1]][[1]]$meta$n), 
+                  silent = TRUE)
       
       if(class(time)[1] == "try-error") {
         
@@ -332,10 +372,10 @@ aux_getevent <- function(
         data[[i]] <- try(lapply(X = data[[i]], FUN = function(X) {
           
           X$signal
-        }))
+        }), silent = TRUE)
         
         ## assign names to vectors
-        try(names(data[[i]]) <- component[i])
+        try(names(data[[i]]) <- component[i], silent = TRUE)
         
         ## account for try-errors
         if(class(data[[i]])[1] == "try-error") {
@@ -345,14 +385,14 @@ aux_getevent <- function(
       }
       
       ## assign names to vectors
-      try(names(data) <- station)
+      try(names(data) <- station, silent = TRUE)
       
       ## create output data set
       data_out <- list(time = time, 
                        signal = data)
       
     } else {
-
+      
       names(data) <- station
       
       ## account for try-errors
@@ -408,8 +448,9 @@ aux_getevent <- function(
   ## optionally simplify data structure
   if(simplify == TRUE) {
     
+    ## case of one station and one component
     if(length(data_out) == 1) {
-
+      
       data_out <- data_out[[1]]
     }
     
@@ -417,6 +458,23 @@ aux_getevent <- function(
       
       data_out <- data_out[[1]]
     }
+    
+    ## case of several stations and/or components
+    if(length(station) > 1) {
+      
+      data_out <- lapply(X = data_out, FUN = function(x) {
+        
+        ## check if several components are present per station
+        if(length(x) == 1) {
+          
+          x[[1]]
+        } else {
+          
+          x
+        }
+      })
+    }
+    
   }
   
   ## return output data set
