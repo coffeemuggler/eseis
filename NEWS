@@ -1,5 +1,8 @@
 Changes for R-package eseis
 
+Version 0.7.0
+  - bug fixed, signal_motion() windowing fixed, speed increased, output added
+
 Version 0.6.0
   - function updated, signal_filter() conversion of signal vector from ts to numeric added
   - bug fixed, aux_stationinfofile() GPS extraction routine updated

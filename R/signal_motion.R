@@ -7,17 +7,26 @@
 #' 
 #' The function code is loosely based on the function GAZI() from 
 #' the package RSEIS with removal of unnecessary content and updated 
-#' or rewritten loop functionality.
+#' or rewritten loop functionality. In its current form, it also uses 
+#' additional workflows from obspy.signal.polarisation, specifically 
+#' following the Flinn (1965) approach. It windows the input signals,
+#' calculates the covariance matrix and performs a singular values 
+#' decomposition to use the eigen values and vectors to determine the 
+#' ratios corresponding to the output values rectilinearity, angularity,
+#' azimuth and incidence. 
 #' 
-#' @param data \code{List}, \code{data frame} or \code{matrix}, seismic
-#' componenents to be processed. If \code{data} is a matrix, the components 
-#' must be organised as columns. Also, \code{data} can be a list of 
-#' \code{eseis} objects.
+#' Note that the names of the output objects as well as the calculation 
+#' routine have changed from the earlier version (V. 0.6.0), to increase 
+#' computational efficiency and fix a bug in the windowing implementation.
+#' 
+#' @param data \code{List} of eseis objects or \code{matrix}, seismic
+#' components to be processed. If \code{data} is a matrix, the components 
+#' must be organised as columns.
 #' 
 #' @param time \code{POSIXct} vector, time vector corresponding to the 
 #' seismic signal components. If omitted, a synthetic time vector will 
 #' be generated. If omitted, the sampling period (\code{dt}) must be 
-#' provided.
+#' provided or is taken from the first eseis object in the \code{data} list.
 #' 
 #' @param dt \code{Numeric} value, sampling period. Only needed if 
 #' \code{time} is omitted or if \code{data} is no \code{eseis} object.
@@ -33,13 +42,14 @@
 #' size is set to 50 percent of the window size by default.
 #' 
 #' @param order \code{Character} value, order of the seismic components. 
-#' Describtion must contain the letters \code{"x"},\code{"y"} and
+#' Description must contain the letters \code{"x"},\code{"y"} and
 #' \code{"z"} in the order according to the input data set. Default is 
 #' \code{"xyz"} (EW-NS-vertical).
 #' 
-#' @return A List object with eigenvalue ratios (\code{eigen}), 
-#' azimuth (\code{azimuth}) and inclination (\code{inclination}) as well
-#' as the corresponding time vector for these values.
+#' @return A List object with rectilinearity (\code{rectilinearity}),  
+#' angularity (\code{polarity}), azimuth (\code{azimuth}) and incidence 
+#' (\code{incidence}), as well as the corresponding time vector for 
+#' these values.
 #' 
 #' @author Michael Dietze
 #' 
@@ -54,22 +64,23 @@
 #'                           dt = 1/200, 
 #'                           f = c(1, 3))
 #' 
-#' ## integrate signals to get displacement
-#' s_d <- eseis::signal_integrate(data = s, dt = 1/200)
+#' ## convert list of signal vectors to column-wise matrix
+#' s <- do.call(cbind, s)
 #' 
 #' ## calculate particle motion parameters
-#' pm <- signal_motion(data = s_d, 
-#'                     time = t, 
+#' pm <- signal_motion(data = s, 
 #'                     dt = 1 / 200,
-#'                     window = 100, 
-#'                     step = 10)
+#'                     window = 500, 
+#'                     step = 250)
 #'                     
 #' ## plot function output
 #' par_original <- par(no.readonly = TRUE)
-#' par(mfcol = c(2, 1))
+#' par(mfcol = c(2, 2))
 #' 
-#' plot(x = t, y = s$BHZ, type = "l")
-#' plot(x = pm$time, y = pm$azimuth, type = "l")
+#' plot(pm$time, pm$rect, type = "b")
+#' plot(pm$time, pm$plan, type = "b")
+#' plot(pm$time, pm$azimuth, type = "b")
+#' plot(pm$time, pm$incidence, type = "b")
 #' 
 #' par(par_original)
 #' 
@@ -93,7 +104,7 @@ signal_motion <- function(
       
       if(missing(dt) == TRUE) {
         
-        stop("Neither time nor dt provided!")
+        stop("Neither time vector nor dt value provided!")
       } else {
         
         time <- seq(from = 0,
@@ -107,6 +118,14 @@ signal_motion <- function(
     dt <- NULL
     
     time <- NULL
+  }
+  
+  ## check/set time vector
+  if(missing(time) == TRUE && class(data[[1]])[1] != "eseis") {
+    
+    time <- seq(from = 0,
+                by = dt,
+                length.out = nrow(data))
   }
   
   ## check/set window size
@@ -195,56 +214,77 @@ signal_motion <- function(
                      to = nrow(data) - window, 
                      by = step)
   
-  window_right <- seq(from = window, 
-                      to = nrow(data), 
-                      by = step)
-  
-  ## define output variables
-  time_i <- time[(window_left + window_right) / 2]
-  eig_ratio_i <- numeric(length = length(window_left))
-  azimuth_i <- numeric(length = length(window_left))
-  inclination_i <- numeric(length = length(window_left))
-  
-  ## do window-based calculus
-  for(i in 1:length(window_left)) {
+  ## calculate particle motion parameters for sliced data
+  motion <- lapply(X = window_left, FUN = function(l, data, window) {
     
-    ## isolate data within window
-    data_i <- data[window_left[i]:window_right[i],]
+    ## define right window
+    r <- l + window
+    
+    ## clip data to window size  
+    x <- data[l:r,]
     
     ## calculate covariance matrix
-    cov_i <- stats::var(x = data_i)
+    covmat <- stats::cov(x)
     
-    ## calcualate eigen space
-    eig_i <- eigen(x = cov_i, symmetric = TRUE)
+    ## calculate singular decomposition
+    sv <- svd(x = covmat)
     
-    ## calculate eigenvalue ratio
-    eig_ratio_i[i] <- 1 - ((eig_i$values[2] + eig_i$values[3]) / 
-                             (2 * eig_i$values[1]))
+    ## calculate rectangularity    
+    rect <- 1 - sqrt(sv$d[2] / sv$d[1])
+    
+    ## calculate planarity
+    plan <- 1 - ((2 * sv$d[3]) / (sv$d[2] + sv$d[1]))
     
     ## calculate azimuth
-    azimuth_i[i] <- 180 / pi * atan2(eig_i$vectors[2,1], 
-                                     eig_i$vectors[3,1])
+    azimuth <- 180 / pi * atan2(sv$u[1,1], sv$u[2,1])
     
-    ## calculate inclination
-    inclination_i[i] <- abs(180 / pi * atan2(eig_i$vectors[1,1], 
-                                             sqrt(eig_i$vectors[2,1]^2 + 
-                                                    eig_i$vectors[3,1]^2)))
-  }
+    ## calculate incidence
+    incidence <- 180 / pi * atan2(sqrt(sv$u[1,1]^2 + sv$u[2,1]^2), 
+                                  sv$u[3,1])
+    
+    ## correct values for trigonometric quadrants
+    if(azimuth < 0) {azimuth <- 360 + azimuth}
+    if(incidence < 0) {incidence <- incidence + 180}
+    if(incidence > 90) {
+      incidence <- 180 - incidence
+      if(azimuth > 180) {
+        azimuth <- azimuth - 180
+      } else {
+        azimuth <- azimuth + 180
+      }
+    }
+    if(azimuth > 180) {azimuth <- azimuth - 180}
+    
+    ## return output
+    return(data.frame( rect = rect,
+                       plan = plan,
+                       azimuth = azimuth,
+                       incidence = incidence))
+    
+  }, data, window)
   
-  ## create furntion output
-  data_out <- list(time = time_i,
-                   eigen = eig_ratio_i,
-                   azimuth = azimuth_i,
-                   inclination = inclination_i)
+  ## convert list to data frame
+  motion <- do.call(rbind, motion)
+  
+  ## calculate average window time
+  time_avg <- time[floor(window_left +  step/2)]
+  
+  ## create function output
+  data_out <- list(time = time_avg,
+                   rect = motion$rect,
+                   plan = motion$plan,
+                   azimuth = motion$azimuth,
+                   incidence = motion$incidence)
   
   ## optionally rebuild eseis object
   if(eseis_class == TRUE) {
     
     ## assign aggregated signal vector
-    eseis_data <- list(time = time_i,
-                       eigen = eig_ratio_i,
-                       azimuth = azimuth_i,
-                       inclination = inclination_i,
+    eseis_data <- list(time = time_avg,
+                       rect = motion$rect,
+                       plan = motion$plan,
+                       azimuth = motion$azimuth,
+                       incidence = motion$incidence,
                        history = eseis_data[[1]]$history)
     
     ## calculate function call duration

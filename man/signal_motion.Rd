@@ -7,15 +7,14 @@
 signal_motion(data, time, dt, window, step, order = "xyz")
 }
 \arguments{
-\item{data}{\code{List}, \code{data frame} or \code{matrix}, seismic
-componenents to be processed. If \code{data} is a matrix, the components 
-must be organised as columns. Also, \code{data} can be a list of 
-\code{eseis} objects.}
+\item{data}{\code{List} of eseis objects or \code{matrix}, seismic
+components to be processed. If \code{data} is a matrix, the components 
+must be organised as columns.}
 
 \item{time}{\code{POSIXct} vector, time vector corresponding to the 
 seismic signal components. If omitted, a synthetic time vector will 
 be generated. If omitted, the sampling period (\code{dt}) must be 
-provided.}
+provided or is taken from the first eseis object in the \code{data} list.}
 
 \item{dt}{\code{Numeric} value, sampling period. Only needed if 
 \code{time} is omitted or if \code{data} is no \code{eseis} object.}
@@ -31,14 +30,15 @@ by which the window is shifted over the data set. If omitted, the step
 size is set to 50 percent of the window size by default.}
 
 \item{order}{\code{Character} value, order of the seismic components. 
-Describtion must contain the letters \code{"x"},\code{"y"} and
+Description must contain the letters \code{"x"},\code{"y"} and
 \code{"z"} in the order according to the input data set. Default is 
 \code{"xyz"} (EW-NS-vertical).}
 }
 \value{
-A List object with eigenvalue ratios (\code{eigen}), 
-azimuth (\code{azimuth}) and inclination (\code{inclination}) as well
-as the corresponding time vector for these values.
+A List object with rectilinearity (\code{rectilinearity}),  
+angularity (\code{polarity}), azimuth (\code{azimuth}) and incidence 
+(\code{incidence}), as well as the corresponding time vector for 
+these values.
 }
 \description{
 The function calculates from a data set of three seismic 
@@ -49,7 +49,17 @@ eigenvalue ratio, azimuth and inclination.
 \details{
 The function code is loosely based on the function GAZI() from 
 the package RSEIS with removal of unnecessary content and updated 
-or rewritten loop functionality.
+or rewritten loop functionality. In its current form, it also uses 
+additional workflows from obspy.signal.polarisation, specifically 
+following the Flinn (1965) approach. It windows the input signals,
+calculates the covariance matrix and performs a singular values 
+decomposition to use the eigen values and vectors to determine the 
+ratios corresponding to the output values rectilinearity, angularity,
+azimuth and incidence. 
+
+Note that the names of the output objects as well as the calculation 
+routine have changed from the earlier version (V. 0.6.0), to increase 
+computational efficiency and fix a bug in the windowing implementation.
 }
 \examples{
 ## load example data set
@@ -60,22 +70,23 @@ s <- eseis::signal_filter(data = s,
                           dt = 1/200, 
                           f = c(1, 3))
 
-## integrate signals to get displacement
-s_d <- eseis::signal_integrate(data = s, dt = 1/200)
+## convert list of signal vectors to column-wise matrix
+s <- do.call(cbind, s)
 
 ## calculate particle motion parameters
-pm <- signal_motion(data = s_d, 
-                    time = t, 
+pm <- signal_motion(data = s, 
                     dt = 1 / 200,
-                    window = 100, 
-                    step = 10)
+                    window = 500, 
+                    step = 250)
                     
 ## plot function output
 par_original <- par(no.readonly = TRUE)
-par(mfcol = c(2, 1))
+par(mfcol = c(2, 2))
 
-plot(x = t, y = s$BHZ, type = "l")
-plot(x = pm$time, y = pm$azimuth, type = "l")
+plot(pm$time, pm$rect, type = "b")
+plot(pm$time, pm$plan, type = "b")
+plot(pm$time, pm$azimuth, type = "b")
+plot(pm$time, pm$incidence, type = "b")
 
 par(par_original)
 

@@ -8,7 +8,7 @@ For further details, visit the  [official website](http://micha-dietze.de/pages/
 
 #### i. Requirements
 
-With release of version 0.4.0 the GNU Compiler Collection (*gcc*) 
+With release of version 0.7.0 the GNU Compiler Collection (*gcc*) 
 becomes essential to install 'eseis' from source. Depending on your OS please download and install one of the following:
 
 **Windows (32/64bit)** - 'Rtools' (provided by CRAN)
