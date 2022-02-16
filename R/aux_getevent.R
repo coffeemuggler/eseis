@@ -4,6 +4,16 @@
 #' \code{aux_organisecubefiles()}) based on the event start time, duration,
 #' component and station ID.
 #' 
+#' The data to be read needs to be adequately structured. The data directory
+#' must contain SAC files organised by year (e.g.2022) then by Julian Day
+#' in full three digits (e.g. 001) and then by a dedicated SAC file name, 
+#' containing the station ID, two-digit year, three-digit Julian Day, start 
+#' time hour, minute and second, three channel ID and the file extension SAC. 
+#' All these items need to be separated by stops (e.g. 
+#' sac/2022/001/LAU01.22.001.08.00.00. BHZ.SAC). This data structure will be 
+#' most conveniently created by the functions \code{aux_organisecubefiles()} 
+#' or \code{aux_organisecentaurfiles()}, or by manually written R code. 
+#' 
 #' The function assumes complete data sets, i.e., not a single hourly 
 #' data set must be missing. The time 
 #' vector is loaded only once, from the first station and its first 
@@ -28,6 +38,7 @@
 #' \code{"sac"} and \code{"mseed"}. Default is \code{"sac"}.
 #' 
 #' @param dir \code{Character} value, path to the seismic data directory.
+#' See details for further info on data structure.
 #' 
 #' @param simplify \code{Logical} value, option to simplify output
 #' when possible. This basically means that if only data from one station 
