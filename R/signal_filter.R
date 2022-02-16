@@ -13,7 +13,7 @@
 #' (\code{fft = FALSE}) or the frequency domain (\code{fft = TRUE}). Default 
 #' is (\code{fft = FALSE}).
 #' 
-#' @param dt \code{Numeric} value, sampling period. If omitted, \code{dt} 
+#' @param dt \code{Numeric} value, sampling rate If omitted, \code{dt} 
 #' is set to 1/200.
 #' 
 #' @param type \code{Character} value, type of filter, one out of 
