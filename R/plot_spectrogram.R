@@ -3,6 +3,12 @@
 #' This function plots spectrograms of seismic signals. It uses the output 
 #' of \code{signal_spectrogram}.
 #' 
+#' To use other colour schemes, such as sequential HCL schemes from the 
+#' colorspace package, specify them as additional argument, e.g. 
+#' \code{col = colorspace::sequential_hcl(200, palette = "Plasma")},
+#' \code{col = colorspace::sequential_hcl(200, palette = "Inferno")},
+#' \code{col = colorspace::sequential_hcl(200, palette = "Viridis")}. 
+#' 
 #' @param data \code{List} object, spectrogram to be plotted. Must be output
 #' of \code{signal_spectrogram} or of equivalent structure.
 #' 
@@ -44,8 +50,7 @@
 #'                  main = "Power spectral density estimate", 
 #'                  legend = TRUE, 
 #'                  zlim = c(-220, -70),
-#'                  col = rainbow(100))
-#' 
+#'                  col = rainbow(100)) 
 #'                      
 #' @export plot_spectrogram
 plot_spectrogram <- function(
@@ -142,6 +147,7 @@ plot_spectrogram <- function(
   ## handle colour scheme
   if ("col" %in% names(extraArgs)) {
     col <- extraArgs$col
+    
   }
   else {
     
