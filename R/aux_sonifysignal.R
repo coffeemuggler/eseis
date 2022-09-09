@@ -68,7 +68,7 @@ aux_sonifysignal <- function(
   }
   
   ## get number of samples
-  n <- ifelse(test = class(data) == "eseis", 
+  n <- ifelse(test = inherits(x = data, what = "eseis"), 
               yes = data$meta$n, 
               no = length(data))
   

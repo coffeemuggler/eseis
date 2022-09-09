@@ -505,7 +505,7 @@ spatial_track <- function(
   ## restructure output
   l_out <- l_step[[1]]
   
-  if(class(l_out) != "try-error") {
+  if(inherits(x = l_out, what = "try-error") == FALSE) {
     
     l_out$mean <- lapply(X = l_step, FUN = function(x) {
       
