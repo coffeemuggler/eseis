@@ -3,7 +3,15 @@
 #' This function plots spectrograms of seismic signals. It uses the output 
 #' of \code{signal_spectrogram}.
 #' 
-#' To use other colour schemes, such as sequential HCL schemes from the 
+#' As of version 0.7.2, the value range (\code{zlim}) is no longer set to the 
+#' full data range but to the range between quantiles 0.01 and 0.99. For the 
+#' full value range to be plotted, use \code{zlim = range(data$PSD$S)}.
+#' 
+#' As of version 0.7.2, the default plot colour has changed from the "jet" 
+#' colour palette to the "Inferno" palette. This due to perception issues with 
+#' the "jet" palette. If one wants to decisively use the "jet" colours, this 
+#' can be done by adding the keyword \code{col = "jet"}. To use other 
+#' colour schemes, such as sequential HCL schemes from the 
 #' colorspace package, specify them as additional argument, e.g. 
 #' \code{col = colorspace::sequential_hcl(200, palette = "Plasma")},
 #' \code{col = colorspace::sequential_hcl(200, palette = "Inferno")},
@@ -115,7 +123,7 @@ plot_spectrogram <- function(
     zlim_psd <- extraArgs$zlim
   } else {
     
-    zlim_psd <- range(data$S, na.rm = TRUE)
+    zlim_psd <- quantile(x = data$S, probs = c(0.01, 0.99), na.rm = TRUE)
   }
   
   ## get range of z-values
@@ -145,12 +153,13 @@ plot_spectrogram <- function(
   }
   
   ## handle colour scheme
-  if ("col" %in% names(extraArgs)) {
+  if("col" %in% names(extraArgs)) {
+    
     col <- extraArgs$col
-    
-  }
-  else {
-    
+
+    ## handle keyword case "jet"
+    if(col[1] == "jet") {
+      
       col <- colorRampPalette(colors = c("darkblue",
                                          "blue",
                                          "cyan",
@@ -159,7 +168,16 @@ plot_spectrogram <- function(
                                          "red",
                                          "brown",
                                          "grey30"))
+                                                   
       col <- col(200)
+    }
+    
+  }
+  else {
+  
+    ## assign default colour palette inferno  
+    col <- colorspace::sequential_hcl(200, palette = "Inferno")
+    
   }
   
   ## remove keywords from plot arguments

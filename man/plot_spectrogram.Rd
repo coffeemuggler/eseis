@@ -31,7 +31,15 @@ This function plots spectrograms of seismic signals. It uses the output
 of \code{signal_spectrogram}.
 }
 \details{
-To use other colour schemes, such as sequential HCL schemes from the 
+As of version 0.7.2, the value range (\code{zlim}) is no longer set to the 
+full data range but to the range between quantiles 0.01 and 0.99. For the 
+full value range to be plotted, use \code{zlim = range(data$PSD$S)}.
+
+As of version 0.7.2, the default plot colour has changed from the "jet" 
+colour palette to the "Inferno" palette. This due to perception issues with 
+the "jet" palette. If one wants to decisively use the "jet" colours, this 
+can be done by adding the keyword \code{col = "jet"}. To use other 
+colour schemes, such as sequential HCL schemes from the 
 colorspace package, specify them as additional argument, e.g. 
 \code{col = colorspace::sequential_hcl(200, palette = "Plasma")},
 \code{col = colorspace::sequential_hcl(200, palette = "Inferno")},
