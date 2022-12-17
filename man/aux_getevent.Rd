@@ -9,7 +9,7 @@ aux_getevent(
   duration,
   station,
   component = "BHZ",
-  format = "sac",
+  format,
   dir,
   simplify = TRUE,
   eseis = TRUE,
@@ -33,7 +33,8 @@ structure (cf. \code{aux_organisecubefiles}). Default is
 \code{"BHZ"} (vertical component of a sac file).}
 
 \item{format}{\code{Character} value, seismic data format. One out of 
-\code{"sac"} and \code{"mseed"}. Default is \code{"sac"}.}
+\code{"sac"} and \code{"mseed"}. If omitted, the function will try to 
+identify the right format automatically.}
 
 \item{dir}{\code{Character} value, path to the seismic data directory.
 See details for further info on data structure.}

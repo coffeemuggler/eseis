@@ -35,7 +35,8 @@
 #' \code{"BHZ"} (vertical component of a sac file).
 #' 
 #' @param format \code{Character} value, seismic data format. One out of 
-#' \code{"sac"} and \code{"mseed"}. Default is \code{"sac"}.
+#' \code{"sac"} and \code{"mseed"}. If omitted, the function will try to 
+#' identify the right format automatically.
 #' 
 #' @param dir \code{Character} value, path to the seismic data directory.
 #' See details for further info on data structure.
@@ -101,7 +102,7 @@ aux_getevent <- function(
   duration,
   station, 
   component = "BHZ",
-  format = "sac",
+  format,
   dir,
   simplify = TRUE,
   eseis = TRUE,
@@ -115,6 +116,12 @@ aux_getevent <- function(
   if(class(start)[1] != "POSIXct") {
     
     stop("Start date is not a POSIXct format!")
+  }
+  
+  ## check/set file format
+  if(missing(format) == TRUE) {
+    
+    format <- "unknown"
   }
   
   ## set default value for data directory
@@ -219,7 +226,7 @@ aux_getevent <- function(
   ## convert list to vector
   files <- do.call(c, files)
   
-  ## remove dulicates
+  ## remove duplicates
   files <- unique(files)
   
   ## check for file presence
@@ -258,6 +265,32 @@ aux_getevent <- function(
   ## create data object
   data <- vector(mode = "list", 
                  length = length(files_station))
+  
+  ## find out file format
+  if(format == "unknown") {
+    
+    x_format <- try(eseis::read_sac(file = files_station[[1]][1], 
+                                    eseis = TRUE), 
+                    silent = TRUE)
+    if(class(x_format)[1] == "eseis") {
+      
+      format <- "sac"
+    } else {
+      
+      x_format <- try(eseis::read_mseed(file = files_station[[1]][1], 
+                                        eseis = TRUE,
+                                        append = TRUE), 
+                      silent = TRUE)
+      
+      if(class(x_format)[1] == "eseis") {
+        
+        format <- "mseed"
+      } else {
+        
+        stop("Cannot determine file format automatically!")
+      }
+    }
+  }
   
   ## process files station-wise
   for(i in 1:length(data)) {
