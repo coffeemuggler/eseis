@@ -18,7 +18,9 @@ aux_getevent(
 )
 }
 \arguments{
-\item{start}{\code{POSIXct} value, start time of the data to import.}
+\item{start}{\code{POSIXct} value, start time of the data to import. If
+lazy users only submit a text string instead of a POSIXct obejct, the 
+function will try to convert that text string.}
 
 \item{duration}{\code{Numeric} value, duration of the data to import,
 in seconds.}

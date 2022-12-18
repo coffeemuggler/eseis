@@ -20,7 +20,9 @@
 #' component. Thus, it is assumed that all loaded seismic signals are
 #' of the same sampling frequency and length.
 #' 
-#' @param start \code{POSIXct} value, start time of the data to import.
+#' @param start \code{POSIXct} value, start time of the data to import. If
+#' lazy users only submit a text string instead of a POSIXct obejct, the 
+#' function will try to convert that text string.
 #' 
 #' @param duration \code{Numeric} value, duration of the data to import,
 #' in seconds.
@@ -111,11 +113,17 @@ aux_getevent <- function(
 ) {
   
   ## check/set arguments ------------------------------------------------------
+
   
   ## check start time format
   if(class(start)[1] != "POSIXct") {
     
-    stop("Start date is not a POSIXct format!")
+    start <- try(as.POSIXct(start), silent = TRUE)
+    
+    if(class(start)[1] != "POSIXct") {
+     
+      stop("Start date is not a POSIXct format!")
+    }
   }
   
   ## check/set file format
@@ -276,11 +284,12 @@ aux_getevent <- function(
       
       format <- "sac"
     } else {
-      
-      x_format <- try(eseis::read_mseed(file = files_station[[1]][1], 
-                                        eseis = TRUE,
-                                        append = TRUE), 
-                      silent = TRUE)
+
+      x_format <- suppressWarnings(try(eseis::read_mseed(
+        file = files_station[[1]][1], 
+        eseis = TRUE,
+        append = TRUE), 
+        silent = TRUE))
       
       if(class(x_format)[1] == "eseis") {
         
@@ -314,9 +323,11 @@ aux_getevent <- function(
                                  append = TRUE)
           } else if(format == "mseed") {
             
-            x <- eseis::read_mseed(file = files_cmp, 
-                                   eseis = TRUE,
-                                   append = TRUE)
+            x <- suppressWarnings(try(eseis::read_mseed(
+              file = files_cmp, 
+              eseis = TRUE,
+              append = TRUE), silent = TRUE))
+            
           }
           
           ## clip signal at start and end time
@@ -365,9 +376,10 @@ aux_getevent <- function(
                                  append = TRUE)
           } else if(format == "mseed") {
             
-            x <- eseis::read_mseed(file = files_cmp, 
-                                   eseis = TRUE,
-                                   append = TRUE)
+            x <- suppressWarnings(try(eseis::read_mseed(
+              file = files_cmp, 
+              eseis = TRUE,
+              append = TRUE), silent = TRUE))
           }
           
           ## clip signal at start and end time
@@ -495,7 +507,8 @@ aux_getevent <- function(
     ## case of one station and one component
     if(length(data_out) == 1) {
       
-      data_out <- data_out[[1]]
+      data_out <- as.list(data_out[[1]])
+      
     }
     
     if(length(data_out) == 1) {
@@ -511,16 +524,21 @@ aux_getevent <- function(
         ## check if several components are present per station
         if(length(x) == 1) {
           
-          x[[1]]
+          as.list(x[[1]])
         } else {
           
-          x
+          as.list(x)
         }
       })
     }
+  } else {
     
+    data_out <- lapply(X = data_out, FUN = function(x) {
+      
+      as.list(x)
+    })
   }
-  
+
   ## return output data set
   return(data_out)
 }
