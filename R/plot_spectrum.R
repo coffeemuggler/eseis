@@ -154,7 +154,7 @@ plot_spectrum <- function(
     s_pad <- c(data$power, rep(NA, 
                                    times = n_pad))
     
-    f_pad <- c(data$power, rep(NA, 
+    f_pad <- c(data$frequency, rep(NA, 
                                     times = n_pad))
     
     ## convert signal vector to matrix
