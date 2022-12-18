@@ -547,7 +547,7 @@ model_bedload <- function(
   
   ## assign data to output object
   P <- data.frame(frequency = f_i,
-                  spectrum = z)
+                  power = z)
   
   ## optionally create and fill eseis object
   if(eseis == TRUE) {

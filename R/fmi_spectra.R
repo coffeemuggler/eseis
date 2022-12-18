@@ -95,21 +95,21 @@ fmi_spectra <- function (
     
     ## combine model outputs
     p_combined <- p_turbulence
-    p_combined$spectrum <- p_turbulence$spectrum + p_bedload$spectrum
+    p_combined$spectrum <- p_turbulence$power + p_bedload$power
     
     ## convert linear to log scale
     p_turbulence_log <- p_turbulence
     p_bedload_log <-p_bedload
     p_combined_log <- p_combined
     
-    p_turbulence_log$spectrum <- 10 * log10(p_turbulence$spectrum)
-    p_bedload_log$spectrum <- 10 * log10(p_bedload$spectrum)
-    p_combined_log$spectrum <- 10 * log10(p_combined$spectrum)
+    p_turbulence_log$spectrum <- 10 * log10(p_turbulence$power)
+    p_bedload_log$spectrum <- 10 * log10(p_bedload$power)
+    p_combined_log$spectrum <- 10 * log10(p_combined$power)
     
     ## return model outputs
     return(list(pars = parameters,
                 frequency = p_combined_log$frequency,
-                spectrum = p_combined_log$spectrum))
+                power = p_combined_log$power))
   }
   
   ## optinally initiate multicore environment

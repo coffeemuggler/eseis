@@ -264,7 +264,7 @@ model_turbulence <- function(
   
   ## create output data frame
   P <- data.frame(frequency = f_seq, 
-                  spectrum = p)
+                  power = p)
   
   ## optionally create and fill eseis object
   if(eseis == TRUE) {

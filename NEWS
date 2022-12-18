@@ -1,8 +1,10 @@
 Changes for R-package eseis
 
 Version 0.7.1
-  - code changed, plot_spectrogram colour scale set to Inferno
-  - code changed, plot_spectrogram colour range set to quantile(0.01, 0.99)
+  - festure added, signal_spectrum() argument n added for smoothing support
+  - code changed, signal_spectrum() output name spectrum changed to power
+  - code changed, plot_spectrogram() colour scale set to Inferno
+  - code changed, plot_spectrogram() colour range set to quantile(0.01, 0.99)
   - feature added, aux_etevent() automatic file type recognition
   - bug fixed, signal_filter() p = 0.05 now added
   - bug fixed, signal_motion() windowing fixed, speed increased, output added

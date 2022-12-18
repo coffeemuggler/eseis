@@ -256,7 +256,7 @@ aux_hvanalysis <- function(
     
     ## assign aggregated signal vector
     eseis_data <- list(hv = list(time = hv_time,
-                                 frequncy = hv_frequency,
+                                 frequency = hv_frequency,
                                  ratios = hv_ratios),
                        history = eseis_data$history)
     

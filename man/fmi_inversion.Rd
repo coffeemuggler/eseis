@@ -83,7 +83,7 @@ psd <- do.call(cbind, lapply(hq, function(hq) {
                                             e_0 = 0.0,
                                             n_0 = c(0.5, 0.8),
                                             res = 100, 
-                                            eseis = FALSE)$spectrum
+                                            eseis = FALSE)$power
 
   psd_bedload <- eseis::model_bedload(h_w = hq[1],
                                       q_s = hq[2],
@@ -101,7 +101,7 @@ psd <- do.call(cbind, lapply(hq, function(hq) {
                                       e_0 = 0.0,
                                       n_0 = 0.5,
                                       res = 100,
-                                      eseis = FALSE)$spectrum
+                                      eseis = FALSE)$power
 
   ## combine spectra
   psd_sum <- psd_turbulence + psd_bedload

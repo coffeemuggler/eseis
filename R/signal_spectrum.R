@@ -13,10 +13,14 @@
 #' \code{"periodogram"} , \code{"autoregressive"} and \code{"multitaper"}, 
 #' default is \code{"periodogram"}.
 #' 
+#' @param n \code{Numeric} value, optional number of samples in 
+#' running window used for smoothing the spectrogram. Only applied if a 
+#' number is provided. Smoothing is performed as running mean.
+#' 
 #' @param \dots Additional arguments passed to the function. See 
 #' \code{\link{spec.pgram}}, \code{\link{spec.ar}}, \code{\link{spec.mtm}}.
 #' 
-#' @return \code{Data frame} with spectrum and frequency vector 
+#' @return \code{Data frame} with frequency and power vector 
 #' 
 #' @author Michael Dietze
 #' 
@@ -39,6 +43,7 @@ signal_spectrum <- function(
   data,
   dt,
   method = "periodogram",
+  n,
   ...
 ) {
 
@@ -119,7 +124,7 @@ signal_spectrum <- function(
       
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
-                             spectrum = s$spec)
+                             power = s$spec)
     } else if(method == "autoregressive") {
       
       ## calculate spectrum
@@ -134,7 +139,7 @@ signal_spectrum <- function(
       
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
-                             spectrum = s$spec)
+                             power = s$spec)
     } else if(method == "multitaper") {
       
       ## calculate spectrum
@@ -150,10 +155,16 @@ signal_spectrum <- function(
       
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
-                             spectrum = s$spec)
+                             power = s$spec)
     } else {
       
       stop("Keyword for method not supported!")
+    }
+    
+    ## optionally perform smoothing
+    if(missing(n) == FALSE) {
+      
+      data_out$power <- caTools::runmean(x = data_out$power, k = n)
     }
     
     ## optionally rebuild eseis object

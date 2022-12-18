@@ -29,6 +29,8 @@
 #' @importFrom utils combn read.delim write.table read.table sessionInfo download.file browseURL
 #' @importFrom XML xmlParse xmlToList
 #' @importFrom extraDistr rkumar dkumar rtriang dtriang
+#' @importFrom colorspace sequential_hcl
+#' @importFrom caTools runmean
 #' @useDynLib eseis
 NULL
 

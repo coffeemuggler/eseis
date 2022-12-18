@@ -4,7 +4,7 @@
 \alias{signal_spectrum}
 \title{Calculate the spectrum of a time series}
 \usage{
-signal_spectrum(data, dt, method = "periodogram", ...)
+signal_spectrum(data, dt, method = "periodogram", n, ...)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
@@ -17,11 +17,15 @@ is set to 1/200. Only needed if \code{data} is no \code{eseis} object.}
 \code{"periodogram"} , \code{"autoregressive"} and \code{"multitaper"}, 
 default is \code{"periodogram"}.}
 
+\item{n}{\code{Numeric} value, optional number of samples in 
+running window used for smoothing the spectrogram. Only applied if a 
+number is provided. Smoothing is performed as running mean.}
+
 \item{\dots}{Additional arguments passed to the function. See 
 \code{\link{spec.pgram}}, \code{\link{spec.ar}}, \code{\link{spec.mtm}}.}
 }
 \value{
-\code{Data frame} with spectrum and frequency vector
+\code{Data frame} with frequency and power vector
 }
 \description{
 The power spectral density estimate of the time series is calculated using 

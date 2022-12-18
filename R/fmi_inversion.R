@@ -77,7 +77,7 @@
 #'                                             e_0 = 0.0,
 #'                                             n_0 = c(0.5, 0.8),
 #'                                             res = 100, 
-#'                                             eseis = FALSE)$spectrum
+#'                                             eseis = FALSE)$power
 #' 
 #'   psd_bedload <- eseis::model_bedload(h_w = hq[1],
 #'                                       q_s = hq[2],
@@ -95,7 +95,7 @@
 #'                                       e_0 = 0.0,
 #'                                       n_0 = 0.5,
 #'                                       res = 100,
-#'                                       eseis = FALSE)$spectrum
+#'                                       eseis = FALSE)$power
 #'
 #'   ## combine spectra
 #'   psd_sum <- psd_turbulence + psd_bedload
@@ -142,7 +142,7 @@ fmi_inversion <- function (
   ## convert list of spectra to matrix
   reference_spectra <- do.call(rbind, 
                                lapply(X = reference, FUN = function(x) {
-                                 x$spectrum
+                                 x$power
                                }))
   
   ## convert list of parameters to matrix
