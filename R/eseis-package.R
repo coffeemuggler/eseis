@@ -19,7 +19,7 @@
 #' @author Michael Dietze
 #' @keywords package
 #' @importFrom graphics image plot plot.default axis axis.POSIXct box mtext par lines points polygon segments
-#' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals spline fft coefficients na.omit cov
+#' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals spline fft coefficients na.omit cov approx
 #' @importFrom methods as new
 #' @importFrom minpack.lm nlsLM
 #' @importFrom Rcpp evalCpp
