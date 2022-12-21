@@ -59,11 +59,17 @@
 #'                  legend = TRUE, 
 #'                  zlim = c(-220, -70),
 #'                  col = rainbow(100)) 
+#'                  
+#' ## plot spectrogram with frequencies in log scale
+#' plot_spectrogram(data = PSD, log = "y")
+#' 
+#' ## plot spectrogram with formatted time axis (minutes and seconds)
+#' plot_spectrogram(data = PSD, format = "%M:%S")
 #'                      
 #' @export plot_spectrogram
 plot_spectrogram <- function(
   data,
-  legend = FALSE,
+  legend = TRUE,
   keep_par = FALSE,
   agg = c(1, 1),
   ...
@@ -293,6 +299,9 @@ plot_spectrogram <- function(
                           zlim = zlim_psd), 
                      extraArgs))
     
+    ## add box
+    box(which = "plot")
+    
     ## optionally add axes
     if(axes == TRUE) {
       
@@ -306,6 +315,13 @@ plot_spectrogram <- function(
     ## allow overplotting
     xpd_in <- graphics::par()$xpd
     graphics::par(xpd = TRUE)
+    
+    ## add empty dummy plot for legend placement
+    par(new = TRUE)
+    image(x = data$t[t_out], 
+          y = data$f[f_out], 
+          z = t(data$S[f_out, t_out]), 
+          axes = FALSE, ann = FALSE, col = NA)
     
     ## define coordinates for colour scale bar
     x_0 <- graphics::par()$usr[2] + 0.5 * graphics::par()$cxy[1]
@@ -328,8 +344,8 @@ plot_spectrogram <- function(
                       seq(from = y_0, to = y_1 - d_y, by = d_y))
     
     ## convert to y-scale
-    y_ticks <- seq(from = graphics::par()$usr[3], 
-                   to = graphics::par()$usr[4], 
+    y_ticks <- seq(from = y_0, 
+                   to = y_1, 
                    length.out = length(legend_values))
     
     ## draw legend bar
@@ -363,10 +379,7 @@ plot_spectrogram <- function(
     
     ## add z-axis label
     graphics::mtext(side = 4, line = 5, text = zlab)
-    
-    ## add box
-    box(which = "plot")
-    
+
     ## restore overplotting option
     graphics::par(xpd = xpd_in)
     

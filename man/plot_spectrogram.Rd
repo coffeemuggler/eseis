@@ -4,7 +4,7 @@
 \alias{plot_spectrogram}
 \title{Plot spectrograms (power spectral density estimates)}
 \usage{
-plot_spectrogram(data, legend = FALSE, keep_par = FALSE, agg = c(1, 1), ...)
+plot_spectrogram(data, legend = TRUE, keep_par = FALSE, agg = c(1, 1), ...)
 }
 \arguments{
 \item{data}{\code{List} object, spectrogram to be plotted. Must be output
@@ -67,6 +67,12 @@ plot_spectrogram(data = PSD,
                  legend = TRUE, 
                  zlim = c(-220, -70),
                  col = rainbow(100)) 
+                 
+## plot spectrogram with frequencies in log scale
+plot_spectrogram(data = PSD, log = "y")
+
+## plot spectrogram with formatted time axis (minutes and seconds)
+plot_spectrogram(data = PSD, format = "\%M:\%S")
                      
 }
 \seealso{
