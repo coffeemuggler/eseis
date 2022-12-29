@@ -14,7 +14,7 @@ aux_getevent(
   simplify = TRUE,
   eseis = TRUE,
   try = FALSE,
-  silent = TRUE
+  verbose = FALSE
 )
 }
 \arguments{
@@ -54,8 +54,8 @@ object (recommended, see documentation of
 i.e., to let it return \code{NA} in case an error occurs during data
 import. Default is \code{FALSE}.}
 
-\item{silent}{\code{Logical} value, option to suppress messages during 
-function execution. Default is \code{TRUE}.}
+\item{verbose}{\code{Logical} value, option to show messages during 
+function execution. Default is \code{FALSE}.}
 }
 \value{
 A \code{list} object containing either a set of \code{eseis}

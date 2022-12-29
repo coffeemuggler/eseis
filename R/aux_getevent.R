@@ -56,8 +56,8 @@
 #' i.e., to let it return \code{NA} in case an error occurs during data
 #' import. Default is \code{FALSE}.
 #' 
-#' @param silent \code{Logical} value, option to suppress messages during 
-#' function execution. Default is \code{TRUE}.
+#' @param verbose \code{Logical} value, option to show messages during 
+#' function execution. Default is \code{FALSE}.
 #' 
 #' @return A \code{list} object containing either a set of \code{eseis}
 #' objects or a data set with the time vector (\code{$time}) 
@@ -99,6 +99,7 @@
 #' lapply(X = data, FUN = plot_signal)
 #'                      
 #' @export aux_getevent
+#' 
 aux_getevent <- function(
   start,
   duration,
@@ -109,7 +110,7 @@ aux_getevent <- function(
   simplify = TRUE,
   eseis = TRUE,
   try = FALSE,
-  silent = TRUE
+  verbose = FALSE
 ) {
   
   ## check/set arguments ------------------------------------------------------
@@ -159,7 +160,7 @@ aux_getevent <- function(
                         sep = "")
     
     ## inform about time zone change
-    if(silent == FALSE) {
+    if(verbose == TRUE) {
       
       print(tz_message)
     }
@@ -331,7 +332,7 @@ aux_getevent <- function(
           }
           
           ## clip signal at start and end time
-          if(silent == FALSE)  {
+          if(verbose == TRUE)  {
             
             x <- eseis::signal_clip(data = x, 
                                     limits = c(start, stop))
