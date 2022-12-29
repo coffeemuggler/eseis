@@ -41,8 +41,8 @@
 #' \code{"variance"} (variance reduction, cf. Walter et al. (2017)). Default
 #' is \code{"variance"}.
 #'
-#' @param n_cores \code{Numeric} value, number of CPU cores to use. Disabled
-#' by setting to 1. Default is 1.
+#' @param cpu \code{Numeric} value, fraction of CPUs to use. If omitted, 
+#' only one CPU will be used.
 #'
 #' @return A raster object with the location output metrics for each
 #' grid cell.
@@ -70,7 +70,7 @@
 #'           dnorm(x = 1:1000, mean = 500, sd = 50) * 1)
 #'
 #'## plot DEM and stations
-#'raster::plot(dem)
+#'terra::plot(dem)
 #'text(x = sta$x, 
 #'     y = sta$y, 
 #'     labels = sta$ID)
@@ -80,20 +80,19 @@
 #'                             dem = dem)
 #'
 #'## locate signal
-#'e <- spatial_amplitude(data = s, 
-#'                       d_map = D$maps, 
-#'                       v = 500, 
-#'                       q = 50, 
-#'                       f = 10)
+#'e <- eseis::spatial_amplitude(data = s, 
+#'                              d_map = D$maps, 
+#'                              v = 500, 
+#'                              q = 50, 
+#'                              f = 10)
 #'
 #'## get most likely location coordinates (example contains two equal points)
-#'xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
-#'             ncol = 2)[1,]
+#'e_max <- spatial_pmax(data = e)
 #'
 #'## plot output
-#'raster::plot(e)
-#'points(xy[1], 
-#'       xy[2],
+#'terra::plot(e)
+#'points(e_max[1], 
+#'       e_max[2],
 #'       pch = 20)
 #'points(sta[,1:2])
 #'
@@ -102,7 +101,7 @@
 #' @export spatial_amplitude
 
 spatial_amplitude <- function (
-  
+    
   data,
   coupling,
   d_map,
@@ -113,7 +112,7 @@ spatial_amplitude <- function (
   a_0,
   normalise = TRUE,
   output = "variance",
-  n_cores = 1
+  cpu
 ) {
   
   ## check/format input data
@@ -150,18 +149,18 @@ spatial_amplitude <- function (
   }
   
   ## convert distance data sets to matrix with distance values
-  d <- do.call(cbind, lapply(X = d_map,
-                             FUN = function(d_map) {d_map@data[,1]}))
+  d <- do.call(cbind, lapply(X = d_map, FUN = terra::values))
   
   ## check if aoi is provided and create aoi index vector
   if(missing(aoi) == FALSE) {
     
-    px_ok <- raster::values(aoi)
+    px_ok <- terra::values(aoi)
   } else {
     
     px_ok <- rep(1, nrow(d))
   }
   
+  ## combine aoi flag and distance map values
   d <- cbind(px_ok, d)
   
   ## convert distance data to list
@@ -180,115 +179,69 @@ spatial_amplitude <- function (
   ## create model start parameter list
   model_start <- list(a_0 = a_0)
   
-  if(n_cores > 1) {
+  ## initiate cluster
+  cores <- parallel::detectCores()
+  
+  if(missing(cpu) == FALSE) {
     
-    ## detect number of CPU cores
-    n_cores_system <- parallel::detectCores()
-    n_cores <- ifelse(test = n_cores > n_cores_system,
-                      yes = n_cores_system,
-                      no = n_cores)
-    
-    ## initiate cluster
-    cl <- parallel::makeCluster(n_cores)
-    
-    ## model event amplitude as function of distance
-    r <- parallel::parLapply(
-      cl = cl,
-      X = d,
-      fun = function(d,
-                     model_fun,
-                     model_par,
-                     model_start,
-                     output) {
-        
-        process <- d[1]
-        
-        if(process == 1) {
-          
-          model_par$d <- d[-1]
-          
-          mod <- try(nls(formula = model_fun,
-                         data = model_par,
-                         start = model_start),
-                     silent = TRUE)
-          
-          if(output == "variance") {
-            res <- try(1 - (sum(residuals(object = mod)^2,
-                                na.rm = TRUE) /
-                              sum(model_par$a_d^2,
-                                  na.rm = TRUE)),
-                       silent = TRUE)
-            
-          }
-          
-          if(output == "residuals") {
-            
-            res <- try(sum(residuals(mod)^2),
-                       silent = TRUE)
-          }
-          
-          if(class(res)[1] == "try-error") {
-            
-            res <- NA
-          }
-          
-          return(res)
-        } else {
-          
-          return(NA)
-        }
-      }, model_fun, model_par, model_start, output)
-    
-    ## stop cluster
-    parallel::stopCluster(cl = cl)
+    n_cpu <- floor(cores * cpu)
+    cores <- ifelse(cores < n_cpu, cores, n_cpu)
   } else {
     
-    ## model event amplitude as function of distance
-    r <- lapply(X = d,
-                FUN = function(d,
-                               model_fun,
-                               model_par,
-                               model_start,
-                               output) {
-                  
-                  process <- d[1]
-                  
-                  if(process == 1) {
-                    
-                    model_par$d <- d[-1]
-                    
-                    mod <- try(nls(formula = model_fun,
-                                   data = model_par,
-                                   start = model_start),
-                               silent = TRUE)
-                    
-                    if(output == "variance") {
-                      res <- try(1 - (sum(residuals(object = mod)^2,
-                                          na.rm = TRUE) /
-                                        sum(model_par$a_d^2,
-                                            na.rm = TRUE)),
-                                 silent = TRUE)
-                      
-                    }
-                    
-                    if(output == "residuals") {
-                      
-                      res <- try(sum(residuals(mod)^2),
-                                 silent = TRUE)
-                    }
-                    
-                    if(class(res)[1] == "try-error") {
-                      
-                      res <- NA
-                    }
-                    
-                    return(res)
-                  } else {
-                    
-                    return(NA)
-                  }
-                }, model_fun, model_par, model_start, output)
+    cores <- 1
   }
+  cl <- parallel::makeCluster(getOption("mc.cores", cores))
+  
+  ## model event amplitude as function of distance
+  r <- parallel::parLapply(
+    cl = cl,
+    X = d,
+    fun = function(d,
+                   model_fun,
+                   model_par,
+                   model_start,
+                   output) {
+      
+      process <- d[1]
+      
+      if(process == 1) {
+        
+        model_par$d <- d[-1]
+        
+        mod <- try(nls(formula = model_fun,
+                       data = model_par,
+                       start = model_start),
+                   silent = TRUE)
+        
+        if(output == "variance") {
+          res <- try(1 - (sum(residuals(object = mod)^2,
+                              na.rm = TRUE) /
+                            sum(model_par$a_d^2,
+                                na.rm = TRUE)),
+                     silent = TRUE)
+          
+        }
+        
+        if(output == "residuals") {
+          
+          res <- try(sum(residuals(mod)^2),
+                     silent = TRUE)
+        }
+        
+        if(class(res)[1] == "try-error") {
+          
+          res <- NA
+        }
+        
+        return(res)
+      } else {
+        
+        return(NA)
+      }
+    }, model_fun, model_par, model_start, output)
+  
+  ## stop cluster
+  parallel::stopCluster(cl = cl)
   
   ## convert list to vector
   r <- do.call(c, r)
@@ -300,11 +253,10 @@ spatial_amplitude <- function (
                (max(r, na.rm = TRUE) - min(r, na.rm = TRUE)))
   }
   
-  ## convert data structure to raster
+  ## convert data structure to raster object
   l <- try(d_map[[1]])
-  try(l@data[,1] <- r)
-  l <- try(raster::raster(l))
-  
+  try(terra::values(l) <- r)
+
   ## return output
   return(l)
 }

@@ -2,7 +2,7 @@
 #' 
 #' The function replaces raster values based on different thresholds.
 #' 
-#' @param data \code{raster} object, spatial data set to be processed.
+#' @param data \code{SpatRaster} object, spatial data set to be processed.
 #' 
 #' @param quantile \code{Numeric} value, quantile value below which raster 
 #' values are clipped.
@@ -13,7 +13,7 @@
 #' @param normalise \code{Logical} value, optionally normalise values above 
 #' threshold quantile between 0 and 1. Default is \code{TRUE}. 
 #' 
-#' @return \code{raster} object, data set with clipped values.
+#' @return \code{SpatRaster} object, data set with clipped values.
 #' 
 #' @author Michael Dietze
 #' @keywords eseis
@@ -23,16 +23,17 @@
 #' data(volcano)
 #' 
 #' ## convert matrix to raster object
-#' volcano <- raster::raster(volcano)
+#' volcano <- terra::rast(volcano)
 #' 
 #' ## clip values to those > quantile 0.5
 #' volcano_clip <- spatial_clip(data = volcano, 
-#'                                     quantile = 0.5)
+#'                              quantile = 0.5)
 #'                                     
 #' ## plot clipped data set
-#' raster::plot(volcano_clip)
+#' terra::plot(volcano_clip)
 #'                      
 #' @export spatial_clip
+#' 
 spatial_clip <- function(
   data,
   quantile,
@@ -47,18 +48,17 @@ spatial_clip <- function(
   }
   
   ## replace values
-  data@data@values[
-    data@data@values < quantile(data@data@values,
-                                quantile,
-                                na.rm = TRUE)] <- replace
+  terra::values(data)[terra::values(data) < quantile(terra::values(data), 
+                                                     probs = quantile, 
+                                                     na.rm = TRUE)] <- replace
   
   ## optionally normaise data set
   if(normalise == TRUE) {
     
-    data@data@values <- (
-      data@data@values - min(data@data@values, na.rm = TRUE)) / 
-      (max(data@data@values, na.rm = TRUE) - 
-         min(data@data@values, na.rm = TRUE))
+    terra::values(data) <- (terra::values(data) - 
+                              min(terra::values(data), na.rm = TRUE)) / 
+      (max(terra::values(data), na.rm = TRUE) - 
+         min(terra::values(data), na.rm = TRUE))
   }
   
   ## return data set

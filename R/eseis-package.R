@@ -26,11 +26,12 @@
 #' @importFrom IRISSeismic readMiniseedFile getNetwork getStation getSNCL
 #' @importFrom grDevices colorRampPalette dev.off jpeg
 #' @importFrom rmarkdown render
-#' @importFrom utils combn read.delim write.table read.table sessionInfo download.file browseURL
+#' @importFrom utils combn read.delim write.table read.table sessionInfo download.file browseURL tail
 #' @importFrom XML xmlParse xmlToList
 #' @importFrom extraDistr rkumar dkumar rtriang dtriang
 #' @importFrom colorspace sequential_hcl
 #' @importFrom caTools runmean
+#' @importFrom terra res values crds
 #' @useDynLib eseis
 NULL
 

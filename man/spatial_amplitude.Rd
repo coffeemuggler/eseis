@@ -15,7 +15,7 @@ spatial_amplitude(
   a_0,
   normalise = TRUE,
   output = "variance",
-  n_cores = 1
+  cpu
 )
 }
 \arguments{
@@ -56,8 +56,8 @@ One out of \code{"residuals"} (sums of the squared model residuals) or
 \code{"variance"} (variance reduction, cf. Walter et al. (2017)). Default
 is \code{"variance"}.}
 
-\item{n_cores}{\code{Numeric} value, number of CPU cores to use. Disabled
-by setting to 1. Default is 1.}
+\item{cpu}{\code{Numeric} value, fraction of CPUs to use. If omitted, 
+only one CPU will be used.}
 }
 \value{
 A raster object with the location output metrics for each
@@ -89,7 +89,7 @@ s <- rbind(dnorm(x = 1:1000, mean = 500, sd = 50) * 100,
           dnorm(x = 1:1000, mean = 500, sd = 50) * 1)
 
 ## plot DEM and stations
-raster::plot(dem)
+terra::plot(dem)
 text(x = sta$x, 
     y = sta$y, 
     labels = sta$ID)
@@ -99,20 +99,19 @@ D <- eseis::spatial_distance(stations = sta[,1:2],
                             dem = dem)
 
 ## locate signal
-e <- spatial_amplitude(data = s, 
-                      d_map = D$maps, 
-                      v = 500, 
-                      q = 50, 
-                      f = 10)
+e <- eseis::spatial_amplitude(data = s, 
+                             d_map = D$maps, 
+                             v = 500, 
+                             q = 50, 
+                             f = 10)
 
 ## get most likely location coordinates (example contains two equal points)
-xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
-            ncol = 2)[1,]
+e_max <- spatial_pmax(data = e)
 
 ## plot output
-raster::plot(e)
-points(xy[1], 
-      xy[2],
+terra::plot(e)
+points(e_max[1], 
+      e_max[2],
       pch = 20)
 points(sta[,1:2])
 

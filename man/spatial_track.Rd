@@ -165,6 +165,7 @@ Syst. Sci., 17, 939–955, https://doi.org/10.5194/nhess-17-939-2017, 2017.
 \examples{
 
 \dontrun{
+
 x <- spatial_track(data = data, 
                    window = 5, 
                    overlap = 0.5,
@@ -174,6 +175,7 @@ x <- spatial_track(data = data,
                    q = 40, 
                    f = 12, 
                    qt = 0.99)
+
 }
 
 }

@@ -7,7 +7,7 @@
 spatial_clip(data, quantile, replace = NA, normalise = TRUE)
 }
 \arguments{
-\item{data}{\code{raster} object, spatial data set to be processed.}
+\item{data}{\code{SpatRaster} object, spatial data set to be processed.}
 
 \item{quantile}{\code{Numeric} value, quantile value below which raster 
 values are clipped.}
@@ -19,7 +19,7 @@ values are clipped.}
 threshold quantile between 0 and 1. Default is \code{TRUE}.}
 }
 \value{
-\code{raster} object, data set with clipped values.
+\code{SpatRaster} object, data set with clipped values.
 }
 \description{
 The function replaces raster values based on different thresholds.
@@ -30,14 +30,14 @@ The function replaces raster values based on different thresholds.
 data(volcano)
 
 ## convert matrix to raster object
-volcano <- raster::raster(volcano)
+volcano <- terra::rast(volcano)
 
 ## clip values to those > quantile 0.5
 volcano_clip <- spatial_clip(data = volcano, 
-                                    quantile = 0.5)
+                             quantile = 0.5)
                                     
 ## plot clipped data set
-raster::plot(volcano_clip)
+terra::plot(volcano_clip)
                      
 }
 \author{

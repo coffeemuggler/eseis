@@ -15,13 +15,10 @@
 #' @examples
 #' 
 #' ## create example data set
-#' x <- raster::raster(nrows = 100, 
-#'                     ncols = 100, 
-#'                     xmn = 0, 
-#'                     xmx = 10, 
-#'                     ymn = 0, 
-#'                     ymx = 10)
-#' raster::values(x) <- 1:10000
+#' x <- terra::rast(nrows = 100, ncols = 100, 
+#'                  xmin = 0, xmax = 10, 
+#'                  ymin = 0, ymax = 10)
+#' terra::values(x) <- 1:10000
 #' 
 #' ## create crop extent vector
 #' bbox <- c(3, 7, 3, 7)
@@ -31,8 +28,8 @@
 #'                   bbox = bbox)
 #' 
 #' ## plot both objects
-#' raster::plot(x)
-#' raster::plot(y, add = TRUE)
+#' terra::plot(x)
+#' terra::plot(y, add = TRUE)
 #' 
 #' @export spatial_crop
 spatial_crop <- function(
@@ -41,11 +38,11 @@ spatial_crop <- function(
 ) {
   
   ## convert bbox vector to extent object
-  bbox_extent <- raster::extent(x = bbox)
+  bbox_extent <- terra::ext(x = bbox)
   
   ## crop spatial object
-  data_out <- raster::crop(x = data, 
-                           y = bbox_extent)
+  data_out <- terra::crop(x = data, 
+                          y = bbox_extent)
   
   ## return data set
   return(data_out)
