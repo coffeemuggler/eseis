@@ -2,11 +2,10 @@
 #' 
 #' The function loads seismic data from a data directory structure (see 
 #' \code{aux_organisecubefiles()}) based on the event start time, duration,
-#' component and station ID.
-#' 
-#' The data to be read needs to be adequately structured. The data directory
-#' must contain mseed or SAC files. These files will either be identified 
-#' automatically or can be defined explicitly by the parameter \code{format}.
+#' component and station ID. The data to be read needs to be adequately 
+#' structured. The data directory must contain mseed or SAC files. These 
+#' files will either be identified automatically or can be defined 
+#' explicitly by the parameter \code{format}.
 #' 
 #' Data organisation must follow a consistent scheme. The default scheme, 
 #' \code{eseis} (Dietze, 2018 DOI: 10.5194/esurf-6-669-2018) requires hourly
@@ -82,8 +81,13 @@
 #' i.e., to let it return \code{NA} in case an error occurs during data
 #' import. Default is \code{FALSE}.
 #' 
-#' @param verbose \code{Logical} value, option to show messages during 
-#' function evaluation. Default is \code{FALSE}.
+#' @param \dots Further arguments to describe data structure, only needed for 
+#' pattern type \code{seiscomp}. These arguments can be one or more of the 
+#' following: \code{"network"}, \code{"type"}, \code{"location"}. If omitted, 
+#' the function will identify all files in the SeisComP data archive that 
+#' fulfill the criteria. If other than data files (\code{type = "D"}) or 
+#' files from another network are in the archive, these may lead to crashes  
+#' of the function.
 #' 
 #' @return A \code{list} object containing either a set of \code{eseis}
 #' objects or a data set with the time vector (\code{$time}) 
@@ -113,12 +117,12 @@
 #' plot_signal(data = data)
 #' 
 #' ## load data from two stations
-#' data <- aux_getevent(start = as.POSIXct(x = "2017-04-09 01:20:00", 
-#'                                         tz = "UTC"), 
-#'                      duration = 120,
-#'                      station = c("RUEG1", "RUEG2"),
-#'                      component = "BHZ",
-#'                      dir = dir_data)
+#' data <- read_data(start = as.POSIXct(x = "2017-04-09 01:20:00", 
+#'                                      tz = "UTC"), 
+#'                   duration = 120,
+#'                   station = c("RUEG1", "RUEG2"),
+#'                   component = "BHZ",
+#'                   dir = dir_data)
 #' 
 #' ## plot both signals
 #' par(mfcol = c(2, 1))
@@ -138,7 +142,7 @@ read_data <- function(
     interpolate = FALSE,
     eseis = TRUE,
     try = TRUE,
-    verbose = FALSE
+    ...
 ) {
   
   ## check start time format
@@ -167,56 +171,116 @@ read_data <- function(
     pattern <- "%Y/%NET/%STA/%CMP/%NET.%STA.%LOC.%CMP.%TYP.%Y.%j"
   }
   
+  ## extract additional arguments
+  args <- list(...)
+  
+  ## check/set network argument
+  if ("network" %in% names(args)) {
+    network <- args$network
+  }
+  else {
+    
+    if(pattern == "%Y/%NET/%STA/%CMP/%NET.%STA.%LOC.%CMP.%TYP.%Y.%j") {
+      
+      stop("Argument network missing, cannot assess directory structure!")
+    } else {
+      
+      network <- ""
+    }
+  }
+  
+  ## check/set type argument
+  if ("type" %in% names(args)) {
+    type <- args$type
+  }
+  else {
+    
+    type <- "__"
+  }
+  
+  ## check/set location argument
+  if ("location" %in% names(args)) {
+    location <- args$location
+  }
+  else {
+    
+    location <- "__"
+  }
+  
   ## convert start time to UTC
   t_0 <- as.POSIXct(as.POSIXlt(start, tz = "UTC"))
   
   ## calculate stop time
   t_1 <- t_0 + duration
   
-  ## acount for full hour crossing
-  if(t_1 - t_0 < 3600) {
-    
-    t_1 <- t_1 + 3600
-  }
-  
   ## handle different file organisation patterns
   if(grepl(x = pattern, pattern = "%H", fixed = TRUE)) {
     
-    ## build time series  of files to read
+    ## account for full hour crossing
+    if(t_1 - t_0 < 3600) {t_1 <- t_1 + 3600}
+    
+    ## build hourly time series  of files to read
     t <- seq(from = t_0, to = t_1 - 1/100000, by = 3600)
-
+    
+    ## convert time to full hours
+    t <- as.POSIXct(x = format(t, format = "%Y-%m-%d %H:00:00"), 
+                    tz = "UTC")
+    
   } else {
     
+    ## account for full day crossing
+    if(t_1 - t_0 < 24 * 3600) {t_1 <- t_1 + 24 * 3600}
+    
+    ## build daily time series of files to read
     t <- seq(from = t_0, to = t_1 - 1/100000, by = 24 * 3600)
-
+    
+    ## convert time to full day
+    t <- as.POSIXct(x = format(t, format = "%Y-%m-%d 00:00:00"), 
+                    tz = "UTC")
   }
-  
-  ## convert time to full hours
-  t <- as.POSIXct(x = format(t, format = "%Y-%m-%d %H:00:00"), 
-                  tz = "UTC")
-  
+
   ## assign shortened object names
   sta <- station
   cmp <- component
-
+  pars <- list(dir = dir, 
+               pt = pattern, 
+               fm = format, 
+               try = try, 
+               ip = interpolate,
+               network = network,
+               type = type,
+               location = location)
+  
   ## organise seismic data  
-  s <- lapply(X = sta, FUN = function(sta, cmp, dir, t, pt, fm, try, ip) {
+  s <- lapply(X = sta, FUN = function(sta, cmp, t, pars) {
     
     ## organise files by component
-    s <- lapply(X = cmp, FUN = function(cmp, sta, dir, t, pt, fm, try, ip) {
+    s <- lapply(X = cmp, FUN = function(cmp, sta, t, pars) {
       
-      s <- lapply(X = t, FUN = function(t, cmp, sta, dir, pt, fm, try, ip) {
+      s <- lapply(X = t, FUN = function(t, cmp, sta, pars) {
         
         ## separate directory string by subdirectories
-        dir_in <- try(strsplit(x = pt, split = "/", fixed = TRUE)[[1]],
+        dir_in <- try(strsplit(x = pars$pt, split = "/", fixed = TRUE)[[1]],
                       silent = TRUE)
         
+        ## remove file name pattern
+        dir_sub <- try(dir_in[1:(length(dir_in) - 1)], silent = TRUE)
+        
+        ## optionally change network, station, component tags
+        try(dir_sub[grepl(x = dir_sub, pattern = "%NET", fixed = TRUE)] <- 
+          pars$network, silent = TRUE)
+        try(dir_sub[grepl(x = dir_sub, pattern = "%STA", fixed = TRUE)] <- 
+          sta, silent = TRUE)
+        try(dir_sub[grepl(x = dir_sub, pattern = "%CMP", fixed = TRUE)] <- 
+          cmp, silent = TRUE)
+        
         ## convert sub directory time tags to required time characters
-        dir_sub <- try(format(t, format = dir_in[-length(dir_in)]),
+        dir_sub <- try(format(t, format = dir_sub),
                        silent = TRUE)
         
         ## build full directory paths
-        dir_get <- try(paste0(dir, "/", paste(dir_sub, collapse = "/"), "/"),
+        dir_get <- try(paste0(pars$dir, "/", 
+                              paste(dir_sub, collapse = "/"), "/"),
                        silent = TRUE)
         
         ## remove possible double slashes
@@ -229,8 +293,11 @@ read_data <- function(
                                  fixed = TRUE)[[1]], silent = TRUE)
         
         ## replace wild cards by required actual strings
-        try(file_get[file_get == "%STA"] <- sta)
-        try(file_get[file_get == "%CMP"] <- cmp)
+        try(file_get[file_get == "%STA"] <- sta, silent = TRUE)
+        try(file_get[file_get == "%CMP"] <- cmp, silent = TRUE)
+        try(file_get[file_get == "%NET"] <- pars$network, silent = TRUE)
+        try(file_get[file_get == "%LOC"] <- pars$location, silent = TRUE)
+        try(file_get[file_get == "%TYP"] <- pars$type, silent = TRUE)
         
         ## build required file name items for time wild cards
         file_get <- try(sapply(X = file_get, FUN = function(file_get, t) {
@@ -245,105 +312,174 @@ read_data <- function(
         }, t), silent = TRUE)
         
         ## paste items to full file name
-        file_get <- try(paste(file_get, collapse = "."))
+        file_get <- try(paste(file_get, collapse = "."), silent = TRUE)
         
-        ## check if file exists
+        ## list all files in data directory
         file_all <- try(list.files(dir_get), silent = TRUE)
-        file_dir <- try(grep(x = file_all, pattern = file_get), silent = TRUE)
+        
+        ## handle missing location value
+        if(grepl(x = file_get, pattern = ".__.", fixed = TRUE)) {
+          
+          ## split file name
+          file_get_spl <- try(strsplit(x = file_get, 
+                                       split = ".__.", 
+                                       fixed = TRUE)[[1]], silent = TRUE)
+          
+          ## check patterns
+          i_ok <- try(sapply(X = file_get_spl, FUN = function(x, file_all) {
+            
+            grepl(x = file_all, pattern = x)
+          }, file_all), silent = TRUE)
+          i_ok <- try(rowSums(i_ok) == length(file_get_spl), silent = TRUE)
+          
+          ## check if file exists
+          file_read <- try(file_all[i_ok], 
+                          silent = TRUE)
+        } else {
+          
+          ## check if file exists
+          file_dir <- try(grep(x = file_all, pattern = file_get), 
+                          silent = TRUE)
+          file_read <- try(file_all[file_dir], silent = TRUE)
+        }
+        
+        ## handle unsuccessful attempt
+        try(if(length(file_read) != 1) {
+          
+          warning(paste0("no or too many files found for ", t))
+          
+          s <- aux_initiateeseis()
+          s$signal <- NULL
+          s$meta$n <- 0
+          s$meta$starttime <- start
+          s$meta$dt <- NA
+          
+          return(s)
+        })
         
         ## paste direcotry and file name
-        try(file_read <- paste0(dir_get, file_all[file_dir]))
+        try(file_read <- paste0(dir_get, file_read))
         
         ## try to read file
-        if(fm == "sac") {
+        if(pars$fm == "sac") {
           
           s <- try(eseis::read_sac(file = file_read), silent = TRUE)
-        } else if(fm == "mseed") {
+        } else if(pars$fm == "mseed") {
           
           s <- try(eseis::read_mseed(file = file_read), silent = TRUE)
-        } else if(fm == "unknown") {
+        } else if(pars$fm == "unknown") {
           
-          s <- try(eseis::read_sac(file = file_read), silent = TRUE)
+          s <- try(suppressWarnings(eseis::read_sac(file = file_read)), 
+                   silent = TRUE)
           
           if(class(s)[1] != "eseis") {
             
-            s <- try(eseis::read_mseed(file = file_read), silent = TRUE)
+            s <- try(suppressWarnings(eseis::read_mseed(file = file_read)), 
+                     silent = TRUE)
           } 
         }
-
+        
         ## optionally handle try-error case
         if(class(s)[1] != "eseis") {
           
-          if(try == TRUE) {
-            
-            s <- aux_initiateeseis()
-            s$signal <- NULL
-            s$meta$n <- 0
-            s$meta$starttime <- start
-            s$meta$dt <- NA
-            
-          } else {
-            
-            stop("Cannot read file!")
-          }
+          warning(paste0("could not read file for ", t))
+          
+          s <- aux_initiateeseis()
+          s$signal <- NULL
+          s$meta$n <- 0
+          s$meta$starttime <- start
+          s$meta$dt <- NA
         }
         
         ## return output
         return(s)
         
-      }, cmp, sta, dir, pt, fm, try, ip)
+      }, cmp, sta, pars)
       
       ## get meta data from collected files
-      s_meta <- do.call(rbind, lapply(X = s, FUN = function(s) {
+      s_meta <- try(do.call(rbind, lapply(X = s, FUN = function(s) {
         
         return(data.frame(start = s$meta$starttime, 
                           stop = s$meta$starttime + s$meta$n * s$meta$dt - 
                             s$meta$dt/100,
                           n = s$meta$n,
                           dt = s$meta$dt))
-      }))
+      })), silent = TRUE)
       
       ## check that files have common sampling rate
-      if(length(unique(na.omit(s_meta$dt))) > 1) {
+      try(if(length(unique(na.omit(s_meta$dt))) > 1) {
         
-        stop("Files do not have common sampling period!")
-      }
+        warning("Files do not have common sampling period!")
+        
+        dt <- unique(na.omit(s_meta$dt))[1]
+      }, silent = TRUE)
       
       ## make merged time series
-      t_s <- seq(from = min(s_meta$start), 
-                 to = max(s_meta$stop), 
-                 by = unique(s_meta$dt))
+      t_s <- suppressWarnings(try(seq(from = min(s_meta$start, na.rm = TRUE), 
+                                      to = max(s_meta$stop, na.rm = TRUE), 
+                                      by = na.omit(unique(s_meta$dt))), 
+                                  silent = TRUE))
       
       ## make merged data vector
-      s_s <- rep(NA, length(t_s))
+      s_s <- try(rep(NA, length(t_s)), silent = TRUE)
       
       ## fill data vector
-      for(i in 1:length(s)) {
+      try(for(i in 1:length(s)) {
         
-        s_s[t_s >= s_meta$start[i] & t_s <= s_meta$stop[i]] <- s[[i]]$signal
-      }
+        if(!is.na(s_meta$stop[i])) {
+          
+          s_s[t_s >= s_meta$start[i] & t_s <= s_meta$stop[i]] <- 
+            s[[i]]$signal
+        }
+      }, silent = TRUE)
       
       ## paste data into first imported object
-      s <- s[[1]]
-      s$signal <- s_s
-      s$meta$n <- length(s_s)
+      s <- try(s[[1]], silent = TRUE)
+      try(s$signal <- s_s, silent = TRUE)
+      try(s$meta$n <- length(s_s), silent = TRUE)
       
       ## clip file to target time period
-      s <- eseis::signal_clip(data = s, limits = c(start, start + duration))
+      s <- try(eseis::signal_clip(data = s, 
+                                  limits = c(start, start + duration)), 
+               silent = TRUE)
       
       ## optionally fill gaps
-      if(ip == TRUE) {
+      try(if(pars$ip == TRUE) {
         
         s <- eseis::signal_fill(data = s)
+      })
+      
+      ## handle error case
+      if(class(s)[1] == "try-error") {
+        
+        if(try == TRUE) {
+          
+          s <- NA
+          
+        } else {
+          
+          stop(paste0("Failure during import of ", sta, "-", cmp))
+        }
+      }
+      
+      ## optionally remove eseis object structure
+      if(eseis == FALSE) {
+        
+        s <- list(signal = s$signal, 
+                  time = seq(from = s$meta$starttime, 
+                             by = s$meta$dt, 
+                             length.out = s$meta$n),
+                  meta = s$meta, 
+                  header = s$header)
       }
       
       return(s)
-    }, sta, dir, t, pt, fm, try, ip)
+    }, sta, t, pars)
     
     names(s) <- cmp
     
     return(s)
-  }, cmp, dir, t, pt = pattern, fm = format, try, ip = interpolate)
+  }, cmp, t, pars)
   names(s) <- sta
   
   ## optionally simplify file structure
@@ -361,12 +497,6 @@ read_data <- function(
       
       s <- s[[1]]
     }
-  }
-  
-  ## optionally remove eseis object
-  if(eseis == FALSE) {
-    
-    
   }
   
   ## return output

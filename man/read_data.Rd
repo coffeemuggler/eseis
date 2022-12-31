@@ -16,7 +16,7 @@ read_data(
   interpolate = FALSE,
   eseis = TRUE,
   try = TRUE,
-  verbose = FALSE
+  ...
 )
 }
 \arguments{
@@ -66,8 +66,13 @@ object (recommended, see documentation of
 i.e., to let it return \code{NA} in case an error occurs during data
 import. Default is \code{FALSE}.}
 
-\item{verbose}{\code{Logical} value, option to show messages during 
-function evaluation. Default is \code{FALSE}.}
+\item{\dots}{Further arguments to describe data structure, only needed for 
+pattern type \code{seiscomp}. These arguments can be one or more of the 
+following: \code{"network"}, \code{"type"}, \code{"location"}. If omitted, 
+the function will identify all files in the SeisComP data archive that 
+fulfill the criteria. If other than data files (\code{type = "D"}) or 
+files from another network are in the archive, these may lead to crashes  
+of the function.}
 }
 \value{
 A \code{list} object containing either a set of \code{eseis}
@@ -81,7 +86,10 @@ object containseither just one eseis object or the vectors for
 \description{
 The function loads seismic data from a data directory structure (see 
 \code{aux_organisecubefiles()}) based on the event start time, duration,
-component and station ID.
+component and station ID. The data to be read needs to be adequately 
+structured. The data directory must contain mseed or SAC files. These 
+files will either be identified automatically or can be defined 
+explicitly by the parameter \code{format}.
 }
 \details{
 
@@ -102,12 +110,12 @@ data <- read_data(start = as.POSIXct(x = "2017-04-09 01:20:00",
 plot_signal(data = data)
 
 ## load data from two stations
-data <- aux_getevent(start = as.POSIXct(x = "2017-04-09 01:20:00", 
-                                        tz = "UTC"), 
-                     duration = 120,
-                     station = c("RUEG1", "RUEG2"),
-                     component = "BHZ",
-                     dir = dir_data)
+data <- read_data(start = as.POSIXct(x = "2017-04-09 01:20:00", 
+                                     tz = "UTC"), 
+                  duration = 120,
+                  station = c("RUEG1", "RUEG2"),
+                  component = "BHZ",
+                  dir = dir_data)
 
 ## plot both signals
 par(mfcol = c(2, 1))
