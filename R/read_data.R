@@ -1,39 +1,41 @@
 #' Load seismic data from an archive
 #' 
 #' The function loads seismic data from a data directory structure (see 
-#' \code{aux_organisecubefiles()}) based on the event start time, duration,
+#' \code{aux_organisecubefiles}) based on the event start time, duration,
 #' component and station ID. The data to be read needs to be adequately 
 #' structured. The data directory must contain mseed or SAC files. These 
 #' files will either be identified automatically or can be defined 
 #' explicitly by the parameter \code{format}.
 #' 
 #' Data organisation must follow a consistent scheme. The default scheme, 
-#' \code{eseis} (Dietze, 2018 DOI: 10.5194/esurf-6-669-2018) requires hourly
-#' files organised in a directory for each Julian Day, and in each calendar 
-#' year. The file name must be entirely composed of station ID, 2-digit year, 
-#' Julian Day, hour, minute, second and channel name. Each item must be 
-#' separated by a ".", e.g. \code{2013/203/IGB01.13.203.16.00.00.BHZ} for a 
+#' \code{eseis} (Dietze, 2018 ESurf) requires 
+#' hourly files organised in a directory for each Julian Day, and in each  
+#' calendar year. The file name must be entirely composed of 
+#' station ID, 2-digit year, Julian Day, hour, minute, second and 
+#' channel name. Each item must be separated by a full stop, 
+#' e.g. \code{"2013/203/IGB01.13.203.16.00.00.BHZ"} for a 
 #' file from 2013, Julian Day 203, from station IGB01, covering one hour from 
-#' 16:00:00 UTC, and containing the BHZ component. Each Julian Day directory 
+#' \code{"16:00:00 UTC"}, and containing the BHZ component. Each Julian Day directory 
 #' can contain files from different components and stations. The respective 
 #' pattern string to describe that file organisation is 
-#' \code{"%Y/%j/%STA.%y.%j.%H.%M.%S.%CMP"}. The percent sign indicates a wild 
-#' card, where \code{%Y} is the 4-digit year, \code{%j} the 3-digit Julian 
-#' Day, \code{%STA} the station ID, \code{%y} the 2-digit year, \code{%H} the 
-#' 2-digit hour, \code{%M} the 2-digit minute, \code{%S} the 2-digit second 
-#' and \code{%CMP} the component ID. The files can have a further file 
-#' extension which does not need to be explicitly defined in the pattern 
-#' string. The slashes in the above pattern string define subdirectories.
+#' \code{"\%Y\%j/\%STA.\%y.\%j.\%H.\%M.\%S.\%CMP"}. The percent sign indicates  
+#' a wild card, where \code{\%Y} is the 4-digit year, \code{\%j} the 3-digit Julian 
+#' Julian Day, \code{\%STA} the station ID, \code{\%y} the 2-digit year, 
+#' \code{\%H} the 2-digit hour, \code{\%M} the 2-digit minute, \code{\%S} the 
+#' 2-digit second and \code{\%CMP} the component ID. The files can have a 
+#' further file extension which does not need to be explicitly defined in the 
+#' pattern string. The slashes in the above pattern string define 
+#' subdirectories.
 #' 
 #' An alternative organisation scheme is the one used by SeisComP, indicated 
-#' by the keywork \code{"seiscomp"} or the pattern string 
-#' \code{"%Y/%NET/%STA/%CMP/%NET.%STA.%LOC.%CMP.%TYP.%Y.%j"}. The wild card 
-#' \code{"NET"} means the network ID, \code{"LOC"} the location abbreviation 
-#' and \code{"TYP"} the data type. The other wild cards are as defined above. 
-#' Hence, the SeisComP scheme consists of directories of the calendar year, 
-#' the network to which the data belongs, the station it has been recorded by, 
-#' and the component it belongs to. The files in that latter directory must be 
-#' daily files.
+#' by the keyword \code{"seiscomp"} or the pattern string 
+#' \code{"\%Y/\%NET/\%STA/\%CMP/\%NET.\%STA.\%LOC.\%CMP.\%TYP.\%Y.\%j"}. 
+#' The wild card \code{"NET"} means the network ID, \code{"LOC"} the location 
+#' abbreviation and \code{"TYP"} the data type. The other wild cards are as 
+#' defined above. Hence, the SeisComP scheme consists of directories of the 
+#' calendar year, the network to which the data belongs, the station it has 
+#' been recorded by, and the component it belongs to. The files in that 
+#' latter directory must be daily files.
 #' 
 #' @param start \code{POSIXct} value, start time of the data to import. If
 #' lazy users only submit a text string instead of a POSIXct object, the 

@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.7.1
+  - function added, read_fdsn, to be replacing aux_getFDSNdata in the future
   - function added, read_data, to be replacing aux_getevent in the future
   - renaming of parameters for homogenisation in several functions
   - transition from package raster (and sp) to terra
