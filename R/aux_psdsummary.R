@@ -86,7 +86,7 @@ aux_psdsummary <- function(
     start,
     stop,
     ID,
-    component,
+    component = "BHZ",
     sensor,
     logger,
     gain = 1,
@@ -103,7 +103,7 @@ aux_psdsummary <- function(
   ## check/set time limits
   if(class(start)[1] != "POSIXct"){
     
-    start <- try(as.POSIXct(start))
+    start <- try(as.POSIXct(start, tz = "UTC"))
     
     if(class(start)[1] != "POSIXct") {
       
@@ -113,7 +113,7 @@ aux_psdsummary <- function(
   
   if(class(stop)[1] != "POSIXct"){
     
-    stop <- try(as.POSIXct(stop))
+    stop <- try(as.POSIXct(stop, tz = "UTC"))
     
     if(class(stop)[1] != "POSIXct") {
       
@@ -163,6 +163,7 @@ aux_psdsummary <- function(
   
   ## check/set hours to skip
   if(missing(hours_skip) == TRUE) {
+    
     hours_skip <- -1
   }
   
