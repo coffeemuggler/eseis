@@ -178,7 +178,9 @@ read_data <- function(
   
   ## check/set network argument
   if ("network" %in% names(args)) {
+    
     network <- args$network
+    
   }
   else {
     
@@ -193,7 +195,9 @@ read_data <- function(
   
   ## check/set type argument
   if ("type" %in% names(args)) {
+    
     type <- args$type
+    
   }
   else {
     
@@ -202,11 +206,14 @@ read_data <- function(
   
   ## check/set location argument
   if ("location" %in% names(args)) {
+    
     location <- args$location
+    
   }
   else {
     
     location <- "__"
+    
   }
   
   ## convert start time to UTC
@@ -487,18 +494,30 @@ read_data <- function(
   ## optionally simplify file structure
   if(simplify == TRUE) {
     
+    if(class(s) == "list" & length(s) == 1) {
+      
+      s <- s[[1]]
+    }
+    
     s <- lapply(X = s, FUN = function(s) {
       
       if(class(s)[1] == "list" & length(s) == 1) {
         
         s <- s[[1]]
+        
+      } else {
+        
+        s <- s
       }
+      
+      return(s)
     })
     
     if(class(s) == "list" & length(s) == 1) {
       
       s <- s[[1]]
     }
+    
   }
   
   ## return output
