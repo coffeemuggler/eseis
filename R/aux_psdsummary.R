@@ -193,13 +193,13 @@ aux_psdsummary <- function(
       print(paste("  Frequency estimation, attempt", j))
     }
     
-    s_test <- try(eseis::aux_getevent(start = t[runif(n = 1,
-                                                 min = 1,
-                                                 max = length(t))],
-                                 duration = window,
-                                 station = ID,
-                                 component = component,
-                                 dir = dir), silent = TRUE)
+    s_test <- try(eseis::read_data(start = t[runif(n = 1,
+                                                   min = 1,
+                                                   max = length(t))],
+                                   duration = window,
+                                   station = ID,
+                                   component = component,
+                                   dir = dir), silent = TRUE)
     
     if(class(s_test)[1] == "try-error") {
       
@@ -217,12 +217,11 @@ aux_psdsummary <- function(
                                      overlap = 0, 
                                      window_sub = round(window / 10),
                                      overlap_sub = 0.5))
-  
-  ## create aggregation index vector
-  i_agg <- floor(seq(from = 1, to = length(p_test$PSD$f), length.out = res))
-  
+
   ## create aggregated frequency vector
-  f_agg <- p_test$PSD$f[i_agg]
+  f_agg <- seq(from = min(p_test$PSD$f), 
+               to = max(p_test$PSD$f), 
+               length.out = res)
   
   ## initiate cluster
   cores <- parallel::detectCores()
@@ -246,7 +245,7 @@ aux_psdsummary <- function(
                sensor = sensor,
                logger = logger,
                gain = gain,
-               i_agg = i_agg)
+               f_agg = f_agg)
   
   ## PROCESSING -----------------------------------------------------------------
   
@@ -264,11 +263,11 @@ aux_psdsummary <- function(
   psd_list <- parallel::parLapply(cl = cl, X = t, fun = function(t, pars) {
     
     ## read file
-    s <- try(eseis::aux_getevent(start = t, 
-                                 duration = pars$window, 
-                                 station = pars$ID, 
-                                 component = pars$cmp, 
-                                 dir = pars$dir))
+    s <- try(eseis::read_data(start = t, 
+                              duration = pars$window, 
+                              station = pars$ID, 
+                              component = pars$cmp, 
+                              dir = pars$dir))
     
     ## deconvolve data
     if(pars$deconvolve == TRUE) {
@@ -289,12 +288,12 @@ aux_psdsummary <- function(
     
     ## aggregate power by frequency
     p <- try(stats::approx(x = p$PSD$f, y = p$PSD$S[,1], 
-                    xout = p$PSD$f[pars$i_agg])$y)
+                    xout = pars$f_agg)$y)
     
     ## return output
     if(class(p)[1] == "try-error") {
       
-      return(rep(x = NA, times = length(pars$i_agg)))
+      return(rep(x = NA, times = length(pars$f_agg)))
     } else {
       
       return(p)

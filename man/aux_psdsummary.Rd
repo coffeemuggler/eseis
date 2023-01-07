@@ -8,7 +8,7 @@ aux_psdsummary(
   start,
   stop,
   ID,
-  component,
+  component = "BHZ",
   sensor,
   logger,
   gain = 1,
