@@ -127,18 +127,15 @@ plot_spectrogram <- function(
   if("zlim" %in% names(extraArgs)) {
     
     zlim_psd <- extraArgs$zlim
+    
+    legend_values <- pretty(range(extraArgs$zlim, na.rm = TRUE))
+    
   } else {
     
     zlim_psd <- quantile(x = data$S, probs = c(0.01, 0.99), na.rm = TRUE)
-  }
-  
-  ## get range of z-values
-  if("zlim" %in% names(extraArgs)) {
     
-    legend_values <- pretty(range(extraArgs$zlim, na.rm = TRUE))
-  } else {
+    legend_values <- pretty(zlim_psd, na.rm = TRUE)
     
-    legend_values <- pretty(data$S, na.rm = TRUE)
   }
   
   if ("axes" %in% names(extraArgs)) {
@@ -344,9 +341,9 @@ plot_spectrogram <- function(
                       seq(from = y_0, to = y_1 - d_y, by = d_y))
     
     ## convert to y-scale
-    y_ticks <- seq(from = y_0, 
-                   to = y_1, 
-                   length.out = length(legend_values))
+    y_ticks <- approx(x = range(zlim_psd), 
+                      y = c(y_0, y_1), 
+                      xout = legend_values)$y
     
     ## draw legend bar
     for(i in 1:nrow(polygons)) {
