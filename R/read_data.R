@@ -18,7 +18,7 @@
 #' \code{"16:00:00 UTC"}, and containing the BHZ component. Each Julian Day directory 
 #' can contain files from different components and stations. The respective 
 #' pattern string to describe that file organisation is 
-#' \code{"\%Y\%j/\%STA.\%y.\%j.\%H.\%M.\%S.\%CMP"}. The percent sign indicates  
+#' \code{"\%Y/\%j/\%STA.\%y.\%j.\%H.\%M.\%S.\%CMP"}. The percent sign indicates  
 #' a wild card, where \code{\%Y} is the 4-digit year, \code{\%j} the 3-digit Julian 
 #' Julian Day, \code{\%STA} the station ID, \code{\%y} the 2-digit year, 
 #' \code{\%H} the 2-digit hour, \code{\%M} the 2-digit minute, \code{\%S} the 
