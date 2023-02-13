@@ -140,6 +140,12 @@ signal_filter <- function(
       stop("No frequencies provided!")
     }
     
+    ## check that f is below Nyquist frequency
+    if(any(f) >= 1/dt/2) {
+      
+      stop("Frequency must be lower than 1 / (dt/2)!")
+    }
+    
     ## check/set type
     if(missing(type) == TRUE) {
       
