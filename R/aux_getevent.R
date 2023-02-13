@@ -101,28 +101,28 @@
 #' @export aux_getevent
 #' 
 aux_getevent <- function(
-  start,
-  duration,
-  station, 
-  component = "BHZ",
-  format,
-  dir,
-  simplify = TRUE,
-  eseis = TRUE,
-  try = FALSE,
-  verbose = FALSE
+    start,
+    duration,
+    station, 
+    component = "BHZ",
+    format,
+    dir,
+    simplify = TRUE,
+    eseis = TRUE,
+    try = FALSE,
+    verbose = FALSE
 ) {
   
   ## check/set arguments ------------------------------------------------------
-
+  
   
   ## check start time format
   if(class(start)[1] != "POSIXct") {
     
-    start <- try(as.POSIXct(start), silent = TRUE)
+    start <- try(as.POSIXct(start, tz = "UTC"), silent = TRUE)
     
     if(class(start)[1] != "POSIXct") {
-     
+      
       stop("Start date is not a POSIXct format!")
     }
   }
@@ -278,14 +278,15 @@ aux_getevent <- function(
   ## find out file format
   if(format == "unknown") {
     
-    x_format <- try(eseis::read_sac(file = files_station[[1]][1], 
-                                    eseis = TRUE), 
-                    silent = TRUE)
+    x_format <- suppressWarnings(try(eseis::read_sac(
+      file = files_station[[1]][1], 
+      eseis = TRUE), 
+      silent = TRUE))
     if(class(x_format)[1] == "eseis") {
       
       format <- "sac"
     } else {
-
+      
       x_format <- suppressWarnings(try(eseis::read_mseed(
         file = files_station[[1]][1], 
         eseis = TRUE,
@@ -319,9 +320,10 @@ aux_getevent <- function(
           ## import files based on specified format
           if(format == "sac") {
             
-            x <- eseis::read_sac(file = files_cmp, 
-                                 eseis = TRUE,
-                                 append = TRUE)
+            x <- suppressWarnings(try(eseis::read_sac(
+              file = files_cmp, 
+              eseis = TRUE,
+              append = TRUE), silent = TRUE))
           } else if(format == "mseed") {
             
             x <- suppressWarnings(try(eseis::read_mseed(
@@ -350,14 +352,14 @@ aux_getevent <- function(
         format = format,
         start = start,
         stop = stop))),
-        silent = TRUE)
-      
-      try(names(data[[i]]) <- component)
-      
-      try(for(j in 1:length(data[[i]])) {
-        
-        class(data[[i]][[j]])[1] <- "eseis"
-      }, silent = TRUE)
+      silent = TRUE)
+
+try(names(data[[i]]) <- component)
+
+try(for(j in 1:length(data[[i]])) {
+  
+  class(data[[i]][[j]])[1] <- "eseis"
+}, silent = TRUE)
     } else {
       
       data[[i]] <- as.data.frame(do.call(cbind, lapply(
@@ -372,9 +374,10 @@ aux_getevent <- function(
           ## import files based on specified format
           if(format == "sac") {
             
-            x <- eseis::read_sac(file = files_cmp, 
-                                 eseis = TRUE,
-                                 append = TRUE)
+            x <- suppressWarnings(try(eseis::read_sac(
+              file = files_cmp, 
+              eseis = TRUE,
+              append = TRUE), silent = TRUE))
           } else if(format == "mseed") {
             
             x <- suppressWarnings(try(eseis::read_mseed(
@@ -539,7 +542,7 @@ aux_getevent <- function(
       as.list(x)
     })
   }
-
+  
   ## return output data set
   return(data_out)
 }
