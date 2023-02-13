@@ -182,7 +182,7 @@ read_sac <- function(
                       open = "rb")
     
     ## ensure file connction is closed on exit 
-    on.exit(close(con = file_read))
+    on.exit(suppressWarnings(try(close(con = file_read), silent = TRUE)))
     
     header <- character(length = length(name_sac))
     
@@ -293,6 +293,8 @@ read_sac <- function(
       
       data_sac <- NA
     }
+    
+    close(con = file_read)
     
     ## optionally create time vector
     if(time == TRUE) {
