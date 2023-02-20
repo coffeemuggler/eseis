@@ -208,16 +208,16 @@ spatial_distance <- function(
                                     xy = TRUE)
             
             ## interpolate straight line elevation
-            z_dir <- seq(from = z_int$lyr.1[1], 
-                         to = tail(z_int$lyr.1, 1), 
+            z_dir <- seq(from = z_int[,2][1], 
+                         to = tail(z_int[,2], 1),
                          length.out = n_int)
             
             ## optionally calculate along elevation path
             if(topography == TRUE) {
               
-              i_dir <- z_dir > z_int$lyr.1 
+              i_dir <- z_dir > z_int[,2] 
               
-              z_dir[i_dir] <- z_int$lyr.1[i_dir]
+              z_dir[i_dir] <- z_int[,2][i_dir]
             }
             
             ## calculate path length
@@ -308,16 +308,16 @@ spatial_distance <- function(
                                 xy = TRUE)
         
         ## interpolate straight line elevation
-        z_dir <- seq(from = z_int$lyr.1[1], 
-                     to = tail(z_int$lyr.1, 1), 
+        z_dir <- seq(from = z_int[,2][1], 
+                     to = tail(z_int[,2], 1), 
                      length.out = n_int)
         
         ## optionally calculate along elevation path
         if(topography == TRUE) {
           
-          i_dir <- z_dir > z_int$lyr.1 
+          i_dir <- z_dir > z_int[,2] 
           
-          z_dir[i_dir] <- z_int$lyr.1[i_dir]
+          z_dir[i_dir] <- z_int[,2][i_dir]
         }
         
         
