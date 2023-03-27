@@ -18,6 +18,10 @@
 #' 
 #' @param ID \code{Character} vector, station ID to be processed
 #' 
+#' @param window \code{Numeric} value, time window size for the PSD 
+#' calculation. Should be appropriately large to avoid extensive calculation
+#' times, usually at the order of 0.1 percent of the total PSD duration.
+#' 
 #' @param component \code{Character} value or vector, seismic component to 
 #' be used. If omitted, the function will use \code{"BHZ"} by default.
 #' 
@@ -41,13 +45,13 @@
 #' be excluded from the PSD generation. This optional value is useful if one 
 #' wants to omit noisy daytime hours. 
 #' 
-#' @param window \code{Numeric} value, time window size for the PSD 
-#' calculation. Should be appropriately large to avoid extensive calculation
-#' times, usually at the order of 0.1 percent of the total PSD duration.
-#' 
 #' @param res \code{Numeric} value, frequency resolution of the PSD, by 
 #' default set to \code{1000}. This is used to reduce the resulting data 
 #' size.
+#' 
+#' @param n \code{Numeric} value, number of times to try to find a time 
+#' snippet with data to estimate the frequency vector length. By
+#' default set to \code{100}. 
 #' 
 #' @param cpu \code{Numeric} value, fraction of CPUs to use. If omitted, 
 #' only one CPU will be used.
@@ -86,14 +90,15 @@ aux_psdsummary <- function(
     start,
     stop,
     ID,
+    window,
     component = "BHZ",
     sensor,
     logger,
     gain = 1,
     dir,
     hours_skip,
-    window,
     res = 1000,
+    n = 100,
     cpu,
     verbose = FALSE
 ) {
@@ -186,7 +191,7 @@ aux_psdsummary <- function(
   
   ## try to read one seismic file to estimate frequency vector length
   j <- 1
-  while(j <= 10) {
+  while(j <= n) {
     
     if(verbose == TRUE) {
       
@@ -206,7 +211,7 @@ aux_psdsummary <- function(
       j <- j + 1
     } else {
       
-      j <- 10 + 1
+      j <- n + 1
     }
   }
   

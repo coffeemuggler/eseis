@@ -8,14 +8,15 @@ aux_psdsummary(
   start,
   stop,
   ID,
+  window,
   component = "BHZ",
   sensor,
   logger,
   gain = 1,
   dir,
   hours_skip,
-  window,
   res = 1000,
+  n = 100,
   cpu,
   verbose = FALSE
 )
@@ -30,6 +31,10 @@ If a character string (or vector) is provided, the function will try to
 convert it to POSIXct.}
 
 \item{ID}{\code{Character} vector, station ID to be processed}
+
+\item{window}{\code{Numeric} value, time window size for the PSD 
+calculation. Should be appropriately large to avoid extensive calculation
+times, usually at the order of 0.1 percent of the total PSD duration.}
 
 \item{component}{\code{Character} value or vector, seismic component to 
 be used. If omitted, the function will use \code{"BHZ"} by default.}
@@ -54,13 +59,13 @@ data structure.}
 be excluded from the PSD generation. This optional value is useful if one 
 wants to omit noisy daytime hours.}
 
-\item{window}{\code{Numeric} value, time window size for the PSD 
-calculation. Should be appropriately large to avoid extensive calculation
-times, usually at the order of 0.1 percent of the total PSD duration.}
-
 \item{res}{\code{Numeric} value, frequency resolution of the PSD, by 
 default set to \code{1000}. This is used to reduce the resulting data 
 size.}
+
+\item{n}{\code{Numeric} value, number of times to try to find a time 
+snippet with data to estimate the frequency vector length. By
+default set to \code{100}.}
 
 \item{cpu}{\code{Numeric} value, fraction of CPUs to use. If omitted, 
 only one CPU will be used.}
