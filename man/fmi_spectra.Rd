@@ -15,7 +15,9 @@ by setting to 1. Default is 1.}
 }
 \value{
 \code{List} object containing the calculated reference spectra 
-and the corresponding input parameters.
+and the corresponding input parameters. Note that the spectra are given
+in dB for a seamless comparison with the empirical PSD data, while the 
+original output of the models are in linear scale.
 }
 \description{
 In order to run the fluvial model inversion (FMI) routine, a look-up 

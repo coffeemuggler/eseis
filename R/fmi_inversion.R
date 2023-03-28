@@ -140,16 +140,12 @@ fmi_inversion <- function (
   }
   
   ## convert list of spectra to matrix
-  reference_spectra <- do.call(rbind, 
-                               lapply(X = reference, FUN = function(x) {
-                                 x$power
-                               }))
+  reference_spectra <- do.call(
+    rbind, lapply(X = reference, FUN = function(x) {x$power}))
   
   ## convert list of parameters to matrix
-  reference_parameters <- do.call(rbind, 
-                                  lapply(X = reference, FUN = function(x) {
-                                    unlist(x$pars)
-                                  }))
+  reference_parameters <- do.call(
+    rbind, lapply(X = reference, FUN = function(x) {unlist(x$pars)}))
   reference_parameters <- as.data.frame(reference_parameters)
   
   ## run the inversion process

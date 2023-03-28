@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
-Version 0.7.1
+Version 0.7.2
+  - bugs fixed, fmi_spectra and fmi_inversion, power units corrected
   - function added, read_fdsn, to be replacing aux_getFDSNdata in the future
   - function added, read_data, to be replacing aux_getevent in the future
   - renaming of parameters for homogenisation in several functions
@@ -8,11 +9,11 @@ Version 0.7.1
   - function revised, aux_psdsummary, fully overhauled to create long PSDs
   - function removed, aux_psdpanel removed as it was obsolete
   - bug fixed, plot_spectrogram() legend glitch for log = "y" fixed
-  - festure added, signal_spectrum() argument n added for smoothing support
+  - feature added, signal_spectrum() argument n added for smoothing support
   - code changed, signal_spectrum() output name spectrum changed to power
   - code changed, plot_spectrogram() colour scale set to Inferno
   - code changed, plot_spectrogram() colour range set to quantile(0.01, 0.99)
-  - feature added, aux_etevent() automatic file type recognition
+  - feature added, aux_getevent() automatic file type recognition
   - bug fixed, signal_filter() p = 0.05 now added
   - bug fixed, signal_motion() windowing fixed, speed increased, output added
   - feature added, plot_spectrogram documentation extended for colour scales

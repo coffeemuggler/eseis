@@ -11,7 +11,9 @@
 #' by setting to 1. Default is 1.
 #' 
 #' @return \code{List} object containing the calculated reference spectra 
-#' and the corresponding input parameters.
+#' and the corresponding input parameters. Note that the spectra are given
+#' in dB for a seamless comparison with the empirical PSD data, while the 
+#' original output of the models are in linear scale.
 #' 
 #' @author Michael Dietze
 #' 
@@ -102,9 +104,9 @@ fmi_spectra <- function (
     p_bedload_log <-p_bedload
     p_combined_log <- p_combined
     
-    p_turbulence_log$spectrum <- 10 * log10(p_turbulence$power)
-    p_bedload_log$spectrum <- 10 * log10(p_bedload$power)
-    p_combined_log$spectrum <- 10 * log10(p_combined$power)
+    p_turbulence_log$power <- 10 * log10(p_turbulence$power)
+    p_bedload_log$power <- 10 * log10(p_bedload$power)
+    p_combined_log$power <- 10 * log10(p_combined$power)
     
     ## return model outputs
     return(list(pars = parameters,
