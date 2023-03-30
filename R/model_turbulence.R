@@ -50,7 +50,7 @@
 #' 
 #' @param q_0 \code{Numeric} value, ground quality factor at \code{f_0}
 #' 
-#' @param v_0 \code{Numeric} value, phase speed of the Rayleigh wave at 
+#' @param v_0 \code{Numeric} value, phase velocity of the Rayleigh wave at 
 #' \code{f_0} (m/s)
 #' 
 #' @param p_0 \code{Numeric} value, variation exponent of Rayleigh wave 
