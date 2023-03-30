@@ -6,21 +6,20 @@
 #'
 #' @param data \code{Numeric} matrix or \code{eseis} object, seismic signals
 #' to work with. Since the function will calculate the maxima of the data it
-#' is usually the envolopes of the data that should be used here.
+#' is usually the envelopes of the data that should be used here.
 #'
 #' @param coupling \code{Numeric} vector, coupling efficiency factors for each
 #' seismic station. The best coupled station (or the one with the highest
 #' amplification) must receive \code{1}, the others must be scaled relatively
 #' to this one.
 #'
-#' @param d_map \code{List} object, distance maps for each station (i.e.,
-#' \code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.
+#' @param d_map \code{List} object, distance maps for each station. Output 
+#' of \code{spatial_distance}.
 #'
-#' @param aoi \code{raster} object that
-#' defines which pixels are used to locate the source. If omitted, the entire
-#' distance map extent is used. \code{aoi} and \code{d_map} objects must have
-#' the same extents, projections and pixel sizes. The \code{aoi} map must
-#' be of logical values.
+#' @param aoi \code{raster} object that defines which pixels are used to 
+#' locate the source. If omitted, the entire distance map extent is used. 
+#' \code{aoi} and \code{d_map} objects must have the same extents, 
+#' projections and pixel sizes. The \code{aoi} map must be of logical values.
 #'
 #' @param v \code{Numeric} value, mean velocity of seismic waves (m/s).
 #'
@@ -54,10 +53,10 @@
 #' \dontrun{
 #'
 #'## create synthetic DEM
-#'dem <- raster::raster(nrows = 20, ncols = 20, 
-#'                      xmn = 0, xmx = 10000, 
-#'                      ymn= 0, ymx = 10000, 
-#'                      vals = rep(0, 400))
+#'dem <- terra::rast(xmin = 0, xmax = 10000, 
+#'                   ymin= 0, ymax = 10000, 
+#'                   res = c(500, 500),
+#'                   vals = rep(0, 400))
 #'
 #'## define station coordinates
 #'sta <- data.frame(x = c(1000, 9000, 5000),
@@ -147,6 +146,15 @@ spatial_amplitude <- function (
     
     a_0 <- 100 * max(a_d)
   }
+  
+  ## build raster sets from map meta data
+  d_map <- lapply(X = d_map, FUN = function(x) {
+    
+    terra::rast(extent = x$ext,
+                res = x$res, 
+                crs = x$crs,
+                vals = x$val)
+  })
   
   ## convert distance data sets to matrix with distance values
   d <- do.call(cbind, lapply(X = d_map, FUN = terra::values))

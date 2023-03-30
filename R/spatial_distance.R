@@ -329,6 +329,15 @@ spatial_distance <- function(
     }
   }
   
+  ## convert maps to lists of raster meta data
+  maps <- lapply(X = maps, FUN = function(maps) {
+    
+    list(crs = terra::crs(maps),
+         ext = as.numeric(terra::ext(maps)[1:4]),
+         res = as.numeric(terra::res(maps)),
+         val = as.numeric(terra::values(maps)))
+  })
+  
   ## return output
   return(list(maps = maps,
               matrix = M))
