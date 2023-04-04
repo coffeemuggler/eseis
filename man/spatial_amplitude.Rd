@@ -21,21 +21,20 @@ spatial_amplitude(
 \arguments{
 \item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals
 to work with. Since the function will calculate the maxima of the data it
-is usually the envolopes of the data that should be used here.}
+is usually the envelopes of the data that should be used here.}
 
 \item{coupling}{\code{Numeric} vector, coupling efficiency factors for each
 seismic station. The best coupled station (or the one with the highest
 amplification) must receive \code{1}, the others must be scaled relatively
 to this one.}
 
-\item{d_map}{\code{List} object, distance maps for each station (i.e.,
-\code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.}
+\item{d_map}{\code{List} object, distance maps for each station. Output 
+of \code{spatial_distance}.}
 
-\item{aoi}{\code{raster} object that
-defines which pixels are used to locate the source. If omitted, the entire
-distance map extent is used. \code{aoi} and \code{d_map} objects must have
-the same extents, projections and pixel sizes. The \code{aoi} map must
-be of logical values.}
+\item{aoi}{\code{raster} object that defines which pixels are used to 
+locate the source. If omitted, the entire distance map extent is used. 
+\code{aoi} and \code{d_map} objects must have the same extents, 
+projections and pixel sizes. The \code{aoi} map must be of logical values.}
 
 \item{v}{\code{Numeric} value, mean velocity of seismic waves (m/s).}
 
@@ -73,10 +72,10 @@ of the most likely source location of an event.
 \dontrun{
 
 ## create synthetic DEM
-dem <- raster::raster(nrows = 20, ncols = 20, 
-                     xmn = 0, xmx = 10000, 
-                     ymn= 0, ymx = 10000, 
-                     vals = rep(0, 400))
+dem <- terra::rast(xmin = 0, xmax = 10000, 
+                  ymin= 0, ymax = 10000, 
+                  res = c(500, 500),
+                  vals = rep(0, 400))
 
 ## define station coordinates
 sta <- data.frame(x = c(1000, 9000, 5000),
