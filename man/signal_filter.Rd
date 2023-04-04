@@ -13,6 +13,7 @@ signal_filter(
   shape = "butter",
   order = 2,
   p,
+  zero = FALSE,
   lazy = FALSE
 )
 }
@@ -45,6 +46,10 @@ is \code{2}. Only needed if \code{data} is no \code{eseis} object.}
 
 \item{p}{\code{Numeric} value, fraction of the signal to be tapered. If 
 omitted, no tapering will be done.}
+
+\item{zero}{\code{Logical} value, option to run filter in zero phase 
+shift mode. Note that this will triple the length of the signal vector 
+during calculation. Default is \code{FALSE}.}
 
 \item{lazy}{\code{Logical} value, option to pre- and post-process data, 
 including detrending, demeaning and tapering (\code{p = 0.02}). Default 

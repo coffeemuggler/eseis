@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.7.2
+  - feature added, signal_filter, zero phase shift option added
   - bug fixed, spatial_distance, SpatRaster converted to list to maintain rda-file compatibility
   - bugs fixed, fmi_spectra and fmi_inversion, power units corrected
   - function added, read_fdsn, to be replacing aux_getFDSNdata in the future

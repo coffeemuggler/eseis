@@ -32,6 +32,10 @@
 #' @param p \code{Numeric} value, fraction of the signal to be tapered. If 
 #' omitted, no tapering will be done.
 #' 
+#' @param zero \code{Logical} value, option to run filter in zero phase 
+#' shift mode. Note that this will triple the length of the signal vector 
+#' during calculation. Default is \code{FALSE}.
+#' 
 #' @param lazy \code{Logical} value, option to pre- and post-process data, 
 #' including detrending, demeaning and tapering (\code{p = 0.02}). Default 
 #' if \code{FALSE}.
@@ -84,6 +88,7 @@ signal_filter <- function(
   shape = "butter",
   order = 2,
   p,
+  zero = FALSE,
   lazy = FALSE
 ) {
   
@@ -126,6 +131,7 @@ signal_filter <- function(
                        type = type,
                        shape = shape,
                        order = order,
+                       zero = zero,
                        lazy = lazy,
                        p = p)
     
@@ -168,6 +174,7 @@ signal_filter <- function(
                             type = type,
                             shape = shape,
                             order = order,
+                            zero = zero,
                             p = p)
     
     ## check if input object is of class eseis
@@ -195,6 +202,16 @@ signal_filter <- function(
       
       ## get number of samples
       n <- length(data)
+    }
+    
+    ## optionally extend signal vector
+    if(zero == TRUE) {
+      
+      ## save original data length
+      n_data <- length(data)
+      
+      ## extend signal vector
+      data <- c(rev(data), data, rev(data))
     }
     
     ## optionally preprocess data, using lazy option
@@ -313,6 +330,12 @@ signal_filter <- function(
     if(lazy == TRUE) {
 
       data_out <- eseis::signal_taper(data = data_out, p = p)
+    }
+    
+    ## optionally truncate signal vector to original length
+    if(zero == TRUE) {
+
+      data_out <- data_out[(n_data + 1):(2 * n_data)]
     }
     
     ## optionally rebuild eseis object
