@@ -8,10 +8,10 @@ spatial_distance(
   stations,
   dem,
   topography = TRUE,
-  cores = 1,
-  dmap = TRUE,
-  dstation = TRUE,
-  aoi
+  maps = TRUE,
+  matrix = TRUE,
+  aoi,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -20,30 +20,30 @@ of the seismic stations to be processed (column-wise orgnaised).The
 coordinates must be in metric units, such as the UTM system and 
 match with the reference system of the \code{dem}.}
 
-\item{dem}{\code{raster} object, the digital elevation model (DEM) to be 
-processed. The DEM must be in metric units, such as the UTM system and 
+\item{dem}{\code{SpatRaster} object, the digital elevation model (DEM) to 
+be processed. The DEM must be in metric units, such as the UTM system and 
 match with the reference system of the coordinates of \code{stations}. 
-See \code{raster} for supported types and how to read these to R.}
+See \code{terra} for supported types and how to read these to R.}
 
 \item{topography}{\code{Logical} scalar, option to enable topography
 correction, default is \code{TRUE}.}
 
-\item{cores}{\code{Numeric} scalar, number of CPU cores to use, only
-relevant for multicore computers. Default is \code{1}.}
-
-\item{dmap}{\code{Logical} scalar, option to enable/disable calculation
+\item{maps}{\code{Logical} scalar, option to enable/disable calculation
 of distance maps. Default is \code{TRUE}.}
 
-\item{dstation}{\code{Logical} scalar, option to enable/disable calculation
+\item{matrix}{\code{Logical} scalar, option to enable/disable calculation
 of interstation distances. Default is \code{TRUE}.}
 
 \item{aoi}{\code{Numeric} vector of length four, bounding coordinates of 
-the area of interest to process, in the form \code{c(x0, x1, y0, y1)}. Only 
-implemented for single core mode (i.e., \code{cores = 1}).}
+the area of interest to process, in the form \code{c(x0, x1, y0, y1)}.}
+
+\item{verbose}{\code{Logical} value, option to show extended function 
+information as the function is running. Default is \code{FALSE}.}
 }
 \value{
-\code{List} object with distance maps list and station distance 
-matrix.
+\code{List} object with distance maps (list of 
+\code{SpatRaster} objects from \code{terra} package) and station distance 
+matrix (\code{data.frame}).
 }
 \description{
 The function calculates topography-corrected distances either between 
@@ -57,39 +57,40 @@ of the landscape. The function accounts for this effect and returns the
 corrected travel distance data set.
 }
 \examples{
+
 \dontrun{
-## load and aggregate example DEM
+
 data("volcano")
-dem <- raster::raster(volcano)
-dem <- raster::aggregate(x = dem, 2) * 10
-dem@extent <- dem@extent * 1000
-dem@extent <- dem@extent + c(510, 510, 510, 510)
+dem <- terra::rast(volcano)
+dem <- dem * 10
+terra::ext(dem) <- terra::ext(dem) * 10
+terra::ext(dem) <-terra::ext(dem) + c(510, 510, 510, 510)
 
 ## define example stations
 stations <- cbind(c(200, 700), c(220, 700))
 
 ## plot example data
-raster::plot(dem)
+terra::plot(dem)
 points(stations[,1], stations[,2])
 
 ## calculate distance matrices and stations distances
 D <- spatial_distance(stations = stations, 
-                      dem = dem, 
-                      topography = TRUE, 
-                      cores = 1)
+                      dem = dem)
 
-## plot distance map for station 2
-raster::plot(D$maps[[2]])
+terra::plot(D$maps[[1]])
 
 ## show station distance matrix
-print(D$stations)
+print(D$matrix)
 
-## run with small aoi
+## calculate with AOI and in verbose mode
 D <- spatial_distance(stations = stations, 
                       dem = dem, 
-                      topography = TRUE, 
-                      cores = 1, 
-                      aoi = c(400, 600, 600, 800))
+                      verbose = TRUE,
+                      aoi = c(0, 200, 0, 200))
+
+## plot distance map for station 2
+terra::plot(D$maps[[1]])
+
 } 
                                           
 }

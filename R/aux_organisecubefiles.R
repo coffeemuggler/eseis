@@ -423,13 +423,7 @@ aux_organisecubefiles <- function(
       }
       
       ## extract date elements
-      JD_info <- eseis::time_convert(input = date_info, output = "JD")
-      JD_info <- ifelse(test = nchar(JD_info) == 1, 
-                        yes = paste("00", JD_info, sep = ""), 
-                        no = JD_info)
-      JD_info <- ifelse(test = nchar(JD_info) == 2, 
-                        yes = paste("0", JD_info, sep = ""), 
-                        no = JD_info)
+      JD_info <- format(date_info, "%j")
       year_info <- format(date_info, "%y")
       hour_info <- format(date_info, "%H")
       min_info <- format(date_info, "%M")
@@ -472,7 +466,7 @@ aux_organisecubefiles <- function(
                                stat_info,
                                " --set-channel=",
                                comp_info,
-                               " ./",
+                               " /",
                                paste(output_dir, 
                                      "/mseed_hour/", 
                                      X, 
@@ -536,7 +530,7 @@ aux_organisecubefiles <- function(
   
   ## merge year and JD
   year_JD <- paste(year, JD, sep = "/")
-  
+
   ## loop through all files
   for(i in 1:length(year_JD)) {
     

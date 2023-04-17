@@ -9,16 +9,18 @@ aux_getevent(
   duration,
   station,
   component = "BHZ",
-  format = "sac",
+  format,
   dir,
   simplify = TRUE,
   eseis = TRUE,
   try = FALSE,
-  silent = TRUE
+  verbose = FALSE
 )
 }
 \arguments{
-\item{start}{\code{POSIXct} value, start time of the data to import.}
+\item{start}{\code{POSIXct} value, start time of the data to import. If
+lazy users only submit a text string instead of a POSIXct obejct, the 
+function will try to convert that text string.}
 
 \item{duration}{\code{Numeric} value, duration of the data to import,
 in seconds.}
@@ -33,9 +35,11 @@ structure (cf. \code{aux_organisecubefiles}). Default is
 \code{"BHZ"} (vertical component of a sac file).}
 
 \item{format}{\code{Character} value, seismic data format. One out of 
-\code{"sac"} and \code{"mseed"}. Default is \code{"sac"}.}
+\code{"sac"} and \code{"mseed"}. If omitted, the function will try to 
+identify the right format automatically.}
 
-\item{dir}{\code{Character} value, path to the seismic data directory.}
+\item{dir}{\code{Character} value, path to the seismic data directory.
+See details for further info on data structure.}
 
 \item{simplify}{\code{Logical} value, option to simplify output
 when possible. This basically means that if only data from one station 
@@ -50,8 +54,8 @@ object (recommended, see documentation of
 i.e., to let it return \code{NA} in case an error occurs during data
 import. Default is \code{FALSE}.}
 
-\item{silent}{\code{Logical} value, option to suppress messages during 
-function execution. Default is \code{TRUE}.}
+\item{verbose}{\code{Logical} value, option to show messages during 
+function execution. Default is \code{FALSE}.}
 }
 \value{
 A \code{list} object containing either a set of \code{eseis}
@@ -68,6 +72,16 @@ The function loads seismic data from a data directory structure (see
 component and station ID.
 }
 \details{
+The data to be read needs to be adequately structured. The data directory
+must contain SAC files organised by year (e.g.2022) then by Julian Day
+in full three digits (e.g. 001) and then by a dedicated SAC file name, 
+containing the station ID, two-digit year, three-digit Julian Day, start 
+time hour, minute and second, three channel ID and the file extension SAC. 
+All these items need to be separated by stops (e.g. 
+sac/2022/001/LAU01.22.001.08.00.00. BHZ.SAC). This data structure will be 
+most conveniently created by the functions \code{aux_organisecubefiles()} 
+or \code{aux_organisecentaurfiles()}, or by manually written R code. 
+
 The function assumes complete data sets, i.e., not a single hourly 
 data set must be missing. The time 
 vector is loaded only once, from the first station and its first 

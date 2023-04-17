@@ -60,7 +60,7 @@
 #' data(rockfall)
 #' 
 #' ## preprocess signal (aggregate to increase speed, filter, envelope)
-#' s <- signal_aggregate(data = rockfall_eseis, n = 5)
+#' s <- signal_aggregate(data = rockfall_eseis, n = 4)
 #' s <- signal_filter(data = s, f = c(5, 20), lazy = TRUE)
 #' e <- signal_envelope(data = s)
 #' 

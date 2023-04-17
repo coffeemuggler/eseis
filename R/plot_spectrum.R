@@ -105,8 +105,7 @@ plot_spectrum <- function(
     
     if ("ylab" %in% names(args)) {
       ylab <- args$ylab
-    }
-    else {
+    } else {
       
       if(unit == "dB") {
         
@@ -136,23 +135,23 @@ plot_spectrum <- function(
     ## convert data to specified units
     if(unit == "dB") {
       
-      data$spectrum <- 10 * log10(data$spectrum)
+      data$power <- 10 * log10(data$power)
     } else if(unit == "log") {
       
-      data$spectrum <- log(data$spectrum)
+      data$power <- log(data$power)
     }
     
     ## account for data sets smaller than n
-    if(length(data$spectrum) < n) {
+    if(length(data$power) < n) {
       
-      n <- length(data$spectrum)
+      n <- length(data$power)
     }
     
     ## get NA values to pad data set
-    n_pad <- ceiling(x = length(data$spectrum) / n) * n - length(data$spectrum)
+    n_pad <- ceiling(x = length(data$power) / n) * n - length(data$power)
     
     ## pad data set
-    s_pad <- c(data$spectrum, rep(NA, 
+    s_pad <- c(data$power, rep(NA, 
                                    times = n_pad))
     
     f_pad <- c(data$frequency, rep(NA, 

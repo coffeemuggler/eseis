@@ -3,6 +3,20 @@
 #' This function plots spectrograms of seismic signals. It uses the output 
 #' of \code{signal_spectrogram}.
 #' 
+#' As of version 0.7.2, the value range (\code{zlim}) is no longer set to the 
+#' full data range but to the range between quantiles 0.01 and 0.99. For the 
+#' full value range to be plotted, use \code{zlim = range(data$PSD$S)}.
+#' 
+#' As of version 0.7.2, the default plot colour has changed from the "jet" 
+#' colour palette to the "Inferno" palette. This due to perception issues with 
+#' the "jet" palette. If one wants to decisively use the "jet" colours, this 
+#' can be done by adding the keyword \code{col = "jet"}. To use other 
+#' colour schemes, such as sequential HCL schemes from the 
+#' colorspace package, specify them as additional argument, e.g. 
+#' \code{col = colorspace::sequential_hcl(200, palette = "Plasma")},
+#' \code{col = colorspace::sequential_hcl(200, palette = "Inferno")},
+#' \code{col = colorspace::sequential_hcl(200, palette = "Viridis")}. 
+#' 
 #' @param data \code{List} object, spectrogram to be plotted. Must be output
 #' of \code{signal_spectrogram} or of equivalent structure.
 #' 
@@ -44,13 +58,18 @@
 #'                  main = "Power spectral density estimate", 
 #'                  legend = TRUE, 
 #'                  zlim = c(-220, -70),
-#'                  col = rainbow(100))
+#'                  col = rainbow(100)) 
+#'                  
+#' ## plot spectrogram with frequencies in log scale
+#' plot_spectrogram(data = PSD, log = "y")
 #' 
+#' ## plot spectrogram with formatted time axis (minutes and seconds)
+#' plot_spectrogram(data = PSD, format = "%M:%S")
 #'                      
 #' @export plot_spectrogram
 plot_spectrogram <- function(
   data,
-  legend = FALSE,
+  legend = TRUE,
   keep_par = FALSE,
   agg = c(1, 1),
   ...
@@ -108,18 +127,15 @@ plot_spectrogram <- function(
   if("zlim" %in% names(extraArgs)) {
     
     zlim_psd <- extraArgs$zlim
-  } else {
-    
-    zlim_psd <- range(data$S, na.rm = TRUE)
-  }
-  
-  ## get range of z-values
-  if("zlim" %in% names(extraArgs)) {
     
     legend_values <- pretty(range(extraArgs$zlim, na.rm = TRUE))
+    
   } else {
     
-    legend_values <- pretty(data$S, na.rm = TRUE)
+    zlim_psd <- quantile(x = data$S, probs = c(0.01, 0.99), na.rm = TRUE)
+    
+    legend_values <- pretty(zlim_psd, na.rm = TRUE)
+    
   }
   
   if ("axes" %in% names(extraArgs)) {
@@ -140,11 +156,13 @@ plot_spectrogram <- function(
   }
   
   ## handle colour scheme
-  if ("col" %in% names(extraArgs)) {
-    col <- extraArgs$col
-  }
-  else {
+  if("col" %in% names(extraArgs)) {
     
+    col <- extraArgs$col
+
+    ## handle keyword case "jet"
+    if(col[1] == "jet") {
+      
       col <- colorRampPalette(colors = c("darkblue",
                                          "blue",
                                          "cyan",
@@ -153,7 +171,16 @@ plot_spectrogram <- function(
                                          "red",
                                          "brown",
                                          "grey30"))
+                                                   
       col <- col(200)
+    }
+    
+  }
+  else {
+  
+    ## assign default colour palette inferno  
+    col <- colorspace::sequential_hcl(200, palette = "Inferno")
+    
   }
   
   ## remove keywords from plot arguments
@@ -269,6 +296,9 @@ plot_spectrogram <- function(
                           zlim = zlim_psd), 
                      extraArgs))
     
+    ## add box
+    box(which = "plot")
+    
     ## optionally add axes
     if(axes == TRUE) {
       
@@ -282,6 +312,13 @@ plot_spectrogram <- function(
     ## allow overplotting
     xpd_in <- graphics::par()$xpd
     graphics::par(xpd = TRUE)
+    
+    ## add empty dummy plot for legend placement
+    par(new = TRUE)
+    image(x = data$t[t_out], 
+          y = data$f[f_out], 
+          z = t(data$S[f_out, t_out]), 
+          axes = FALSE, ann = FALSE, col = NA)
     
     ## define coordinates for colour scale bar
     x_0 <- graphics::par()$usr[2] + 0.5 * graphics::par()$cxy[1]
@@ -304,9 +341,9 @@ plot_spectrogram <- function(
                       seq(from = y_0, to = y_1 - d_y, by = d_y))
     
     ## convert to y-scale
-    y_ticks <- seq(from = graphics::par()$usr[3], 
-                   to = graphics::par()$usr[4], 
-                   length.out = length(legend_values))
+    y_ticks <- approx(x = range(zlim_psd), 
+                      y = c(y_0, y_1), 
+                      xout = legend_values)$y
     
     ## draw legend bar
     for(i in 1:nrow(polygons)) {
@@ -339,10 +376,7 @@ plot_spectrogram <- function(
     
     ## add z-axis label
     graphics::mtext(side = 4, line = 5, text = zlab)
-    
-    ## add box
-    box(which = "plot")
-    
+
     ## restore overplotting option
     graphics::par(xpd = xpd_in)
     

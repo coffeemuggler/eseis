@@ -136,6 +136,7 @@
 #' @examples 
 #' 
 #' \dontrun{
+#' 
 #' x <- spatial_track(data = data, 
 #'                    window = 5, 
 #'                    overlap = 0.5,
@@ -145,6 +146,7 @@
 #'                    q = 40, 
 #'                    f = 12, 
 #'                    qt = 0.99)
+#' 
 #' }
 #' 
 #' @export spatial_track
@@ -167,6 +169,7 @@ spatial_track <- function(
   cpu,
   verbose = FALSE,
   plot = FALSE
+  
 ) {
   
   ## check/convert input signal structure
@@ -220,10 +223,19 @@ spatial_track <- function(
     coupling <- rep(1, length(data))
   }
   
+  ## check/create aoi
+  if(missing(aoi) == TRUE) {
+    
+    aoi <- d_map[[1]] * 0 + 1
+  } else {if(class(aoi)[1] != "SpatRaster") {
+    
+    stop("AOI must be of class SpatRaster!")
+  }}
+  
   ## get maximum possible time delay across distance maps
   d_all <- do.call(c, lapply(X = d_map, FUN = function(d_map, aoi) {
     
-    raster::values(raster::raster(d_map) * aoi)
+    values(d_map * aoi)
   }, aoi))
   t_diff <- max(d_all, na.rm = TRUE) / v
   
@@ -249,16 +261,8 @@ spatial_track <- function(
   d <- do.call(cbind, lapply(X = d_map,
                              FUN = function(d_map) {d_map@data[,1]}))
   
-  ## check if aoi is provided and create aoi index vector
-  if(missing(aoi) == FALSE) {
-    
-    px_ok <- raster::values(aoi)
-  } else {
-    
-    px_ok <- rep(1, nrow(d))
-  }
-  
-  d <- cbind(px_ok, d)
+  ## create and append aoi index vector
+  d <- cbind(terra::values(aoi), d)
   
   ## convert distance data to list
   d <- as.list(as.data.frame(t(d)))
@@ -266,9 +270,9 @@ spatial_track <- function(
   ## optionally print verbose output
   if(verbose == TRUE) {
     
-    print(paste0(sum(px_ok), 
+    print(paste0(sum(terra::values(aoi)), 
                  " pixels in AOI to process (total number of pixels: ", 
-                 length(px_ok), ")."))
+                 length(terra::values(aoi)), ")."))
   }
   
   ## define amplitude function and model parameters
@@ -442,7 +446,7 @@ spatial_track <- function(
                    silent = !verbose)
     
     ## get grid coordinates
-    xy <- try(raster::coordinates(d_map[[1]]), silent = !verbose)
+    xy <- try(terra::crds(d_map[[1]]), silent = !verbose)
     
     ## combine output
     l_i <- try(data.frame(x = xy[,1], 
@@ -505,7 +509,7 @@ spatial_track <- function(
   ## restructure output
   l_out <- l_step[[1]]
   
-  if(class(l_out) != "try-error") {
+  if(inherits(x = l_out, what = "try-error") == FALSE) {
     
     l_out$mean <- lapply(X = l_step, FUN = function(x) {
       

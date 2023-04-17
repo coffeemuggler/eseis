@@ -1,6 +1,26 @@
 Changes for R-package eseis
 
-Version 0.6.0
+Version 0.7.2
+  - feature added, signal_filter, zero phase shift option added
+  - bug fixed, spatial_distance, SpatRaster converted to list to maintain rda-file compatibility
+  - bugs fixed, fmi_spectra and fmi_inversion, power units corrected
+  - function added, read_fdsn, to be replacing aux_getFDSNdata in the future
+  - function added, read_data, to be replacing aux_getevent in the future
+  - renaming of parameters for homogenisation in several functions
+  - transition from package raster (and sp) to terra
+  - function revised, aux_psdsummary, fully overhauled to create long PSDs
+  - function removed, aux_psdpanel removed as it was obsolete
+  - bug fixed, plot_spectrogram() legend glitch for log = "y" fixed
+  - feature added, signal_spectrum() argument n added for smoothing support
+  - code changed, signal_spectrum() output name spectrum changed to power
+  - code changed, plot_spectrogram() colour scale set to Inferno
+  - code changed, plot_spectrogram() colour range set to quantile(0.01, 0.99)
+  - feature added, aux_getevent() automatic file type recognition
+  - bug fixed, signal_filter() p = 0.05 now added
+  - bug fixed, signal_motion() windowing fixed, speed increased, output added
+  - feature added, plot_spectrogram documentation extended for colour scales
+
+Version 0.6.0 (2021-11-26)
   - function updated, signal_filter() conversion of signal vector from ts to numeric added
   - bug fixed, aux_stationinfofile() GPS extraction routine updated
   - bug fixed, aux_stationinfofile() Windows support added

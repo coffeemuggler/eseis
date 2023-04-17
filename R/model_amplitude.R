@@ -146,10 +146,10 @@
 #' \dontrun{
 #' 
 #'  ## create synthetic DEM
-#' dem <- raster::raster(nrows = 20, ncols = 20, 
-#'                       xmn = 0, xmx = 10000, 
-#'                       ymn= 0, ymx = 10000, 
-#'                       vals = rep(0, 400))
+#' dem <- terra::rast(nrows = 20, ncols = 20, 
+#'                    xmin = 0, xmax = 10000, 
+#'                    ymin= 0, ymax = 10000, 
+#'                    vals = rep(0, 400))
 #' 
 #' ## define station coordinates
 #' sta <- data.frame(x = c(1000, 9000, 5000, 9000),
@@ -240,14 +240,12 @@ model_amplitude <- function (
     }
     
     ## convert source locations to coordinate object
-    xy <- raster::coordinates(data.frame(x = source[1], 
-                                         y = source[2]))
+    xy <- terra::vect(x = t(matrix(source)), type = "points")
     
     ## extract distances from distance maps
     distance <- lapply(X = d_map, FUN = function(d_map, xy) {
       
-      raster::extract(x = raster::raster(d_map), 
-                      y = xy)
+      terra::extract(x = d_map, y = xy)$lyr.1
     }, xy)
     distance <- do.call(c, distance)
   }

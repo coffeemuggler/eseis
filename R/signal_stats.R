@@ -247,7 +247,7 @@ signal_stats <- function(
   s <- s[f_ok,]
   
   ## calculate weighted spectral amplitude
-  s_scl <- s$spectrum/sum(s$spectrum)
+  s_scl <- s$power/sum(s$power)
   s_sclsum <- cumsum(s_scl)
   s_mean <- sum(s_scl * s$frequency)
   
@@ -611,7 +611,7 @@ signal_stats <- function(
   ## calculate number of peaks in spectrum
   if("s_peaks" %in% stats) {
     
-    s_db <- 10 * log10(s$spectrum)
+    s_db <- 10 * log10(s$power)
     s_norm <- (s_db - min(s_db)) / (max(s_db) - min(s_db))
     s_norm_smooth <- caTools::runmean(x = s_norm, k = 0.02 * length(s_db))
     
@@ -621,7 +621,7 @@ signal_stats <- function(
   ## calculate mean specturm peak energy
   if("s_peakpower" %in% stats) {
     
-    s_db <- 10 * log10(s$spectrum)
+    s_db <- 10 * log10(s$power)
     s_norm <- (s_db - min(s_db)) / (max(s_db) - min(s_db))
     
     data_out$s_peakpower <- mean(s_db[s_norm > 0.75])
@@ -630,25 +630,25 @@ signal_stats <- function(
   ## calculate mean spectral power
   if("s_mean" %in% stats) {
     
-    data_out$s_mean <- mean(10 * log10(s$spectrum))
+    data_out$s_mean <- mean(10 * log10(s$power))
   }
   
   ## calculate median spectral power
   if("s_median" %in% stats) {
     
-    data_out$s_median <- median(10 * log10(s$spectrum))
+    data_out$s_median <- median(10 * log10(s$power))
   }
   
   ## calculate maximum spectral power
   if("s_max" %in% stats) {
     
-    data_out$s_max <- max(10 * log10(s$spectrum))
+    data_out$s_max <- max(10 * log10(s$power))
   }
   
   ## calculate spectral power variance
   if("s_var" %in% stats) {
     
-    data_out$s_var <- stats::var(10 * log10(s$spectrum))
+    data_out$s_var <- stats::var(10 * log10(s$power))
   }
   
   ## calculate spectral standard deviation
@@ -666,8 +666,8 @@ signal_stats <- function(
 
   if("s_flatness" %in% stats) {
     
-    data_out$s_flatness <- (prod(s$spectrum^(1/length(s$spectrum)))) / 
-      (mean(s$spectrum))
+    data_out$s_flatness <- (prod(s$power^(1/length(s$power)))) / 
+      (mean(s$power))
   }
   
   if("s_entropy" %in% stats) {
@@ -682,52 +682,52 @@ signal_stats <- function(
   
   if("s1_energy" %in% stats) {
     
-    data_out$s1_energy <- 10 * log10(sum(s_1$spectrum * 
+    data_out$s1_energy <- 10 * log10(sum(s_1$power * 
                                            c(0, diff(s_1$frequency))))
   }
 
   if("s2_energy" %in% stats) {
     
-    data_out$s2_energy <- 10 * log10(sum(s_2$spectrum * 
+    data_out$s2_energy <- 10 * log10(sum(s_2$power * 
                                            c(0, diff(s_2$frequency))))
   }
   
   if("s3_energy" %in% stats) {
     
-    data_out$s3_energy <- 10 * log10(sum(s_3$spectrum * 
+    data_out$s3_energy <- 10 * log10(sum(s_3$power * 
                                            c(0, diff(s_3$frequency))))
   }
   
   if("s4_energy" %in% stats) {
     
-    data_out$s4_energy <- 10 * log10(sum(s_4$spectrum * 
+    data_out$s4_energy <- 10 * log10(sum(s_4$power * 
                                            c(0, diff(s_4$frequency))))
   }
   
   if("s5_energy" %in% stats) {
     
-    data_out$s5_energy <- 10 * log10(sum(s_5$spectrum * 
+    data_out$s5_energy <- 10 * log10(sum(s_5$power * 
                                            c(0, diff(s_5$frequency))))
   }
   
   if("s_gamma1" %in% stats) {
     
-    data_out$s_gamma1 <- sum(s$frequency * 10 * log10(s$spectrum)^2) / 
-      sum(10 * log10(s$spectrum)^2)
+    data_out$s_gamma1 <- sum(s$frequency * 10 * log10(s$power)^2) / 
+      sum(10 * log10(s$power)^2)
   }
   
   if("s_gamma2" %in% stats) {
     
-    data_out$s_gamma2 <- sqrt(sum(s$frequency^2 * s$spectrum^2) / 
-                                sum(s$spectrum^2))
+    data_out$s_gamma2 <- sqrt(sum(s$frequency^2 * s$power^2) / 
+                                sum(s$power^2))
   }
 
   if("s_gamma3" %in% stats) {
     
-    g_1 <- sum(s$frequency * 10 * log10(s$spectrum)^2) / 
-      sum(10 * log10(s$spectrum)^2)
-    g_2 <- sqrt(sum(s$frequency^2 * s$spectrum^2) / 
-                  sum(s$spectrum^2))
+    g_1 <- sum(s$frequency * 10 * log10(s$power)^2) / 
+      sum(10 * log10(s$power)^2)
+    g_2 <- sqrt(sum(s$frequency^2 * s$power^2) / 
+                  sum(s$power^2))
     
     data_out$s_gamma3 <- sqrt(g_1^2 - g_2^2)
   }
@@ -838,7 +838,7 @@ signal_stats <- function(
   ## calculate frequency of maximum power, i.e. modal frequency
   if("f_modal" %in% stats) {
     
-    data_out$f_modal <- s$frequency[s$spectrum == max(s$spectrum)]
+    data_out$f_modal <- s$frequency[s$power == max(s$power)]
   }
   
   if("f_mean" %in% stats) {

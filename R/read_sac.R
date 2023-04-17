@@ -177,8 +177,12 @@ read_sac <- function(
     ## get start time
     t_0 <- Sys.time()
     
+    ## open file connection
     file_read <- file(description = file[j], 
                       open = "rb")
+    
+    ## ensure file connction is closed on exit 
+    on.exit(suppressWarnings(try(close(con = file_read), silent = TRUE)))
     
     header <- character(length = length(name_sac))
     
@@ -201,9 +205,9 @@ read_sac <- function(
     }
     
     for (i in 111:length(name_sac)) {
-      header[i] = readChar(con = file_read, 
+      header[i] = try(readChar(con = file_read, 
                            length_sac[i], 
-                           useBytes = FALSE)
+                           useBytes = FALSE), silent = TRUE)
     }
     
     dt <- signif(x = as.numeric(header[1]), digits = 6)

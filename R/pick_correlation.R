@@ -137,7 +137,7 @@ pick_correlation <- function(
                             dt = dt)
     
     ## check template event structure
-    if(class(template) == "eseis") {
+    if(inherits(x = template, what = "eseis")) {
       
       template <- template$signal
     }

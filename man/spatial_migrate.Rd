@@ -12,7 +12,7 @@ spatial_migrate(
   v,
   dt,
   normalise = TRUE,
-  silent = FALSE
+  verbose = FALSE
 )
 }
 \arguments{
@@ -22,8 +22,8 @@ to cross-correlate.}
 \item{d_stations}{\code{Numeric} matrix, inter-station distances. Output 
 of \code{spatial_distance}.}
 
-\item{d_map}{\code{List} object, distance maps for each station (i.e., 
-\code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.}
+\item{d_map}{\code{List} object, distance maps for each station. Output 
+of \code{spatial_distance}.}
 
 \item{snr}{\code{Numeric} vector, optional signal-to-noise-ratios for 
 each signal trace, used for normalisation. If omitted it is calculated
@@ -36,8 +36,8 @@ from input signals.}
 \item{normalise}{\code{Logical} value, option to normalise stations 
 correlations by signal-to-noise-ratios.}
 
-\item{silent}{\code{Logical} value, option to suppress messages during 
-function execution. Default is \code{FALSE}.}
+\item{verbose}{\code{Logical} value, option to show extended function 
+information as the function is running. Default is \code{FALSE}.}
 }
 \value{
 A SpatialGridDataFrame-object with Gaussian probability density
@@ -47,15 +47,23 @@ function values for each grid cell.
 The function performs signal migration in space in order to determine 
 the location of a seismic signal.
 }
+\details{
+With the switch from the package raster to the package terra, the 
+resulting distance maps can no longer be saved in lists as distance
+maps. Thus, the function re-defines the distance SpatRaster objects by
+a list of data on crs, extent, resolution and raster values. As a 
+consequence, plotting the data requires turning them into a SpatRaster
+object, first (see examples).
+}
 \examples{
 
 \dontrun{
 
 ## create synthetic DEM
-dem <- raster::raster(nrows = 20, ncols = 20, 
-                      xmn = 0, xmx = 10000, 
-                      ymn= 0, ymx = 10000, 
-                      vals = rep(0, 400))
+dem <- terra::rast(nrows = 20, ncols = 20, 
+                   xmin = 0, xmax = 10000, 
+                   ymin= 0, ymax = 10000, 
+                   vals = rep(0, 400))
 
 ## define station coordinates
 sta <- data.frame(x = c(1000, 9000, 5000),
@@ -68,34 +76,42 @@ s <- rbind(dnorm(x = 1:1000, mean = 500, sd = 50),
            dnorm(x = 1:1000, mean = 500, sd = 50))
 
 ## plot DEM and stations
-raster::plot(dem)
+terra::plot(dem)
 
 text(x = sta$x, 
      y = sta$y, 
      labels = sta$ID)
 
 ## calculate spatial distance maps and inter-station distances
-D <- eseis::spatial_distance(stations = sta[,1:2],
+D <- spatial_distance(stations = sta[,1:2],
                              dem = dem)
+                             
+## restore SpatRaster object for plotting purpose
+D_map_1 <- terra:rast(crs = D$maps[[1]]$crs,
+                      ext = D$maps[[1]]$ext,
+                      res = D$maps[[1]]$res,
+                      val = D$maps[[1]]$values)
+                      
+## plot distance map
+terra::plot(D_map_1) 
 
 ## locate signal
-e <- eseis::spatial_migrate(data = s, 
-                            d_stations = D$stations, 
-                            d_map = D$maps, 
-                            v = 1000, 
-                            dt = 1/100)
+e <- spatial_migrate(data = s, 
+                     d_stations = D$matrix, 
+                     d_map = D$maps, 
+                     v = 1000, 
+                     dt = 1/100)
 
-## get most likely location coordinates (example contains two equal points)
-xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
-             ncol = 2)[1,]
-             
+## get most likely location coordinates
+e_max <- spatial_pmax(data = e)
+
 ## plot location estimate, most likely location estimate and stations
-raster::plot(e)
-points(xy[1], 
-       xy[2],
+terra::plot(e)
+points(e_max[1], 
+       e_max[2],
        pch = 20)
 points(sta[,1:2])
-
+ 
 }
 
 }

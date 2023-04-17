@@ -8,7 +8,7 @@
 #' @examples
 #' 
 #' ## Not run
-#' gui_models()
+#' gui_explore()
 #' 
 #' @export shinyUI
 #' 
@@ -24,16 +24,16 @@ shinyUI(fluidPage(
           div(style="display: inline-block;vertical-align:top; width: 200px;",
               textInput("start", 
                         "Starttime (Y-m-d H:M:S UTC)", 
-                        "2013-01-01 05:00:00")),
+                        "2017-03-21 04:00:00")),
           div(style="display: inline-block;vertical-align:top; width: 100px;",
               textInput("dur", "Duration (s)", "10")),
           div(style="display: inline-block;vertical-align:top; width: 150px;",
-              textInput("sta", "Station ID", "IGB01")),
+              textInput("sta", "Station ID", "RUEG1")),
           div(style="display: inline-block;vertical-align:top; width: 150px;",
               textInput("cmp", "Component", "BHZ")),
           hr(),
           div(style="display: inline-block;vertical-align:top; width: 150px;",
-              shinyFiles::shinyDirButton("dir_select", "SAC directory", "sac")),
+              shinyFiles::shinyDirButton("dir_sac", "Data directory", "sac")),
           div(style="display: inline-block;vertical-align:top; width: 150px;",
               actionButton("load", "Load event")),
           verbatimTextOutput("dir_sac")

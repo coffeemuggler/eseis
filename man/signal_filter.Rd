@@ -12,7 +12,8 @@ signal_filter(
   type,
   shape = "butter",
   order = 2,
-  p = 0,
+  p,
+  zero = FALSE,
   lazy = FALSE
 )
 }
@@ -27,7 +28,7 @@ upper cutoff frequencies (Hz).}
 (\code{fft = FALSE}) or the frequency domain (\code{fft = TRUE}). Default 
 is (\code{fft = FALSE}).}
 
-\item{dt}{\code{Numeric} value, sampling period. If omitted, \code{dt} 
+\item{dt}{\code{Numeric} value, sampling rate If omitted, \code{dt} 
 is set to 1/200.}
 
 \item{type}{\code{Character} value, type of filter, one out of 
@@ -43,7 +44,12 @@ from \code{f}. If \code{f} is of length two, \code{type} is set to
 \item{order}{\code{Numeric} value, order of the filter, default 
 is \code{2}. Only needed if \code{data} is no \code{eseis} object.}
 
-\item{p}{\code{Numeric} value, fraction of the signal to be tapered.}
+\item{p}{\code{Numeric} value, fraction of the signal to be tapered. If 
+omitted, no tapering will be done.}
+
+\item{zero}{\code{Logical} value, option to run filter in zero phase 
+shift mode. Note that this will triple the length of the signal vector 
+during calculation. Default is \code{FALSE}.}
 
 \item{lazy}{\code{Logical} value, option to pre- and post-process data, 
 including detrending, demeaning and tapering (\code{p = 0.02}). Default 

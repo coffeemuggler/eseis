@@ -165,10 +165,10 @@ contributions of the two wave types, thus summing to 1.
 \dontrun{
 
  ## create synthetic DEM
-dem <- raster::raster(nrows = 20, ncols = 20, 
-                      xmn = 0, xmx = 10000, 
-                      ymn= 0, ymx = 10000, 
-                      vals = rep(0, 400))
+dem <- terra::rast(nrows = 20, ncols = 20, 
+                   xmin = 0, xmax = 10000, 
+                   ymin= 0, ymax = 10000, 
+                   vals = rep(0, 400))
 
 ## define station coordinates
 sta <- data.frame(x = c(1000, 9000, 5000, 9000),

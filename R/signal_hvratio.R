@@ -156,7 +156,7 @@ signal_hvratio <- function(
     ## log spectral power vectors
     s_log <- lapply(X = s, FUN = function(X) {
       
-      log(X$spectrum)
+      log(X$power)
     })
     
     ## apply running mean
@@ -176,7 +176,7 @@ signal_hvratio <- function(
     
     s_smooth <- lapply(X = s, FUN = function(X) {
       
-      X$spectrum
+      X$power
     })
   }
   

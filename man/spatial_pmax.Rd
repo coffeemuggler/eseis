@@ -7,7 +7,7 @@
 spatial_pmax(data)
 }
 \arguments{
-\item{data}{\code{raster} object, spatial data set with source location
+\item{data}{\code{SpatRaster} object, spatial data set with source location
 estimates.}
 }
 \value{
@@ -21,13 +21,10 @@ heighest likelihood (P_max).
 \examples{
 
 ## create example source location likelihood raster
-x <- raster::raster(nrows = 10, 
-                    ncols = 10, 
-                    xmn = 0, 
-                    xmx = 10, 
-                    ymn = 0, 
-                    ymx = 10)
-raster::values(x) <- runif(n = 100)
+x <- terra::rast(nrows = 100, ncols = 100, 
+                 xmin = 0, xmax = 10, 
+                 ymin = 0, ymax = 10)
+terra::values(x) <- runif(n = 100)
 
 ## identify location of highest likelihood
 p_max <- spatial_pmax(data = x)

@@ -13,7 +13,7 @@
 #' (\code{fft = FALSE}) or the frequency domain (\code{fft = TRUE}). Default 
 #' is (\code{fft = FALSE}).
 #' 
-#' @param dt \code{Numeric} value, sampling period. If omitted, \code{dt} 
+#' @param dt \code{Numeric} value, sampling rate If omitted, \code{dt} 
 #' is set to 1/200.
 #' 
 #' @param type \code{Character} value, type of filter, one out of 
@@ -29,7 +29,12 @@
 #' @param order \code{Numeric} value, order of the filter, default 
 #' is \code{2}. Only needed if \code{data} is no \code{eseis} object.
 #' 
-#' @param p \code{Numeric} value, fraction of the signal to be tapered.
+#' @param p \code{Numeric} value, fraction of the signal to be tapered. If 
+#' omitted, no tapering will be done.
+#' 
+#' @param zero \code{Logical} value, option to run filter in zero phase 
+#' shift mode. Note that this will triple the length of the signal vector 
+#' during calculation. Default is \code{FALSE}.
 #' 
 #' @param lazy \code{Logical} value, option to pre- and post-process data, 
 #' including detrending, demeaning and tapering (\code{p = 0.02}). Default 
@@ -82,7 +87,8 @@ signal_filter <- function(
   type,
   shape = "butter",
   order = 2,
-  p = 0,
+  p,
+  zero = FALSE,
   lazy = FALSE
 ) {
   
@@ -101,6 +107,18 @@ signal_filter <- function(
     dt <- data$meta$dt
   }
   
+  ## check/set p
+  if(missing(p) == TRUE) {
+    
+    if(lazy == TRUE) {
+      
+      p <- 0.05
+    } else {
+      
+      p <- 0
+    }
+  }
+  
   ## check data structure
   if(class(data)[1] == "list") {
     
@@ -113,6 +131,8 @@ signal_filter <- function(
                        type = type,
                        shape = shape,
                        order = order,
+                       zero = zero,
+                       lazy = lazy,
                        p = p)
     
     ## return output
@@ -124,6 +144,12 @@ signal_filter <- function(
     if(missing(f) == TRUE) {
       
       stop("No frequencies provided!")
+    }
+    
+    ## check that f is below Nyquist frequency
+    if(any(f >= 1/dt/2)) {
+      
+      stop("Frequency must be lower than 1 / (dt/2)!")
     }
     
     ## check/set type
@@ -148,6 +174,7 @@ signal_filter <- function(
                             type = type,
                             shape = shape,
                             order = order,
+                            zero = zero,
                             p = p)
     
     ## check if input object is of class eseis
@@ -175,6 +202,16 @@ signal_filter <- function(
       
       ## get number of samples
       n <- length(data)
+    }
+    
+    ## optionally extend signal vector
+    if(zero == TRUE) {
+      
+      ## save original data length
+      n_data <- length(data)
+      
+      ## extend signal vector
+      data <- c(rev(data), data, rev(data))
     }
     
     ## optionally preprocess data, using lazy option
@@ -291,8 +328,14 @@ signal_filter <- function(
     
     ## optionally preprocess data, using lazy option
     if(lazy == TRUE) {
-      
-      data_out <- eseis::signal_taper(data = data_out, p = 0.02)
+
+      data_out <- eseis::signal_taper(data = data_out, p = p)
+    }
+    
+    ## optionally truncate signal vector to original length
+    if(zero == TRUE) {
+
+      data_out <- data_out[(n_data + 1):(2 * n_data)]
     }
     
     ## optionally rebuild eseis object

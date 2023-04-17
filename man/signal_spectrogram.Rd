@@ -16,7 +16,7 @@ signal_spectrogram(
   method = "periodogram",
   nw = 4,
   k = 7,
-  n_cores = 1,
+  cpu = NULL,
   plot = FALSE,
   ...
 )
@@ -57,8 +57,8 @@ default is 4.0.}
 
 \item{k}{\code{Numeric} value, multitaper number of tapers, default is 7.}
 
-\item{n_cores}{\code{Numeric} value, number of CPU cores to use. Disabled 
-by setting to 1. Default is 1.}
+\item{cpu}{\code{Numeric} value between 0 and 1, fraction of CPU cores to 
+use. If omitted, only one CPU is used.}
 
 \item{plot}{\code{Logical} value, toggle plot output. Default is
 \code{FALSE}. For more customised plotting see \code{plot_spectrogram}.}

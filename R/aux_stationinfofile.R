@@ -460,12 +460,16 @@ aux_stationinfofile <- function(
       ## infer UTM zone
       utm_zone <- (floor((x[,2] + 180)/6) %% 60) + 1
       
+      ## estimate UTM coordinates
+      proj_utm <- paste("+proj=utm +zone=", 
+                        floor(median(utm_zone, na.rm = TRUE)), 
+                        " ellps=WGS84", 
+                        sep = "")
+      
       ## convert coordinates
-      rgdal::project(xy = x, 
-                     proj = paste("+proj=utm +zone=", 
-                                  floor(median(utm_zone, na.rm = TRUE)), 
-                                  " ellps=WGS84", 
-                                  sep = ""))
+      eseis::spatial_convert(data = x, 
+                             from = "+proj=longlat +datum=WGS84",
+                             to = proj_utm)
     })
   }
   

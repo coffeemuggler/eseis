@@ -41,8 +41,8 @@
 #' 
 #' @param k \code{Numeric} value, multitaper number of tapers, default is 7.
 #' 
-#' @param n_cores \code{Numeric} value, number of CPU cores to use. Disabled 
-#' by setting to 1. Default is 1.
+#' @param cpu \code{Numeric} value between 0 and 1, fraction of CPU cores to 
+#' use. If omitted, only one CPU is used.
 #' 
 #' @param plot \code{Logical} value, toggle plot output. Default is
 #' \code{FALSE}. For more customised plotting see \code{plot_spectrogram}.
@@ -106,7 +106,7 @@ signal_spectrogram <- function(
   method = "periodogram",
   nw = 4.0,
   k = 7,
-  n_cores = 1,
+  cpu = NULL,
   plot = FALSE,
   ...
 ) {
@@ -127,7 +127,7 @@ signal_spectrogram <- function(
                        method = method,
                        nw = nw,
                        k = k,
-                       n_cores = n_cores,
+                       cpu = cpu,
                        plot = plot)
     
     ## return output
@@ -234,7 +234,7 @@ signal_spectrogram <- function(
                             method = method,
                             nw = nw,
                             k = k,
-                            n_cores = n_cores,
+                            cpu = cpu,
                             plot = plot)
     
     ## homogenise data structure
@@ -378,17 +378,23 @@ signal_spectrogram <- function(
       
     }
     
-    ## optinally initiate multicore environment
-    if(n_cores > 1) {
+    ## initiate cluster
+    if(is.null(cpu) == FALSE) {
       
-      ## detect number of CPU cores
-      n_cores_system <- parallel::detectCores()
-      n_cores <- ifelse(test = n_cores > n_cores_system, 
-                        yes = n_cores_system,
-                        no = n_cores)
+      cores <- parallel::detectCores()
       
-      ## initiate cluster
-      cl <- parallel::makeCluster(n_cores)
+      if(is.null(cpu) == FALSE) {
+        
+        n_cpu <- floor(cores * cpu)
+        cores <- ifelse(cores < n_cpu, cores, n_cpu)
+      } else {
+        
+        cores <- 1
+      }
+      cl <- parallel::makeCluster(getOption("mc.cores", cores))
+    } else {
+      
+      cores <- 0
     }
     
     ## calculate spectra for each slice
@@ -396,7 +402,7 @@ signal_spectrogram <- function(
       
       if(method != "multitaper") {
         
-        if(n_cores > 1) {
+        if(cores > 1) {
           
           ## non-Welch option in parallel mode
           S <- parallel::parLapply(cl = cl,
@@ -412,7 +418,7 @@ signal_spectrogram <- function(
         }
       } else {
         
-        if(n_cores > 1) {
+        if(cores > 1) {
           
           ## non-Welch option in parallel mode, multitaper option
           S <- parallel::parLapply(cl = cl,
@@ -435,7 +441,7 @@ signal_spectrogram <- function(
       
     } else {
       
-      if(n_cores > 1) {
+      if(cores > 1) {
         
         ## Welch option in parallel processing mode
         S <- parallel::parLapply(cl = cl,
@@ -459,16 +465,13 @@ signal_spectrogram <- function(
                     k = k,
                     method = method)
       }
-      
-      
     }
     
     ## stop cluster
-    if(n_cores > 1) {
+    if(cores > 1) {
       
       parallel::stopCluster(cl = cl)
     }
-    
     
     ## convert spectra list to matrix
     S <- do.call(cbind, S)

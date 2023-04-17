@@ -15,27 +15,26 @@ spatial_amplitude(
   a_0,
   normalise = TRUE,
   output = "variance",
-  n_cores = 1
+  cpu
 )
 }
 \arguments{
 \item{data}{\code{Numeric} matrix or \code{eseis} object, seismic signals
 to work with. Since the function will calculate the maxima of the data it
-is usually the envolopes of the data that should be used here.}
+is usually the envelopes of the data that should be used here.}
 
 \item{coupling}{\code{Numeric} vector, coupling efficiency factors for each
 seismic station. The best coupled station (or the one with the highest
 amplification) must receive \code{1}, the others must be scaled relatively
 to this one.}
 
-\item{d_map}{\code{List} object, distance maps for each station (i.e.,
-\code{SpatialGridDataFrame} objects). Output of \code{spatial_distance}.}
+\item{d_map}{\code{List} object, distance maps for each station. Output 
+of \code{spatial_distance}.}
 
-\item{aoi}{\code{raster} object that
-defines which pixels are used to locate the source. If omitted, the entire
-distance map extent is used. \code{aoi} and \code{d_map} objects must have
-the same extents, projections and pixel sizes. The \code{aoi} map must
-be of logical values.}
+\item{aoi}{\code{raster} object that defines which pixels are used to 
+locate the source. If omitted, the entire distance map extent is used. 
+\code{aoi} and \code{d_map} objects must have the same extents, 
+projections and pixel sizes. The \code{aoi} map must be of logical values.}
 
 \item{v}{\code{Numeric} value, mean velocity of seismic waves (m/s).}
 
@@ -56,8 +55,8 @@ One out of \code{"residuals"} (sums of the squared model residuals) or
 \code{"variance"} (variance reduction, cf. Walter et al. (2017)). Default
 is \code{"variance"}.}
 
-\item{n_cores}{\code{Numeric} value, number of CPU cores to use. Disabled
-by setting to 1. Default is 1.}
+\item{cpu}{\code{Numeric} value, fraction of CPUs to use. If omitted, 
+only one CPU will be used.}
 }
 \value{
 A raster object with the location output metrics for each
@@ -73,10 +72,10 @@ of the most likely source location of an event.
 \dontrun{
 
 ## create synthetic DEM
-dem <- raster::raster(nrows = 20, ncols = 20, 
-                     xmn = 0, xmx = 10000, 
-                     ymn= 0, ymx = 10000, 
-                     vals = rep(0, 400))
+dem <- terra::rast(xmin = 0, xmax = 10000, 
+                  ymin= 0, ymax = 10000, 
+                  res = c(500, 500),
+                  vals = rep(0, 400))
 
 ## define station coordinates
 sta <- data.frame(x = c(1000, 9000, 5000),
@@ -89,7 +88,7 @@ s <- rbind(dnorm(x = 1:1000, mean = 500, sd = 50) * 100,
           dnorm(x = 1:1000, mean = 500, sd = 50) * 1)
 
 ## plot DEM and stations
-raster::plot(dem)
+terra::plot(dem)
 text(x = sta$x, 
     y = sta$y, 
     labels = sta$ID)
@@ -99,20 +98,19 @@ D <- eseis::spatial_distance(stations = sta[,1:2],
                             dem = dem)
 
 ## locate signal
-e <- spatial_amplitude(data = s, 
-                      d_map = D$maps, 
-                      v = 500, 
-                      q = 50, 
-                      f = 10)
+e <- eseis::spatial_amplitude(data = s, 
+                             d_map = D$maps, 
+                             v = 500, 
+                             q = 50, 
+                             f = 10)
 
 ## get most likely location coordinates (example contains two equal points)
-xy <- matrix(sp::coordinates(e)[raster::values(e) == max(raster::values(e))],
-            ncol = 2)[1,]
+e_max <- spatial_pmax(data = e)
 
 ## plot output
-raster::plot(e)
-points(xy[1], 
-      xy[2],
+terra::plot(e)
+points(e_max[1], 
+      e_max[2],
       pch = 20)
 points(sta[,1:2])
 

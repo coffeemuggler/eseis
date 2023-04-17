@@ -4,13 +4,25 @@
 #' \code{aux_organisecubefiles()}) based on the event start time, duration,
 #' component and station ID.
 #' 
+#' The data to be read needs to be adequately structured. The data directory
+#' must contain SAC files organised by year (e.g.2022) then by Julian Day
+#' in full three digits (e.g. 001) and then by a dedicated SAC file name, 
+#' containing the station ID, two-digit year, three-digit Julian Day, start 
+#' time hour, minute and second, three channel ID and the file extension SAC. 
+#' All these items need to be separated by stops (e.g. 
+#' sac/2022/001/LAU01.22.001.08.00.00. BHZ.SAC). This data structure will be 
+#' most conveniently created by the functions \code{aux_organisecubefiles()} 
+#' or \code{aux_organisecentaurfiles()}, or by manually written R code. 
+#' 
 #' The function assumes complete data sets, i.e., not a single hourly 
 #' data set must be missing. The time 
 #' vector is loaded only once, from the first station and its first 
 #' component. Thus, it is assumed that all loaded seismic signals are
 #' of the same sampling frequency and length.
 #' 
-#' @param start \code{POSIXct} value, start time of the data to import.
+#' @param start \code{POSIXct} value, start time of the data to import. If
+#' lazy users only submit a text string instead of a POSIXct obejct, the 
+#' function will try to convert that text string.
 #' 
 #' @param duration \code{Numeric} value, duration of the data to import,
 #' in seconds.
@@ -25,9 +37,11 @@
 #' \code{"BHZ"} (vertical component of a sac file).
 #' 
 #' @param format \code{Character} value, seismic data format. One out of 
-#' \code{"sac"} and \code{"mseed"}. Default is \code{"sac"}.
+#' \code{"sac"} and \code{"mseed"}. If omitted, the function will try to 
+#' identify the right format automatically.
 #' 
 #' @param dir \code{Character} value, path to the seismic data directory.
+#' See details for further info on data structure.
 #' 
 #' @param simplify \code{Logical} value, option to simplify output
 #' when possible. This basically means that if only data from one station 
@@ -42,8 +56,8 @@
 #' i.e., to let it return \code{NA} in case an error occurs during data
 #' import. Default is \code{FALSE}.
 #' 
-#' @param silent \code{Logical} value, option to suppress messages during 
-#' function execution. Default is \code{TRUE}.
+#' @param verbose \code{Logical} value, option to show messages during 
+#' function execution. Default is \code{FALSE}.
 #' 
 #' @return A \code{list} object containing either a set of \code{eseis}
 #' objects or a data set with the time vector (\code{$time}) 
@@ -85,25 +99,38 @@
 #' lapply(X = data, FUN = plot_signal)
 #'                      
 #' @export aux_getevent
+#' 
 aux_getevent <- function(
-  start,
-  duration,
-  station, 
-  component = "BHZ",
-  format = "sac",
-  dir,
-  simplify = TRUE,
-  eseis = TRUE,
-  try = FALSE,
-  silent = TRUE
+    start,
+    duration,
+    station, 
+    component = "BHZ",
+    format,
+    dir,
+    simplify = TRUE,
+    eseis = TRUE,
+    try = FALSE,
+    verbose = FALSE
 ) {
   
   ## check/set arguments ------------------------------------------------------
   
+  
   ## check start time format
   if(class(start)[1] != "POSIXct") {
     
-    stop("Start date is not a POSIXct format!")
+    start <- try(as.POSIXct(start, tz = "UTC"), silent = TRUE)
+    
+    if(class(start)[1] != "POSIXct") {
+      
+      stop("Start date is not a POSIXct format!")
+    }
+  }
+  
+  ## check/set file format
+  if(missing(format) == TRUE) {
+    
+    format <- "unknown"
   }
   
   ## set default value for data directory
@@ -133,7 +160,7 @@ aux_getevent <- function(
                         sep = "")
     
     ## inform about time zone change
-    if(silent == FALSE) {
+    if(verbose == TRUE) {
       
       print(tz_message)
     }
@@ -208,7 +235,7 @@ aux_getevent <- function(
   ## convert list to vector
   files <- do.call(c, files)
   
-  ## remove dulicates
+  ## remove duplicates
   files <- unique(files)
   
   ## check for file presence
@@ -248,6 +275,34 @@ aux_getevent <- function(
   data <- vector(mode = "list", 
                  length = length(files_station))
   
+  ## find out file format
+  if(format == "unknown") {
+    
+    x_format <- suppressWarnings(try(eseis::read_sac(
+      file = files_station[[1]][1], 
+      eseis = TRUE), 
+      silent = TRUE))
+    if(class(x_format)[1] == "eseis") {
+      
+      format <- "sac"
+    } else {
+      
+      x_format <- suppressWarnings(try(eseis::read_mseed(
+        file = files_station[[1]][1], 
+        eseis = TRUE,
+        append = TRUE), 
+        silent = TRUE))
+      
+      if(class(x_format)[1] == "eseis") {
+        
+        format <- "mseed"
+      } else {
+        
+        stop("Cannot determine file format automatically!")
+      }
+    }
+  }
+  
   ## process files station-wise
   for(i in 1:length(data)) {
     
@@ -265,18 +320,21 @@ aux_getevent <- function(
           ## import files based on specified format
           if(format == "sac") {
             
-            x <- eseis::read_sac(file = files_cmp, 
-                                 eseis = TRUE,
-                                 append = TRUE)
+            x <- suppressWarnings(try(eseis::read_sac(
+              file = files_cmp, 
+              eseis = TRUE,
+              append = TRUE), silent = TRUE))
           } else if(format == "mseed") {
             
-            x <- eseis::read_mseed(file = files_cmp, 
-                                   eseis = TRUE,
-                                   append = TRUE)
+            x <- suppressWarnings(try(eseis::read_mseed(
+              file = files_cmp, 
+              eseis = TRUE,
+              append = TRUE), silent = TRUE))
+            
           }
           
           ## clip signal at start and end time
-          if(silent == FALSE)  {
+          if(verbose == TRUE)  {
             
             x <- eseis::signal_clip(data = x, 
                                     limits = c(start, stop))
@@ -294,14 +352,14 @@ aux_getevent <- function(
         format = format,
         start = start,
         stop = stop))),
-        silent = TRUE)
-      
-      try(names(data[[i]]) <- component)
-      
-      try(for(j in 1:length(data[[i]])) {
-        
-        class(data[[i]][[j]])[1] <- "eseis"
-      }, silent = TRUE)
+      silent = TRUE)
+
+try(names(data[[i]]) <- component)
+
+try(for(j in 1:length(data[[i]])) {
+  
+  class(data[[i]][[j]])[1] <- "eseis"
+}, silent = TRUE)
     } else {
       
       data[[i]] <- as.data.frame(do.call(cbind, lapply(
@@ -316,14 +374,16 @@ aux_getevent <- function(
           ## import files based on specified format
           if(format == "sac") {
             
-            x <- eseis::read_sac(file = files_cmp, 
-                                 eseis = TRUE,
-                                 append = TRUE)
+            x <- suppressWarnings(try(eseis::read_sac(
+              file = files_cmp, 
+              eseis = TRUE,
+              append = TRUE), silent = TRUE))
           } else if(format == "mseed") {
             
-            x <- eseis::read_mseed(file = files_cmp, 
-                                   eseis = TRUE,
-                                   append = TRUE)
+            x <- suppressWarnings(try(eseis::read_mseed(
+              file = files_cmp, 
+              eseis = TRUE,
+              append = TRUE), silent = TRUE))
           }
           
           ## clip signal at start and end time
@@ -451,7 +511,8 @@ aux_getevent <- function(
     ## case of one station and one component
     if(length(data_out) == 1) {
       
-      data_out <- data_out[[1]]
+      data_out <- as.list(data_out[[1]])
+      
     }
     
     if(length(data_out) == 1) {
@@ -467,14 +528,19 @@ aux_getevent <- function(
         ## check if several components are present per station
         if(length(x) == 1) {
           
-          x[[1]]
+          as.list(x[[1]])
         } else {
           
-          x
+          as.list(x)
         }
       })
     }
+  } else {
     
+    data_out <- lapply(X = data_out, FUN = function(x) {
+      
+      as.list(x)
+    })
   }
   
   ## return output data set
