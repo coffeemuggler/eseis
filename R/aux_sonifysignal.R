@@ -73,7 +73,7 @@ aux_sonifysignal <- function(
               no = length(data))
   
   ## check/set dt
-  if(class(data) == "eseis") {
+  if(class(data)[1] == "eseis") {
     
     dt <- data$meta$dt
   } else {

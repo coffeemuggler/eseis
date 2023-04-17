@@ -494,7 +494,7 @@ read_data <- function(
   ## optionally simplify file structure
   if(simplify == TRUE) {
     
-    if(class(s) == "list" & length(s) == 1) {
+    if(class(s)[1] == "list" & length(s) == 1) {
       
       s <- s[[1]]
     }
@@ -513,7 +513,7 @@ read_data <- function(
       return(s)
     })
     
-    if(class(s) == "list" & length(s) == 1) {
+    if(class(s)[1] == "list" & length(s) == 1) {
       
       s <- s[[1]]
     }

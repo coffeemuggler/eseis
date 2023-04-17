@@ -69,7 +69,7 @@ here: \url{https://www.fdsn.org/webservices/fdsnws-dataselect-1.1.pdf}.
 
 For each network listed there, one can find the URL that gives access to 
 the data (if existing) under "Data Access". Note that the function only 
-requires the first URL part, e.g., \url{http://geofon.gfz-potsdam.de}.
+requires the first URL part, e.g., \url{https://geofon.gfz-potsdam.de}.
 }
 \examples{
 

@@ -10,45 +10,56 @@
 # Define server logic required to draw a histogram
 shinyServer <- function(input, output, session) {
   
-  # observe({
-  #     updateSliderInput(session, "d_s",
-  #                       min = input$d_s_min,
-  #                       max = input$d_s_max)
-  # 
-  # })
+  shinyDirChoose(
+    input,
+    'dir_sac',
+    roots = c(home = '~'),
+    filetypes = c('', 'txt', 'bigWig', "tsv", "csv", "bw")
+  )
   
-  ## open directory selection GUI
-  shinyDirChoose(input = input, 
-                 id = "dir_select", 
-                 roots = getVolumes(), 
-                 session = session)
+  global <- reactiveValues(datapath = getwd())
   
-  ## get raw data directory object
-  dir <- reactive(input$dir_select)
+  dir <- reactive(input$dir_sac)
   
-  ## convert object to path information
-  path <- reactive({
-    home <- normalizePath("~")
-    file.path(home, 
-              paste(unlist(dir()$path[-1]), 
-                    collapse = .Platform$file.sep))
+  output$dir_sac <- renderText({
+    global$datapath
   })
   
-  ## isolate main directory from available paths
-  output$dir_sac <- renderPrint(list.dirs(path())[1])
+  observeEvent(ignoreNULL = TRUE,
+               eventExpr = {
+                 input$dir_sac
+               },
+               handlerExpr = {
+                 if (!"path" %in% names(dir())) return()
+                 home <- normalizePath("~")
+                 global$datapath <-
+                   file.path(home, paste(unlist(dir()$path[-1]), 
+                                         collapse = .Platform$file.sep))
+               })
+  
+  
+  s_raw <- reactive({ 
+    
+    if(input$load == 0) return()
+    
+    isolate({
+      
+      s_raw <- eseis::aux_getevent(start = as.POSIXct(isolate(input$start)),
+                          duration = as.numeric(isolate(input$dur)),
+                          station = as.character(isolate(input$sta)),
+                          component = as.character(isolate(input$cmp)),
+                          dir = paste0(isolate(input$dir_sac), "/"))
+      
+      output$plot <- renderPlot({
+        
+        eseis::plot_signal(s_raw)})
+    })
+  })
+  
   
   output$plot <- renderPlot({
     
-    input$load
-    
-    plot_height = "1000px"
-    
-    s_raw <- eseis::aux_getevent(
-      start = as.POSIXct(isolate(input$start)),
-      duration = as.numeric(isolate(input$dur)),
-      station = as.character(isolate(input$sta)),
-      component = as.character(isolate(input$cmp)),
-      dir = paste0(isolate(list.dirs(path())[1]), "/"))
+    eseis::plot_signal(s_raw)
     
     if(input$deconvolve == TRUE) {
       

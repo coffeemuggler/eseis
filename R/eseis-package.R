@@ -31,7 +31,7 @@
 #' @importFrom extraDistr rkumar dkumar rtriang dtriang
 #' @importFrom colorspace sequential_hcl
 #' @importFrom caTools runmean
-#' @importFrom terra res values crds crs ext rast
+#' @importFrom terra res values crds crs ext rast vect project
 #' @useDynLib eseis
 NULL
 

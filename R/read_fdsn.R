@@ -19,7 +19,7 @@
 #' 
 #' For each network listed there, one can find the URL that gives access to 
 #' the data (if existing) under "Data Access". Note that the function only 
-#' requires the first URL part, e.g., \url{http://geofon.gfz-potsdam.de}. 
+#' requires the first URL part, e.g., \url{https://geofon.gfz-potsdam.de}. 
 #' 
 #' @param start \code{POSIXct} value, start time of the data to import. If
 #' lazy users only submit a text string instead of a POSIXct object, the 
