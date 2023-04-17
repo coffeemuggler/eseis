@@ -7,7 +7,7 @@
 \alias{t}
 \title{Seismic traces of a small earthquake}
 \format{
-The format is: 
+The format is:
 List of 3
  $ BHE: num [1:8001] -3.95e-07 ...
  $ BHN: num [1:8001] -2.02e-07 ...
@@ -21,8 +21,8 @@ s
 t
 }
 \description{
-The dataset comprises the seismic signal (all three components) of 
-a small earthquake. The data have been recorded at 200 Hz sampling 
+The dataset comprises the seismic signal (all three components) of
+a small earthquake. The data have been recorded at 200 Hz sampling
 frequency with an Omnirecs Cube ext 3 data logger.
 
 The dataset comprises the time vector associated with the data set

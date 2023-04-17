@@ -6,8 +6,8 @@
 \alias{eseis-package}
 \title{eseis: Environmental Seismology Toolbox}
 \description{
-Environmental seismoloy is a scientific field that studies the seismic 
-signals, emitted by Earth surface processes. This package eseis provides 
+Environmental seismoloy is a scientific field that studies the seismic
+signals, emitted by Earth surface processes. This package eseis provides
 all relevant functions to read/write seismic data files, prepare, analyse
 and visualise seismic data, and generate reports of the processing history.
 }
@@ -15,8 +15,8 @@ and visualise seismic data, and generate reports of the processing history.
 \tabular{ll}{
 **Package:** \tab eseis \cr
 **Type:** \tab Package \cr
-**Version:** \tab 0.4.0 \cr
-**Date:** \tab 2021-11-23 \cr
+**Version:** \tab 0.8.0 \cr
+**Date:** \tab 2023-xx-xx \cr
 **License:** \tab GPL-3 \cr
 }
 }
