@@ -58,13 +58,16 @@ shinyUI(fluidPage(
                     min = 1, max = 500, value = 1)
       )),
       tabPanel("Data", sidebarPanel(
-        textInput("data", "Empiric spectrum (R object name):", value = "")
+        selectInput("data", "Empiric spectrum (R object name):", 
+                    names(which(unlist(eapply(.GlobalEnv,FUN = function(x) {
+                      class(x)[1] == "eseis"
+                    })))))
       )),
       tabPanel("Plot", sidebarPanel(
         checkboxInput("plot_river", "River spectrum", TRUE),
         checkboxInput("plot_bedload", "Bedload spectrum", TRUE),
         checkboxInput("plot_river_bedload", "Combined specturm", TRUE),
-        checkboxInput("plot_empiric", "Empirical spectrum", TRUE),
+        checkboxInput("plot_empiric", "Empirical spectrum", FALSE),
         sliderInput("xlim", "x-axis limits",
                     min = 0, max = 1000, value = c(1, 100)),
         sliderInput("ylim", "y-axis limits:",
