@@ -2,7 +2,8 @@
 #' 
 #' This function starts a browser-based graphic user interface to explore the 
 #' parameter space of seismic models that predict the spectra of turbulent 
-#' water flow and bedload flux.
+#' water flow and bedload flux. Empirical spectra can be added if they are 
+#' present in the current environment as eseis objects.
 #' 
 #' @param ... further arguments to pass to \code{\link{runApp}}
 #' 

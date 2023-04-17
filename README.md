@@ -30,7 +30,7 @@ If the function aux_fixmseed() shall be used, the additional software dataselect
 I recommend installing 'eseis' from Github using the R package 'devtools' (install it using `install.packages("devtools")`):
 
 ```r
-devtools::install_github(repo = "coffeemuggler/eseis")
+devtools::install_github(repo = "coffeemuggler/eseis", "dev_0.8.0")
 ```
 
 ## Note
@@ -52,7 +52,7 @@ eseis is free software: you can redistribute it and/or modify it under the terms
 
 Please use both of the below references when citing the usage of the package. It is important to not just use one of them but the two.
 
-Dietze, M. (2018). eseis: Environmental Seismology Toolbox. R package version 0.7.0. GFZ Data Services. http://doi.org/10.5880/GFZ.5.1.2018.001
+Dietze, M. (2018). eseis: Environmental Seismology Toolbox. R package version 0.8.0. GFZ Data Services. http://doi.org/10.5880/GFZ.5.1.2018.001
 
 Dietze, M.: The R package "eseis" – a software toolbox for environmental seismology, Earth Surf. Dynam., 6, 669–686, https://doi.org/10.5194/esurf-6-669-2018, 2018. 
 
@@ -61,12 +61,9 @@ Dietze, M.: The R package "eseis" – a software toolbox for environmental seism
 Michael Dietze 
 
 
-Helmholtz Centre Potsdam GFZ German Research Centre for Geoscienes 
-
-Section 4.6 Geomorphology
-
-Telegrafenberg
-
-14473 Potsdam
+University of Göttingen
+Faculty of Geoscience and Geography
+Goldschmidtstr. 5
+37077 Göttingen
 
 Germany

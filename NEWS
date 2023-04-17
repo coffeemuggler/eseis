@@ -1,5 +1,8 @@
 Changes for R-package eseis
 
+Version 0.8.0
+  - GUI with models polished, now support of empirical spectra
+
 Version 0.7.2
   - feature added, signal_filter, zero phase shift option added
   - bug fixed, spatial_distance, SpatRaster converted to list to maintain rda-file compatibility

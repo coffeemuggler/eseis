@@ -1,18 +1,18 @@
 #' eseis: Environmental Seismology Toolbox
-#' 
-#' Environmental seismoloy is a scientific field that studies the seismic 
-#' signals, emitted by Earth surface processes. This package eseis provides 
+#'
+#' Environmental seismoloy is a scientific field that studies the seismic
+#' signals, emitted by Earth surface processes. This package eseis provides
 #' all relevant functions to read/write seismic data files, prepare, analyse
 #' and visualise seismic data, and generate reports of the processing history.
 #'
 #' \tabular{ll}{
 #' **Package:** \tab eseis \cr
 #' **Type:** \tab Package \cr
-#' **Version:** \tab 0.4.0 \cr
-#' **Date:** \tab 2021-11-23 \cr
+#' **Version:** \tab 0.8.0 \cr
+#' **Date:** \tab 2023-xx-xx \cr
 #' **License:** \tab GPL-3 \cr
 #' }
-#' 
+#'
 #' @name eseis
 #' @aliases eseis-package
 #' @docType package
@@ -36,52 +36,52 @@
 NULL
 
 #' Seismic trace of a rockfall event.
-#' 
-#' The dataset comprises the seismic signal (vertical component) of 
+#'
+#' The dataset comprises the seismic signal (vertical component) of
 #' a rockfall event, preceeded by an earthquake. The data have been
 #' recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
 #' data logger.
-#' 
+#'
 #' @name rockfall
 #' @docType data
 #' @format The format is: num [1:98400] 65158 65176 65206 65194 65155 ...
 #' @keywords datasets
 #' @examples
-#' 
+#'
 #' ## load example data set
 #' data(rockfall)
-#' 
+#'
 #' ## plot signal vector using base functionality
 #' plot(x = rockfall_t, y = rockfall_z, type = "l")
-#' 
+#'
 #' ## plot signal vector using the package plot function
 #' plot_signal(data = rockfall_z, time = rockfall_t)
-#' 
+#'
 "rockfall_z"
 
 #' Time vector of a rockfall event.
-#' 
+#'
 #' The dataset comprises the time vector corresponding the to seismic signal
 #' of the rockfall event from the example data set "rockfall".
-#' 
+#'
 #' @name rockfall
 #' @docType data
 #' @format The format is: POSIXct[1:98400], format: "2015-04-06 13:16:54" ...
 #' @keywords datasets
 #' @examples
-#' 
+#'
 #' ## load example data set
 #' data(rockfall)
-#' 
+#'
 "rockfall_t"
 
 #' An eseis object of a rockfall event.
-#' 
-#' The dataset comprises the seismic signal (vertical component) of 
+#'
+#' The dataset comprises the seismic signal (vertical component) of
 #' a rockfall event, preceeded by an earthquake. The data have been
 #' recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
 #' data logger.
-#' 
+#'
 #' @name rockfall
 #' @docType data
 #' @format List of 4
@@ -93,51 +93,51 @@ NULL
 #'           ..$ n        : int 98399
 #' @keywords datasets
 #' @examples
-#' 
+#'
 #' ## load example data set
 #' data(rockfall)
-#' 
+#'
 "rockfall_eseis"
 
 #' Seismic traces of a small earthquake
-#' 
-#' The dataset comprises the seismic signal (all three components) of 
-#' a small earthquake. The data have been recorded at 200 Hz sampling 
+#'
+#' The dataset comprises the seismic signal (all three components) of
+#' a small earthquake. The data have been recorded at 200 Hz sampling
 #' frequency with an Omnirecs Cube ext 3 data logger.
-#' 
+#'
 #' @name earthquake
 #' @docType data
-#' @format The format is: 
+#' @format The format is:
 #' List of 3
 #'  $ BHE: num [1:8001] -3.95e-07 ...
 #'  $ BHN: num [1:8001] -2.02e-07 ...
 #'  $ BHZ: num [1:8001] -1.65e-07 ...
 #' @keywords datasets
 #' @examples
-#' 
+#'
 #' ## load example data set
 #' data(earthquake)
-#' 
+#'
 #' ## plot signal vector
 #' plot(x = t, y = s$BHZ, type = "l")
-#' 
+#'
 "s"
 
 #' Time vector for seismic traces of a small earthquake
-#' 
+#'
 #' The dataset comprises the time vector associated with the data set
 #' \code{earthquake}.
-#' 
+#'
 #' @name earthquake
 #' @docType data
 #' @format The format is: POSIXct[1:98400], format: "2015-04-06 13:16:54" ...
 #' @keywords datasets
 #' @examples
-#' 
+#'
 #' ## load example data set
 #' data(earthquake)
-#' 
+#'
 #' ## show range of time vector
 #' range(t)
-#' 
+#'
 "t"
