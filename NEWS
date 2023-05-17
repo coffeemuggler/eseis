@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.8.0
+  - function added, signal_merge()
   - GUI with models polished, now support of empirical spectra
   - feature added, aux_organisecubefiles() expressive checks added
   - code changed, aux_stationinfofile() file extension must be added now
