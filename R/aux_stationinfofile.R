@@ -36,7 +36,7 @@
 #' }
 #' 
 #' @param name \code{Character} value, file name of the output station info 
-#' file, without extention (will be added as *.txt).
+#' file, with extension.
 #'
 #' @param input_dir \code{Character} value, path to directory where all cube 
 #' files to be processed as stored. Each set of files from one logger must be 
@@ -105,13 +105,13 @@
 #' \dontrun{
 #' 
 #' ## basic example with minimum effort
-#' aux_stationinfofile(name = "stationinfo", 
+#' aux_stationinfofile(name = "stationinfo.txt", 
 #'                     input_dir = "input", 
 #'                     logger_ID = c("864", "876", "AB1"),
 #'                     gipptools = "software/gipptools-2015.225")
 #' 
 #' ## example with more adjustments
-#' aux_stationinfofile(name = "stationinfo",
+#' aux_stationinfofile(name = "stationinfo.txt",
 #'                     input_dir = "input",
 #'                     logger_ID = c("864", "876", "AB1"),
 #'                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
@@ -160,7 +160,7 @@ aux_stationinfofile <- function(
   ## check/set file name
   if(missing(name) == TRUE) {
     
-    name <- "station_info"
+    name <- "station_info.txt"
   }
   
   ## check/set output directory
@@ -499,11 +499,7 @@ aux_stationinfofile <- function(
   if(write_file == TRUE) {
     
     utils::write.table(station_info, 
-                       file = paste(output_dir, 
-                                    "/",
-                                    name,
-                                    ".txt",
-                                    sep = ""), 
+                       file = paste0(output_dir, "/", name), 
                        col.names = TRUE, 
                        row.names = FALSE, 
                        quote = TRUE,

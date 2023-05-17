@@ -29,7 +29,7 @@ aux_stationinfofile(
 }
 \arguments{
 \item{name}{\code{Character} value, file name of the output station info 
-file, without extention (will be added as *.txt).}
+file, with extension.}
 
 \item{input_dir}{\code{Character} value, path to directory where all cube 
 files to be processed as stored. Each set of files from one logger must be 
@@ -134,13 +134,13 @@ appropriate structure would be something like: \cr
 \dontrun{
 
 ## basic example with minimum effort
-aux_stationinfofile(name = "stationinfo", 
+aux_stationinfofile(name = "stationinfo.txt", 
                     input_dir = "input", 
                     logger_ID = c("864", "876", "AB1"),
                     gipptools = "software/gipptools-2015.225")
 
 ## example with more adjustments
-aux_stationinfofile(name = "stationinfo",
+aux_stationinfofile(name = "stationinfo.txt",
                     input_dir = "input",
                     logger_ID = c("864", "876", "AB1"),
                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
