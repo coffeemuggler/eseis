@@ -2,6 +2,8 @@ Changes for R-package eseis
 
 Version 0.8.0
   - GUI with models polished, now support of empirical spectra
+  - feature added, aux_organisecubefiles() expressive checks added
+  - code changed, aux_stationinfofile() file extension must be added now
 
 Version 0.7.2
   - feature added, signal_filter, zero phase shift option added

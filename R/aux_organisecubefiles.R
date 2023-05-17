@@ -137,6 +137,36 @@ aux_organisecubefiles <- function(
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
   
+  ## check/set validity of software directory
+  if(missing(gipptools) == TRUE) {
+    
+    stop("Path to gipptools missing!")
+  } else if(dir.exists(gipptools) == FALSE) {
+    
+    stop("Path to gipptools is wrong!")
+  }
+  
+  ## check if gipptools are available
+  if(file.exists(paste0(gipptools, "/bin/cube2mseed")) == FALSE) {
+    
+    stop("No gipptools function(s) available under that path!")
+  }
+  
+  ## check if gipptools actually work
+  gt_hi <- try(system(paste0(gipptools, "/bin/cubeinfo --version"), 
+                      intern = TRUE, ignore.stderr = TRUE), silent = TRUE)
+  gt_hi <- sum(grepl(x = gt_hi, pattern = "Release: GIPPtools")) > 0
+  
+  if(gt_hi == FALSE) {
+    
+    stop("Gipptools function(s) not working! Java installed?")
+  }
+  
+  ## correct path definitions
+  gipptools <- paste0(dirname(gipptools), "/", basename(gipptools))
+  input_dir <- paste0(dirname(input_dir), "/", basename(input_dir))
+  output_dir <- paste0(dirname(output_dir), "/", basename(output_dir))
+  
   ## check/set station info file validity
   if(missing(stationfile) == TRUE) {
     
@@ -197,15 +227,6 @@ aux_organisecubefiles <- function(
     heapspace <- NA
   }
   
-  ## check/set validity of software directory
-  if(missing(gipptools) == TRUE) {
-    
-    stop("Path to gipptools missing!")
-  } else if(dir.exists(gipptools) == FALSE) {
-    
-    stop("Path to gipptools is wrong!")
-  }
-  
   ## read station info data
   stations <- read.table(file = stationfile, 
                          header = TRUE)
@@ -217,11 +238,45 @@ aux_organisecubefiles <- function(
   ## compare cube_ID with cube directories
   for(i in 1:nrow(stations)) {
     
+    ## check if subdirectories are present for each Cube ID 
     if(sum(stations$logger_ID[i] == list.files(path = input_dir)) < 1) {
-      stop(paste("[aux_organisecubefiles]: ", 
-                 stations$ID[i], " (", 
-                 stations$logger_ID[i], ") ",
-                 "not found in input directory!", sep = ""))
+      stop(paste0("Station ID ", 
+                  stations$ID[i], ": Subdirectory ", 
+                  stations$logger_ID[i], 
+                  " not found in input directory!"))
+    }
+    
+    ## check if subdirectories are free of further subdirectories
+    ext_dirs <- list.dirs(path = paste0(input_dir, "/", 
+                                        stations$logger_ID[i]))
+    ext_dirs <- ext_dirs[ext_dirs != paste0(input_dir, "/", 
+                                            stations$logger_ID[i])]
+
+    if(length(ext_dirs) > 0) {
+      
+      stop(paste0("Station ID ", 
+                  stations$ID[i], 
+                  ": found further subdirectories in: ",
+                  paste0(input_dir, "/", 
+                         stations$logger_ID[i])))
+    }
+        
+    ## check if subdirectories contain only matching CUBE IDs
+    ext_files <- list.files(path = paste0(input_dir, "/", 
+                                          stations$logger_ID[i]))
+    ext_files_ok <- sapply(X = ext_files, FUN = function(x, id) {
+      
+      strsplit(x = ext_files, 
+               split = ".", 
+               fixed = TRUE)[[1]][2] == id
+    }, id = stations$logger_ID[i]) 
+    
+    if(any(ext_files_ok == FALSE)) {
+      
+      stop(paste0("Station ID ", 
+                  stations$ID[i], 
+                  ": found file with wrong ID extention: ",
+                  ext_files[!ext_files_ok]))
     }
   }
   
