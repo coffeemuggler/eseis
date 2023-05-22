@@ -1,6 +1,8 @@
 Changes for R-package eseis
 
 Version 0.8.0
+  - feature added, list_sensor(), new instrument keywords added
+  - feature added, list_logger(), new instrument keywords added
   - feature added (for testing), plot_signal(), support lists of eseis objects
   - function added, signal_merge()
   - GUI with models polished, now support of empirical spectra

@@ -120,6 +120,16 @@ list_logger <- function(
     comment = "Not tested, values copied from A. Burtins data base.",
     AD = 2.609E-07)
   
+  ## define GAIA2 parameters
+  GAIA2 <- list(
+    ID = "GAIA2",
+    name = "GAIA2-FS-40-VPP",
+    manufacturer = "GAIA",
+    type = "Logger from Italian INGV",
+    n_components = 3,
+    comment = "Not tested, values back calculated from http://service.iris.edu/irisws/fedcatalog/1/query?net=IV&format=text",
+    AD = 1.953125e-09)
+
   ## build sensor library
   loggers <- list("Cube3ext" = Cube3ext,
                   "Cube3extBOB" = Cube3extBOB,
@@ -130,7 +140,8 @@ list_logger <- function(
                   "Osiris" = Osiris,
                   "RT72A08" = RT72A08,
                   "RT130" = RT130,
-                  "CMG6TD" = CMG6TD)
+                  "CMG6TD" = CMG6TD,
+                  "GAIA2" = GAIA2)
   
   ## return output
   return(loggers)
