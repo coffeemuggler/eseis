@@ -313,6 +313,27 @@ list_sensor <- function(
     k =  6.082850E+07)
   
   
+  STS25 <- list(
+    ID = "STS25",
+    name = "STS-2.5",
+    manufacturer = "Streckeisen",
+    type = "broadband seismometer",
+    n_components = 3,
+    comment = "Data from Omani Station XML Files",
+    poles = as.complex(c(-0.037+0.037i,
+                         -0.037-0.037i,
+                         -9.739+0i,
+                         -219.9+138.2i,
+                         -219.9-138.2i,
+                         -219.9+684.9i,
+                         -219.9-684.9i)),
+    zeros = as.complex(c(0+0i,
+                         0+0i,
+                         -9.425+0i)),
+    s = 1500,
+    k =  3.6E+10)
+  
+  
   ## build sensor library
   sensors <- list("TC120s" = TC120s,
                   "TRI240" = TRI240,
@@ -330,7 +351,8 @@ list_sensor <- function(
                   "KINKEI" = KINKEI,
                   "PE6B" = PE6B,
                   "RT151120" = RT151120,
-                  "RT151B120" = RT151B120)
+                  "RT151B120" = RT151B120,
+                  "STS25" = STS25)
   
   ## return output
   return(sensors)
