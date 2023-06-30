@@ -1,19 +1,9 @@
 Changes for R-package eseis
 
-Version 0.8.0 (to be announced)
-  - bug fixed, signal_spectrum(), smoothing support also for list case
-  - autostart message and Obspy loading removed
-  - feature added, signal_deconvolve(), xml file support
-  - function added, aux_getxml()
-  - feature added, list_sensor(), new instrument keywords added
-  - feature added, list_logger(), new instrument keywords added
-  - feature added (for testing), plot_signal(), support lists of eseis objects
-  - function added, signal_merge()
-  - GUI with models polished, now support of empirical spectra
-  - feature added, aux_organisecubefiles() expressive checks added
-  - code changed, aux_stationinfofile() file extension must be added now
+Version 0.8.0
+  - 
 
-Version 0.7.2 (2023-04-16)
+Version 0.7.2
   - feature added, signal_filter, zero phase shift option added
   - bug fixed, spatial_distance, SpatRaster converted to list to maintain rda-file compatibility
   - bugs fixed, fmi_spectra and fmi_inversion, power units corrected
