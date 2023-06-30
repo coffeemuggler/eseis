@@ -65,6 +65,12 @@ signal_spectrum <- function(
     
     dt <- NULL
   }
+  
+  ## check/set dt
+  if(missing(n) == TRUE) {
+    
+    n <- NULL
+  }
 
   ## check data structure
   if(class(data)[1] == "list") {
@@ -74,6 +80,7 @@ signal_spectrum <- function(
                        FUN = signal_spectrum,
                        dt = dt, 
                        method = method,
+                       n = n,
                        ...)
     
     ## return output
@@ -125,6 +132,7 @@ signal_spectrum <- function(
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
                              power = s$spec)
+      
     } else if(method == "autoregressive") {
       
       ## calculate spectrum
@@ -140,6 +148,7 @@ signal_spectrum <- function(
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
                              power = s$spec)
+      
     } else if(method == "multitaper") {
       
       ## calculate spectrum
@@ -156,13 +165,14 @@ signal_spectrum <- function(
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
                              power = s$spec)
+      
     } else {
       
       stop("Keyword for method not supported!")
     }
     
     ## optionally perform smoothing
-    if(missing(n) == FALSE) {
+    if(is.null(n) == FALSE) {
       
       data_out$power <- caTools::runmean(x = data_out$power, k = n)
     }
