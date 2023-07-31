@@ -14,15 +14,14 @@ objects, data set to be processed.}
 is set to 1/200. Only needed if \code{data} is no \code{eseis} object.}
 
 \item{method}{\code{Character} value, calculation method. One out of 
-\code{"periodogram"} , \code{"autoregressive"} and \code{"multitaper"}, 
+\code{"periodogram"} and \code{"autoregressive"}. 
 default is \code{"periodogram"}.}
 
 \item{n}{\code{Numeric} value, optional number of samples in 
 running window used for smoothing the spectrogram. Only applied if a 
 number is provided. Smoothing is performed as running mean.}
 
-\item{\dots}{Additional arguments passed to the function. See 
-\code{\link{spec.pgram}}, \code{\link{spec.ar}}, \code{\link{spec.mtm}}.}
+\item{\dots}{Additional arguments passed to the function.}
 }
 \value{
 \code{Data frame} with frequency and power vector
