@@ -1,6 +1,8 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - function added, time_jd()
+  - dependence on orphaned multitaper package removed
   - bug fixed, signal_spectrum(), smoothing support also for list case
   - autostart message and Obspy loading removed
   - feature added, signal_deconvolve(), xml file support
