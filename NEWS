@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - bug fixed, list_sensor(), definition of TC120s 1st pole corrected
   - function added, time_jd()
   - dependence on orphaned multitaper package removed
   - bug fixed, signal_spectrum(), smoothing support also for list case
