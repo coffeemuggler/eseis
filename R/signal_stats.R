@@ -220,6 +220,12 @@ signal_stats <- function(
   
   stats <- stats[!grepl(x = stats, pattern = "KICKMEOUT")]
   
+  ## check if parameters are in valid range
+  if(res_psd > length(data) * dt) {
+    
+    res_psd <- (length(data) - 1) * dt
+  }
+  
   ## calculate data derivatives -----------------------------------------------
   
   ## create time vector

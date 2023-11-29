@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - bug fixed, signal_stats(), PSD window length auto adjust for short events
   - example added, aux_getxml()
   - bug fixed, fmi_spectra(), name artefact from previous version fixed
   - bug fixed, signal_stats(), filter frequency range changed for dt >= 1/100
