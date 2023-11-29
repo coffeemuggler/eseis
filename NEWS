@@ -1,6 +1,9 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - example added, aux_getxml()
+  - bug fixed, fmi_spectra(), name artefact from previous version fixed
+  - bug fixed, signal_stats(), filter frequency range changed for dt >= 1/100
   - bug fixed, list_sensor(), definition of TC120s 1st pole corrected
   - function added, time_jd()
   - dependence on orphaned multitaper package removed
