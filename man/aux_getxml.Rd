@@ -59,6 +59,20 @@ saves it and/or reads an already existing local station XML file.
 Currently, the function uses Obspy python code. Hence, both python and the 
 package 'obspy' need to be installed in order to use the function.
 }
+\examples{
+
+\dontrun{
+
+x <- aux_getxml(start = "2010-10-10", 
+                duration = 60,
+                network = "GE",
+                station = "BRNL",
+                component = "BHZ",
+                url = "http://service.iris.edu")
+
+}
+
+}
 \author{
 Michael Dietze
 }

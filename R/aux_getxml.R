@@ -46,6 +46,17 @@
 #'
 #' @examples
 #' 
+#' \dontrun{
+#' 
+#' x <- aux_getxml(start = "2010-10-10", 
+#'                 duration = 60,
+#'                 network = "GE",
+#'                 station = "BRNL",
+#'                 component = "BHZ",
+#'                 url = "http://service.iris.edu")
+#' 
+#' }
+#' 
 #' @export aux_getxml
 
 aux_getxml <- function(
