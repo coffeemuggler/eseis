@@ -1,6 +1,8 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - function changed, signal_clip(), argument order changed (time vs. limits)
+  - feature added, signal_clip(), character POSIX conversion added
   - bug fixed, signal_stats(), PSD window length auto adjust for short events
   - example added, aux_getxml()
   - bug fixed, fmi_spectra(), name artefact from previous version fixed

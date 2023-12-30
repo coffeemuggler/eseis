@@ -5,11 +5,12 @@
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
+#' @param limits \code{POSIXct} vector of length two, time limits for 
+#' clipping. Can also be a text string that will be converted to POSIXct
+#' format, with UTC assigned automatically.
+#' 
 #' @param time \code{POSIXct} vector, corresponding time vector. Only needed 
 #' if \code{data} is no \code{eseis} object.
-#' 
-#' @param limits \code{POSIXct} vector of length two, time limits for 
-#' clipping.
 #' 
 #' @return \code{Numeric} data set clipped to provided time interval. 
 #' 
@@ -36,10 +37,23 @@
 #'                              
 #' @export signal_clip
 signal_clip <- function(
+  
   data,
-  time,
-  limits
+  limits,
+  time
+  
 ) {
+  
+  ## check/set limits time format
+  if(class(limits[1])[1] != "POSIXct") {
+    
+    limits <- try(as.POSIXct(limits, tz = "UTC"), silent = TRUE)
+    
+    if(class(limits[1])[1] != "POSIXct") {
+      
+      stop("Limits cannot be converted to POSIXct format!")
+    }
+  }
   
   ## check/set time vector
   if(missing(time) == TRUE) {
