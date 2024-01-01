@@ -12,7 +12,7 @@ objects, data set to be processed.}
 
 \item{limits}{\code{POSIXct} vector of length two, time limits for 
 clipping. Can also be a text string that will be converted to POSIXct
-format, if possible.}
+format, with UTC assigned automatically.}
 
 \item{time}{\code{POSIXct} vector, corresponding time vector. Only needed 
 if \code{data} is no \code{eseis} object.}
