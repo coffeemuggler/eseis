@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - function added, signal_differentiate()
   - function added, signal_interpolate()
   - bug fixed, signal_aggregate(), argument pass for list case added
   - function changed, signal_clip(), argument order changed (time vs. limits)

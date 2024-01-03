@@ -20,7 +20,7 @@ documentation of \code{signal::decimate}. Default is \code{4}.}
 details.}
 }
 \value{
-Integrated data set.
+Interpolated data set.
 }
 \description{
 The signal vector \code{data} is interpolated by an integer factor 
@@ -32,7 +32,7 @@ information but rather artefacts above the initial frequency range.
 \details{
 The function calls the function \code{signal::interp} and wraps the output
 into the eseis object structure. The ...-argument may contain the passed 
-argument \code{Wc} (FIOR filter cutoff frequency). Note that by convention 
+argument \code{Wc} (FIR filter cutoff frequency). Note that by convention 
 the argument \code{n} of \code{eseis::signal_interpolate} does not equal the
 argument \code{n} of \code{signal::interp}. Rather this is the argument 
 \code{l} that is passed as \code{n}.
