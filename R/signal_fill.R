@@ -1,15 +1,20 @@
 #' Fill NA-gaps of a signal
 #' 
-#' This function performs linear interpolation of NA values.
+#' This function performs linear interpolation of NA values or pads them 
+#' with zeros.
 #' 
 #' Note that the procedure will contaminate the signal by artefacts as 
-#' increasingly larger data gaps are filled with interpolated values.
+#' increasingly larger data gaps are filled with interpolated or zero values.
 #' 
 #' @param data \code{eseis} object, numeric vector or list of objects, 
 #' data set to be processed. 
 #' 
+#' @param method \code{Character} value, method to use for filling the data 
+#' gap. One out of \code{"linear"} (linear interpolation) and \code{"zeros"} 
+#' (padding with zeros). Default is \code{"linear"}.
+#' 
 #' @return \code{eseis} object, numeric vector or list of objects, 
-#' interpolated data set(s).
+#' gap-filled data set(s).
 #' 
 #' @author Michael Dietze
 #' 
@@ -18,7 +23,8 @@
 #' @examples
 #' 
 #' ## create synthetic data set and add NA-gaps
-#' x <- eseis::signal_detrend(data = runif(1000))
+#' data(rockfall)
+#' x <- rockfall_z[25000:26000]
 #' x_gap <- x
 #' x_gap[100:102] <- NA
 #' x_gap[500:530] <- NA
@@ -26,9 +32,12 @@
 #' ## fill gaps
 #' y <- signal_fill(data = x_gap)
 #' 
+#' ## plot filled data set
+#' plot(y, type = "l")
+#' 
 #' ## filter both data sets
-#' x <- signal_filter(data = x, f = c(1, 3), dt = 1/200)
-#' y <- signal_filter(data = y, f = c(1, 3), dt = 1/200)
+#' x <- signal_filter(data = x, f = c(1, 3), dt = 1/200, lazy = TRUE)
+#' y <- signal_filter(data = y, f = c(1, 3), dt = 1/200, lazy = TRUE)
 #' 
 #' ## plot both data sets
 #' plot(y, type = "l", col = "grey", lwd = 3)
@@ -37,7 +46,8 @@
 #' @export signal_fill
 signal_fill <- function(
   
-  data
+  data,
+  method = "linear"
 ) {
   
   
@@ -46,7 +56,8 @@ signal_fill <- function(
     
     ## apply function to list
     data_out <- lapply(X = data, 
-                       FUN = eseis::signal_fill)
+                       FUN = eseis::signal_fill,
+                       method = method)
     
     ## return output
     return(data_out)
@@ -56,7 +67,8 @@ signal_fill <- function(
     eseis_t_0 <- Sys.time()
     
     ## collect function arguments
-    eseis_arguments <- list(data = "")
+    eseis_arguments <- list(data = "",
+                            method = method)
     
     ## check if input object is of class eseis
     if(class(data)[1] == "eseis") {
@@ -104,9 +116,17 @@ signal_fill <- function(
       
       for(i in 1:length(l)) {
         
-        data_out[(l[i] + 1):(u[i] - 1)] <- seq(from = data[l[i]], 
-                                               to = data[u[i]], 
-                                               length.out = u[i] - l[i] - 1)
+        if(method == "linear") {
+          
+          data_out[(l[i] + 1):(u[i] - 1)] <- seq(from = data[l[i]], 
+                                                 to = data[u[i]], 
+                                                 length.out = u[i] - l[i] - 1)
+        }
+        
+        if(method == "zeros") {
+          
+          data_out[(l[i] + 1):(u[i] - 1)] <- rep(x = 0, u[i] - l[i] - 1)
+        }
       }    
     }
     
