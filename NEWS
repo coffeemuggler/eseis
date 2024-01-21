@@ -1,6 +1,8 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - feature added, pick_stalta(), maximum ratio added to output
+  - function added, aux_picknetwork()
   - feature added, signal_fill(), method padding with zeros allowed
   - function added, signal_differentiate()
   - function added, signal_interpolate()
