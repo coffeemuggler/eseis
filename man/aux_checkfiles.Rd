@@ -60,7 +60,14 @@ agreement of file name and seismic file meta data.
 
 \dontrun{
 
+## set seismic data directory
+dir_data <- paste0(system.file("extdata", package="eseis"), "/")
 
+## check data archive for record completeness
+chk <- aux_checkfiles(dir = dir_data, 
+                      station = "RUEG1", 
+                      component = "BHZ",
+                      plot = TRUE)
 
 }
 
