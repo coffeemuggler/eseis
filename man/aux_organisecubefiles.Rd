@@ -11,7 +11,7 @@ aux_organisecubefiles(
   gipptools,
   format = "sac",
   pattern = "eseis",
-  channel = "BH",
+  component = "BH",
   mode = "dir-wise",
   fringe = "constant",
   cpu,
@@ -42,7 +42,7 @@ directory.}
 One out of \code{"eseis"} and \code{"seiscomp"}. Default is \code{"eseis"}. 
 See details and \code{read_data} for further information.}
 
-\item{channel}{\code{Character} vector, component code and output file 
+\item{component}{\code{Character} vector, component code and output file 
 extension prefix. It is assumed that this prefix comprises two characters, 
 the first describing the band code, the second the instrument code. See 
 details for further information. Default is \code{"BH"}, hence broadband 

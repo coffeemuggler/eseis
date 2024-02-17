@@ -102,7 +102,7 @@
 #' One out of \code{"eseis"} and \code{"seiscomp"}. Default is \code{"eseis"}. 
 #' See details and \code{read_data} for further information.
 #' 
-#' @param channel \code{Character} vector, component code and output file 
+#' @param component \code{Character} vector, component code and output file 
 #' extension prefix. It is assumed that this prefix comprises two characters, 
 #' the first describing the band code, the second the instrument code. See 
 #' details for further information. Default is \code{"BH"}, hence broadband 
@@ -152,7 +152,7 @@ aux_organisecubefiles <- function(
   gipptools,
   format = "sac",
   pattern = "eseis",
-  channel = "BH",
+  component = "BH",
   mode = "dir-wise",
   fringe = "constant",
   cpu,
@@ -417,11 +417,11 @@ aux_organisecubefiles <- function(
           
           ## optionally change component names
           s$meta$component[s$meta$component == "p0"] <- 
-            paste0(pars$channel, "Z")
+            paste0(pars$component, "Z")
           s$meta$component[s$meta$component == "p1"] <- 
-            paste0(pars$channel, "N")
+            paste0(pars$component, "N")
           s$meta$component[s$meta$component == "p2"] <-
-            paste0(pars$channel, "E")
+            paste0(pars$component, "E")
           
           ## build file name
           name_output <- paste(s$meta$station, 
@@ -465,7 +465,7 @@ aux_organisecubefiles <- function(
       }, pars = list(temp_org = temp_org,
                      output = output,
                      station = station,
-                     channel = channel,
+                     component = component,
                      format = format,
                      gipptools = gipptools)))
   }
