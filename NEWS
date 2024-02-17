@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - feature added, read_data(), component names can use wildcards
   - function changed, aux_organisecubefiles(), significant changes and improvements
   - function added, aux_checkdata()
   - feature added, signal_rotate(), support of further data structures

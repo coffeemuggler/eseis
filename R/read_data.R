@@ -50,8 +50,11 @@
 #' 
 #' @param component \code{Character} value, seismic component, which must
 #' correspond to the component name in the file name of the data directory  
-#' structure (cf. \code{aux_organisecubefiles}). Default is 
-#' \code{"BHZ"} (vertical component of a sac file).
+#' structure (cf. \code{aux_organisecubefiles}). Information can be restricted 
+#' to a single character, denoting the last character of the station component 
+#' code, i.e. \code{"Z"} would use the first and last component of 
+#' \code{c("BHZ", "HHE", "HHZ")}. Default is \code{"BHZ"} (vertical component 
+#' of a seismic file).
 #' 
 #' @param format \code{Character} value, seismic data format. One out of 
 #' \code{"sac"} and \code{"mseed"}. If omitted, the function will try to 
@@ -181,8 +184,7 @@ read_data <- function(
     
     network <- args$network
     
-  }
-  else {
+  } else {
     
     if(pattern == "%Y/%NET/%STA/%CMP/%NET.%STA.%LOC.%CMP.%TYP.%Y.%j") {
       
@@ -198,8 +200,7 @@ read_data <- function(
     
     type <- args$type
     
-  }
-  else {
+  } else {
     
     type <- "__"
   }
@@ -209,8 +210,7 @@ read_data <- function(
     
     location <- args$location
     
-  }
-  else {
+  } else {
     
     location <- "__"
     
@@ -250,7 +250,9 @@ read_data <- function(
 
   ## assign shortened object names
   sta <- station
-  cmp <- component
+  cmp <- ifelse(test = nchar(component) == 1, #
+                yes = paste0("*", component), 
+                no = component)
   pars <- list(dir = dir, 
                pt = pattern, 
                fm = format, 
@@ -467,7 +469,7 @@ read_data <- function(
           
         } else {
           
-          stop(paste0("Failure during import of ", sta, "-", cmp))
+          stop(paste0("Failure during import of ", sta, ", ", cmp))
         }
       }
       
@@ -485,7 +487,7 @@ read_data <- function(
       return(s)
     }, sta, t, pars)
     
-    names(s) <- cmp
+    names(s) <- do.call(c, lapply(X = s, FUN = function(x) {x$meta$component}))
     
     return(s)
   }, cmp, t, pars)

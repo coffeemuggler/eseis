@@ -33,8 +33,11 @@ correspond to the ID in the file name of the data directory structure
 
 \item{component}{\code{Character} value, seismic component, which must
 correspond to the component name in the file name of the data directory  
-structure (cf. \code{aux_organisecubefiles}). Default is 
-\code{"BHZ"} (vertical component of a sac file).}
+structure (cf. \code{aux_organisecubefiles}). Information can be restricted 
+to a single character, denoting the last character of the station component 
+code, i.e. \code{"Z"} would use the first and last component of 
+\code{c("BHZ", "HHE", "HHZ")}. Default is \code{"BHZ"} (vertical component 
+of a seismic file).}
 
 \item{format}{\code{Character} value, seismic data format. One out of 
 \code{"sac"} and \code{"mseed"}. If omitted, the function will try to 

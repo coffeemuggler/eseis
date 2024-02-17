@@ -102,7 +102,10 @@
 #' @param station \code{Character} vector, seismic station IDs to be processed. 
 #' 
 #' @param component \code{Character} value or vector, seismic component to 
-#' be used. If omitted, the function will use \code{"BHZ"} by default.
+#' be used. Information can be restricted to a single character, denoting the 
+#' last character of the station component code, i.e. \code{"Z"} would use the 
+#' first and last component of \code{c("BHZ", "HHE", "HHZ")}. If omitted, 
+#' the function will use \code{"BHZ"} by default.
 #'
 #' @param dir \code{Character} value, path to directory that contains the 
 #' seismic files. See \code{read_data} for details and constraints on the 
