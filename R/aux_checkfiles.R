@@ -316,21 +316,22 @@ aux_checkfiles <- function(
   if(plot == TRUE) {
     
     ## create sorting period time format
-    if(period == "total") {
-      
-      t_sort <- rep(TRUE, nrow(d_out))
-    } else if(period == "yearly") {
+    if(period == "yearly") {
       
       t_sort <- format(d_out$starttime_expect, format = "%Y")
+      t_plot <- 0:365
     } else if(period == "monthly") {
       
       t_sort <- format(d_out$starttime_expect, format = "%Y-%m")
+      t_plot <- 0:31
     } else if(period == "weekly") {
       
       t_sort <- format(d_out$starttime_expect, format = "%Y-%W")
+      t_plot <- 0:7
     } else if(period == "daily") {
       
       t_sort <- format(d_out$starttime_expect, format = "%Y-%j")
+      t_plot <- 0:24
     }
     
     ## get unique values
@@ -344,69 +345,70 @@ aux_checkfiles <- function(
       
       return(d_sort[d_sort$t_sort == t_unique,])
     }, d_sort)
-
-    ## get time ranges
-    t_plot <- lapply(X = d_plot, FUN = function(d_plot, duration_set) {
+    
+    ## add x-axis units
+    d_plot <- lapply(X = d_plot, FUN = function(x) {
       
-      range(d_plot$starttime_expect) + c(0, duration_set)
-    }, duration_set)
-    t_plot <- do.call(rbind, t_plot)
-    t_plot <- as.POSIXct(c(min(t_plot[,1]), 
-                           max(t_plot[,2])), 
-                         origin = "1970-01-01")
+      ## create sorting period time format
+      if(period == "yearly") {
+        
+        x_plot <-  as.numeric(format(x$starttime_expect, format = "%j")) - 1 + 
+          as.numeric(format(x$starttime_expect, format = "%H")) / 24
+      } else if(period == "monthly") {
+        
+        x_plot <-  as.numeric(format(x$starttime_expect, format = "%d")) - 1 + 
+          as.numeric(format(x$starttime_expect, format = "%H")) / 24
+      } else if(period == "weekly") {
+        
+        x_plot <- as.numeric(format(x$starttime_expect, format = "%u")) - 1 + 
+          as.numeric(format(x$starttime_expect, format = "%H")) / 24
+      } else if(period == "daily") {
+        
+        x_plot <- as.numeric(format(x$starttime_expect, format = "%H")) - 1 + 
+          as.numeric(format(x$starttime_expect, format = "%M")) / 60
+      }
+      
+      
+      x$x_plot <- x_plot
+      
+      return(x)
+    })
     
     ## generate plot
     plot(NA, 
-         xlim = t_plot, 
+         xlim = range(t_plot), 
          ylim = c(1, length(d_plot)), 
          ann = FALSE, 
          axes = FALSE)
     
     box(which = "plot")
     
-    axis.POSIXct(side = 1, 
-                 x = t_plot)
+    if(period == "yearly") {
+      
+      axis(side = 1, at = pretty(t_plot))
+    } else {
+      
+      axis.POSIXct(side = 1, at = pretty(t_plot))
+    }
     
     axis(side = 2, 
          at = 1:length(d_plot), 
          labels = t_unique)
     
     for(i in 1:length(d_plot)) {
-    
-      ## create sorting period time format
-      if(period == "total") {
-        
-        t_plot_2 <- d_plot[[i]]$starttime_file
-      } else if(period == "yearly") {
-        
-        t_plot_2 <- as.numeric(x = format(x = d_plot[[i]]$starttime_file, 
-                                          format = "%m"))
-      } else if(period == "monthly") {
-        
-        t_plot_2 <- as.numeric(x = format(x = d_plot[[i]]$starttime_file, 
-                                          format = "%d"))
-      } else if(period == "weekly") {
-        
-        t_plot_2 <- as.numeric(x = format(x = d_plot[[i]]$starttime_file, 
-                                          format = "%w"))
-      } else if(period == "daily") {
-        
-        t_plot_2 <- as.numeric(x = format(x = d_plot[[i]]$starttime_file, 
-                                          format = "%H"))
-      }
       
-        
-      lines(x = c(min(d_plot[[i]]$starttime_file, na.rm = TRUE), 
-                   max(d_plot[[i]]$starttime_file, na.rm = TRUE) + 
-                    duration_set), 
-            y = c(i, i),
-            col = "red",
-            lwd = 0.8)
+      d_step <- median(diff(d_plot[[i]]$x_plot))
+      col_plot <- ifelse(d_plot[[i]]$present == FALSE, "red", "NA")
       
-      segments(x0 = d_plot[[i]]$starttime_file, 
+      segments(x0 = d_plot[[i]]$x_plot, 
                y0 = i, 
-               x1 = d_plot[[i]]$starttime_file + duration_set, 
-               y1 = i, lwd = 1.5)
+               x1 = d_plot[[i]]$x_plot + d_step, 
+               y1 = i, lwd = 1)
+      segments(x0 = d_plot[[i]]$x_plot, 
+               y0 = i, 
+               x1 = d_plot[[i]]$x_plot + d_step, 
+               y1 = i, lwd = 2, col = col_plot)
+      
     }
   }
   
