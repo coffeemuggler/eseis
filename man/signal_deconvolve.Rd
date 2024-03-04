@@ -16,7 +16,8 @@ signal_deconvolve(
   xml_use,
   p = 10^-6,
   waterlevel = 10^-6,
-  na.replace = FALSE
+  na.replace = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -67,6 +68,9 @@ division, default is \code{10^-6}.}
 data set by zeros. Default is \code{FALSE}. Attention, the zeros will 
 create artifacts in the deconvolved data set. However, \code{NA} values will 
 result in no deconvolution at all.}
+
+\item{verbose}{\code{Logical} value, option to allow messages and warnings 
+to be shown. Default is \code{FALSE}.}
 }
 \value{
 \code{Numeric} vector or list of vectors, deconvolved signal.
