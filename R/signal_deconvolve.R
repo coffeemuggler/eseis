@@ -61,6 +61,9 @@
 #' create artifacts in the deconvolved data set. However, \code{NA} values will 
 #' result in no deconvolution at all.
 #' 
+#' @param verbose \code{Logical} value, option to allow messages and warnings 
+#' to be shown. Default is \code{FALSE}.
+#' 
 #' @return \code{Numeric} vector or list of vectors, deconvolved signal.
 #' 
 #' @author Michael Dietze
@@ -147,7 +150,8 @@ signal_deconvolve <- function(
     xml_use,
     p = 10^-6,
     waterlevel = 10^-6,
-    na.replace = FALSE
+    na.replace = FALSE,
+    verbose = FALSE
 ) {
   
   ## check/set dt
@@ -335,6 +339,7 @@ signal_deconvolve <- function(
     if(eseis_arguments$xml_use == TRUE) {
       
       s_o <- aux_eseisobspy(data = eseis_data)
+      
       
       s_o$remove_response(inventory=xml)
       
