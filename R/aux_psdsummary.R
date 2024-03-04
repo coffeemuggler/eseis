@@ -140,14 +140,28 @@ aux_psdsummary <- function(
   ## check if deconvolution is to be done
   if(missing(sensor) | missing(logger)) {
     
-    ## set deconvolution flag
-    deconvolve <- FALSE
+    if(missing(xml) == FALSE) {
+      
+      ## set deconvolution flag
+      deconvolve <- TRUE
+      
+      ## create dummy sensor, logger, gain, xml information
+      sensor <- NA
+      logger <- NA
+      gain <- NA
+      
+    } else {
+      
+      ## set deconvolution flag
+      deconvolve <- FALSE
+      
+      ## create dummy sensor, logger, gain information
+      sensor <- NA
+      logger <- NA
+      gain <- NA
+      xml <- NA
+    }
     
-    ## create dummy sensor, logger, gain information
-    sensor <- NA
-    logger <- NA
-    gain <- NA
-  
   } else {
     
     ## set deconvolution flag
@@ -164,6 +178,8 @@ aux_psdsummary <- function(
       
       stop("Logger keyword is not supported!")
     }
+    
+    xml <- NA
   }
   
   ## check/set hours to skip
@@ -250,6 +266,7 @@ aux_psdsummary <- function(
                sensor = sensor,
                logger = logger,
                gain = gain,
+               xml = xml,
                f_agg = f_agg)
   
   ## PROCESSING -----------------------------------------------------------------
@@ -277,10 +294,19 @@ aux_psdsummary <- function(
     ## deconvolve data
     if(pars$deconvolve == TRUE) {
       
-      s <- try(eseis::signal_deconvolve(data = s, 
-                                        sensor = pars$sensor, 
-                                        logger = pars$logger,
-                                        gain = pars$gain))
+      if(is.na(pars$xml == TRUE)) {
+        
+        s <- try(eseis::signal_deconvolve(data = s, 
+                                          sensor = pars$sensor, 
+                                          logger = pars$logger,
+                                          gain = pars$gain))
+      } else {
+        
+        s <- try(eseis::signal_deconvolve(data = s, 
+                                          xml = pars$xml))
+      }
+      
+
     }
     
     ## calculate spectrogram
