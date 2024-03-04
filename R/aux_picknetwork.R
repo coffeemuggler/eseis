@@ -249,16 +249,25 @@ aux_picknetwork <- function(
   ## check or set component
   if(missing(component) == TRUE) {
     
-    component <- rep("BHZ", length(station))
+    component <- rep("Z", length(station))
+  }
+  
+  if(length(component) != length(station)) {
+    
+    warning("n components does not match n stations, will be recycled!")
+    
+    component <- rep(x = component, length.out = length(station))
   }
   
   ## check or set filter frequencies
   if(missing(f) == TRUE) {
     
     f <- c(NA)
+    
   } else if(length(f) != 2) {
     
     stop("f must contain two values!")
+    
   } else if(f[1] >= f[2]) {
     
     stop("Filter frequencies flipped!")
@@ -285,6 +294,7 @@ aux_picknetwork <- function(
     }
     
     deconvolve <- TRUE
+    
   } else {
     
     deconvolve <- FALSE
@@ -325,7 +335,7 @@ aux_picknetwork <- function(
   n_picks_count <- 0
   
   ## process all time steps
-  for(i in 1:length(picks)) {
+  for(i in 1:length(t)) {
     
     ## read and preprocess station data
     s <- lapply(X = 1:length(par$station), FUN = function(j, t_i, par) {
@@ -503,7 +513,7 @@ aux_picknetwork <- function(
     ## optionally print progress
     if(verbose == TRUE) {
       
-      print(paste0("Step ", i, " of ", length(picks), " (", 
+      print(paste0("Step ", i, " of ", length(t), " (", 
                    text_import, ", ", n_new, 
                    " picks added, n_final = ", 
                    n_new + n_picks_count, ")"))
