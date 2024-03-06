@@ -167,7 +167,7 @@ aux_organisecubefiles <- function(
     stop("Station info table is not a data frame!")
   } else {
     
-    if("ID" %in% names(station) | "logger_ID" %in% names(station) == FALSE) {
+    if(("ID" %in% names(station) | "logger_ID" %in% names(station)) == FALSE) {
       
       if(ncol(station) != 2) {
         
