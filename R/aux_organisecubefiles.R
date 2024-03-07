@@ -190,11 +190,6 @@ aux_organisecubefiles <- function(
     stop("Path to gipptools is wrong!")
   }
   
-  ## set/correct path definitions
-  gipptools <- paste0(dirname(gipptools), "/", basename(gipptools))
-  input <- paste0(dirname(input), "/", basename(input))
-  output <- paste0(dirname(output), "/", basename(output))
-  
   ## check/set input directory
   if(missing(input) == TRUE) {
     
@@ -221,6 +216,19 @@ aux_organisecubefiles <- function(
     
     stop("No gipptools function(s) available under that path!")
   }
+  
+  ## set/correct path definitions
+  gipptools <- paste0(dirname(gipptools), "/", basename(gipptools), "/")
+  input <- paste0(dirname(input), "/", basename(input), "/")
+  output <- paste0(dirname(output), "/", basename(output), "/")
+  
+  ## remove potential double slashes
+  gipptools <- gsub(x = gipptools, pattern = "//", 
+                    replacement = "/", fixed = TRUE)
+  input <- gsub(x = input, pattern = "//", 
+                replacement = "/", fixed = TRUE)
+  output <- gsub(x = output, pattern = "//", 
+                 replacement = "/", fixed = TRUE)
   
   ## check if gipptools actually work
   gt_hi <- try(system(paste0(gipptools, "/bin/cubeinfo --version"), 
@@ -353,7 +361,7 @@ aux_organisecubefiles <- function(
                    MARGIN = 1, 
                    FUN = function(x, station) {
                      
-                     x %in% station$logger
+                     x %in% station$logger_ID
                    }, station)
     files_cube <- files_cube[id_ok,]
     
