@@ -9,7 +9,8 @@ plot.eseis <- function(x, y, ...) {
     
     if(x$meta$type == "waveform" | 
        x$meta$type == "envelope" | 
-       x$meta$type == "hilbert") {
+       x$meta$type == "hilbert" | 
+       x$meta$type == "characteristic") {
       
       eseis::plot_signal(x, ...)
     } else if(x$meta$type == "spectrum") {
