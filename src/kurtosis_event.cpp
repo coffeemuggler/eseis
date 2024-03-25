@@ -13,12 +13,12 @@ NumericVector kurtosis_event(NumericVector x, int k) {
   double s = 0;
   
   NumericVector kurt(n);
-  
   IntegerVector idx = seq_len(k) - 1;
+  NumericVector y(idx);
   
   for (int i = 1; i < (n - k); i++) {
     
-    NumericVector y = x[idx + i - 1];
+    y = x[idx + i - 1];
     m = mean(y);
     s = sd(y);
     

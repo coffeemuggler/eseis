@@ -1,6 +1,9 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - function added, signal_correlation()
+  - function added, signal_kurtosis()
+  - function added, signal_stalta()
   - feature added, read_data(), component names can use wildcards
   - function changed, aux_organisecubefiles(), significant changes and improvements
   - function added, aux_checkdata()

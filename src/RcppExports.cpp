@@ -34,6 +34,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// run_cor
+NumericVector run_cor(NumericVector x, NumericVector y, int k);
+RcppExport SEXP _eseis_run_cor(SEXP xSEXP, SEXP ySEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_cor(x, y, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 // stalta_event_freeze
 NumericVector stalta_event_freeze(int event_length, NumericVector data_sta, NumericVector data_lta, double on, double off);
 RcppExport SEXP _eseis_stalta_event_freeze(SEXP event_lengthSEXP, SEXP data_staSEXP, SEXP data_ltaSEXP, SEXP onSEXP, SEXP offSEXP) {

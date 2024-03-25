@@ -9,6 +9,10 @@
     .Call('_eseis_kurtosis_event', PACKAGE = 'eseis', x, k)
 }
 
+.run_cor <- function(x, y, k) {
+    .Call('_eseis_run_cor', PACKAGE = 'eseis', x, y, k)
+}
+
 .stalta_event_freeze <- function(event_length, data_sta, data_lta, on, off) {
     .Call('_eseis_stalta_event_freeze', PACKAGE = 'eseis', event_length, data_sta, data_lta, on, off)
 }
