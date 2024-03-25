@@ -76,9 +76,10 @@ signal_kurtosis <- function(
     ## calculate running kurtosis vector
     data_out <- .kurtosis_event(x = data, k = window)
     
-    ## correct raw data set
-    data_out <- c(utils::tail(x = data_out, n = window), 
-              data_out[1:(length(data_out) - window)])
+    ## remove edge effects
+    n_smp <- length(data_out)
+    data_out[1] <- data_out[2]
+    data_out[(n_smp - window):n_smp] <- data_out[n_smp - window - 1]
     
     ## optionally rebuild eseis object
     if(eseis_class == TRUE) {
