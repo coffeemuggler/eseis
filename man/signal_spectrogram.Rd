@@ -14,8 +14,6 @@ signal_spectrogram(
   window_sub,
   overlap_sub = 0.5,
   method = "periodogram",
-  nw = 4,
-  k = 7,
   cpu = NULL,
   plot = FALSE,
   ...
@@ -49,13 +47,8 @@ the sub-window length is set to 10 percent of the main window length.}
 \item{overlap_sub}{\code{Numeric} value, fraction of sub-window overlap.}
 
 \item{method}{\code{Character} value, method to calculate the spectra. 
-One out of \code{"periodogram"}, \code{"autoregressive"} and 
-\code{"multitaper"}. Default is \code{"periodogram"}.}
-
-\item{nw}{\code{Numeric} value, multitaper time-bandwidth parameter,
-default is 4.0.}
-
-\item{k}{\code{Numeric} value, multitaper number of tapers, default is 7.}
+One out of \code{"periodogram"} and \code{"autoregressive"}. 
+Default is \code{"periodogram"}.}
 
 \item{cpu}{\code{Numeric} value between 0 and 1, fraction of CPU cores to 
 use. If omitted, only one CPU is used.}
@@ -70,7 +63,7 @@ use. If omitted, only one CPU is used.}
 }
 \description{
 This function creates spectrograms from seismic signals. It supports the
-standard spectrogram approach, multitaper, and the Welch method.
+standard spectrogram approach and the Welch method.
 }
 \details{
 Data containing \code{NA} values is replaced by zeros and set to NA in the 
@@ -97,24 +90,7 @@ P <- signal_spectrogram(data = s$BHZ,
                                overlap_sub = 0.9, 
                                Welch = TRUE,
                                plot = TRUE)
-                               
-## calculate and plot PSD with even smaller window sizes, the Welch
-## method and using multitapers, uncomment to use.
-# P <- signal_spectrogram(data = s$BHZ, 
-#                                time = t, 
-#                                dt = 1 / 200, 
-#                                window = 2, 
-#                                overlap = 0.9, 
-#                                window_sub = 1, 
-#                                overlap_sub = 0.9, 
-#                                Welch = TRUE,
-#                                method = "multitaper",
-#                                plot = TRUE)
                       
-}
-\seealso{
-\code{\link{spectrum}}, \code{\link{spec.pgram}}, 
-\code{\link{spec.mtm}}
 }
 \author{
 Michael Dietze

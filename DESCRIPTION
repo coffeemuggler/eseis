@@ -1,8 +1,8 @@
 Package: eseis
 Type: Package
 Title: Environmental Seismology Toolbox
-Version: 0.7.2
-Date: 2023-04-16
+Version: 0.7.3
+Date: 2023-07-31
 Authors@R: c(
     person("Michael", "Dietze", role = c("cre", "aut", "trl"), email = "michael.dietze@uni-goettingen.de"),
     person("Christoph", "Burow", role = c("ctb")),
@@ -20,7 +20,6 @@ Depends:
     R (>= 3.0.2)
 LinkingTo: Rcpp (>= 0.12.5)
 Imports:
-    multitaper,
     terra,
     caTools,
     signal,

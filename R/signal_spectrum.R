@@ -10,15 +10,14 @@
 #' is set to 1/200. Only needed if \code{data} is no \code{eseis} object.
 #' 
 #' @param method \code{Character} value, calculation method. One out of 
-#' \code{"periodogram"} , \code{"autoregressive"} and \code{"multitaper"}, 
+#' \code{"periodogram"} and \code{"autoregressive"}. 
 #' default is \code{"periodogram"}.
 #' 
 #' @param n \code{Numeric} value, optional number of samples in 
 #' running window used for smoothing the spectrogram. Only applied if a 
 #' number is provided. Smoothing is performed as running mean.
 #' 
-#' @param \dots Additional arguments passed to the function. See 
-#' \code{\link{spec.pgram}}, \code{\link{spec.ar}}, \code{\link{spec.mtm}}.
+#' @param \dots Additional arguments passed to the function. 
 #' 
 #' @return \code{Data frame} with frequency and power vector 
 #' 
@@ -65,6 +64,12 @@ signal_spectrum <- function(
     
     dt <- NULL
   }
+  
+  ## check/set dt
+  if(missing(n) == TRUE) {
+    
+    n <- NULL
+  }
 
   ## check data structure
   if(class(data)[1] == "list") {
@@ -74,6 +79,7 @@ signal_spectrum <- function(
                        FUN = signal_spectrum,
                        dt = dt, 
                        method = method,
+                       n = n,
                        ...)
     
     ## return output
@@ -125,6 +131,7 @@ signal_spectrum <- function(
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
                              power = s$spec)
+      
     } else if(method == "autoregressive") {
       
       ## calculate spectrum
@@ -140,29 +147,14 @@ signal_spectrum <- function(
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
                              power = s$spec)
-    } else if(method == "multitaper") {
       
-      ## calculate spectrum
-      s <- multitaper::spec.mtm(timeSeries = data, 
-                                deltat = dt, 
-                                plot = FALSE, 
-                                ...)
-      
-      ## recalculate frequency vector
-      s$freq <- seq(from = 0, 
-                    to = 1 / dt / 2, 
-                    length.out = length(s$freq))
-      
-      ## recompose data set
-      data_out <- data.frame(frequency = s$freq,
-                             power = s$spec)
     } else {
       
       stop("Keyword for method not supported!")
     }
     
     ## optionally perform smoothing
-    if(missing(n) == FALSE) {
+    if(is.null(n) == FALSE) {
       
       data_out$power <- caTools::runmean(x = data_out$power, k = n)
     }
