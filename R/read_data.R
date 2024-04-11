@@ -382,12 +382,16 @@ read_data <- function(
           
           s <- try(suppressWarnings(eseis::read_sac(file = file_read)), 
                    silent = TRUE)
-          
+
           if(class(s)[1] != "eseis") {
             
             s <- try(suppressWarnings(eseis::read_mseed(file = file_read)), 
                      silent = TRUE)
-          } 
+          } else if(class(s)[1] == "eseis" & s$meta$n < 1) {
+            
+            s <- try(suppressWarnings(eseis::read_mseed(file = file_read)), 
+                     silent = TRUE)
+          }
         }
         
         ## optionally handle try-error case
