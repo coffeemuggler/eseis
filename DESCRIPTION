@@ -18,7 +18,7 @@ Encoding: UTF-8
 LazyData: true
 Depends:
     R (>= 4.0.0)
-LinkingTo: Rcpp (>= 0.12.5)
+LinkingTo: Rcpp
 Imports:
     terra,
     caTools,
@@ -34,7 +34,7 @@ Imports:
     reticulate, 
     extraDistr,
     minpack.lm,
-    Rcpp (>= 1.0.7)
+    Rcpp
 Suggests:
     plot3D,
     rgl,

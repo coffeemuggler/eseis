@@ -16,7 +16,7 @@
 
 # Define server logic required to draw a histogram
 shinyServer <- function(input, output, session) {
-  
+
   observe({
     updateSliderInput(session, "d_s",
                       min = input$d_s_min,
@@ -172,7 +172,7 @@ shinyServer <- function(input, output, session) {
       eseis::plot_spectrum(data = p_empiric,
                            xlim = input$xlim,
                            ylim = input$ylim,
-                           col = adjustcolor("green", 0.5),
+                           col = adjustcolor("grey40", 0.5),
                            lwd = 1.5,
                            ann = FALSE,
                            axes = FALSE)
