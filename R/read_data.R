@@ -359,14 +359,14 @@ read_data <- function(
           
           warning(paste0("no or too many files found for ", t))
           
-          s <- aux_initiateeseis()
+          s <- eseis::aux_initiateeseis()
           s$signal <- NULL
           s$meta$n <- 0
           s$meta$starttime <- start
           s$meta$dt <- NA
           
           return(s)
-        })
+        }, silent = TRUE)
         
         ## paste direcotry and file name
         try(file_read <- paste0(dir_get, file_read))
