@@ -8,12 +8,12 @@ aux_psdsummary(
   start,
   stop,
   ID,
-  window,
   component = "BHZ",
+  dir,
+  window,
   sensor,
   logger,
   gain = 1,
-  dir,
   hours_skip,
   res = 1000,
   n = 100,
@@ -32,12 +32,16 @@ convert it to POSIXct.}
 
 \item{ID}{\code{Character} vector, station ID to be processed}
 
+\item{component}{\code{Character} value or vector, seismic component to 
+be used. If omitted, the function will use \code{"BHZ"} by default.}
+
+\item{dir}{\code{Character} value, path to directory that contains the 
+seismic files. See \code{read_data} for details and constraints on the 
+data structure.}
+
 \item{window}{\code{Numeric} value, time window size for the PSD 
 calculation. Should be appropriately large to avoid extensive calculation
 times, usually at the order of 0.1 percent of the total PSD duration.}
-
-\item{component}{\code{Character} value or vector, seismic component to 
-be used. If omitted, the function will use \code{"BHZ"} by default.}
 
 \item{sensor}{\code{Character} value, sensor keyword for the deconvolution 
 step (see \code{signal_deconvolve} for details and keywords). If omitted, 
@@ -50,10 +54,6 @@ no deconvolution will be attempted.}
 \item{gain}{\code{Numeric} value, signal preamplification factor used for 
 the deconvolution step (see \code{signal_deconvolve} for details. Default
 value is \code{1}.}
-
-\item{dir}{\code{Character} value, path to directory that contains the 
-seismic files. See \code{aux_getevent} for details and constraints on the 
-data structure.}
 
 \item{hours_skip}{\code{Integer} vector, one or more full hours that will
 be excluded from the PSD generation. This optional value is useful if one 
