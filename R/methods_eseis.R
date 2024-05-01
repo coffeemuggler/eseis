@@ -19,6 +19,9 @@ plot.eseis <- function(x, y, ...) {
     } else if(x$meta$type == "spectrogram") {
       
       eseis::plot_spectrogram(x, ...)
+    } else if(x$meta$type == "correlogram") {
+      
+      eseis::plot_correlogram(x, ...)
     } else {
       
       graphics::plot(x, ...)
