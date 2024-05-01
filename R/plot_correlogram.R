@@ -174,8 +174,8 @@ plot_correlogram <- function(
     }
   }
   
-  data$CC[data$CC$CC < zlim_cc[1]] <- zlim_cc[1]
-  data$CC[data$CC$CC > zlim_cc[2]] <- zlim_cc[2]
+  data$CC$CC[data$CC$CC < zlim_cc[1]] <- zlim_cc[1]
+  data$CC$CC[data$CC$CC > zlim_cc[2]] <- zlim_cc[2]
   
   ## optionally decrease image quality
   t_out <- seq(from = 1, 
