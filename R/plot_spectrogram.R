@@ -327,14 +327,14 @@ plot_spectrogram <- function(
     y_1 <- graphics::par()$usr[4]
     
     ## define colour scale bar increment
-    d_y <- (y_1 - y_0) / 200
+    d_y <- (y_1 - y_0) / length(col)
     
     ## define colour scale bar polygons
-    polygons <- matrix(nrow = 200, ncol = 8)
-    polygons <- cbind(rep(x = x_0, times = 200),
-                      rep(x = x_0, times = 200),
-                      rep(x = x_1, times = 200),
-                      rep(x = x_1, times = 200),
+    polygons <- matrix(nrow = length(col), ncol = 8)
+    polygons <- cbind(rep(x = x_0, times = length(col)),
+                      rep(x = x_0, times = length(col)),
+                      rep(x = x_1, times = length(col)),
+                      rep(x = x_1, times = length(col)),
                       seq(from = y_0, to = y_1 - d_y, by = d_y),
                       seq(from = y_0 + d_y, to = y_1, by = d_y),
                       seq(from = y_0 + d_y, to = y_1, by = d_y),
