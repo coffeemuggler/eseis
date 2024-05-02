@@ -8,7 +8,7 @@ plot_correlogram(data, agg = c(1, 1), legend = TRUE, keep_par = FALSE, ...)
 }
 \arguments{
 \item{data}{\code{List} object, spectrogram to be plotted. Must be output
-of \code{ncc_preprocess()} or of equivalent structure.}
+of \code{ncc_correlate()} or of equivalent structure.}
 
 \item{agg}{\code{Integer} vector of length two, factors of image 
 aggregation, i.e. in time and lag dimension. Useful to decrease 
@@ -27,7 +27,7 @@ plot. Default is \code{FALSE} (parameters are reset to original values).}
 Graphic output of a correlogram.
 }
 \description{
-The function uses the output of \code{ncc_preprocess()} to show an  
+The function uses the output of \code{ncc_correlate()} to show an  
 image plot of a noise cross correlation analysis.
 }
 \examples{
@@ -35,7 +35,7 @@ image plot of a noise cross correlation analysis.
 \dontrun{
   
   ## calculate correlogram
-  cc <- ncc_preprocess(start = "2017-04-09 00:30:00", 
+  cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
                        stop = "2017-04-09 01:30:00", 
                        ID = c("RUEG1", "RUEG2"), 
                        component = c("Z", "Z"), 
@@ -59,7 +59,7 @@ image plot of a noise cross correlation analysis.
 
 }
 \seealso{
-\code{\link{ncc_preprocess}}
+\code{\link{ncc_correlate}}
 }
 \author{
 Michael Dietze

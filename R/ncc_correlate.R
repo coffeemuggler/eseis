@@ -1,4 +1,4 @@
-#' Noise Cross Correlation preprocessing routine
+#' Noise Cross Correlation routine
 #' 
 #' The function creates a cross correlation time series of two input data 
 #' sets. The input data is cut into overlapping snippets and, optionally,  
@@ -72,6 +72,9 @@
 #' upper cutoff frequencies (Hz). If two values are provided, the function
 #' assumes a bandpass filter. See \code{signal_filter} for details.
 #' 
+#' @param whiten \code{Logical} value, option to perform spectral whitening.
+#' Default is \code{FALSE} (no whitening). 
+#' 
 #' @param sd \code{Numeric} value, option to perform standard deviation based 
 #' signal amplitude cutting. If omitted, no cutting will be performed. The 
 #' value can be any natural number, describing a multiplier of the standard 
@@ -104,8 +107,8 @@
 #' 
 #' \dontrun{
 #' 
-#' ## preprocess cross correlation
-#' cc <- ncc_preprocess(start = "2017-04-09 00:30:00", 
+#' ## calculate correlogram
+#' cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
 #'                      stop = "2017-04-09 01:30:00", 
 #'                      ID = c("RUEG1", "RUEG2"), 
 #'                      component = c("Z", "Z"), 
@@ -126,9 +129,9 @@
 #' 
 #' }
 #' 
-#' @export ncc_preprocess
+#' @export ncc_correlate
 
-ncc_preprocess <- function(
+ncc_correlate <- function(
 
   start,
   stop,
@@ -141,6 +144,7 @@ ncc_preprocess <- function(
   dt,
   deconvolve = FALSE,
   f,
+  whiten = FALSE,
   sd,
   sign = FALSE,
   cpu,
@@ -198,7 +202,7 @@ ncc_preprocess <- function(
   ## check/set type option
   if ("type" %in% names(extraArgs)) {
     type <- extraArgs$type
-  } else { type <- NA }
+  } else { type <- "BP" }
   
   ## check/set method option
   if ("method" %in% names(extraArgs)) {
@@ -247,6 +251,7 @@ ncc_preprocess <- function(
               f = f,
               type = type,
               method = method,
+              whiten = whiten,
               sd = sd,
               sign = sign,
               lag = lag)
@@ -300,8 +305,17 @@ ncc_preprocess <- function(
       }
       
       ## filter data sets
-      s_1 <- eseis::signal_filter(data = s_1, f = par$f, p = par$buffer)
-      s_2 <- eseis::signal_filter(data = s_2, f = par$f, p = par$buffer)
+      s_1 <- eseis::signal_filter(data = s_1, f = par$f, 
+                                  type = par$type, p = par$buffer)
+      s_2 <- eseis::signal_filter(data = s_2, f = par$f, 
+                                  type = par$type, p = par$buffer)
+      
+      ## optionally whiten data
+      if(par$whiten == TRUE) {
+        
+        s_1 <- eseis::signal_whiten(data = s_1)
+        s_2 <- eseis::signal_whiten(data = s_2)
+      }
       
       ## optionally sd-cut data
       if(is.null(par$sd) == FALSE) {
@@ -391,7 +405,7 @@ ncc_preprocess <- function(
     ## update object history
     eseis_data$history[[length(eseis_data$history) + 1]] <- 
       list(time = Sys.time(),
-           call = "ncc_preprocess()",
+           call = "ncc_correlate()",
            arguments = par,
            duration = eseis_duration)
     names(eseis_data$history)[length(eseis_data$history)] <- 

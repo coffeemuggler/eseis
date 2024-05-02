@@ -1,10 +1,10 @@
 #' Plot a correlogram from noise cross correlation analysis
 #' 
-#' The function uses the output of \code{ncc_preprocess()} to show an  
+#' The function uses the output of \code{ncc_correlate()} to show an  
 #' image plot of a noise cross correlation analysis.
 #' 
 #' @param data \code{List} object, spectrogram to be plotted. Must be output
-#' of \code{ncc_preprocess()} or of equivalent structure.
+#' of \code{ncc_correlate()} or of equivalent structure.
 #' 
 #' @param agg \code{Integer} vector of length two, factors of image 
 #' aggregation, i.e. in time and lag dimension. Useful to decrease 
@@ -23,7 +23,7 @@
 #' 
 #' @author Michael Dietze
 #' 
-#' @seealso \code{\link{ncc_preprocess}}
+#' @seealso \code{\link{ncc_correlate}}
 #' 
 #' @keywords eseis
 #' 
@@ -32,7 +32,7 @@
 #' \dontrun{
 #'   
 #'   ## calculate correlogram
-#'   cc <- ncc_preprocess(start = "2017-04-09 00:30:00", 
+#'   cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
 #'                        stop = "2017-04-09 01:30:00", 
 #'                        ID = c("RUEG1", "RUEG2"), 
 #'                        component = c("Z", "Z"), 
