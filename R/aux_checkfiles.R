@@ -188,7 +188,7 @@ aux_checkfiles <- function(
         }
         
         ## proceed if successful
-        if(class(x) == "eseis") {
+        if(class(x)[1] == "eseis") {
           
           ## extract meta data
           meta_out <- data.frame(readable_detail = TRUE,
