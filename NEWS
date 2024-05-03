@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - function added, aux_picknetworkparallel()
   - functions added, ncc_correlate(), ncc_stretch(), plot_correlation()
   - bug fixed, read_data(), added further check of file format
   - function added, signal_correlation()
