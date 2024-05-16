@@ -5,8 +5,8 @@
 #' 
 #' Available statistics keywords are:
 #' 1. `"t_duration"` (Duration of the signal)
-#' 1. `"f_rise"` (Signal rise time, time from start to maximum amplitude)
-#' 1. `"f_fall"` (Signal fall time, tme from maximum amplitude to end)
+#' 1. `"t_rise"` (Signal rise time, time from start to maximum amplitude)
+#' 1. `"t_fall"` (Signal fall time, tme from maximum amplitude to end)
 #' 1. `"t_risefall"` (Ratio of rise to fall time)
 #' 1. `"a_skewness"` (Skewness of the signal amplitude, see \code{seewave::specprop})
 #' 1. `"a_kurtosis"` (Kurtosis of the signal amplitude, see \code{seewave::specprop})
@@ -843,10 +843,6 @@ signal_stats <- function(
     
     data_out$p_diffquantile32 <- mean(p_q3 - p_q2)
   }
-  
-  
-  
-  ## HERE NOW ----------------------------------------------------------------  
   
   ## calculate frequency of maximum power, i.e. modal frequency
   if("f_modal" %in% stats) {
