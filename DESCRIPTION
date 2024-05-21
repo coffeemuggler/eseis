@@ -6,7 +6,8 @@ Date: 2023-xx-xx
 Authors@R: c(
     person("Michael", "Dietze", role = c("cre", "aut", "trl"), email = "michael.dietze@uni-goettingen.de"),
     person("Christoph", "Burow", role = c("ctb")),
-    person("Sophie", "Lagarde", role = c("ctb", "trl")))
+    person("Sophie", "Lagarde", role = c("ctb", "trl")),
+    person("Clement", "Hibert", role = c("ctb", "aut")))
 Maintainer: Michael Dietze <michael.dietze@uni-goettingen.de>
 Description: Environmental seismology is a scientific field that studies the  
     seismic signals, emitted by Earth surface processes. This package 
