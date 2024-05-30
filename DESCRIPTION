@@ -26,6 +26,7 @@ Imports:
     signal,
     fftw,
     matrixStats,
+    graphics,
     methods,
     IRISSeismic,
     XML,
