@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - bug fixed, aux_organisecubefiles(), Win support bug removed
   - function added, plot_event()
   - function added, spatial_parabola()
   - function added, aux_picknetworkparallel()
