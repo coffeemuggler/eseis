@@ -170,6 +170,11 @@ aux_stationinfofile <- function(
     print(paste("Output will be written to", output_dir))
   }
   
+  ## set/correct path definitions
+  input_dir <- paste0(dirname(input_dir), "/", basename(input_dir), "/")
+  output_dir <- paste0(dirname(output_dir), "/", basename(output_dir), "/")
+  gipptools <- paste0(dirname(gipptools), "/", basename(gipptools), "/")
+  
   ## check if output directory exists and, if necessary create it
   if(dir.exists(paths = output_dir) == FALSE) {
     
@@ -230,36 +235,31 @@ aux_stationinfofile <- function(
   ## check/set station elevation
   if(missing(station_z) == TRUE) {
     
-    station_z <- rep(x = NA, 
-             times = length(station_ID))
+    station_z <- rep(x = NA, times = length(station_ID))
   }
   
   ## check/set station depth
   if(missing(station_d) == TRUE) {
     
-    station_d <- rep(x = NA, 
-                     times = length(station_ID))
+    station_d <- rep(x = NA, times = length(station_ID))
   }
 
   ## check/set sensor type
   if(missing(sensor_type) == TRUE) {
     
-    sensor_type <- rep(x = NA, 
-             times = length(station_ID))
+    sensor_type <- rep(x = NA, times = length(station_ID))
   }
   
   ## check/set logger type
   if(missing(logger_type) == TRUE) {
     
-    logger_type <- rep(x = NA, 
-             times = length(station_ID))
+    logger_type <- rep(x = NA, times = length(station_ID))
   }
   
   ## check/set sensor ID
   if(missing(sensor_ID) == TRUE) {
     
-    sensor_ID <- rep(x = NA, 
-             times = length(station_ID))
+    sensor_ID <- rep(x = NA, times = length(station_ID))
   }
 
   ## build preliminary station info file
@@ -364,19 +364,15 @@ aux_stationinfofile <- function(
   cl <- parallel::makeCluster(getOption("mc.cores", cores))
   
   ## extract GPS data
-  invisible(parallel::parLapply(
-    cl = cl, 
-    X = files_cube, 
-    fun = function(X, gipptools, output_dir) {
+  invisible(parallel::parLapply(cl = cl, X = files_cube, 
+                                fun = function(X, gipptools, output_dir) {
       
       system(command = paste(gipptools, "/bin/cubeinfo", 
                              " --format=GPS --output-dir=",
                              output_dir, "/gps_raw ",
                              X,
                              sep = ""))
-      }, 
-    gipptools = gipptools,
-    output_dir = output_dir))
+      }, gipptools = gipptools, output_dir = output_dir))
   
   ## stop cluster
   parallel::stopCluster(cl = cl)
@@ -509,12 +505,17 @@ aux_stationinfofile <- function(
   ## optionally save GPS data set
   if(write_data == TRUE) {
     
-    save(gps_cube, 
-         file = paste(output_dir, 
-                      "/",
-                      name,
-                      ".rda",
-                      sep = ""))    
+    trysave <- try(save(gps_cube, 
+                        file = paste(output_dir, 
+                                     "/",
+                                     name,
+                                     ".rda",
+                                     sep = "")), silent = TRUE)
+    
+    if(class(trysave)[1] == "try-error") {
+      
+      warning("Was not able to wave raw gps data file!")
+    }
   }
 
   ## get end time
