@@ -5,6 +5,8 @@
 #' available structures. The conversion depends on the gipptools software
 #' package (see details) provided externally.
 #' 
+#' @details
+#' 
 #' The function converts seismic data from the binary cube file format to  
 #' mseed (cf. \code{read_mseed}) or sac (cf. \code{read_sac}) and organises 
 #' the resulting files into a consistent structure, expected by 'eseis' for 
@@ -78,6 +80,30 @@
 #'    }
 #' }
 #' 
+#' The component definition can follow the typical keywords and key letters 
+#' defined in seismology: \code{https://migg-ntu.github.io/SeisTomo_Tutorials/seismology/seismic-data/seismic-time-series-data.html},
+#' hence the first letter indicating the instrument's band type and the second 
+#' letter indicating the instrument code or instrument type.
+#' 
+#' | Band code | Explanation band type  |
+#' | --------- | ---------------------- |
+#' | E         | Extremely short period |
+#' | S         | Short period           |
+#' | H         | High broad band        |
+#' | B         | Broad band             |
+#' | M         | Mid band               |
+#' | L         | Long band              |
+#' | V         | Very long band         |
+#' 
+#' | Instrument code | Explanation               |
+#' | --------------- | ------------------------- |
+#' | H               | High gain seismometer     |
+#' | L               | Low gain seismometer      |
+#' | G               | Gravimeter                |
+#' | M               | Mass position seismometer |
+#' | N               | Accelerometer             |
+#' | P               | Geophone                  |
+#' @md
 #' 
 #' @param station \code{data frame} with seismic station information
 #' See \code{aux_stationinfofile}. This \code{data frame} can also be provided 
@@ -107,7 +133,8 @@
 #' the first describing the band code, the second the instrument code. See 
 #' details for further information. Default is \code{"BH"}, hence broadband 
 #' and high gain sensor. The spatial component ("E", "N", "Z") will be added
-#' automatically.
+#' automatically. See details for a tabular overview of common band codes and 
+#' instrument codes.
 #' 
 #' @param mode \code{Character} value, mode of file conversion. One out of 
 #' \code{"file-wise"} and \code{"dir-wise"}. Default is \code{"file-wise"}. 
@@ -331,14 +358,14 @@ aux_organisecubefiles <- function(
         
         ## call gipptools::cube2mseed 
         system(command = paste0(pars$gipptools, 
-                                "/bin/cube2mseed", 
+                                '/bin/cube2mseed', 
                                 ifelse(test = pars$verbose == TRUE, 
-                                       yes = " --verbose", 
-                                       no = ""),
-                                " --fringe-samples=", toupper(x = pars$fringe),
-                                " --include-pattern='*.", x, "'",
-                                " --output-dir=", pars$temp_raw, "/ ",
-                                pars$input, "/"), 
+                                       yes = ' --verbose', 
+                                       no = ''),
+                                ' --fringe-samples=', toupper(x = pars$fringe),
+                                ' --include-pattern="*.', x, '"',
+                                ' --output-dir=', pars$temp_raw, '/ ',
+                                pars$input, '/'), 
                show.output.on.console = pars$verbose)
         
       }, pars = list(input = input, temp_raw = temp_raw, fringe = fringe, 
@@ -369,12 +396,12 @@ aux_organisecubefiles <- function(
     z <- parallel::parLapply(
       cl = cl, X = files_cube$path, fun = function(x, pars) {
         
-        system(command = paste0(pars$gipptools, "/bin/cube2mseed", 
+        system(command = paste0(pars$gipptools, '/bin/cube2mseed', 
                                 ifelse(test = pars$verbose == TRUE, 
-                                       yes = " --verbose", 
-                                       no = ""),
-                                " --fringe-samples=", toupper(x = pars$fringe),
-                                " --output-dir=", pars$temp_raw, "/ ",
+                                       yes = ' --verbose', 
+                                       no = ''),
+                                ' --fringe-samples=', toupper(x = pars$fringe),
+                                ' --output-dir=', pars$temp_raw, '/ ',
                                 x), 
                show.output.on.console = verbose)
         
@@ -401,7 +428,7 @@ aux_organisecubefiles <- function(
              show.output.on.console = pars$verbose)
       
     }, pars = list(gipptools = gipptools, temp_raw = temp_raw, 
-                   temp_org = temp_org))
+                   temp_org = temp_org, verbose = verbose))
     
     ## remove daily files and directory
     invisible(unlink(temp_raw, recursive = TRUE))

@@ -20,131 +20,155 @@ aux_organisecubefiles(
 }
 \arguments{
 \item{station}{\code{data frame} with seismic station information
-See \code{aux_stationinfofile}. This \code{data frame} can also be provided 
-manually, in which case it must contain two elements: a first vector that 
-contains the Cube IDs, and a second that contains the corresponding 
-station IDs that will be used in the meta info and file names. If the 
+See \code{aux_stationinfofile}. This \code{data frame} can also be provided
+manually, in which case it must contain two elements: a first vector that
+contains the Cube IDs, and a second that contains the corresponding
+station IDs that will be used in the meta info and file names. If the
 argument is omitted, the Cube IDs will be used as station IDs.}
 
-\item{input}{\code{Character} value, path to directory where the Cube 
+\item{input}{\code{Character} value, path to directory where the Cube
 files to be processed are stored.}
 
-\item{output}{\code{Character} value, path to directory where output 
+\item{output}{\code{Character} value, path to directory where output
 data is written to.}
 
-\item{gipptools}{\code{Character} value, path to gipptools or cubetools 
+\item{gipptools}{\code{Character} value, path to gipptools or cubetools
 directory.}
 
-\item{format}{\code{Character} value, output file format. One out of 
+\item{format}{\code{Character} value, output file format. One out of
 \code{"mseed"} and \code{"sac"}. Default is \code{"sac"}.}
 
-\item{pattern}{\code{Character} value, file organisation scheme keyword. 
-One out of \code{"eseis"} and \code{"seiscomp"}. Default is \code{"eseis"}. 
+\item{pattern}{\code{Character} value, file organisation scheme keyword.
+One out of \code{"eseis"} and \code{"seiscomp"}. Default is \code{"eseis"}.
 See details and \code{read_data} for further information.}
 
-\item{component}{\code{Character} vector, component code and output file 
-extension prefix. It is assumed that this prefix comprises two characters, 
-the first describing the band code, the second the instrument code. See 
-details for further information. Default is \code{"BH"}, hence broadband 
+\item{component}{\code{Character} vector, component code and output file
+extension prefix. It is assumed that this prefix comprises two characters,
+the first describing the band code, the second the instrument code. See
+details for further information. Default is \code{"BH"}, hence broadband
 and high gain sensor. The spatial component ("E", "N", "Z") will be added
-automatically.}
+automatically. See details for a tabular overview of common band codes and
+instrument codes.}
 
-\item{mode}{\code{Character} value, mode of file conversion. One out of 
-\code{"file-wise"} and \code{"dir-wise"}. Default is \code{"file-wise"}. 
+\item{mode}{\code{Character} value, mode of file conversion. One out of
+\code{"file-wise"} and \code{"dir-wise"}. Default is \code{"file-wise"}.
 See details for further important information.}
 
-\item{fringe}{\code{Character} value, option to handle data outside the 
-GPS-tagged time span. One out of \code{"skip"}, \code{"nominal"} or 
+\item{fringe}{\code{Character} value, option to handle data outside the
+GPS-tagged time span. One out of \code{"skip"}, \code{"nominal"} or
 \code{"constant"}. Default is \code{"constant"}.}
 
-\item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel 
+\item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel
 processing. If omitted, one CPU is used.}
 
-\item{verbose}{\code{Logical} value, option to enable extended screen 
-output of cubetools operations. Default is \code{FALSE}. This option 
+\item{verbose}{\code{Logical} value, option to enable extended screen
+output of cubetools operations. Default is \code{FALSE}. This option
 might not work with Windows operating systems.}
 }
 \value{
 A set of converted and organised seismic files written to disk.
 }
 \description{
-The function converts Omnirecs/Digos Datacube files to mseed or sac files 
-and organises these in a coherent directory structure (see details) for 
+The function converts Omnirecs/Digos Datacube files to mseed or sac files
+and organises these in a coherent directory structure (see details) for
 available structures. The conversion depends on the gipptools software
 package (see details) provided externally.
 }
 \details{
-The function converts seismic data from the binary cube file format to  
-mseed (cf. \code{read_mseed}) or sac (cf. \code{read_sac}) and organises 
-the resulting files into a consistent structure, expected by 'eseis' for 
-convenient data handling (cf. \code{read_data}). 
+The function converts seismic data from the binary cube file format to
+mseed (cf. \code{read_mseed}) or sac (cf. \code{read_sac}) and organises
+the resulting files into a consistent structure, expected by 'eseis' for
+convenient data handling (cf. \code{read_data}).
 
-Currently, there are two data structure schemes supported, \code{"eseis"}  
-and \code{"seiscomp"}. In the \code{"eseis"} case, the daily cube files are 
-cut to hourly files and organised in directories structured by four digit 
-year and three digit Julian day numbers. In each Julian day directory, the 
-hourly files are placed and named after the following scheme: 
+Currently, there are two data structure schemes supported, \code{"eseis"}
+and \code{"seiscomp"}. In the \code{"eseis"} case, the daily cube files are
+cut to hourly files and organised in directories structured by four digit
+year and three digit Julian day numbers. In each Julian day directory, the
+hourly files are placed and named after the following scheme:
 STATION.YEAR.JULIANDAY.HOUR.MINUTE.SECOND.COMPONENT.
 
 The \code{"seiscomp"} case will yield daily files, which are organised by
-four digit year, seismic network, seismic station, and seismic component, 
-each building a separate directory. In the deepest subdirectory, files are 
+four digit year, seismic network, seismic station, and seismic component,
+each building a separate directory. In the deepest subdirectory, files are
 named by: NETWORK.STATION.LOCATION.COMPONENT.TYPE.YEAR.JULIANDAY.
 
-The component naming scheme defines the codes for the sensor's band 
-code (first letter) and instrument code (second letter). The third letter, 
-defining the spatial component, will be added automatically. For definitions 
+The component naming scheme defines the codes for the sensor's band
+code (first letter) and instrument code (second letter). The third letter,
+defining the spatial component, will be added automatically. For definitions
 of channel codes see \code{https://migg-ntu.github.io/SeisTomo_Tutorials/seismology/seismic-data/seismic-time-series-data.html}.
 
-The function requires that the software gipptools 
-(\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/}) 
-is installed. Note that the gipptools are provided at regular update 
-intervals, including an up to date GPS leap second table, essential to 
+The function requires that the software gipptools
+(\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/})
+is installed. Note that the gipptools are provided at regular update
+intervals, including an up to date GPS leap second table, essential to
 convert recently recorded files.
 
-The Cube files will be imported in place but a series of temporary files 
-will be created in a temporary directory in the specified output directory.  
-Hence, if the routine stops due to a processing issue, one needs to delete  
-the temporary data manually. The path to the temporary directory will be 
+The Cube files will be imported in place but a series of temporary files
+will be created in a temporary directory in the specified output directory.
+Hence, if the routine stops due to a processing issue, one needs to delete
+the temporary data manually. The path to the temporary directory will be
 provided as screen output when the argument \code{verbose = TRUE}.
 
-The Cube files can be converted in two modes: \code{"file-wise"} and 
-\code{"dir-wise"}. In \code{"file-wise"} mode, each Cube file will be 
-converted individually. This option has the advantage that if one file in 
+The Cube files can be converted in two modes: \code{"file-wise"} and
+\code{"dir-wise"}. In \code{"file-wise"} mode, each Cube file will be
+converted individually. This option has the advantage that if one file in
 a month-long sequence of records is corrupt, the conversion will not stop,
-but only discard the part from the corrupted section until the file end. 
-The disadvantage is however, that the data before the first and after 
-the last GPS tags will not be converted unless the option 
+but only discard the part from the corrupted section until the file end.
+The disadvantage is however, that the data before the first and after
+the last GPS tags will not be converted unless the option
 \code{fringe = "constant"} (by default this is the case) is used.
 
-In \code{"dir-wise"} mode, the fringe sample issue reduces to the margins of  
-the total sequence of daily files but the corrupt file issue will become a 
+In \code{"dir-wise"} mode, the fringe sample issue reduces to the margins of
+the total sequence of daily files but the corrupt file issue will become a
 more severe danger to the success when converting a large number of files.
 
-Specifying an input directory (\code{input}) is mandatory. That 
-directory should only contain the directories with the cube files to 
-process. Files downloaded from a Cube are usually contained in one or more 
-further directories, which should be moved into a single one before 
+Specifying an input directory (\code{input}) is mandatory. That
+directory should only contain the directories with the cube files to
+process. Files downloaded from a Cube are usually contained in one or more
+further directories, which should be moved into a single one before
 running this function.
 
-Each set of cube files from a given logger should be located in a separate 
-directory per logger and these directories should have the same name as 
+Each set of cube files from a given logger should be located in a separate
+directory per logger and these directories should have the same name as
 the logger IDs (\code{logger_ID}). An appropriate structure for files from
-two loggers, A1A and A1B, would be something like: \cr 
+two loggers, A1A and A1B, would be something like: \cr
 \enumerate{
-  \item input
-  \enumerate{
-    \item A1A
-      \enumerate{
-        \item file1.A1A
-        \item file2.A1A
-      }
-    \item A1B
-      \enumerate{
-        \item file1.A1B
-        \item file2.A1B
-      }
-   }
+\item input
+\enumerate{
+\item A1A
+\enumerate{
+\item file1.A1A
+\item file2.A1A
+}
+\item A1B
+\enumerate{
+\item file1.A1B
+\item file2.A1B
+}
+}
+}
+
+The component definition can follow the typical keywords and key letters
+defined in seismology: \code{https://migg-ntu.github.io/SeisTomo_Tutorials/seismology/seismic-data/seismic-time-series-data.html},
+hence the first letter indicating the instrument's band type and the second
+letter indicating the instrument code or instrument type.\tabular{ll}{
+   Band code \tab Explanation band type \cr
+   E \tab Extremely short period \cr
+   S \tab Short period \cr
+   H \tab High broad band \cr
+   B \tab Broad band \cr
+   M \tab Mid band \cr
+   L \tab Long band \cr
+   V \tab Very long band \cr
+}
+\tabular{ll}{
+   Instrument code \tab Explanation \cr
+   H \tab High gain seismometer \cr
+   L \tab Low gain seismometer \cr
+   G \tab Gravimeter \cr
+   M \tab Mass position seismometer \cr
+   N \tab Accelerometer \cr
+   P \tab Geophone \cr
 }
 }
 \examples{
