@@ -240,7 +240,10 @@ aux_organisecubefiles <- function(
   
   ## check if gipptools are available
   if(file.exists(paste0(gipptools, "/bin/cube2mseed")) | 
-     file.exists(paste0(gipptools, "/bin/cube2mseed.cmd")) == FALSE) {
+     file.exists(paste0(gipptools, "/bin/cube2mseed.cmd")) == TRUE) {
+  
+    test_gipptools <- NULL
+  } else {
     
     stop("No gipptools function(s) available under that path!")
   }
