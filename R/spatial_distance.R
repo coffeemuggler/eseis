@@ -63,8 +63,14 @@
 #' D <- spatial_distance(stations = stations, 
 #'                       dem = dem)
 #' 
-## plot distance map for station 2
-#' terra::plot(D$maps[[1]])
+## restore SpatRaster object for plotting purpose
+#' D_map_1 <- terra::rast(crs = D$maps[[1]]$crs,
+#'                        ext = D$maps[[1]]$ext,
+#'                        res = D$maps[[1]]$res,
+#'                        val = D$maps[[1]]$val)
+#' 
+#' ## plot distance map
+#' terra::plot(D_map_1) 
 #' 
 #' ## show station distance matrix
 #' print(D$matrix)
