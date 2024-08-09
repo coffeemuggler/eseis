@@ -221,7 +221,7 @@ ncc_correlate <- function(
   
   ## check/set sd option
   if(missing(sd)) {
-    sd <- NULL
+    sd <- 0
   }
   
   ## initiate cluster
@@ -318,7 +318,7 @@ ncc_correlate <- function(
       }
       
       ## optionally sd-cut data
-      if(is.null(par$sd) == FALSE) {
+      if(par$sd != 0) {
         
         s_1 <- eseis::signal_cut(data = s_1, k = par$sd)
         s_2 <- eseis::signal_cut(data = s_2, k = par$sd)
@@ -362,6 +362,8 @@ ncc_correlate <- function(
     return(corr)
     
   }, par = par)
+  
+  #plot(CC[[1]], type = "l")
   
   ## stop cluster
   try(parallel::stopCluster(cl = cl))
