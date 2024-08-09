@@ -13,7 +13,11 @@ gui_models(...)
 This function starts a browser-based graphic user interface to explore the 
 parameter space of seismic models that predict the spectra of turbulent 
 water flow and bedload flux. Empirical spectra can be added if they are 
-present in the current environment as eseis objects.
+present in the current environment as eseis objects. Note that those 
+spectra should be made from deconvolved input data in order to have the 
+same units as the model spectra (dB). ATTENTION, due to an unresolved 
+issue, there must be at least one eseis object present in the working 
+environment.
 }
 \examples{
 
