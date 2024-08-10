@@ -50,11 +50,15 @@
 #' seismic files. See \code{read_data} for details and constraints on the 
 #' data structure.
 #' 
-#' @param window \code{Numeric} value, time window size for the correlation  
+#' @param window \code{Numeric} value, window size for the correlation  
 #' calculation, in seconds.
 #' 
 #' @param overlap \code{Numeric} value, fraction of window overlap. Set to 
 #' zero by default, i.e. no overlap.
+#' 
+#' @param window_sub \code{Numeric} value, size of the sub window used for 
+#' averaging (stacking) the correlation function within a window. If omitted, 
+#' no averaging will be performed. 
 #' 
 #' @param lag \code{Numeric} value, window size of the cross correlation 
 #' function, in seconds.
@@ -71,6 +75,13 @@
 #' @param f \code{Numeric} value or vector of length two, lower and/or 
 #' upper cutoff frequencies (Hz). If two values are provided, the function
 #' assumes a bandpass filter. See \code{signal_filter} for details.
+#' 
+#' @param pick \code{Logical} value, option to remove signal snippets where
+#' erratic seismic events can be picked in any of the signals. The supported 
+#' method is \code{pick_stalta} and requires the provision of all mandatory 
+#' arguments (\code{sta}, \code{lta}, \code{on}, \code{off}, \code{freeze}).
+#' Attention, the sta and lta lengths must be provided in seconds, not as 
+#' the number of samples!
 #' 
 #' @param whiten \code{Logical} value, option to perform spectral whitening.
 #' Default is \code{FALSE} (no whitening). 
@@ -140,10 +151,12 @@ ncc_correlate <- function(
   dir,
   window,
   overlap = 0,
+  window_sub,
   lag,
   dt,
   deconvolve = FALSE,
   f,
+  pick = FALSE,
   whiten = FALSE,
   sd,
   sign = FALSE,
@@ -181,6 +194,17 @@ ncc_correlate <- function(
     component <- c("Z", "Z")
   }
   
+  ## check/set sub window
+  if(missing(window_sub) == TRUE) {
+    
+    window_sub <- window
+  }
+  
+  ## check lag and sub window agreement
+  if(lag > window_sub) {
+    stop("Lag is larger than sub-window or window size!")
+  }
+  
   ## read additional plot arguments
   extraArgs <- list(...)
   
@@ -208,6 +232,31 @@ ncc_correlate <- function(
   if ("method" %in% names(extraArgs)) {
     method <- extraArgs$method
   } else { method <- NA }
+  
+  ## check/set sta option
+  if ("sta" %in% names(extraArgs)) {
+    sta <- extraArgs$sta
+  } else { sta <- NA }
+  
+  ## check/set lta option
+  if ("lta" %in% names(extraArgs)) {
+    lta <- extraArgs$lta
+  } else { lta <- NA }
+  
+  ## check/set on option
+  if ("on" %in% names(extraArgs)) {
+    on <- extraArgs$on
+  } else { on <- NA }
+  
+  ## check/set off option
+  if ("off" %in% names(extraArgs)) {
+    off <- extraArgs$off
+  } else { off <- NA }
+  
+  ## check/set freeze option
+  if ("freeze" %in% names(extraArgs)) {
+    freeze <- extraArgs$freeze
+  } else { freeze <- FALSE }
   
   ## define time vector
   t <- seq(from = start, 
@@ -241,6 +290,7 @@ ncc_correlate <- function(
               component = component,
               window = window,
               overlap = overlap,
+              window_sub = window_sub,
               buffer = buffer,
               dir = dir,
               dt = dt,
@@ -249,6 +299,12 @@ ncc_correlate <- function(
               logger = logger,
               gain = gain,
               f = f,
+              pick = pick, 
+              sta = sta,
+              lta = lta,
+              on = on,
+              off = off, 
+              freeze = freeze,
               type = type,
               method = method,
               whiten = whiten,
@@ -304,11 +360,62 @@ ncc_correlate <- function(
                                  gain = par$gain)
       }
       
+      ## demean and detrend data sets
+      s_1 <- eseis::signal_demean(data = s_1)
+      s_2 <- eseis::signal_demean(data = s_2)
+      
+      s_1 <- eseis::signal_detrend(data = s_1)
+      s_2 <- eseis::signal_detrend(data = s_2)
+      
+      ## taper data sets
+      s_1 <- eseis::signal_taper(data = s_1, p = par$buffer)
+      s_2 <- eseis::signal_taper(data = s_2, p = par$buffer)
+      
       ## filter data sets
       s_1 <- eseis::signal_filter(data = s_1, f = par$f, 
                                   type = par$type, p = par$buffer)
       s_2 <- eseis::signal_filter(data = s_2, f = par$f, 
                                   type = par$type, p = par$buffer)
+      
+      ## create index vector for potentially event contaminated samples
+      s_ok <- rep(TRUE, s_1$meta$n)
+      
+      ## optionally identify events
+      if(par$pick == TRUE) {
+        
+        ## pick events in signals
+        e_1 <- eseis::pick_stalta(data = eseis::signal_envelope(data = s_1), 
+                           sta = par$sta * 1/s_1$meta$dt, 
+                           lta = par$lta * 1/s_1$meta$dt, 
+                           on = par$on, 
+                           off = par$off, 
+                           freeze = par$freeze)$picks
+        
+        e_2 <- eseis::pick_stalta(data = eseis::signal_envelope(data = s_2), 
+                           sta = par$sta * 1/s_2$meta$dt, 
+                           lta = par$lta * 1/s_2$meta$dt, 
+                           on = par$on, 
+                           off = par$off, 
+                           freeze = par$freeze)$picks
+        
+        ## combine picks from both signals
+        e <- rbind(e_1, e_2)
+        
+        ## create time vector
+        t_ok <- seq(from = s_1$meta$starttime, 
+                    by = s_1$meta$dt, 
+                    length.out = s_1$meta$n)
+        
+        ## indicate event-contaminated samples
+        if(nrow(e) > 0) {
+          
+          for(i in 1:nrow(e)) {
+            
+            s_ok[t_ok >= e$start[i] & 
+                   t_ok <= e$start[i] + e$duration[i]] <- FALSE
+          }
+        }
+      }
       
       ## optionally whiten data
       if(par$whiten == TRUE) {
@@ -331,60 +438,76 @@ ncc_correlate <- function(
         s_2 <- eseis::signal_sign(data = s_2)
       }
       
-      ## apply FFT
-      s_1_fft <- fftw::FFT(x = s_1$signal)
-      s_2_fft <- fftw::FFT(x = s_2$signal)
+      ## set event contaminated samples to NA
+      s_1$signal[s_ok == FALSE] <- NA
+      s_2$signal[s_ok == FALSE] <- NA
       
-      ## calculate cross-correlation function
-      n <- s_1$meta$n
-      corr <- try(Conj(s_1_fft) * s_2_fft)
-      corr <- try(Re(fftw::IFFT(x = corr)) / n)
-      corr <- try(c(corr[1:n], corr[1:(n - 1)]))
+      ## create sub window vector
+      t_sub <- seq(from = t, 
+                   to = t + par$window - par$window_sub,
+                   by = par$window_sub)
       
-      ## calculate normalisation factor
-      f_norm <- prod(c(Re(sqrt(mean(fftw::IFFT(s_1_fft)^2))), 
-                       Re(sqrt(mean(fftw::IFFT(s_2_fft)^2)))))
+      ## calculate correlation function for (optional) subwindows
+      corr_sub <- lapply(X = t_sub, FUN = function(t_sub, par, s_1, s_2) {
+        
+        ## clip signals to sub window
+        s_1_sub <- eseis::signal_clip(data = s_1, 
+                                      limits = c(t_sub, 
+                                                 t_sub + par$window_sub))
+        s_2_sub <- eseis::signal_clip(data = s_2, 
+                                      limits = c(t_sub, 
+                                                 t_sub + par$window_sub))
+        
+        ## demean and detrend data sets
+        s_1_sub <- eseis::signal_demean(data = s_1_sub)
+        s_2_sub <- eseis::signal_demean(data = s_2_sub)
+        
+        s_1_sub <- eseis::signal_detrend(data = s_1_sub)
+        s_2_sub <- eseis::signal_detrend(data = s_2_sub)
+        
+        ## apply FFT
+        s_1_fft_sub <- fftw::FFT(x = s_1_sub$signal)
+        s_2_fft_sub <- fftw::FFT(x = s_2_sub$signal)
+        
+        ## calculate cross-correlation function
+        n <- s_1_sub$meta$n
+        corr_sub <- try(Conj(s_1_fft_sub) * s_2_fft_sub)
+        corr_sub <- try(Re(fftw::IFFT(x = corr_sub)) / n)
+        corr_sub <- try(c(corr_sub[1:n], corr_sub[1:(n - 1)]))
+        
+        ## calculate normalisation factor
+        f_norm <- prod(c(Re(sqrt(mean(fftw::IFFT(s_1_fft_sub)^2))), 
+                         Re(sqrt(mean(fftw::IFFT(s_2_fft_sub)^2)))))
+        
+        ## normalise correlation function
+        corr_sub <- corr_sub / f_norm
+        
+        ## calculate number of samples in lag time
+        n_lag <- par$lag * 1 / s_1_sub$meta$dt
+        
+        ## truncate correlation function to time lag window      
+        corr_sub <- corr_sub[(n - n_lag + 1):(n + 1 + n_lag)]
+        
+        ## return result
+        return(corr_sub)
+        
+      }, par, s_1, s_2)
       
-      ## normalise correlation function
-      corr <- corr / f_norm
-      
-      ## calculate number of samples in lag time
-      n_lag <- par$lag * 1 / s_1$meta$dt
-
-      ## truncate correlation function to time lag window      
-      corr <- corr[(n - n_lag + 1):(n + 1 + n_lag)]
+      ## convert list to data frame and calculate average
+      corr_sub <- do.call(rbind, corr_sub)
+      corr_sub <- colMeans(corr_sub, na.rm = TRUE)
       
     } else {
       
-      corr <- NA
+      corr_sub <- rep(NA, 2 * (par$lag * 1 / s_1_sub$meta$dt) + 1)
     }
     
-    return(corr)
+    return(corr_sub)
     
   }, par = par)
   
-  #plot(CC[[1]], type = "l")
-  
   ## stop cluster
   try(parallel::stopCluster(cl = cl))
-  
-  ## extract number of values in correlation function
-  n_cc <- max(sapply(X = CC, FUN = length), na.rm = TRUE)
-  
-  ## expand NA value cases
-  CC <- lapply(X = CC, FUN = function(CC, n_cc) {
-    
-    n_na <- sum(is.na(CC))
-    
-    if(n_na > 0) {
-      
-      return(rep(NA, n_cc))
-    } else {
-      
-      return(CC)
-    }
-    
-  }, n_cc = n_cc)
   
   ## convert list to matrix
   CC <- do.call(cbind, CC)
@@ -396,7 +519,7 @@ ncc_correlate <- function(
     eseis_data <- list(CC = list(CC = CC,
                                  t = t,
                                  lag = seq(from = -lag, to = lag, 
-                                           length.out = n_cc)),
+                                           length.out = nrow(CC))),
                        history = eseis::aux_initiateeseis()$history)
     
     ## calculate function call duration
