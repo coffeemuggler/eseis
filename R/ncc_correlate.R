@@ -485,8 +485,20 @@ ncc_correlate <- function(
         ## calculate number of samples in lag time
         n_lag <- par$lag * 1 / s_1_sub$meta$dt
         
-        ## truncate correlation function to time lag window      
-        corr_sub <- corr_sub[(n - n_lag + 1):(n + 1 + n_lag)]
+        ## truncate correlation function to time lag window
+        if(any(is.na(corr_sub)) == TRUE | n_lag > length(corr_sub)) {
+          
+          class(corr_sub) <- "try-error"
+        } else {
+          
+          corr_sub <- try(corr_sub[(n - n_lag + 1):(n + 1 + n_lag)])
+        }
+        
+        ## prepare NA case
+        if(inherits(corr_sub, "try-error") == TRUE) {
+          
+          corr_sub <- rep(NA, 2 * (par$lag * 1 / s_1_sub$meta$dt) + 1)
+        }
         
         ## return result
         return(corr_sub)
@@ -499,12 +511,26 @@ ncc_correlate <- function(
       
     } else {
       
-      corr_sub <- rep(NA, 2 * (par$lag * 1 / s_1_sub$meta$dt) + 1)
+      corr_sub <- NA
     }
     
     return(corr_sub)
     
   }, par = par)
+  
+  ## collect number of samples
+  n_smp <- parallel::parLapply(cl = cl, X = CC, fun = function(CC) {
+    try(length(CC))
+  })
+  n_smp <- try(median(do.call(c, n_smp)))
+  
+  ## set NA cases to NA vector
+  CC <- parallel::parLapply(cl = cl, X = CC, fun = function(CC, n_smp) {
+
+    if(length(CC) != n_smp) {CC <- rep(NA, n_smp)}
+    
+    return(CC)
+  }, n_smp)
   
   ## stop cluster
   try(parallel::stopCluster(cl = cl))

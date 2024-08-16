@@ -12,10 +12,12 @@ ncc_correlate(
   dir,
   window,
   overlap = 0,
+  window_sub,
   lag,
   dt,
   deconvolve = FALSE,
   f,
+  pick = FALSE,
   whiten = FALSE,
   sd,
   sign = FALSE,
@@ -46,11 +48,15 @@ to be used. If omitted, the function will use \code{c("Z", "Z")} by default.}
 seismic files. See \code{read_data} for details and constraints on the 
 data structure.}
 
-\item{window}{\code{Numeric} value, time window size for the correlation
+\item{window}{\code{Numeric} value, window size for the correlation
 calculation, in seconds.}
 
 \item{overlap}{\code{Numeric} value, fraction of window overlap. Set to 
 zero by default, i.e. no overlap.}
+
+\item{window_sub}{\code{Numeric} value, size of the sub window used for 
+averaging (stacking) the correlation function within a window. If omitted, 
+no averaging will be performed.}
 
 \item{lag}{\code{Numeric} value, window size of the cross correlation 
 function, in seconds.}
@@ -67,6 +73,13 @@ see \code{signal_deconvolve()} for details.}
 \item{f}{\code{Numeric} value or vector of length two, lower and/or 
 upper cutoff frequencies (Hz). If two values are provided, the function
 assumes a bandpass filter. See \code{signal_filter} for details.}
+
+\item{pick}{\code{Logical} value, option to remove signal snippets where
+erratic seismic events can be picked in any of the signals. The supported 
+method is \code{pick_stalta} and requires the provision of all mandatory 
+arguments (\code{sta}, \code{lta}, \code{on}, \code{off}, \code{freeze}).
+Attention, the sta and lta lengths must be provided in seconds, not as 
+the number of samples!}
 
 \item{whiten}{\code{Logical} value, option to perform spectral whitening.
 Default is \code{FALSE} (no whitening).}
