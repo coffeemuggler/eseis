@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.8.0 (to be announced)
+  - function added, aux_splitcubechannels()
   - function changed, aux_organisecubefile(), file paths expanded
   - bug fixe, aux_stationinfofile(), try-error catcher for write_data added
   - bug fixed, aux_organisecubefiles(), further Win issues removed
