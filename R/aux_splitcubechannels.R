@@ -148,8 +148,6 @@ aux_splitcubechannels <- function(
   ## process each file
   for(i in 1:length(files_in)) {
   
-    print(i)
-    
     ## isolate file name
     file_i <- tail(strsplit(x = files_in[i], 
                             split = "/", 
