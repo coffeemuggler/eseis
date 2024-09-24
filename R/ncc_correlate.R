@@ -522,7 +522,7 @@ ncc_correlate <- function(
   n_smp <- parallel::parLapply(cl = cl, X = CC, fun = function(CC) {
     try(length(CC))
   })
-  n_smp <- try(median(do.call(c, n_smp)))
+  n_smp <- try(quantile(do.call(c, n_smp), 0.95))
   
   ## set NA cases to NA vector
   CC <- parallel::parLapply(cl = cl, X = CC, fun = function(CC, n_smp) {
