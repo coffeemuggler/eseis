@@ -9,6 +9,8 @@
 #' defined lag time window. The output of the function is supposed to be 
 #' used as input for the function \code{ncc_process()}. 
 #' 
+#' The sampling interval (\code{dt} must be defined). It is wise to set it 
+#' to more than twice the filter's higher corner frequency (\code{f[2]}). 
 #' Aggregation is recommended to improve computational efficiency, but is 
 #' mandatory if data sets of different sampling intervals are to be analysed. 
 #' In that case, it must be possible to aggregate the data sets to the 
@@ -17,6 +19,15 @@
 #' \code{1/200} and \code{1/500}, the highest possible aggregated sampling 
 #' interval is \code{1/100}. See \code{aux_commondt()} for further 
 #' information. 
+#' 
+#' The function supports parallel processing. However, keep in mind that 
+#' calculating the cross correlation functions for large data sets and large 
+#' windows will draw serious amounts of memory. For example, a 24 h window 
+#' of two seismic signals recorded at 200 Hz will easily use 15 GB of RAM. 
+#' Combining this with parallel processing will multiply that memory size. 
+#' Therefore, it is better think before going for too high ambitions, and 
+#' check how the computer system statistics evolve with increasing windows 
+#' and parallel operations.
 #' 
 #' Deconvolution is recommended if different station hardware and setup is 
 #' used for the stations to analyse (i.e., different sensors, loggers or 
@@ -63,10 +74,10 @@
 #' @param lag \code{Numeric} value, window size of the cross correlation 
 #' function, in seconds.
 #' 
-#' @param dt \code{Numeric} value, sampling interval to which the input data 
-#' sets will be aggregated. Note that the aggregation dt has to be a multipe 
-#' of the data sets' dt values. See details for further information. If 
-#' omitted, no aggregation will be performed.
+#' @param dt \code{Numeric} mandatory value, sampling interval to which the input  
+#' data will be aggregated. Note that the aggregation dt has to be a multiple 
+#' of the data sets' dt values. If unsure, set value to original sampling interval 
+#' of input data. See details for further information. 
 #' 
 #' @param deconvolve \code{Logical} value, option to deconvolve the input 
 #' data sets. If set to \code{TRUE}, further parameters need to be provided, 
@@ -122,6 +133,7 @@
 #' cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
 #'                      stop = "2017-04-09 01:30:00", 
 #'                      ID = c("RUEG1", "RUEG2"), 
+#'                      dt = 1/10,
 #'                      component = c("Z", "Z"), 
 #'                      dir = paste0(system.file("extdata", 
 #'                                               package = "eseis"), "/"), 
@@ -265,7 +277,7 @@ ncc_correlate <- function(
   
   ## check/set dt option
   if(missing(dt)) {
-    dt <- NULL
+    stop("Not dt provided!")
   }
   
   ## check/set sd option
@@ -415,6 +427,10 @@ ncc_correlate <- function(
                    t_ok <= e$start[i] + e$duration[i]] <- FALSE
           }
         }
+        
+        ## remove temporary objects and collect garbage
+        rm(e, e_1, e_2, t_ok)
+        gc()
       }
       
       ## optionally whiten data
@@ -497,8 +513,12 @@ ncc_correlate <- function(
         ## prepare NA case
         if(inherits(corr_sub, "try-error") == TRUE) {
           
-          corr_sub <- rep(NA, 2 * (par$lag * 1 / s_1_sub$meta$dt) + 1)
+          corr_sub <- rep(NA, 2 * (par$lag / par$dt) + 1)
         }
+        
+        ## remove temporary objects and collect garbage
+        rm(s_1_sub, s_2_sub, s_1_fft_sub, s_2_fft_sub)
+        gc()
         
         ## return result
         return(corr_sub)
@@ -511,26 +531,17 @@ ncc_correlate <- function(
       
     } else {
       
-      corr_sub <- NA
+      corr_sub <- rep(NA, 2 * par$lag / par$dt + 1)
     }
+    
+    ## remove large temporary objects and collect garbage
+    s_ok <- NULL
+    rm(s_1, s_2, s_ok)
+    gc()
     
     return(corr_sub)
     
   }, par = par)
-  
-  ## collect number of samples
-  n_smp <- parallel::parLapply(cl = cl, X = CC, fun = function(CC) {
-    try(length(CC))
-  })
-  n_smp <- try(quantile(do.call(c, n_smp), 0.95))
-  
-  ## set NA cases to NA vector
-  CC <- parallel::parLapply(cl = cl, X = CC, fun = function(CC, n_smp) {
-
-    if(length(CC) != n_smp) {CC <- rep(NA, n_smp)}
-    
-    return(CC)
-  }, n_smp)
   
   ## stop cluster
   try(parallel::stopCluster(cl = cl))

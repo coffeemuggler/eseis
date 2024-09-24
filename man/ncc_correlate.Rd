@@ -61,10 +61,10 @@ no averaging will be performed.}
 \item{lag}{\code{Numeric} value, window size of the cross correlation 
 function, in seconds.}
 
-\item{dt}{\code{Numeric} value, sampling interval to which the input data 
-sets will be aggregated. Note that the aggregation dt has to be a multipe 
-of the data sets' dt values. See details for further information. If 
-omitted, no aggregation will be performed.}
+\item{dt}{\code{Numeric} mandatory value, sampling interval to which the input
+data will be aggregated. Note that the aggregation dt has to be a multiple 
+of the data sets' dt values. If unsure, set value to original sampling interval 
+of input data. See details for further information.}
 
 \item{deconvolve}{\code{Logical} value, option to deconvolve the input 
 data sets. If set to \code{TRUE}, further parameters need to be provided, 
@@ -120,6 +120,8 @@ defined lag time window. The output of the function is supposed to be
 used as input for the function \code{ncc_process()}.
 }
 \details{
+The sampling interval (\code{dt} must be defined). It is wise to set it 
+to more than twice the filter's higher corner frequency (\code{f[2]}). 
 Aggregation is recommended to improve computational efficiency, but is 
 mandatory if data sets of different sampling intervals are to be analysed. 
 In that case, it must be possible to aggregate the data sets to the 
@@ -149,6 +151,7 @@ negative values will be converted to \code{1} and \code{-1}, respectively).
 cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
                      stop = "2017-04-09 01:30:00", 
                      ID = c("RUEG1", "RUEG2"), 
+                     dt = 1/10,
                      component = c("Z", "Z"), 
                      dir = paste0(system.file("extdata", 
                                               package = "eseis"), "/"), 
