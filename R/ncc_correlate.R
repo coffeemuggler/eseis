@@ -155,7 +155,7 @@
 #' @export ncc_correlate
 
 ncc_correlate <- function(
-
+    
   start,
   stop,
   ID,
@@ -326,9 +326,9 @@ ncc_correlate <- function(
   
   ## get start time
   eseis_t_0 <- Sys.time()
-
+  
   cl <- parallel::makeCluster(getOption("mc.cores", cores))
-    
+  
   ## calculate cross correlation function
   CC <- parallel::parLapply(cl = cl, X = t, fun = function(t, par) {
     
@@ -348,67 +348,76 @@ ncc_correlate <- function(
     
     if(inherits(s_1, "eseis") & inherits(s_2, "eseis")) {
       
+      ## optionally fill NA gaps
+      try(if(any(is.na(s_1$signal))) {
+        s_1 <- try(signal_fill(data = s_1))
+      })
+      
+      try(if(any(is.na(s_2$signal))) {
+        s_2 <- try(signal_fill(data = s_2))
+      })
+      
       ## optionally aggregate data sets
-      if(is.null(par$dt) == FALSE) {
+      try(if(is.null(par$dt) == FALSE) {
         
         k <- eseis::aux_commondt(data = c(s_1$meta$dt, 
-                                   s_2$meta$dt), 
-                          dt = par$dt)$agg
+                                          s_2$meta$dt), 
+                                 dt = par$dt)$agg
         
         s_1 <- eseis::signal_aggregate(data = s_1, n = k[1])
         s_2 <- eseis::signal_aggregate(data = s_2, n = k[2])
-      }
+      })
       
       ## optionally deconvolve data sets
-      if(par$deconvolve == TRUE) {
+      try(if(par$deconvolve == TRUE) {
         
         s_1 <- eseis::signal_deconvolve(data = s_1,
-                                 sensor = par$sensor, 
-                                 logger = par$logger, 
-                                 gain = par$gain)
+                                        sensor = par$sensor, 
+                                        logger = par$logger, 
+                                        gain = par$gain)
         s_2 <- eseis::signal_deconvolve(data = s_2,
-                                 sensor = par$sensor, 
-                                 logger = par$logger, 
-                                 gain = par$gain)
-      }
+                                        sensor = par$sensor, 
+                                        logger = par$logger, 
+                                        gain = par$gain)
+      })
       
       ## demean and detrend data sets
-      s_1 <- eseis::signal_demean(data = s_1)
-      s_2 <- eseis::signal_demean(data = s_2)
+      s_1 <- try(eseis::signal_demean(data = s_1))
+      s_2 <- try(eseis::signal_demean(data = s_2))
       
-      s_1 <- eseis::signal_detrend(data = s_1)
-      s_2 <- eseis::signal_detrend(data = s_2)
+      s_1 <- try(eseis::signal_detrend(data = s_1))
+      s_2 <- try(eseis::signal_detrend(data = s_2))
       
       ## taper data sets
-      s_1 <- eseis::signal_taper(data = s_1, p = par$buffer)
-      s_2 <- eseis::signal_taper(data = s_2, p = par$buffer)
+      s_1 <- try(eseis::signal_taper(data = s_1, p = par$buffer))
+      s_2 <- try(eseis::signal_taper(data = s_2, p = par$buffer))
       
       ## filter data sets
-      s_1 <- eseis::signal_filter(data = s_1, f = par$f, 
-                                  type = par$type, p = par$buffer)
-      s_2 <- eseis::signal_filter(data = s_2, f = par$f, 
-                                  type = par$type, p = par$buffer)
+      s_1 <- try(eseis::signal_filter(data = s_1, f = par$f, 
+                                      type = par$type, p = par$buffer))
+      s_2 <- try(eseis::signal_filter(data = s_2, f = par$f, 
+                                      type = par$type, p = par$buffer))
       
       ## create index vector for potentially event contaminated samples
-      s_ok <- rep(TRUE, s_1$meta$n)
+      s_ok <- try(rep(TRUE, s_1$meta$n))
       
       ## optionally identify events
-      if(par$pick == TRUE) {
+      try(if(par$pick == TRUE) {
         
         ## pick events in signals
         e_1 <- eseis::pick_stalta(data = eseis::signal_envelope(data = s_1), 
-                           sta = par$sta * 1/s_1$meta$dt, 
-                           lta = par$lta * 1/s_1$meta$dt, 
-                           on = par$on, 
-                           off = par$off, 
-                           freeze = par$freeze)$picks
+                                  sta = par$sta * 1/s_1$meta$dt, 
+                                  lta = par$lta * 1/s_1$meta$dt, 
+                                  on = par$on, 
+                                  off = par$off, 
+                                  freeze = par$freeze)$picks
         
         e_2 <- eseis::pick_stalta(data = eseis::signal_envelope(data = s_2), 
-                           sta = par$sta * 1/s_2$meta$dt, 
-                           lta = par$lta * 1/s_2$meta$dt, 
-                           on = par$on, 
-                           off = par$off, 
-                           freeze = par$freeze)$picks
+                                  sta = par$sta * 1/s_2$meta$dt, 
+                                  lta = par$lta * 1/s_2$meta$dt, 
+                                  on = par$on, 
+                                  off = par$off, 
+                                  freeze = par$freeze)$picks
         
         ## combine picks from both signals
         e <- rbind(e_1, e_2)
@@ -431,103 +440,110 @@ ncc_correlate <- function(
         ## remove temporary objects and collect garbage
         rm(e, e_1, e_2, t_ok)
         gc()
-      }
+      })
       
       ## optionally whiten data
       if(par$whiten == TRUE) {
         
-        s_1 <- eseis::signal_whiten(data = s_1)
-        s_2 <- eseis::signal_whiten(data = s_2)
+        s_1 <- try(eseis::signal_whiten(data = s_1))
+        s_2 <- try(eseis::signal_whiten(data = s_2))
       }
       
       ## optionally sd-cut data
       if(par$sd != 0) {
         
-        s_1 <- eseis::signal_cut(data = s_1, k = par$sd)
-        s_2 <- eseis::signal_cut(data = s_2, k = par$sd)
+        s_1 <- try(eseis::signal_cut(data = s_1, k = par$sd))
+        s_2 <- try(eseis::signal_cut(data = s_2, k = par$sd))
       }
       
       ## optionally sign-cut data
       if(par$sign == TRUE) {
         
-        s_1 <- eseis::signal_sign(data = s_1)
-        s_2 <- eseis::signal_sign(data = s_2)
+        s_1 <- try(eseis::signal_sign(data = s_1))
+        s_2 <- try(eseis::signal_sign(data = s_2))
       }
       
       ## set event contaminated samples to NA
-      s_1$signal[s_ok == FALSE] <- NA
-      s_2$signal[s_ok == FALSE] <- NA
+      try(s_1$signal[s_ok == FALSE] <- NA)
+      try(s_2$signal[s_ok == FALSE] <- NA)
       
       ## create sub window vector
-      t_sub <- seq(from = t, 
-                   to = t + par$window - par$window_sub,
-                   by = par$window_sub)
+      t_sub <- try(seq(from = t, 
+                       to = t + par$window - par$window_sub,
+                       by = par$window_sub))
       
       ## calculate correlation function for (optional) subwindows
       corr_sub <- lapply(X = t_sub, FUN = function(t_sub, par, s_1, s_2) {
-        
-        ## clip signals to sub window
-        s_1_sub <- eseis::signal_clip(data = s_1, 
-                                      limits = c(t_sub, 
-                                                 t_sub + par$window_sub))
-        s_2_sub <- eseis::signal_clip(data = s_2, 
-                                      limits = c(t_sub, 
-                                                 t_sub + par$window_sub))
-        
-        ## demean and detrend data sets
-        s_1_sub <- eseis::signal_demean(data = s_1_sub)
-        s_2_sub <- eseis::signal_demean(data = s_2_sub)
-        
-        s_1_sub <- eseis::signal_detrend(data = s_1_sub)
-        s_2_sub <- eseis::signal_detrend(data = s_2_sub)
-        
-        ## apply FFT
-        s_1_fft_sub <- fftw::FFT(x = s_1_sub$signal)
-        s_2_fft_sub <- fftw::FFT(x = s_2_sub$signal)
-        
-        ## calculate cross-correlation function
-        n <- s_1_sub$meta$n
-        corr_sub <- try(Conj(s_1_fft_sub) * s_2_fft_sub)
-        corr_sub <- try(Re(fftw::IFFT(x = corr_sub)) / n)
-        corr_sub <- try(c(corr_sub[1:n], corr_sub[1:(n - 1)]))
-        
-        ## calculate normalisation factor
-        f_norm <- prod(c(Re(sqrt(mean(fftw::IFFT(s_1_fft_sub)^2))), 
-                         Re(sqrt(mean(fftw::IFFT(s_2_fft_sub)^2)))))
-        
-        ## normalise correlation function
-        corr_sub <- corr_sub / f_norm
-        
-        ## calculate number of samples in lag time
-        n_lag <- par$lag * 1 / s_1_sub$meta$dt
-        
-        ## truncate correlation function to time lag window
-        if(any(is.na(corr_sub)) == TRUE | n_lag > length(corr_sub)) {
           
-          class(corr_sub) <- "try-error"
-        } else {
+          ## clip signals to sub window
+          s_1_sub <- try(eseis::signal_clip(data = s_1, 
+                                        limits = c(t_sub, 
+                                                   t_sub + par$window_sub)))
+          s_2_sub <- try(eseis::signal_clip(data = s_2, 
+                                        limits = c(t_sub, 
+                                                   t_sub + par$window_sub)))
           
-          corr_sub <- try(corr_sub[(n - n_lag + 1):(n + 1 + n_lag)])
-        }
-        
-        ## prepare NA case
-        if(inherits(corr_sub, "try-error") == TRUE) {
+          ## demean and detrend data sets
+          s_1_sub <- try(eseis::signal_demean(data = s_1_sub))
+          s_2_sub <- try(eseis::signal_demean(data = s_2_sub))
           
-          corr_sub <- rep(NA, 2 * (par$lag / par$dt) + 1)
-        }
-        
-        ## remove temporary objects and collect garbage
-        rm(s_1_sub, s_2_sub, s_1_fft_sub, s_2_fft_sub)
-        gc()
-        
-        ## return result
-        return(corr_sub)
-        
-      }, par, s_1, s_2)
+          s_1_sub <- try(eseis::signal_detrend(data = s_1_sub))
+          s_2_sub <- try(eseis::signal_detrend(data = s_2_sub))
+          
+          ## apply FFT
+          s_1_fft_sub <- try(fftw::FFT(x = s_1_sub$signal))
+          s_2_fft_sub <- try(fftw::FFT(x = s_2_sub$signal))
+          
+          ## calculate cross-correlation function
+          n <- try(s_1_sub$meta$n)
+          corr_sub <- try(Conj(s_1_fft_sub) * s_2_fft_sub)
+          corr_sub <- try(Re(fftw::IFFT(x = corr_sub)) / n)
+          corr_sub <- try(c(corr_sub[1:n], corr_sub[1:(n - 1)]))
+          
+          ## calculate normalisation factor
+          f_norm <- try(prod(c(Re(sqrt(mean(fftw::IFFT(s_1_fft_sub)^2))), 
+                           Re(sqrt(mean(fftw::IFFT(s_2_fft_sub)^2))))))
+          
+          ## normalise correlation function
+          corr_sub <- try(corr_sub / f_norm)
+          
+          ## calculate number of samples in lag time
+          n_lag <- try(par$lag * 1 / s_1_sub$meta$dt)
+          
+          ## truncate correlation function to time lag window
+          if(inherits(corr_sub, "try-error") == FALSE) {
+            
+            if(any(is.na(corr_sub)) == TRUE | n_lag > length(corr_sub)) {
+              
+              class(corr_sub) <- "try-error"
+            } else {
+              
+              corr_sub <- try(corr_sub[(n - n_lag + 1):(n + 1 + n_lag)])
+            }
+          }
+          
+          ## prepare NA case
+          if(inherits(corr_sub, "try-error") == TRUE) {
+            
+            corr_sub <- rep(NA, 2 * (par$lag / par$dt) + 1)
+          }
+          
+          ## remove temporary objects and collect garbage
+          try(rm(s_1_sub, s_2_sub, s_1_fft_sub, s_2_fft_sub))
+          try(gc())
+          
+          ## return result
+          return(corr_sub)
+          
+        }, par, s_1, s_2)
       
       ## convert list to data frame and calculate average
-      corr_sub <- do.call(rbind, corr_sub)
-      corr_sub <- colMeans(corr_sub, na.rm = TRUE)
+      corr_sub <- try(do.call(rbind, corr_sub))
+      corr_sub <- try(colMeans(corr_sub, na.rm = TRUE))
+      
+      if(inherits(corr_sub, "try-error")) {
+        corr_sub <- rep(NA, 2 * par$lag / par$dt + 1)
+      }
       
     } else {
       
@@ -548,7 +564,7 @@ ncc_correlate <- function(
   
   ## convert list to matrix
   CC <- do.call(cbind, CC)
-
+  
   ## optionally rebuild eseis object
   if(eseis == TRUE) {
     

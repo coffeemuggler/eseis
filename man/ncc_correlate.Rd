@@ -131,6 +131,15 @@ will arise. As an example, if the two data sets have sampling intervals of
 interval is \code{1/100}. See \code{aux_commondt()} for further 
 information. 
 
+The function supports parallel processing. However, keep in mind that 
+calculating the cross correlation functions for large data sets and large 
+windows will draw serious amounts of memory. For example, a 24 h window 
+of two seismic signals recorded at 200 Hz will easily use 15 GB of RAM. 
+Combining this with parallel processing will multiply that memory size. 
+Therefore, it is better think before going for too high ambitions, and 
+check how the computer system statistics evolve with increasing windows 
+and parallel operations.
+
 Deconvolution is recommended if different station hardware and setup is 
 used for the stations to analyse (i.e., different sensors, loggers or 
 gain factors). 
