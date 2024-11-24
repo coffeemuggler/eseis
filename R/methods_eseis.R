@@ -9,7 +9,8 @@ plot.eseis <- function(x, y, ...) {
     
     if(x$meta$type == "waveform" | 
        x$meta$type == "envelope" | 
-       x$meta$type == "hilbert") {
+       x$meta$type == "hilbert" | 
+       x$meta$type == "characteristic") {
       
       eseis::plot_signal(x, ...)
     } else if(x$meta$type == "spectrum") {
@@ -18,6 +19,9 @@ plot.eseis <- function(x, y, ...) {
     } else if(x$meta$type == "spectrogram") {
       
       eseis::plot_spectrogram(x, ...)
+    } else if(x$meta$type == "correlogram") {
+      
+      eseis::plot_correlogram(x, ...)
     } else {
       
       graphics::plot(x, ...)

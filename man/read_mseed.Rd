@@ -19,28 +19,28 @@ read_mseed(
 \item{file}{\code{Character} vector, input file name(s), with extension.}
 
 \item{append}{\code{Logical} value, option to append single files to one
-continuous file, keeping only the hedaer information of the first file,
+continuous file, keeping only the header information of the first file,
 default is \code{TRUE}.}
 
-\item{signal}{\code{Logical} value, option to import the signal vector, 
+\item{signal}{\code{Logical} value, option to import the signal vector,
 default is \code{TRUE}.}
 
-\item{time}{\code{Logical} value, option to create the time vector. The 
+\item{time}{\code{Logical} value, option to create the time vector. The
 timezone is automatically set to \code{"UTC"}, default is \code{TRUE}.}
 
-\item{meta}{\code{Logical} value, option to append the meta data part, 
+\item{meta}{\code{Logical} value, option to append the meta data part,
 default is \code{TRUE}.}
 
-\item{header}{\code{Logical} value, option to append the header part, 
+\item{header}{\code{Logical} value, option to append the header part,
 default is \code{TRUE}.}
 
 \item{eseis}{\code{Logical} value, option to read data to an \code{eseis}
-object (recommended, see documentation of 
+object (recommended, see documentation of
 \code{aux_initiateeseis}), default is \code{TRUE}}
 
-\item{type}{\code{Character} value, type keyword of the data. One out of 
-\code{"waveform"}, \code{"envelope"}, \code{"fft"}, \code{"spectrum"}, 
-\code{"spectrogram"}, \code{"other"}, \code{hilbert}, \code{hvratio}. 
+\item{type}{\code{Character} value, type keyword of the data. One out of
+\code{"waveform"}, \code{"envelope"}, \code{"fft"}, \code{"spectrum"},
+\code{"spectrogram"}, \code{"other"}, \code{hilbert}, \code{hvratio}.
 Default is \code{"waveform"}.}
 }
 \value{
@@ -48,29 +48,37 @@ Default is \code{"waveform"}.}
 }
 \description{
 This function reads mseed files. If \code{append = TRUE}, all
-files will be appended to the first one in the order as they are provided. 
-In the append-case the function returns a either a list with the elements 
-\code{signal}, \code{time}, \code{meta} and \code{header} or a list of the 
-class \code{eseis} (see documentation of 
-\code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file 
-is provided, the function returns a list of the length of the input files, 
-each containing the above elements. \cr\cr The mseed data format is read 
-using the function \code{readMiniseedFile} from the 
-package \code{IRISSeismic}.
+files will be appended to the first one in the order as they are provided.
+In the append-case the function returns a either a list with the elements
+\code{signal}, \code{time}, \code{meta} and \code{header} or a list of the
+class \code{eseis} (see documentation of
+\code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file
+is provided, the function returns a list of the length of the input files,
+each containing the above elements.
+}
+\details{
+The mseed data format is read based on C code that was part of the now 
+CRAN-archived package \code{IRISSeismic} v. 1.6.6 
+(https://cran.r-project.org/src/contrib/Archive/IRISSeismic/). The C code 
+and wrapper are a simplified version of the material from IRISSeismic 
+written by Jonathan Callahan. A future version of \code{read_mseed} may 
+use a further simplified version, restricting the header information to 
+the pure information, required by eseis to build its meta information.
 }
 \examples{
 
 \dontrun{
+
 ## read mseed file with default options
 x <- read_mseed(file = "input.miniseed")
 
 ## read mseed file, only signal trace, not as eseis object
-x <- read_mseed(file = "input.miniseed", 
-                time = FALSE, 
-                meta = FALSE, 
-                header = FALSE, 
+x <- read_mseed(file = "input.miniseed",
+                time = FALSE,
+                meta = FALSE,
+                header = FALSE,
                 eseis = FALSE)
-                
+
 ## read more than one mseed files and append traces
 x <- read_mseed(file = c("input_1.miniseed", "input_2.miniseed"))
 }

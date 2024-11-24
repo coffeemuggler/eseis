@@ -3,6 +3,11 @@
 #' The power spectral density estimate of the time series is calculated using 
 #' different approaches.
 #' 
+#' If the \code{res} option is used, the frequency and power vectors will be 
+#' interpolated using a spline interpolator, using equally spaced frequency 
+#' values. If desired, the additional option \code{log = TRUE} can be used
+#' to interpolate with log spaced frequency values.
+#' 
 #' @param data \code{eseis} object, \code{numeric} vector or list of 
 #' objects, data set to be processed.
 #' 
@@ -16,6 +21,13 @@
 #' @param n \code{Numeric} value, optional number of samples in 
 #' running window used for smoothing the spectrogram. Only applied if a 
 #' number is provided. Smoothing is performed as running mean.
+#' 
+#' @param res \code{Numeric} value, optional resolution of the spectrum, 
+#' i.e. the number of power and frequency values. If omitted, the full 
+#' resolution is returned. If used, a spline interpolation is performed.
+#' 
+#' @param log \code{Logical} value, option to interpolate the spectrum with 
+#' log spaced frequency values. Default is \code{FALSE}.
 #' 
 #' @param \dots Additional arguments passed to the function. 
 #' 
@@ -43,6 +55,8 @@ signal_spectrum <- function(
   dt,
   method = "periodogram",
   n,
+  res,
+  log = FALSE,
   ...
 ) {
 
@@ -70,6 +84,12 @@ signal_spectrum <- function(
     
     n <- NULL
   }
+  
+  ## check/set res
+  if(missing(res) == TRUE) {
+    
+    res <- NULL
+  }
 
   ## check data structure
   if(class(data)[1] == "list") {
@@ -80,6 +100,7 @@ signal_spectrum <- function(
                        dt = dt, 
                        method = method,
                        n = n,
+                       res = res,
                        ...)
     
     ## return output
@@ -93,6 +114,8 @@ signal_spectrum <- function(
     ## collect function arguments
     eseis_arguments <- list(data = "",
                             dt = dt,
+                            n = n, 
+                            res = res,
                             method = method)
     
     ## check if input object is of class eseis
@@ -157,6 +180,36 @@ signal_spectrum <- function(
     if(is.null(n) == FALSE) {
       
       data_out$power <- caTools::runmean(x = data_out$power, k = n)
+    }
+    
+    ## optionally perform interpolation
+    if(is.null(res) == FALSE) {
+      
+      ## define interpolation frequency vector
+      if(log == TRUE) {
+        
+        f_int <- exp(seq(from = log(abs(min(data_out$frequency[-1]))), 
+                         to = log(abs(max(data_out$frequency))),
+                         length.out = res))
+      } else {
+        
+        f_int <- seq(from = min(data_out$frequency), 
+                     to = max(data_out$frequency),
+                     length.out = res)
+      }
+      
+      if(is.null(res) == FALSE) {
+        
+        data_out <- data.frame(
+          frequency = stats::spline(x = data_out$frequency, 
+                                    y = data_out$frequency,
+                                    xout = f_int)$y,
+          
+          power = stats::spline(x = data_out$frequency, 
+                                y = data_out$power, 
+                                xout = f_int)$y
+        )
+      }
     }
     
     ## optionally rebuild eseis object

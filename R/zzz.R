@@ -10,7 +10,7 @@
 
 .onAttach <- function(libname, pkgname){
   
-  ## show startup message
+  # ## show startup message
   # try(packageStartupMessage("Welcome to another bright 'eseis' session."), 
   #     silent = TRUE)
   

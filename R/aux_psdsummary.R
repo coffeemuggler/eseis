@@ -18,12 +18,16 @@
 #' 
 #' @param ID \code{Character} vector, station ID to be processed
 #' 
+#' @param component \code{Character} value or vector, seismic component to 
+#' be used. If omitted, the function will use \code{"BHZ"} by default.
+#' 
+#' @param dir \code{Character} value, path to directory that contains the 
+#' seismic files. See \code{read_data} for details and constraints on the 
+#' data structure.
+#' 
 #' @param window \code{Numeric} value, time window size for the PSD 
 #' calculation. Should be appropriately large to avoid extensive calculation
 #' times, usually at the order of 0.1 percent of the total PSD duration.
-#' 
-#' @param component \code{Character} value or vector, seismic component to 
-#' be used. If omitted, the function will use \code{"BHZ"} by default.
 #' 
 #' @param sensor \code{Character} value, sensor keyword for the deconvolution 
 #' step (see \code{signal_deconvolve} for details and keywords). If omitted, 
@@ -36,10 +40,6 @@
 #' @param gain \code{Numeric} value, signal preamplification factor used for 
 #' the deconvolution step (see \code{signal_deconvolve} for details. Default
 #' value is \code{1}.
-#' 
-#' @param dir \code{Character} value, path to directory that contains the 
-#' seismic files. See \code{aux_getevent} for details and constraints on the 
-#' data structure.
 #' 
 #' @param hours_skip \code{Integer} vector, one or more full hours that will
 #' be excluded from the PSD generation. This optional value is useful if one 
@@ -90,12 +90,12 @@ aux_psdsummary <- function(
     start,
     stop,
     ID,
-    window,
     component = "BHZ",
+    dir,
+    window,
     sensor,
     logger,
     gain = 1,
-    dir,
     hours_skip,
     res = 1000,
     n = 100,
@@ -140,14 +140,28 @@ aux_psdsummary <- function(
   ## check if deconvolution is to be done
   if(missing(sensor) | missing(logger)) {
     
-    ## set deconvolution flag
-    deconvolve <- FALSE
+    if(missing(xml) == FALSE) {
+      
+      ## set deconvolution flag
+      deconvolve <- TRUE
+      
+      ## create dummy sensor, logger, gain, xml information
+      sensor <- NA
+      logger <- NA
+      gain <- NA
+      
+    } else {
+      
+      ## set deconvolution flag
+      deconvolve <- FALSE
+      
+      ## create dummy sensor, logger, gain information
+      sensor <- NA
+      logger <- NA
+      gain <- NA
+      xml <- NA
+    }
     
-    ## create dummy sensor, logger, gain information
-    sensor <- NA
-    logger <- NA
-    gain <- NA
-  
   } else {
     
     ## set deconvolution flag
@@ -164,6 +178,8 @@ aux_psdsummary <- function(
       
       stop("Logger keyword is not supported!")
     }
+    
+    xml <- NA
   }
   
   ## check/set hours to skip
@@ -250,6 +266,7 @@ aux_psdsummary <- function(
                sensor = sensor,
                logger = logger,
                gain = gain,
+               xml = xml,
                f_agg = f_agg)
   
   ## PROCESSING -----------------------------------------------------------------
@@ -277,10 +294,19 @@ aux_psdsummary <- function(
     ## deconvolve data
     if(pars$deconvolve == TRUE) {
       
-      s <- try(eseis::signal_deconvolve(data = s, 
-                                        sensor = pars$sensor, 
-                                        logger = pars$logger,
-                                        gain = pars$gain))
+      if(is.na(pars$xml == TRUE)) {
+        
+        s <- try(eseis::signal_deconvolve(data = s, 
+                                          sensor = pars$sensor, 
+                                          logger = pars$logger,
+                                          gain = pars$gain))
+      } else {
+        
+        s <- try(eseis::signal_deconvolve(data = s, 
+                                          xml = pars$xml))
+      }
+      
+
     }
     
     ## calculate spectrogram

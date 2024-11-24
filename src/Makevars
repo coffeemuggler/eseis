@@ -1,0 +1,15 @@
+# See Section 1.2.1 "Using 'Makevars'" of Writing R Extensions
+# cran.r-project.org/doc/manuals/R-exts.pdf
+
+PKG_CFLAGS=-DDEBUG
+PKG_CPPFLAGS=-Ilibmseed
+PKG_LIBS=-Llibmseed -lmseed
+PKG_CPICFLAGS=-fPIC
+
+$(SHLIB): libmseed/libmseed.a
+
+libmseed/libmseed.a:
+	@(cd libmseed && $(MAKE) static CC="$(CC)" CFLAGS="$(CFLAGS)" CPICFLAGS="$(CPICFLAGS)" AR="$(AR)")
+
+clean:
+	@(cd libmseed && $(MAKE) clean)

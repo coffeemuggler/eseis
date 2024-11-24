@@ -9,16 +9,18 @@ using namespace Rcpp;
 NumericVector kurtosis_event(NumericVector x, int k) {
   
   int n = x.size();
+  double m = 0;
+  double s = 0;
   
   NumericVector kurt(n);
-  
   IntegerVector idx = seq_len(k) - 1;
+  NumericVector y(idx);
   
   for (int i = 1; i < (n - k); i++) {
     
-    NumericVector y = x[idx + i - 1];
-    double m = mean(y);
-    double s = sd(y);
+    y = x[idx + i - 1];
+    m = mean(y);
+    s = sd(y);
     
     kurt[i] = sum(pow(((y - m) / s), 4)) / k;
   }

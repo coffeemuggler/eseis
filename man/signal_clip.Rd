@@ -4,17 +4,18 @@
 \alias{signal_clip}
 \title{Clip signal based on time vector.}
 \usage{
-signal_clip(data, time, limits)
+signal_clip(data, limits, time)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
 
+\item{limits}{\code{POSIXct} vector of length two, time limits for 
+clipping. Can also be a text string that will be converted to POSIXct
+format, with UTC assigned automatically.}
+
 \item{time}{\code{POSIXct} vector, corresponding time vector. Only needed 
 if \code{data} is no \code{eseis} object.}
-
-\item{limits}{\code{POSIXct} vector of length two, time limits for 
-clipping.}
 }
 \value{
 \code{Numeric} data set clipped to provided time interval.

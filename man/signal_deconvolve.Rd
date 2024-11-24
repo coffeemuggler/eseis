@@ -6,19 +6,29 @@
 \usage{
 signal_deconvolve(
   data,
+  xml,
   sensor = "TC120s",
   logger = "Cube3BOB",
   gain = 1,
   use_metadata = FALSE,
   dt,
+  url,
+  xml_use,
   p = 10^-6,
   waterlevel = 10^-6,
-  na.replace = FALSE
+  na.replace = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
+
+\item{xml}{station XML file to use, either an \code{obspy} object or path 
+to a \code{XML} file. If provided, all other station parameters will be 
+ignored and the station XML file will be used. Currently, the station XML
+approach is only supported through Obspy and when \code{eseis} objects are 
+provided. In that case, lists of \code{eseis} cannot be supported.}
 
 \item{sensor}{\code{Character} value or \code{list} object, 
 seismic sensor name. Must be present in the sensor library 
@@ -40,6 +50,14 @@ element instead of using explicitly provided arguments. Default is
 \item{dt}{\code{Numeric} value, sampling rate. Only needed if \code{data} 
 is not an \code{eseis} object}
 
+\item{url}{\code{Character} value, URL of the FDSN data provider. Should 
+be of the form \code{"http://service.iris.edu"}, i.e., without further 
+URL parts. URLs can be submitted as a vector. See \code{aux_getxml} for 
+further details. Only needed when XML file is to be downloaded.}
+
+\item{xml_use}{\code{Logical} value, only needed internally, will be set 
+automatically.}
+
 \item{p}{\code{Numeric} value, proportion of signal to be tapered. Default
 is\code{10^-6}.}
 
@@ -50,6 +68,9 @@ division, default is \code{10^-6}.}
 data set by zeros. Default is \code{FALSE}. Attention, the zeros will 
 create artifacts in the deconvolved data set. However, \code{NA} values will 
 result in no deconvolution at all.}
+
+\item{verbose}{\code{Logical} value, option to allow messages and warnings 
+to be shown. Default is \code{FALSE}.}
 }
 \value{
 \code{Numeric} vector or list of vectors, deconvolved signal.
@@ -63,8 +84,11 @@ vector. These parameters are contained in and read from the function
 \code{list_sensor()} and \code{list_logger()}. Poles and zeros are used 
 to build the transfer function. The value s is the generator constant in 
 Vs/m. The value k is the normalisation factor. AD is the analogue-digital 
-conversion factor. If the signal was recorded with a gain value other than 
-1, the resulting signal needs to be corrected for this, as well.
+conversion factor n Volts per count. If the signal was recorded with a gain 
+value other than 1, the resulting signal needs to be corrected for this, 
+as well. As of v. 0.8.0, the function also supports deconvolution using 
+the station XML scheme. However, that feature is implemented through the 
+python toolbox Obspy, which needs to be installed separately.
 }
 \examples{
 
@@ -91,7 +115,7 @@ logger_new$AD <- 2.4414e-07
 rockfall_decon <- signal_deconvolve(data = rockfall_eseis,
                                     sensor = "TC120s", 
                                     logger = logger_new)
-                                    
+
 ## Change the setup of a logger, here: Centaur AD is changed due to 
 ## other than default Vpp value, according to AD = V / (2^24).
 
@@ -100,7 +124,38 @@ Centaur_10V <- list_logger()[[2]]
 
 ## replace AD value
 Centaur_10V$AD <- 20/(2^24)
-                                    
+
+\dontrun{
+
+## working with station XML files:
+
+## download and import example data set
+s <- read_fdsn(start = "2023-06-10", 
+               duration = 600, 
+               station = "DAVA", 
+               network = "OE",
+               component = "BHZ")
+
+## download and save station XML file
+xml <- aux_getxml(xml = "OE.DAVA.XML",
+                  start = "2023-06-10",
+                  duration = 600,
+                  network = "OE",
+                  station = "DAVA",
+                  component = "BHZ",
+                  url = "http://service.iris.edu")
+
+## deconvolve data set with downloaded XML file
+s_d <- signal_deconvolve(data = s, 
+                         xml = "OE.DAVA.XML")
+                         
+## alternatively, deconvolve data set by online XML file (no saving)
+s_d <- signal_deconvolve(data = s, 
+                         xml = TRUE,
+                         url = "http://service.iris.edu")
+                         
+}
+
 }
 \author{
 Michael Dietze

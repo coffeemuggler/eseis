@@ -70,10 +70,10 @@
 #'                              dem = dem)
 #'                              
 #' ## restore SpatRaster object for plotting purpose
-#' D_map_1 <- terra:rast(crs = D$maps[[1]]$crs,
-#'                       ext = D$maps[[1]]$ext,
-#'                       res = D$maps[[1]]$res,
-#'                       val = D$maps[[1]]$values)
+#' D_map_1 <- terra::rast(crs = D$maps[[1]]$crs,
+#'                        ext = D$maps[[1]]$ext,
+#'                        res = D$maps[[1]]$res,
+#'                        val = D$maps[[1]]$val)
 #'                       
 #' ## plot distance map
 #' terra::plot(D_map_1) 

@@ -78,7 +78,8 @@ signal_aggregate <- function(
     ## apply function to list
     data_out <- lapply(X = data, 
                        FUN = eseis::signal_aggregate,
-                       n = n)
+                       n = n,
+                       type = type)
     
     ## return output
     return(data_out)

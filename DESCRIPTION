@@ -1,12 +1,13 @@
 Package: eseis
 Type: Package
 Title: Environmental Seismology Toolbox
-Version: 0.7.3
-Date: 2023-07-31
+Version: 0.9.0
+Date: 20xx-xx-xx
 Authors@R: c(
     person("Michael", "Dietze", role = c("cre", "aut", "trl"), email = "michael.dietze@uni-goettingen.de"),
     person("Christoph", "Burow", role = c("ctb")),
-    person("Sophie", "Lagarde", role = c("ctb", "trl")))
+    person("Sophie", "Lagarde", role = c("ctb", "trl")),
+    person("Clement", "Hibert", role = c("ctb", "aut")))
 Maintainer: Michael Dietze <michael.dietze@uni-goettingen.de>
 Description: Environmental seismology is a scientific field that studies the  
     seismic signals, emitted by Earth surface processes. This package 
@@ -17,16 +18,16 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Depends:
-    R (>= 3.0.2)
-LinkingTo: Rcpp (>= 0.12.5)
+    R (>= 4.0.0)
+LinkingTo: Rcpp
 Imports:
     terra,
     caTools,
     signal,
     fftw,
     matrixStats,
+    graphics,
     methods,
-    IRISSeismic,
     XML,
     shiny,
     rmarkdown,
@@ -34,7 +35,7 @@ Imports:
     reticulate, 
     extraDistr,
     minpack.lm,
-    Rcpp (>= 1.0.7)
+    Rcpp
 Suggests:
     plot3D,
     rgl,
@@ -42,4 +43,4 @@ Suggests:
 SystemRequirements:
     gipptools
     dataselect
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2

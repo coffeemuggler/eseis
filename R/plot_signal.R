@@ -54,34 +54,17 @@
 #' @export plot_signal
 #' 
 plot_signal <- function(
-  
+    
   data,
   time,
   n = 10000,
   ...
 ) {
   
-  ## check if input object is of class eseis
-  if(class(data)[1] == "eseis") {
+  ## check if time vector is provided
+  if(missing(time) == TRUE) {
     
-    ## set eseis flag
-    eseis_class <- TRUE
-    
-    ## store initial object
-    eseis_data <- data
-    
-    ## extract signal vector
-    data <- eseis_data$signal
-    
-    ## create time vector
-    time <- seq(from = eseis_data$meta$starttime, 
-                by = eseis_data$meta$dt, 
-                length.out = eseis_data$meta$n)
-    
-  } else {
-    
-    ## set eseis flag
-    eseis_class <- FALSE
+    time <- NA
   }
   
   ## extract additional plot arguments
@@ -132,64 +115,101 @@ plot_signal <- function(
   keywords <- c("format", "axes", "xlab", "ylab")
   args <- args[!names(args)%in%keywords]
   
-  ## account for data sets smaller than n
-  if(length(data) < n) {
+  if(class(data)[1] == "eseis") {
     
-    n <- length(data)
+    ## put eseis object into list
+    data <- list(data = data)
+  } else if(class(data)[1] == "numeric") {
+    
+    ## put data vectors into list
+    data <- list(data)
   }
   
-  ## get NA values to pad data set
-  n_pad <- ceiling(x = length(data) / n) * n - length(data)
-  
-  ## pad data set
-  s_pad <- c(data, rep(NA, 
-                        times = n_pad))
-  
-  t_pad <- c(time, rep(NA, 
-                        times = n_pad))
-  
-  ## convert signal vector to matrix
-  S <- matrix(data = s_pad, 
-              ncol = n)
-  
-  ## calculate columnwise min and max
-  S_min <- matrixStats::colMins(x = S, 
-                                na.rm = TRUE)
-  
-  S_max <- matrixStats::colMaxs(x = S, 
-                                na.rm = TRUE)
-  
-  ## convert min and max alternatingly to vector
-  s_plot <- as.numeric(rbind(S_min, S_max))
-  
-  ## get time vector subset
-  i <- seq(from = 1, 
-           to = length(t_pad), 
-           by = nrow(S))
-  
-  ## make pairs of time vector subsets
-  t_plot <- rep(t_pad[i], each = 2)
-  
-  
-  ## generate plot
-  do.call(what = graphics::plot, 
-          args = c(list(t_plot, 
-                        s_plot, 
-                        type = type, 
-                        xlab = xlab,
-                        ylab = ylab,
-                        axes = FALSE), 
-                   args))
-  
-  ## optionally add axes
-  if(axes == TRUE) {
+  ## process list elements
+  for(nn in 1:length(data)) {
     
-    graphics::axis.POSIXct(side = 1, 
-                           x = t_plot, 
-                           format = format)
+    ## check if input object is of class eseis
+    if(class(data[[nn]])[1] == "eseis") {
+      
+      ## set eseis flag
+      eseis_class <- TRUE
+      
+      ## store initial object
+      eseis_data <- data[[nn]]
+      
+      ## extract signal vector
+      data[[nn]] <- eseis_data$signal
+      
+      ## create time vector
+      time <- seq(from = eseis_data$meta$starttime, 
+                  by = eseis_data$meta$dt, 
+                  length.out = eseis_data$meta$n)
+      
+    } else {
+      
+      ## set eseis flag
+      eseis_class <- FALSE
+    }
     
-    graphics::axis(side = 2)
+    ## account for data sets smaller than n
+    if(length(data[[nn]]) < n) {
+      
+      n <- length(data[[nn]])
+    }
     
-    graphics::box(which = "plot")
+    ## get NA values to pad data set
+    n_pad <- ceiling(x = length(data[[nn]]) / n) * n - length(data[[nn]])
+    
+    ## pad data set
+    s_pad <- c(data[[nn]], rep(NA, 
+                         times = n_pad))
+    
+    t_pad <- c(time, rep(NA, 
+                         times = n_pad))
+    
+    ## convert signal vector to matrix
+    S <- matrix(data = s_pad, 
+                ncol = n)
+    
+    ## calculate columnwise min and max
+    S_min <- matrixStats::colMins(x = S, 
+                                  na.rm = TRUE)
+    
+    S_max <- matrixStats::colMaxs(x = S, 
+                                  na.rm = TRUE)
+    
+    ## convert min and max alternatingly to vector
+    s_plot <- as.numeric(rbind(S_min, S_max))
+    
+    ## get time vector subset
+    i <- seq(from = 1, 
+             to = length(t_pad), 
+             by = nrow(S))
+    
+    ## make pairs of time vector subsets
+    t_plot <- rep(t_pad[i], each = 2)
+    
+    
+    ## generate plot
+    do.call(what = graphics::plot, 
+            args = c(list(t_plot, 
+                          s_plot, 
+                          type = type, 
+                          xlab = xlab,
+                          ylab = ylab,
+                          axes = FALSE), 
+                     args))
+    
+    ## optionally add axes
+    if(axes == TRUE) {
+      
+      graphics::axis.POSIXct(side = 1, 
+                             x = t_plot, 
+                             format = format)
+      
+      graphics::axis(side = 2)
+      
+      graphics::box(which = "plot")
+    }
   }
 }
