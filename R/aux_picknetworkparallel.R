@@ -186,7 +186,7 @@
 #'                          
 #' print(picks)
 #'
-#' @export aux_picknetwork
+#' @export aux_picknetworkparallel
 
 aux_picknetworkparallel <- function(
     
