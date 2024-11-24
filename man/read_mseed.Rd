@@ -54,9 +54,16 @@ In the append-case the function returns a either a list with the elements
 class \code{eseis} (see documentation of
 \code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file
 is provided, the function returns a list of the length of the input files,
-each containing the above elements. \cr\cr The mseed data format is read
-based on C code that was part of the now CRAN-archived package
-\code{IRISSeismic}.
+each containing the above elements.
+}
+\details{
+The mseed data format is read based on C code that was part of the now 
+CRAN-archived package \code{IRISSeismic} 
+(https://cran.r-project.org/src/contrib/Archive/IRISSeismic/). The C code 
+and wrapper are a simplified version of the material from IRISSeismic 
+written by Jonathan Callahan. A future version of \code{read_mseed} may 
+use a further simplified version, restricting the header information to 
+the pure information, required by eseis to build its meta information.
 }
 \examples{
 
