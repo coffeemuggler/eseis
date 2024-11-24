@@ -1,29 +1,21 @@
-#' eseis: Environmental Seismology Toolbox
+#' @title eseis: Environmental Seismology Toolbox
 #'
-#' Environmental seismoloy is a scientific field that studies the seismic
+#' @description Environmental seismoloy studies the seismic
 #' signals, emitted by Earth surface processes. This package eseis provides
 #' all relevant functions to read/write seismic data files, prepare, analyse
 #' and visualise seismic data, and generate reports of the processing history.
 #'
-#' \tabular{ll}{
-#' **Package:** \tab eseis \cr
-#' **Type:** \tab Package \cr
-#' **Version:** \tab 0.8.0 \cr
-#' **Date:** \tab 2023-xx-xx \cr
-#' **License:** \tab GPL-3 \cr
-#' }
+#' @name eseis-package
 #'
-#' @name eseis
-#' @aliases eseis-package
-#' @docType package
-#' @author Michael Dietze
+#' @aliases eseis-package eseis
+#'
 #' @keywords package
+#'
 #' @importFrom graphics image plot plot.default axis axis.POSIXct box mtext par lines points polygon segments
 #' @importFrom stats acf ccf spec.taper spectrum filter spec.pgram spec.ar median nextn runif sd quantile splinefun cor nls residuals spline fft coefficients na.omit cov approx
 #' @importFrom methods as new
 #' @importFrom minpack.lm nlsLM
 #' @importFrom Rcpp evalCpp
-#' @importFrom IRISSeismic readMiniseedFile getNetwork getStation getSNCL
 #' @importFrom grDevices colorRampPalette dev.off jpeg
 #' @importFrom rmarkdown render
 #' @importFrom utils combn read.delim write.table read.table sessionInfo download.file browseURL tail
@@ -32,13 +24,16 @@
 #' @importFrom colorspace sequential_hcl
 #' @importFrom caTools runmean
 #' @importFrom terra res values crds crs ext rast vect project
-#' @useDynLib eseis
-NULL
+#'
+#' @useDynLib eseis, .registration = TRUE
+#'
+#' @md
+"_PACKAGE"
 
 #' Seismic trace of a rockfall event.
 #'
 #' The dataset comprises the seismic signal (vertical component) of
-#' a rockfall event, preceeded by an earthquake. The data have been
+#' a rockfall event, preceded by an earthquake. The data have been
 #' recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
 #' data logger.
 #'

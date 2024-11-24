@@ -7,7 +7,7 @@
 gui_models(...)
 }
 \arguments{
-\item{...}{further arguments to pass to \code{\link{runApp}}}
+\item{...}{further arguments to pass to \code{runApp}}
 }
 \description{
 This function starts a browser-based graphic user interface to explore the 

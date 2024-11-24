@@ -29,7 +29,7 @@ rockfall_eseis
 }
 \description{
 The dataset comprises the seismic signal (vertical component) of
-a rockfall event, preceeded by an earthquake. The data have been
+a rockfall event, preceded by an earthquake. The data have been
 recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
 data logger.
 
