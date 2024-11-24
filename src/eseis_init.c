@@ -13,6 +13,7 @@ extern SEXP _eseis_stalta_event_nofreeze(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _eseis_kurtosis_event(SEXP, SEXP);
 extern SEXP _eseis_run_cor(SEXP, SEXP, SEXP);
 extern SEXP _eseis_correlation_event(SEXP, SEXP);
+extern SEXP parseMiniSEED(SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_eseis_stalta_event_freeze",   (DL_FUNC) &_eseis_stalta_event_freeze,   5},
@@ -20,6 +21,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_eseis_kurtosis_event", (DL_FUNC) &_eseis_kurtosis_event, 2},
     {"_eseis_run_cor", (DL_FUNC) &_eseis_run_cor, 3},
     {"_eseis_correlation_event", (DL_FUNC) &_eseis_correlation_event, 2},
+    {"parseMiniSEED", (DL_FUNC) &parseMiniSEED, 1},
     {NULL, NULL, 0}
 };
 
