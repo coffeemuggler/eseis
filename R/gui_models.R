@@ -9,7 +9,7 @@
 #' issue, there must be at least one eseis object present in the working 
 #' environment.
 #' 
-#' @param ... further arguments to pass to \code{\link{runApp}}
+#' @param ... further arguments to pass to \code{runApp}
 #' 
 #' @author Michael Dietze
 #' @seealso \code{\link{runApp}}
