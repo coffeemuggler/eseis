@@ -2,141 +2,184 @@
 % Please edit documentation in R/aux_organisecubefiles.R
 \name{aux_organisecubefiles}
 \alias{aux_organisecubefiles}
-\title{Convert Omnirecs/Digos Datacube files to mseed or sac files and organise in directory structure.}
+\title{Convert Datacube files and organise them in directory structure}
 \usage{
 aux_organisecubefiles(
-  stationfile,
-  input_dir,
-  output_dir,
-  format = "sac",
-  channel_name = "bh",
-  cpu,
-  fringe = "constant",
-  verbose = FALSE,
+  station,
+  input,
+  output,
   gipptools,
-  heapspace,
-  mseed_manual = FALSE,
-  mseed_keep = FALSE
+  format = "sac",
+  pattern = "eseis",
+  component = "BH",
+  mode = "dir-wise",
+  fringe = "constant",
+  cpu,
+  verbose = TRUE
 )
 }
 \arguments{
-\item{stationfile}{\code{Character} value, file name of the station info 
-file, with extension. See \code{aux_stationinfofile}.}
+\item{station}{\code{data frame} with seismic station information
+See \code{aux_stationinfofile}. This \code{data frame} can also be provided
+manually, in which case it must contain two elements: a first vector that
+contains the Cube IDs, and a second that contains the corresponding
+station IDs that will be used in the meta info and file names. If the
+argument is omitted, the Cube IDs will be used as station IDs.}
 
-\item{input_dir}{\code{Character} value, path to directory where all cube 
-files to be processed are stored. Each set of files from one logger must be 
-stored in a separate sub-directory named after the cube ID.}
+\item{input}{\code{Character} value, path to directory where the Cube
+files to be processed are stored.}
 
-\item{output_dir}{\code{Character} value, path to directory where output 
+\item{output}{\code{Character} value, path to directory where output
 data is written to.}
 
-\item{format}{\code{Character} value, output file format. One out of 
-\code{"mseed"} and \code{"sac"}. Default is \code{"sac"}.}
-
-\item{channel_name}{\code{Character} value, output file extension. One out 
-of \code{"bh"} and \code{"p"}. Default is \code{"bh"}.}
-
-\item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel 
-processing. If omitted, one CPU is used.}
-
-\item{fringe}{\code{Character} value, option to handle data outside the 
-GPS-tagged time span. One out of \code{"skip"}, \code{"nominal"} or 
-\code{"constant"}. Default is \code{"constant"}.}
-
-\item{verbose}{\code{Logical} value, option to enable extended screen 
-output of cubetools operations. Default is \code{FALSE}. This option 
-might not work with Windows operating systems.}
-
-\item{gipptools}{\code{Character} value, path to gipptools or cubetools 
+\item{gipptools}{\code{Character} value, path to gipptools or cubetools
 directory.}
 
-\item{heapspace}{\code{Numeric} value, heap space assigned to the Java 
-Runtime Environment, e.g., \code{4096}. Should be increased if the cube 
-to mseed conversion fails (announced if \code{verbose = TRUE}). Please 
-note that this argument fails on Windows machines, and also in other 
-operating systems, it should only be used if the function returns an
-error caused by Java running out of memory.}
+\item{format}{\code{Character} value, output file format. One out of
+\code{"mseed"} and \code{"sac"}. Default is \code{"sac"}.}
 
-\item{mseed_manual}{\code{Logical} value, option to convert mseed files 
-manually. See details. Default is \code{FALSE}, i.e., the function converts 
-cube files to mseed files using the GIPP tools.}
+\item{pattern}{\code{Character} value, file organisation scheme keyword.
+One out of \code{"eseis"} and \code{"seiscomp"}. Default is \code{"eseis"}.
+See details and \code{read_data} for further information.}
 
-\item{mseed_keep}{\code{Logical} value, option to keep mseed files instead 
-of deleting them. Default is \code{FALSE}.}
+\item{component}{\code{Character} vector, component code and output file
+extension prefix. It is assumed that this prefix comprises two characters,
+the first describing the band code, the second the instrument code. See
+details for further information. Default is \code{"BH"}, hence broadband
+and high gain sensor. The spatial component ("E", "N", "Z") will be added
+automatically. See details for a tabular overview of common band codes and
+instrument codes.}
+
+\item{mode}{\code{Character} value, mode of file conversion. One out of
+\code{"file-wise"} and \code{"dir-wise"}. Default is \code{"file-wise"}.
+See details for further important information.}
+
+\item{fringe}{\code{Character} value, option to handle data outside the
+GPS-tagged time span. One out of \code{"skip"}, \code{"nominal"} or
+\code{"constant"}. Default is \code{"constant"}.}
+
+\item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel
+processing. If omitted, one CPU is used.}
+
+\item{verbose}{\code{Logical} value, option to enable extended screen
+output of cubetools operations. Default is \code{FALSE}. This option
+might not work with Windows operating systems.}
 }
 \value{
-A set of hourly seismic files written to disk.
+A set of converted and organised seismic files written to disk.
 }
 \description{
-This function converts Omnirecs/Digos Datacube files to hourly mseed or 
-sac files and organises these in a coherent directory structure, by year, 
-Julian day, (station, hour and channel). It depends on the cubetools or   
-gipptools software package (see details).
+The function converts Omnirecs/Digos Datacube files to mseed or sac files
+and organises these in a coherent directory structure (see details) for
+available structures. The conversion depends on the gipptools software
+package (see details) provided externally.
 }
 \details{
-The function converts seismic data from the cube file format to either 
-mseed (cf. \code{read_mseed}) or sac (cf. \code{read_sac}) and cuts the 
-daily cube files to hourly files. These hourly files are organised in a 
-coherent directory structure which is organised by year and Julian day. 
-In each Julian day directory the hourly files are placed and named after 
-the following scheme: 
-STATIONID.YEAR.JULIANDAY.HOUR.MINUTE.SECOND.CHANNEL.\cr
-The function requires that the software cubetools 
-(\code{http://www.omnirecs.de/documents.html}) or gipptools 
-(\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/}) 
-are installed. \cr Specifying an input directory 
-(\code{input_dir}) is mandatory. This input directory must only contain the 
-subdirectories with the cube files to process, each set of cube files must 
-be located in a separate subdirectory and these subdiretories must 
-have the same name as specified by the logger IDs (\code{logger_ID}). An 
-appropriate structure would be something like: \cr 
+The function converts seismic data from the binary cube file format to
+mseed (cf. \code{read_mseed}) or sac (cf. \code{read_sac}) and organises
+the resulting files into a consistent structure, expected by 'eseis' for
+convenient data handling (cf. \code{read_data}).
+
+Currently, there are two data structure schemes supported, \code{"eseis"}
+and \code{"seiscomp"}. In the \code{"eseis"} case, the daily cube files are
+cut to hourly files and organised in directories structured by four digit
+year and three digit Julian day numbers. In each Julian day directory, the
+hourly files are placed and named after the following scheme:
+STATION.YEAR.JULIANDAY.HOUR.MINUTE.SECOND.COMPONENT.
+
+The \code{"seiscomp"} case will yield daily files, which are organised by
+four digit year, seismic network, seismic station, and seismic component,
+each building a separate directory. In the deepest subdirectory, files are
+named by: NETWORK.STATION.LOCATION.COMPONENT.TYPE.YEAR.JULIANDAY.
+
+The component naming scheme defines the codes for the sensor's band
+code (first letter) and instrument code (second letter). The third letter,
+defining the spatial component, will be added automatically. For definitions
+of channel codes see \code{https://migg-ntu.github.io/SeisTomo_Tutorials/seismology/seismic-data/seismic-time-series-data.html}.
+
+The function requires that the software gipptools
+(\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/})
+is installed. Note that the gipptools are provided at regular update
+intervals, including an up to date GPS leap second table, essential to
+convert recently recorded files.
+
+The Cube files will be imported in place but a series of temporary files
+will be created in a temporary directory in the specified output directory.
+Hence, if the routine stops due to a processing issue, one needs to delete
+the temporary data manually. The path to the temporary directory will be
+provided as screen output when the argument \code{verbose = TRUE}.
+
+The Cube files can be converted in two modes: \code{"file-wise"} and
+\code{"dir-wise"}. In \code{"file-wise"} mode, each Cube file will be
+converted individually. This option has the advantage that if one file in
+a month-long sequence of records is corrupt, the conversion will not stop,
+but only discard the part from the corrupted section until the file end.
+The disadvantage is however, that the data before the first and after
+the last GPS tags will not be converted unless the option
+\code{fringe = "constant"} (by default this is the case) is used.
+
+In \code{"dir-wise"} mode, the fringe sample issue reduces to the margins of
+the total sequence of daily files but the corrupt file issue will become a
+more severe danger to the success when converting a large number of files.
+
+Specifying an input directory (\code{input}) is mandatory. That
+directory should only contain the directories with the cube files to
+process. Files downloaded from a Cube are usually contained in one or more
+further directories, which should be moved into a single one before
+running this function.
+
+Each set of cube files from a given logger should be located in a separate
+directory per logger and these directories should have the same name as
+the logger IDs (\code{logger_ID}). An appropriate structure for files from
+two loggers, A1A and A1B, would be something like: \cr
 \enumerate{
-  \item input
-  \enumerate{
-    \item A1A
-      \enumerate{
-        \item file1.A1A
-        \item file2.A1A
-      }
-    \item A1B
-      \enumerate{
-        \item file1.A1B
-        \item file2.A1B
-      }
-   }
+\item input
+\enumerate{
+\item A1A
+\enumerate{
+\item file1.A1A
+\item file2.A1A
+}
+\item A1B
+\enumerate{
+\item file1.A1B
+\item file2.A1B
+}
+}
 }
 
-With one of the latest updates of either R or Java the cache size for 
-converting cube files to mseed files has been reduced. 
-Thus, in several cases the conversion 
-stops due to buffer overruns. This effect has been particularly observed 
-when trying to convert more than about 20 consecutive days of cube files
-at once. In such a case, it is appropriate to set the function argument
-mseed_manual to \code{TRUE}. This will stop the function just at the point
-where the function would call the GIPPtools function cube2mseed. The user 
-will see a confirmation command line in the R console, which asks 
-to first copy all manually converted mseed files to the directory 
-\code{mseed_raw} before confirming to continue with the R function. To 
-convert all cube files to mseed files it is advised to open a terminal and 
-run the function \code{GIPPtools/bin/cube2mseed} with the following 
-parameters: \code{GIPPtools/bin/cube2mseed --verbose --output-dir=./mseed_raw/ ./input_dir/}
-without further adjustments, except for the fringe sample option, as 
-specified in \code{aux_organisecubefiles}. Please also see the documentation 
-of the cube2mseed program from the gipptools for further information.
-
-Alternatively, increasing the heap space of the Java Runtime Environment, 
-required for converting the cube files, can solve the above mentioned 
-issue. To increase the heap space, use the argument \code{heapspace}. By 
-default, this argument is set to 4096.
+The component definition can follow the typical keywords and key letters
+defined in seismology: \code{https://migg-ntu.github.io/SeisTomo_Tutorials/seismology/seismic-data/seismic-time-series-data.html},
+hence the first letter indicating the instrument's band type and the second
+letter indicating the instrument code or instrument type.\tabular{ll}{
+   Band code \tab Explanation band type \cr
+   E \tab Extremely short period \cr
+   S \tab Short period \cr
+   H \tab High broad band \cr
+   B \tab Broad band \cr
+   M \tab Mid band \cr
+   L \tab Long band \cr
+   V \tab Very long band \cr
+}
+\tabular{ll}{
+   Instrument code \tab Explanation \cr
+   H \tab High gain seismometer \cr
+   L \tab Low gain seismometer \cr
+   G \tab Gravimeter \cr
+   M \tab Mass position seismometer \cr
+   N \tab Accelerometer \cr
+   P \tab Geophone \cr
+}
 }
 \examples{
 
 \dontrun{
 
 ## basic example with minimum effort
-aux_organisecubefiles(stationfile = "output/stationinfo.txt", 
-                      input_dir = "input", 
-                      gipptools = "software/gipptools-2015.225/")
+aux_organisecubefiles(stationfile = data.frame(logger = c("A1A", "A1B"),
+                                               station = c("ST1", "ST2")), 
+                      input = "input", 
+                      gipptools = "software/gipptools-2023.352")
 
 }
                         

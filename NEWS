@@ -1,6 +1,53 @@
 Changes for R-package eseis
 
-Version 0.7.2
+Version 0.8.0 (2024-11-24)
+  - abandoned functions removed, aux_getIRISdata(), aux_getIRISstation()
+  - function re-defined, read_mseed(), IRISSeismic dependency removed
+  - function added, aux_splitcubechannels()
+  - function changed, aux_organisecubefile(), file paths expanded
+  - bug fixe, aux_stationinfofile(), try-error catcher for write_data added
+  - bug fixed, aux_organisecubefiles(), further Win issues removed
+  - bug fixed, aux_organisecubefiles(), Win support bug removed
+  - function added, plot_event()
+  - function added, spatial_parabola()
+  - function added, aux_picknetworkparallel()
+  - functions added, ncc_correlate(), ncc_stretch(), plot_correlation()
+  - bug fixed, read_data(), added further check of file format
+  - function added, signal_correlation()
+  - function added, signal_kurtosis()
+  - function added, signal_stalta()
+  - feature added, read_data(), component names can use wildcards
+  - function changed, aux_organisecubefiles(), significant changes and improvements
+  - function added, aux_checkdata()
+  - feature added, signal_rotate(), support of further data structures
+  - feature added, pick_stalta(), maximum ratio added to output
+  - function added, aux_picknetwork()
+  - feature added, signal_fill(), method padding with zeros allowed
+  - function added, signal_differentiate()
+  - function added, signal_interpolate()
+  - bug fixed, signal_aggregate(), argument pass for list case added
+  - function changed, signal_clip(), argument order changed (time vs. limits)
+  - feature added, signal_clip(), character POSIX conversion added
+  - bug fixed, signal_stats(), PSD window length auto adjust for short events
+  - example added, aux_getxml()
+  - bug fixed, fmi_spectra(), name artefact from previous version fixed
+  - bug fixed, signal_stats(), filter frequency range changed for dt >= 1/100
+  - bug fixed, list_sensor(), definition of TC120s 1st pole corrected
+  - function added, time_jd()
+  - dependence on orphaned multitaper package removed
+  - bug fixed, signal_spectrum(), smoothing support also for list case
+  - autostart message and Obspy loading removed
+  - feature added, signal_deconvolve(), xml file support
+  - function added, aux_getxml()
+  - feature added, list_sensor(), new instrument keywords added
+  - feature added, list_logger(), new instrument keywords added
+  - feature added (for testing), plot_signal(), support lists of eseis objects
+  - function added, signal_merge()
+  - GUI with models polished, now support of empirical spectra
+  - feature added, aux_organisecubefiles() expressive checks added
+  - code changed, aux_stationinfofile() file extension must be added now
+
+Version 0.7.2 (2023-04-16)
   - feature added, signal_filter, zero phase shift option added
   - bug fixed, spatial_distance, SpatRaster converted to list to maintain rda-file compatibility
   - bugs fixed, fmi_spectra and fmi_inversion, power units corrected

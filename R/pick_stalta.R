@@ -230,7 +230,7 @@ pick_stalta <- function(
     ## calculate event state switches
     event_diff <- diff(x = event)
 
-    ## asign on and off states
+    ## assign on and off states
     event_on <- time[event_diff == 1]
     event_off <- time[event_diff == -1]
 
@@ -239,15 +239,24 @@ pick_stalta <- function(
                                           time2 = event_on, 
                                           units = "sec"))
     
-    # ## get maximum sta-lta value
-    # stalta_max <- rep(NA, length = length(event_on))
-    # for(i in 1:length(stalta_max)) {
-    #   stalta_max[i] <- max((data_sta / data_lta)[time >= event_on[i] & 
-    #                                time <= event_off[i]])
-    # }
-
-    ## get sta-lta value at event onset
-    event_stalta <- data_stalta[event_diff == 1]
+    ## organise event info
+    event_info <- split(data.frame(start = event_on, 
+                                   stop = event_off), 
+                        1:length(event_on))
+    
+    ## get maximum sta-lta value
+    event_stats <- lapply(X = event_info, FUN = function(t, x) {
+      
+      e_r <- x$r[x$t >= t$start & x$t <= t$stop]
+      e_mx <- suppressWarnings(try(max(e_r), silent = TRUE))
+      if(inherits(e_mx, "try-error")) {e_mx <- NA}
+      
+      return(data.frame(stalta_start = e_r[1],
+                        stalta_max = e_mx))
+      
+    }, x = data.frame(t = time, r = data_stalta))
+    
+    event_stats <- do.call(rbind, event_stats)
     
     ## create ID vector
     ID <- seq(from = 1, 
@@ -259,14 +268,16 @@ pick_stalta <- function(
       data_out <- data.frame(ID = ID,
                              start = event_on,
                              duration = event_duration,
-                             stalta = event_stalta)
+                             stalta = event_stats$stalta_start,
+                             max = event_stats$stalta_max)
       
     } else {
       
       data_out <- data.frame(ID = NA,
                              start = NA,
                              duration = NA,
-                             stalta = NA)[-1,]
+                             stalta = NA,
+                             max = NA)[-1,]
     }
     
     ## optionally rebuild eseis object

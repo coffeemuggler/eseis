@@ -42,13 +42,13 @@ shinyUI(fluidPage(
                     min = 1, max = 100, value = 20)
       )),
       tabPanel("Seismic", sidebarPanel(
-        sliderInput("q_0", "Quality factor at f_0 (n.u.):",
+        sliderInput("q_0", "Quality factor at f_0 (q_0, n.u.):",
                     min = 1, max = 100, value = 15),
-        sliderInput("v_0", "Phase velocity (m/s):",
+        sliderInput("v_0", "Phase velocity (v_0, m/s):",
                     min = 100, max = 5000, value = 1000),
-        sliderInput("p_0", "Power law variation exponent (n.u.):",
+        sliderInput("p_0", "Power law variation exponent (p_0, n.u.):",
                     min = 0.1, max = 2, value = 0.45),
-        sliderInput("e_0", "Quality factor increase w. f (n.u.):",
+        sliderInput("e_0", "Quality factor increase w. f (e_0, x_0, n.u.):",
                     min = 0.0, max = 1, value = 0.0),
         sliderInput("n_0", "Greens function exponents (n.u.):",
                     min = 0.1, max = 2, value = c(0.5, 0.8)),
@@ -58,13 +58,16 @@ shinyUI(fluidPage(
                     min = 1, max = 500, value = 1)
       )),
       tabPanel("Data", sidebarPanel(
-        textInput("data", "Empiric spectrum (R object name):", value = "")
+        selectInput("data", "Empiric spectrum (R object name):", 
+                    names(which(unlist(eapply(.GlobalEnv,FUN = function(x) {
+                      class(x)[1] == "eseis"
+                    })))))
       )),
       tabPanel("Plot", sidebarPanel(
-        checkboxInput("plot_river", "River spectrum", TRUE),
-        checkboxInput("plot_bedload", "Bedload spectrum", TRUE),
-        checkboxInput("plot_river_bedload", "Combined specturm", TRUE),
-        checkboxInput("plot_empiric", "Empirical spectrum", TRUE),
+        checkboxInput("plot_river", "River spectrum (blue)", TRUE),
+        checkboxInput("plot_bedload", "Bedload spectrum (brown)", TRUE),
+        checkboxInput("plot_river_bedload", "Combined specturm (black)", TRUE),
+        checkboxInput("plot_empiric", "Empirical spectrum (grey)", FALSE),
         sliderInput("xlim", "x-axis limits",
                     min = 0, max = 1000, value = c(1, 100)),
         sliderInput("ylim", "y-axis limits:",

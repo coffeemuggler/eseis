@@ -29,8 +29,8 @@ list_sensor <- function(
     type = "broadband seismometer",
     n_components = 3,
     comment = "Data taken from data base of Arnaud Burtin",
-    poles = as.complex(c(0.03691+0.03702i,
-                         0.03691-0.03702i,
+    poles = as.complex(c(-0.03691+0.03702i,
+                         -0.03691-0.03702i,
                          -343.0+0.0i,
                          -370.0+467.0i,
                          -370.0-467.0i,
@@ -48,6 +48,51 @@ list_sensor <- function(
                          -1490-1740.0i)),
     s = 749.1,
     k = 4.34493e+17)
+  
+  ## define TRI120P parameters
+  TRI120P <- list(
+    ID = "TRI120P",
+    name = "Trillium 120P",
+    manufacturer = "Nanometrics",
+    type = "seismometer",
+    n_components = 3,
+    comment = "https://www.passcal.nmt.edu/webfm_send/1970",
+    poles = as.complex(c(-0.03852+0.03658i,
+                         -0.03852-0.03658i,
+                         -178+0.0i,
+                         -135+160i,
+                         -135-160i,
+                         -671+1154i,
+                         -671-1154i)),
+    zeros = as.complex(c(0.0+0.0i,
+                         0.0+0.0i,
+                         -90+0.0i,
+                         -160.7+0.0i,
+                         -3108+0i)),
+    s = 1201,
+    k = 3.080e5)
+  
+  TRI40 <- list(
+    ID = "TRI40",
+    name = "Trillium 40",
+    manufacturer = "Nanometrics",
+    type = "broadband seismometer",
+    n_components = 3,
+    comment = "https://service.iris.edu/irisws/nrl/1/combine?instconfig=sensor_Nanometrics_Trillium40_LP40_SG1553_STgroundVel&format=resp",
+    poles = as.complex(c(+0+0i,
+                         +0+0i,
+                         -68.8+0.0i,
+                         -323+0.0i,
+                         -2530+0.0i)),
+    zeros = as.complex(c(-0.1103+0.111i,
+                         -0.1103+0.111i,
+                         -86.3+0i,
+                         -241+178i,
+                         -241-178i,
+                         -535+719i,
+                         -535-719i)),
+    s = 1553,
+    k = 1.10492e+5)
   
   TRI240 <- list(
     ID = "TRI240",
@@ -70,6 +115,40 @@ list_sensor <- function(
     s = 1200,
     k = 2.316e9)
 
+  ## define LE3D1SII parameters
+  LE3D1SII <- list(
+    ID = "LE3D1SII",
+    name = "LE-3Dlite/1s Mark II",
+    manufacturer = "Lennartz",
+    type = "seismometer",
+    n_components = 3,
+    comment = "https://www.lennartz-electronic.de/wp-content/uploads/2021/04/Lennartz-SeismometerManual.pdf",
+    poles = as.complex(c(-4.440e+1+4.440i,
+                         -4.440e+1-4.440i,
+                         -1.083e+1+0.000i)),
+    zeros = as.complex(c(0.0e+1+0.0i, 
+                         0.0e+1+0.0i, 
+                         0.0e+1+0.0i)),
+    s = 400,
+    k = 1)
+  
+  ## define LE3D1SIII parameters
+  LE3D1SIII <- list(
+    ID = "LE3D1SIII",
+    name = "LE-3Dlite/1s Mark III",
+    manufacturer = "Lennartz",
+    type = "seismometer",
+    n_components = 3,
+    comment = "https://www.lennartz-electronic.de/wp-content/uploads/2021/04/Lennartz-SeismometerManual.pdf",
+    poles = as.complex(c(-4.440e+1+4.440i,
+                         -4.440e+1-4.440i,
+                         -1.083e+1+0.000i)),
+    zeros = as.complex(c(0.0e+1+0.0i, 
+                         0.0e+1+0.0i, 
+                         0.0e+1+0.0i)),
+    s = 800,
+    k = 1)
+  
   ## define LE3D5S parameters
   LE3D5S <- list(
     ID = "LE3D5S",
@@ -77,15 +156,32 @@ list_sensor <- function(
     manufacturer = "Lennartz",
     type = "seismometer",
     n_components = 3,
-    comment = "Data taken from data base of Arnaud Burtin",
+    comment = "https://www.lennartz-electronic.de/wp-content/uploads/2021/04/Lennartz-SeismometerManual.pdf",
     poles = as.complex(c(-0.8886e+1+0.8886i,
                          -0.8886e+1-0.8886i,
-                         -0.220e+1+0.0i)),
+                         -0.229e+1+0.0i)),
     zeros = as.complex(c(0.0e+1+0.0i, 
                          0.0e+1+0.0i, 
                          0.0e+1+0.0i)),
     s = 400,
-    k = 1.9139)
+    k = 1)
+  
+  ## define LE3D20S parameters
+  LE3D20S <- list(
+    ID = "LE3D20S",
+    name = "LE-3D/20s",
+    manufacturer = "Lennartz",
+    type = "seismometer",
+    n_components = 3,
+    comment = "https://www.lennartz-electronic.de/wp-content/uploads/2021/04/Lennartz-SeismometerManual.pdf",
+    poles = as.complex(c(-0.222e+1+0.235i,
+                         -0.222e+1-0.235i,
+                         -0.230e+1+0.0i)),
+    zeros = as.complex(c(0.0e+1+0.0i, 
+                         0.0e+1+0.0i, 
+                         0.0e+1+0.0i)),
+    s = 1000,
+    k = 1)
   
   ## define L4C parameters
   L4C <- list(
@@ -315,8 +411,13 @@ list_sensor <- function(
   
   ## build sensor library
   sensors <- list("TC120s" = TC120s,
+                  "TRI40" = TRI40,
+                  "TRI120P" = TRI120P,
                   "TRI240" = TRI240,
+                  "LE3D1SII" = LE3D1SII,
+                  "LE3D1SIII" = LE3D1SIII,
                   "LE3D5S" = LE3D5S,
+                  "LE3D20S" = LE3D20S,
                   "L4C" = L4C,
                   "CMG6TD" = CMG6TD,
                   "CMG6TD_b1is" = CMG6TD_b1is,

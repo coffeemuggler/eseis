@@ -4,27 +4,33 @@
 \alias{signal_fill}
 \title{Fill NA-gaps of a signal}
 \usage{
-signal_fill(data)
+signal_fill(data, method = "linear")
 }
 \arguments{
 \item{data}{\code{eseis} object, numeric vector or list of objects, 
 data set to be processed.}
+
+\item{method}{\code{Character} value, method to use for filling the data 
+gap. One out of \code{"linear"} (linear interpolation) and \code{"zeros"} 
+(padding with zeros). Default is \code{"linear"}.}
 }
 \value{
 \code{eseis} object, numeric vector or list of objects, 
-interpolated data set(s).
+gap-filled data set(s).
 }
 \description{
-This function performs linear interpolation of NA values.
+This function performs linear interpolation of NA values or pads them 
+with zeros.
 }
 \details{
 Note that the procedure will contaminate the signal by artefacts as 
-increasingly larger data gaps are filled with interpolated values.
+increasingly larger data gaps are filled with interpolated or zero values.
 }
 \examples{
 
 ## create synthetic data set and add NA-gaps
-x <- eseis::signal_detrend(data = runif(1000))
+data(rockfall)
+x <- rockfall_z[25000:26000]
 x_gap <- x
 x_gap[100:102] <- NA
 x_gap[500:530] <- NA
@@ -32,9 +38,12 @@ x_gap[500:530] <- NA
 ## fill gaps
 y <- signal_fill(data = x_gap)
 
+## plot filled data set
+plot(y, type = "l")
+
 ## filter both data sets
-x <- signal_filter(data = x, f = c(1, 3), dt = 1/200)
-y <- signal_filter(data = y, f = c(1, 3), dt = 1/200)
+x <- signal_filter(data = x, f = c(1, 3), dt = 1/200, lazy = TRUE)
+y <- signal_filter(data = y, f = c(1, 3), dt = 1/200, lazy = TRUE)
 
 ## plot both data sets
 plot(y, type = "l", col = "grey", lwd = 3)

@@ -28,15 +28,15 @@ rockfall_t
 rockfall_eseis
 }
 \description{
-The dataset comprises the seismic signal (vertical component) of 
-a rockfall event, preceeded by an earthquake. The data have been
+The dataset comprises the seismic signal (vertical component) of
+a rockfall event, preceded by an earthquake. The data have been
 recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
 data logger.
 
 The dataset comprises the time vector corresponding the to seismic signal
 of the rockfall event from the example data set "rockfall".
 
-The dataset comprises the seismic signal (vertical component) of 
+The dataset comprises the seismic signal (vertical component) of
 a rockfall event, preceeded by an earthquake. The data have been
 recorded at 200 Hz sampling frequency with an Omnirecs Cube ext 3
 data logger.

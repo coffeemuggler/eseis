@@ -4,7 +4,7 @@
 \alias{signal_spectrum}
 \title{Calculate the spectrum of a time series}
 \usage{
-signal_spectrum(data, dt, method = "periodogram", n, ...)
+signal_spectrum(data, dt, method = "periodogram", n, res, log = FALSE, ...)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
@@ -21,6 +21,13 @@ default is \code{"periodogram"}.}
 running window used for smoothing the spectrogram. Only applied if a 
 number is provided. Smoothing is performed as running mean.}
 
+\item{res}{\code{Numeric} value, optional resolution of the spectrum, 
+i.e. the number of power and frequency values. If omitted, the full 
+resolution is returned. If used, a spline interpolation is performed.}
+
+\item{log}{\code{Logical} value, option to interpolate the spectrum with 
+log spaced frequency values. Default is \code{FALSE}.}
+
 \item{\dots}{Additional arguments passed to the function.}
 }
 \value{
@@ -29,6 +36,12 @@ number is provided. Smoothing is performed as running mean.}
 \description{
 The power spectral density estimate of the time series is calculated using 
 different approaches.
+}
+\details{
+If the \code{res} option is used, the frequency and power vectors will be 
+interpolated using a spline interpolator, using equally spaced frequency 
+values. If desired, the additional option \code{log = TRUE} can be used
+to interpolate with log spaced frequency values.
 }
 \examples{
 

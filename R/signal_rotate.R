@@ -69,13 +69,16 @@ signal_rotate <- function(
       ## convert signal vector list to matrix
       data <- do.call(rbind, data)
       
+      ## set re-conversion flag
+      re_list <- FALSE
+      
     } else {
       
       ## set eseis flag
       eseis_class <- FALSE
     }
     
-   ## convert degrees to radians
+    ## convert degrees to radians
     angle <- angle * pi / 180
     
     ## build rotation matrix
@@ -83,10 +86,22 @@ signal_rotate <- function(
                  c(0, cos(angle), sin(angle)),
                  c(1, 0, 0))
     
-    ## homogenise input data sets
+    ## optionally convert list to data frame
+    if(class(data)[1] == "list") {
+      
+      names_list <- names(data)
+      data <- do.call(rbind, data)
+      re_list <- TRUE
+    } else {
+      
+      re_list <- FALSE
+    }
+    
+    ## optionally add dummy vertical component
     if(nrow(data) == 2) {
       data <- rbind(data, 
                     rep(0, ncol(data)))
+      re_list <- FALSE
     }
     
     ## rotate signal traces
@@ -94,6 +109,13 @@ signal_rotate <- function(
     
     ## prepare output data
     data_out <- data_out[3:1,]
+    
+    ## optionally restructure to list object
+    if(re_list == TRUE) {
+      
+      data_out <- list(data_out[1,], data_out[2,], data_out[3,])
+      names(data_out) <- names_list
+    }
 
   ## optionally rebuild eseis object
   if(eseis_class == TRUE) {
@@ -104,7 +126,7 @@ signal_rotate <- function(
                                           units = "secs"))
     
     
-    ## ASSIGN ROTATED SIGNALS TO ORIGINAL ESEIS OBJECTS
+    ## assign rotated signals to eseis objects
     for(i in 1:length(eseis_data)) {
       
       eseis_data[[i]]$signal <- data_out[i,]

@@ -97,7 +97,7 @@ fmi_spectra <- function (
     
     ## combine model outputs
     p_combined <- p_turbulence
-    p_combined$spectrum <- p_turbulence$power + p_bedload$power
+    p_combined$power <- p_turbulence$power + p_bedload$power
     
     ## convert linear to log scale
     p_turbulence_log <- p_turbulence

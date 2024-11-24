@@ -16,7 +16,7 @@
 
 # Define server logic required to draw a histogram
 shinyServer <- function(input, output, session) {
-  
+
   observe({
     updateSliderInput(session, "d_s",
                       min = input$d_s_min,
@@ -83,7 +83,7 @@ shinyServer <- function(input, output, session) {
           frequency = seq(from = input$f[1],
                           to = input$f[2], 
                           length.out = input$res),
-          spectrum = rep(1e-200, input$res)),
+          power = rep(1e-200, input$res)),
         meta = list(type = "spectrum"))
       class(p_empiric) = "eseis"
     }
@@ -112,7 +112,7 @@ shinyServer <- function(input, output, session) {
           frequency = seq(from = input$f[1],
                           to = input$f[2], 
                           length.out = input$res),
-          spectrum = rep(1e-200, input$res)),
+          power = rep(1e-200, input$res)),
         meta = list(type = "spectrum"))
       class(p_turbulence) = "eseis"
     }
@@ -144,7 +144,7 @@ shinyServer <- function(input, output, session) {
           frequency = seq(from = input$f[1],
                           to = input$f[2], 
                           length.out = input$res),
-          spectrum = rep(1e-200, input$res)),
+          power = rep(1e-200, input$res)),
         meta = list(type = "spectrum"))
       class(p_bedload) = "eseis"
     }
@@ -152,8 +152,8 @@ shinyServer <- function(input, output, session) {
     if(input$plot_river_bedload) {
       
       p_combined <- p_bedload
-      p_combined$spectrum$spectrum <- p_combined$spectrum$spectrum + 
-        p_turbulence$spectrum$spectrum
+      p_combined$spectrum$power <- p_combined$spectrum$power + 
+        p_turbulence$spectrum$power
       
     } else {
       
@@ -162,7 +162,7 @@ shinyServer <- function(input, output, session) {
           frequency = seq(from = input$f[1],
                           to = input$f[2], 
                           length.out = input$res),
-          spectrum = rep(1e-200, input$res)),
+          power = rep(1e-200, input$res)),
         meta = list(type = "spectrum"))
       class(p_combined) = "eseis"
     }
@@ -172,7 +172,7 @@ shinyServer <- function(input, output, session) {
       eseis::plot_spectrum(data = p_empiric,
                            xlim = input$xlim,
                            ylim = input$ylim,
-                           col = adjustcolor("green", 0.5),
+                           col = adjustcolor("grey40", 0.5),
                            lwd = 1.5,
                            ann = FALSE,
                            axes = FALSE)

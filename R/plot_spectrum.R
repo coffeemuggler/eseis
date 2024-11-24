@@ -135,10 +135,18 @@ plot_spectrum <- function(
     ## convert data to specified units
     if(unit == "dB") {
       
-      data$power <- 10 * log10(data$power)
+      data$power <- suppressWarnings(10 * log10(data$power))
     } else if(unit == "log") {
       
-      data$power <- log(data$power)
+      data$power <- suppressWarnings(log(data$power))
+    }
+    
+    ## optionally remove NA values
+    if(any(is.na(data$power))) {
+      
+      data$power <- spline(x = data$frequency, 
+                           y = data$power, 
+                           xout = data$frequency)$y
     }
     
     ## account for data sets smaller than n
