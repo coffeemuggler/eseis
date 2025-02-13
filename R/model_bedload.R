@@ -84,8 +84,10 @@
 #' \code{f_0} (m/s). Assuming a shear wave velocity of about 2200 m/s, 
 #' Tsai et al. (2012) yield a value of 1295 m/s for this parameter.
 #' 
-#' @param x_0 \code{Numeric} value, exponent of the power law variation of 
-#' Rayleigh wave velocities with frequency
+#' @param p_0 \code{Numeric} value, exponent of the power law variation of 
+#' Rayleigh wave velocities with frequency. Attention, previous package 
+#' versions used the argument name \code{x_0}, which is still silently 
+#' supported for compatibility reasons, only giving a warning. 
 #' 
 #' @param n_0 \code{Numeric} vector of length two, Greens function 
 #' displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 
@@ -205,7 +207,7 @@ model_bedload <- function(
   q_0,
   e_0,
   v_0,
-  x_0,
+  p_0,
   n_0,
   n_c,
   res = 100,
@@ -277,6 +279,21 @@ model_bedload <- function(
 
   ## extract additional arguments
   extraArgs <- list(...)
+  
+  ## compatibility patch for x_0 versus p_0
+  if(missing(p_0) == TRUE) {
+    
+    if("x_0" %in% names(extraArgs)) {
+      
+      p_0 <- extraArgs$x_0
+      
+      warning("Argument x_0 is deprecated since v.0.9.0! Use p_0 instead.")
+      
+    } else {
+      
+      stop("Neither p_0 nor x_0 (old version) provided!")
+    }
+  }
   
   ## assign gravitational acceleration (m/s^2)
   g <- ifelse(test = "g" %in% names(extraArgs),
@@ -374,7 +391,7 @@ model_bedload <- function(
                           q_0,
                           e_0,
                           v_0,
-                          x_0,
+                          p_0,
                           n_0,
                           n_c,
                           g = g,
@@ -419,14 +436,14 @@ model_bedload <- function(
   q <- q_0 * (f_i / f_0)^e_0
   
   ## calculate frequency specific Rayleigh wave velocity
-  v_c <- v_0 * (f_i / f_0)^(-x_0)
+  v_c <- v_0 * (f_i / f_0)^(-p_0)
   
   ## calculate frequency specific group velovity
-  v_u <- v_c / (1 + x_0)
+  v_u <- v_c / (1 + p_0)
   
   ## calculate beta term
-  b <- (2 * pi * r_0 * (1 + x_0) * f_i^(1 + x_0 - e_0)) / 
-    (v_0 * q_0 * f_0^(x_0 - e_0))
+  b <- (2 * pi * r_0 * (1 + p_0) * f_i^(1 + p_0 - e_0)) / 
+    (v_0 * q_0 * f_0^(p_0 - e_0))
   
   ## calculate chi_beta term
   x_b <- 2 * log(1 + (1 / b)) * exp(-2 * b) + 
