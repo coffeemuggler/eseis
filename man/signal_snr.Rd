@@ -2,16 +2,33 @@
 % Please edit documentation in R/signal_snr.R
 \name{signal_snr}
 \alias{signal_snr}
-\title{Calculate signal-to-noise-ratio.}
+\title{Calculate signal-to-noise-ratio (SNR).}
 \usage{
-signal_snr(data, detrend = FALSE)
+signal_snr(
+  data,
+  scale = "lin",
+  detrend = FALSE,
+  envelope = FALSE,
+  method = "max-mean"
+)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
 objects, data set to be processed.}
 
+\item{scale}{\code{Character} value, scale of the output. One out of 
+\code{"lin"} (linear) and \code{"dB"} (decibel). Default is \code{"lin"}.}
+
 \item{detrend}{\code{Logical} value, optionally detrend data set before
-calcualting snr.}
+calculating snr. Default is \code{FALSE}}
+
+\item{envelope}{\code{Logical} value, optionally calculate the signal 
+envelope before calculating the SNR. Default is \code{FALSE}.}
+
+\item{method}{\code{Character} value, method used to calculate the SNR. 
+Available methods are \code{"max-mean"} (Ratio of maximum and mean signal),
+\code{"mean-sd"} (Ratio of mean and standard deviation). Default is 
+\code{max-mean}.}
 }
 \value{
 \code{Numeric} value, signal-to-noise ratio.
@@ -25,14 +42,18 @@ vector as the ratio between mean and max.
 ## load example data set
 data(rockfall)
 
-## calculate snr with detrend option off and on
-snr <- signal_snr(data = rockfall_eseis)
+## remove mean and calculate envelope beforehand
+x_prep <- signal_envelope(signal_detrend(rockfall_eseis))
+
+## calculate snr
+snr <- signal_snr(data = x_prep)
 print(snr$snr)
 
-snr <- signal_snr(data = rockfall_eseis, 
-                  detrend = TRUE)
-print(snr$snr)
-                     
+## calculate snr with preprocessing during function call, and in dB scale
+snr_dB <- signal_snr(data = rockfall_eseis, detrend = TRUE, 
+                     envelope = TRUE, scale = "dB")
+print(snr_dB$snr)
+
 }
 \author{
 Michael Dietze
