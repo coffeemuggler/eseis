@@ -60,7 +60,7 @@
 #' displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 
 #' al. (2014) 
 #' 
-#' @param eseis \code{Character} value, option to return an eseis object 
+#' @param eseis \code{Logical} value, option to return an eseis object 
 #' instead of a data frame. Default is \code{FALSE}.
 #' 
 #' @param \dots Further arguments passed to the function.
@@ -176,7 +176,7 @@ model_turbulence <- function(
                           res = res,
                           g = g,
                           k = k,
-                          k_S = k_s,
+                          k_s = k_s,
                           h = h,
                           e_0 = e_0,
                           r_w = r_w,
