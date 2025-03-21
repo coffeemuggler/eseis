@@ -19,7 +19,7 @@ model_bedload(
   q_0,
   e_0,
   v_0,
-  x_0,
+  p_0,
   n_0,
   n_c,
   res = 100,
@@ -72,8 +72,10 @@ increase with frequency (dimensionless). "Reasonable value may be
 \code{f_0} (m/s). Assuming a shear wave velocity of about 2200 m/s, 
 Tsai et al. (2012) yield a value of 1295 m/s for this parameter.}
 
-\item{x_0}{\code{Numeric} value, exponent of the power law variation of 
-Rayleigh wave velocities with frequency}
+\item{p_0}{\code{Numeric} value, exponent of the power law variation of 
+Rayleigh wave velocities with frequency. Attention, previous package 
+versions used the argument name \code{x_0}, which is still silently 
+supported for compatibility reasons, only giving a warning.}
 
 \item{n_0}{\code{Numeric} vector of length two, Greens function 
 displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 

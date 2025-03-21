@@ -63,7 +63,7 @@ al. (2014)}
 \item{res}{\code{Numeric} value, output resolution, i.e. length of the 
 spectrum vector. Default is 1000.}
 
-\item{eseis}{\code{Character} value, option to return an eseis object 
+\item{eseis}{\code{Logical} value, option to return an eseis object 
 instead of a data frame. Default is \code{FALSE}.}
 
 \item{\dots}{Further arguments passed to the function.}
