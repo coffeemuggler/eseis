@@ -41,9 +41,6 @@ SEXP parseMiniSEED (SEXP buffer) {
   char *bufferPtr;
   char msgPrefix[11] = "libmseed__";
 
-  // Redirect libmseed logging messages to Matlab functions
-  ms_loginit( (R_callback)&Rprintf, msgPrefix, (R_callback)&Rf_error, msgPrefix);
-
   /* Read leap second list file if env. var. LIBMSEED_LEAPSECOND_FILE is set */
   if (leapsecondlist == NULL) {
     ms_readleapseconds ("LIBMSEED_LEAPSECOND_FILE");
@@ -142,13 +139,6 @@ SEXP parseMiniSEED (SEXP buffer) {
   }
 
   // Sanity check
-  if (mstl->numtraces == 0) {
-    Rf_error("%szero traces in miniSEED record.", msgPrefix);
-  }
-  if (mstl->numtraces > 1) {
-    Rf_error("%s%d traces in miniSEED record.  Only 1 is currently supported.", msgPrefix, mstl->numtraces);
-  }
-
   if (debug) {
     Rprintf("%sbufferLength = %d, %d traces found\n", msgPrefix, bufferLength, mstl->numtraces);
     mstl_printtracelist ( mstl, 1, 1, 1 );
@@ -251,8 +241,6 @@ SEXP parseMiniSEED (SEXP buffer) {
         dataPtr[i] = (double) fdatasamplesPtr[i];
       } else if ( seg->sampletype == 'd' ) {
         dataPtr[i] = (double) ddatasamplesPtr[i];
-      } else {
-        Rf_error("%s Data in miniSEED record is of type '%c'.  Must be 'i', 'f' or 'd'.", msgPrefix, seg->sampletype);
       }
     }
 
