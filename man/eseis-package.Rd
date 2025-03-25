@@ -23,7 +23,6 @@ Other contributors:
 \itemize{
   \item Christoph Burow [contributor]
   \item Sophie Lagarde [contributor, translator]
-  \item Porter Ryan [contributor, translator]
 }
 
 }
