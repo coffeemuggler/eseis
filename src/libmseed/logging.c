@@ -237,12 +237,6 @@ ms_log_main (MSLogParam *logp, int level, va_list *varlist)
   int presize;
   const char *format;
 
-  if (!logp)
-  {
-    fprintf (stderr, "ms_log_main() called without specifying log parameters");
-    return -1;
-  }
-
   message[0] = '\0';
 
   format = va_arg (*varlist, const char *);
@@ -270,10 +264,6 @@ ms_log_main (MSLogParam *logp, int level, va_list *varlist)
     {
       logp->diag_print (message);
     }
-    else
-    {
-      fprintf (stderr, "%s", message);
-    }
   }
   else if (level == 1) /* Diagnostic message */
   {
@@ -294,10 +284,6 @@ ms_log_main (MSLogParam *logp, int level, va_list *varlist)
     {
       logp->diag_print (message);
     }
-    else
-    {
-      fprintf (stderr, "%s", message);
-    }
   }
   else if (level == 0) /* Normal log message */
   {
@@ -317,10 +303,6 @@ ms_log_main (MSLogParam *logp, int level, va_list *varlist)
     if (logp->log_print != NULL)
     {
       logp->log_print (message);
-    }
-    else
-    {
-      fprintf (stdout, "%s", message);
     }
   }
 

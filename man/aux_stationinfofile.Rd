@@ -5,78 +5,100 @@
 \title{Create station info file from cube files.}
 \usage{
 aux_stationinfofile(
+  file,
+  input,
+  output,
+  gipptools,
+  ID,
   name,
-  input_dir,
-  output_dir,
-  station_ID,
-  station_name,
-  station_z,
-  station_d,
+  z,
+  d,
   sensor_type,
   logger_type,
   sensor_ID,
   logger_ID,
-  unit = "dd",
+  gain,
+  dt,
+  start,
+  stop,
   n,
+  order = "margin",
+  unit = "dd",
   quantile = 0.95,
-  random = TRUE,
   cpu,
-  gipptools,
   write_file = TRUE,
   write_raw = FALSE,
   write_data = FALSE
 )
 }
 \arguments{
-\item{name}{\code{Character} value, file name of the output station info 
-file, with extension.}
+\item{file}{\code{Character} value, file name of the output station info 
+file, with extension but without path.}
 
-\item{input_dir}{\code{Character} value, path to directory where all cube 
+\item{input}{\code{Character} value, path to directory where all cube 
 files to be processed as stored. Each set of files from one logger must be 
 stored in a separate sub-directory named after the cube ID.}
 
-\item{output_dir}{\code{Character} value, path to directory where output 
+\item{output}{\code{Character} value, path to directory where output 
 data is written to.}
 
-\item{station_ID}{\code{Character} vector, seismic station ID. Each value
+\item{gipptools}{\code{Character} value, path to gipptools or cubetools 
+directory.}
+
+\item{ID}{\code{Character} vector, seismic station ID. Each value
 must not contain more than 5 characters. Longer entries will be clipped. If  
 omitted, a default ID will be created.}
 
-\item{station_name}{\code{Character} vector, seismic station name. If
+\item{name}{\code{Character} vector, seismic station name. If
 omitted, the station ID is used as name.}
 
-\item{station_z}{\code{Numeric} vector, elevation of the seismic stations.}
+\item{z}{\code{Numeric} vector, elevation of the seismic stations}
 
-\item{station_d}{\code{Numeric} vector, deployment depth of the seismic sensor.}
+\item{d}{\code{Numeric} vector, deployment depth of the seismic
+sensor}
 
-\item{sensor_type}{\code{Character} vector, sensor type.}
+\item{sensor_type}{\code{Character} vector, sensor types}
 
-\item{logger_type}{\code{Character} vector, logger type.}
+\item{logger_type}{\code{Character} vector, logger types}
 
-\item{sensor_ID}{\code{Character} vector, sensor ID.}
+\item{sensor_ID}{\code{Character} vector, sensor IDs}
 
-\item{logger_ID}{\code{Character} vector, logger ID.}
+\item{logger_ID}{\code{Character} vector, logger IDs}
+
+\item{gain}{\code{Numeric} or \code{character} vector, gain values. If 
+omitted, the information will be extracted from Cube files, if possible.}
+
+\item{dt}{\code{Numeric} or \code{character} vector, sampling intervals. If 
+omitted, the information will be extracted from Cube files, if possible.}
+
+\item{start}{\code{POSIXct} or \code{character} vector, time when station 
+started operating.  If omitted, the information will be extracted from Cube 
+files, if possible.}
+
+\item{stop}{\code{POSIXct} or \code{character} vector, time when station 
+stopped operating. If omitted, the information will be extracted from Cube 
+files, if possible.}
+
+\item{n}{\code{Numeric} value, number of cube file to process for GPS 
+coordinate extraction. If omitted, all files are processed.}
+
+\item{order}{\code{Character} value, keyword indicating how files will be 
+chosen to extract meta data. One out of \code{"margin"} (first and last 
+Cube file, necessary to extract start and end time of the record), 
+\code{"random"} (random order of files) and \code{"ascending"} (files in 
+ascending order). Default is \code{"margin"}.}
 
 \item{unit}{\code{Character} value, coordinates unit of the location. One 
 out of \code{"dd"} (decimal degrees) and \code{"utm"} (metric in UTM zone). 
 Default is \code{"dd"}.}
-
-\item{n}{\code{Numeric} value, number of cube file to process for GPS 
-coordinate extraction. If omitted, all files are processed.}
 
 \item{quantile}{\code{Numeric} value, quantile size to which the extracted 
 coordinate sample size is restricted. This is mainly used to remove 
 coordinate outliers, due to spurious GPS signals. Default is 
 \code{0.95}. Set to \code{1} to omit any sample rejection.}
 
-\item{random}{\code{Logical} value, option to draw \code{n} cube files 
-randomly instead of ordered by date. Default is \code{TRUE}.}
-
 \item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel 
 processing. If omitted, one CPU is used.}
-
-\item{gipptools}{\code{Character} value, path to gipptools or cubetools 
-directory.}
 
 \item{write_file}{\code{Logical} value, option to write station info file 
 to disk. Default is \code{TRUE}.}
@@ -94,25 +116,40 @@ station information.
 }
 \description{
 This function reads GPS tags from Omnirecs/Digos Datacube files and creates 
-a station info file from additional input data. It depends on the cubetools 
-or gipptools software package (see details).
+a station info file from additional input data. It depends on the gipptools 
+software package (see details).
 }
 \details{
-A station info file is an ASCII file that contains all relevant information
+A station info file is an ASCII table that contains all relevant information
 about the individual stations of a seismic network. The variables contain a 
-station ID (containing not more than 5 characters), station name, latitude, 
-longitude, elevation, deployment depth, sensor type, logger type, sensor 
-ID and logger ID.\cr The function requires that the software cubetools 
-(\code{http://www.omnirecs.de/documents.html}) or gipptools 
+station ID (containing not more than 5 characters), station name (an longer 
+description of the station), latitude, longitude, elevation, deployment 
+depth, sensor type, logger type, sensor ID, logger ID, gain (signal 
+preamplification by the logger), dt (sampling interval), start and stop 
+time of the station records.
+
+The start and stop times can be automatically collected from the meta data 
+stored along in each Cube file. For that, the function has to select the 
+first and last file in a data record of a station. This is automatically 
+done if the option \code{order = "margin"} is selected and the number of 
+files per station to process is two, hence \code{n = 2}.
+
+Automatically, the resulting ASCII file will have all 14 columns as defined 
+above. One has to delete unwanted columns (or add additional ones) from 
+the text file, manually after the file has been generated. 
+
+The function requires the software gipptools 
 (\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/}) 
-are installed. Note that GPS tag extraction may take several minutes per 
+is installed. Note that GPS tag extraction may take several minutes per 
 cube file. Hence, depending on the number of files and utilised CPUs the 
-processing may take a while.\cr Specifying an input directory 
-(\code{input_dir}) is mandatory. This input directory must only contain the 
-subdirectories with the cube files to process, each set of cube files must 
-be located in a separate subdirectory and these subdiretories must 
-have the same name as specified by the logger IDs (\code{logger_ID}). An 
-appropriate structure would be something like: \cr 
+processing may take a while.
+
+Specifying an input directory (\code{input}) is mandatory. This input 
+directory must only contain the subdirectories with the cube files to 
+process, each set of cube files must be located in a separate subdirectory 
+and these subdirectories must have the same name as specified by the logger 
+IDs (\code{logger_ID}). An appropriate structure would be something like:
+ 
 \enumerate{
   \item input
   \enumerate{
@@ -134,27 +171,33 @@ appropriate structure would be something like: \cr
 \dontrun{
 
 ## basic example with minimum effort
-aux_stationinfofile(name = "stationinfo.txt", 
-                    input_dir = "input", 
-                    logger_ID = c("864", "876", "AB1"),
-                    gipptools = "software/gipptools-2015.225")
+aux_stationinfofile(file = "stationinfo.txt", 
+                    input = "path/to/cube/dirs", 
+                    output = "path/to/stationfile/", 
+                    gipptools = "software/gipptools-2024.354", 
+                    logger_ID = c("A1A", "A1B"))
 
 ## example with more adjustments
-aux_stationinfofile(name = "stationinfo.txt",
-                    input_dir = "input",
-                    logger_ID = c("864", "876", "AB1"),
-                    station_name = c("KTZ01", "KTZ02", "KTZ03"), 
-                    station_z = c(30, 28, 29), 
-                    station_d = rep(0.5, 3), 
-                    sensor_type = rep("TC120s", 3), 
-                    logger_type = rep("Cube3ext", 3), 
-                    unit = "utm", 
-                    n = 1, 
-                    cpu = 0.9,
-                    gipptools = "software/gipptools-2015.225", 
-                    write_raw = TRUE, 
+aux_stationinfofile(file = "stationinfo.txt", 
+                    input = "path/to/cube/dirs", 
+                    output = "path/to/stationfile/", 
+                    gipptools = "software/gipptools-2024.354",
+                    ID = c("STAN", "STAS"),
+                    name = c("Station North", "Station South"), 
+                    z = c(1000, 1100),
+                    d = c(0.5, 0.5),
+                    sensor_type = c("TC120s", "TC120s"), 
+                    logger_type = c("Cube3extBOB", "Centaur"), 
+                    sensor_ID = c("4711", "0815"), 
+                    logger_ID = c("A1A", "A1B"), 
+                    gain = c(32, 16), 
+                    dt = c(1/100, 1/200),
+                    n = 3, 
+                    order = "margin", 
+                    unit = "utm",
+                    cpu = 0.5, 
+                    write_raw = TRUE,
                     write_data = TRUE)
-
 }
 
 }

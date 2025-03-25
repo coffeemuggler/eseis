@@ -1,24 +1,39 @@
 #' Create station info file from cube files.
 #' 
 #' This function reads GPS tags from Omnirecs/Digos Datacube files and creates 
-#' a station info file from additional input data. It depends on the cubetools 
-#' or gipptools software package (see details).
+#' a station info file from additional input data. It depends on the gipptools 
+#' software package (see details).
 #' 
-#' A station info file is an ASCII file that contains all relevant information
+#' A station info file is an ASCII table that contains all relevant information
 #' about the individual stations of a seismic network. The variables contain a 
-#' station ID (containing not more than 5 characters), station name, latitude, 
-#' longitude, elevation, deployment depth, sensor type, logger type, sensor 
-#' ID and logger ID.\cr The function requires that the software cubetools 
-#' (\code{http://www.omnirecs.de/documents.html}) or gipptools 
+#' station ID (containing not more than 5 characters), station name (an longer 
+#' description of the station), latitude, longitude, elevation, deployment 
+#' depth, sensor type, logger type, sensor ID, logger ID, gain (signal 
+#' preamplification by the logger), dt (sampling interval), start and stop 
+#' time of the station records.
+#' 
+#' The start and stop times can be automatically collected from the meta data 
+#' stored along in each Cube file. For that, the function has to select the 
+#' first and last file in a data record of a station. This is automatically 
+#' done if the option \code{order = "margin"} is selected and the number of 
+#' files per station to process is two, hence \code{n = 2}.
+#' 
+#' Automatically, the resulting ASCII file will have all 14 columns as defined 
+#' above. One has to delete unwanted columns (or add additional ones) from 
+#' the text file, manually after the file has been generated. 
+#' 
+#' The function requires the software gipptools 
 #' (\code{http://www.gfz-potsdam.de/en/section/geophysical-deep-sounding/infrastructure/geophysical-instrument-pool-potsdam-gipp/software/gipptools/}) 
-#' are installed. Note that GPS tag extraction may take several minutes per 
+#' is installed. Note that GPS tag extraction may take several minutes per 
 #' cube file. Hence, depending on the number of files and utilised CPUs the 
-#' processing may take a while.\cr Specifying an input directory 
-#' (\code{input_dir}) is mandatory. This input directory must only contain the 
-#' subdirectories with the cube files to process, each set of cube files must 
-#' be located in a separate subdirectory and these subdiretories must 
-#' have the same name as specified by the logger IDs (\code{logger_ID}). An 
-#' appropriate structure would be something like: \cr 
+#' processing may take a while.
+#' 
+#' Specifying an input directory (\code{input}) is mandatory. This input 
+#' directory must only contain the subdirectories with the cube files to 
+#' process, each set of cube files must be located in a separate subdirectory 
+#' and these subdirectories must have the same name as specified by the logger 
+#' IDs (\code{logger_ID}). An appropriate structure would be something like:
+#'  
 #' \enumerate{
 #'   \item input
 #'   \enumerate{
@@ -35,44 +50,65 @@
 #'    }
 #' }
 #' 
-#' @param name \code{Character} value, file name of the output station info 
-#' file, with extension.
+#' @param file \code{Character} value, file name of the output station info 
+#' file, with extension but without path.
 #'
-#' @param input_dir \code{Character} value, path to directory where all cube 
+#' @param input \code{Character} value, path to directory where all cube 
 #' files to be processed as stored. Each set of files from one logger must be 
 #' stored in a separate sub-directory named after the cube ID.
 #'
-#' @param output_dir \code{Character} value, path to directory where output 
+#' @param output \code{Character} value, path to directory where output 
 #' data is written to.
 #' 
-#' @param station_ID \code{Character} vector, seismic station ID. Each value  
+#' @param gipptools \code{Character} value, path to gipptools or cubetools 
+#' directory. 
+#' 
+#' @param ID \code{Character} vector, seismic station ID. Each value  
 #' must not contain more than 5 characters. Longer entries will be clipped. If  
 #' omitted, a default ID will be created.
 #' 
-#' @param station_name \code{Character} vector, seismic station name. If  
+#' @param name \code{Character} vector, seismic station name. If  
 #' omitted, the station ID is used as name.
 #' 
-#' @param station_z \code{Numeric} vector, elevation of the seismic stations.
+#' @param z \code{Numeric} vector, elevation of the seismic stations
 #' 
-#' @param station_d \code{Numeric} vector, deployment depth of the seismic sensor.
+#' @param d \code{Numeric} vector, deployment depth of the seismic
+#'  sensor
 #' 
-#' @param sensor_type \code{Character} vector, sensor type.
+#' @param sensor_type \code{Character} vector, sensor types
 #' 
-#' @param logger_type \code{Character} vector, logger type.
+#' @param logger_type \code{Character} vector, logger types
 #' 
-#' @param sensor_ID \code{Character} vector, sensor ID.
+#' @param sensor_ID \code{Character} vector, sensor IDs
 #' 
-#' @param logger_ID \code{Character} vector, logger ID.
+#' @param logger_ID \code{Character} vector, logger IDs
 #' 
-#' @param unit \code{Character} value, coordinates unit of the location. One 
-#' out of \code{"dd"} (decimal degrees) and \code{"utm"} (metric in UTM zone). 
-#' Default is \code{"dd"}.
+#' @param gain \code{Numeric} or \code{character} vector, gain values. If 
+#' omitted, the information will be extracted from Cube files, if possible. 
+#' 
+#' @param dt \code{Numeric} or \code{character} vector, sampling intervals. If 
+#' omitted, the information will be extracted from Cube files, if possible.
+#' 
+#' @param start \code{POSIXct} or \code{character} vector, time when station 
+#' started operating.  If omitted, the information will be extracted from Cube 
+#' files, if possible.
+#' 
+#' @param stop \code{POSIXct} or \code{character} vector, time when station 
+#' stopped operating. If omitted, the information will be extracted from Cube 
+#' files, if possible.
 #' 
 #' @param n \code{Numeric} value, number of cube file to process for GPS 
 #' coordinate extraction. If omitted, all files are processed.
 #' 
-#' @param random \code{Logical} value, option to draw \code{n} cube files 
-#' randomly instead of ordered by date. Default is \code{TRUE}.
+#' @param order \code{Character} value, keyword indicating how files will be 
+#' chosen to extract meta data. One out of \code{"margin"} (first and last 
+#' Cube file, necessary to extract start and end time of the record), 
+#' \code{"random"} (random order of files) and \code{"ascending"} (files in 
+#' ascending order). Default is \code{"margin"}.
+#' 
+#' @param unit \code{Character} value, coordinates unit of the location. One 
+#' out of \code{"dd"} (decimal degrees) and \code{"utm"} (metric in UTM zone). 
+#' Default is \code{"dd"}.
 #' 
 #' @param quantile \code{Numeric} value, quantile size to which the extracted 
 #' coordinate sample size is restricted. This is mainly used to remove 
@@ -81,9 +117,6 @@
 #' 
 #' @param cpu \code{Numeric} value, fraction of CPUs to use for parallel 
 #' processing. If omitted, one CPU is used.
-#' 
-#' @param gipptools \code{Character} value, path to gipptools or cubetools 
-#' directory. 
 #' 
 #' @param write_file \code{Logical} value, option to write station info file 
 #' to disk. Default is \code{TRUE}. 
@@ -105,51 +138,62 @@
 #' \dontrun{
 #' 
 #' ## basic example with minimum effort
-#' aux_stationinfofile(name = "stationinfo.txt", 
-#'                     input_dir = "input", 
-#'                     logger_ID = c("864", "876", "AB1"),
-#'                     gipptools = "software/gipptools-2015.225")
+#' aux_stationinfofile(file = "stationinfo.txt", 
+#'                     input = "path/to/cube/dirs", 
+#'                     output = "path/to/stationfile/", 
+#'                     gipptools = "software/gipptools-2024.354", 
+#'                     logger_ID = c("A1A", "A1B"))
 #' 
 #' ## example with more adjustments
-#' aux_stationinfofile(name = "stationinfo.txt",
-#'                     input_dir = "input",
-#'                     logger_ID = c("864", "876", "AB1"),
-#'                     station_name = c("KTZ01", "KTZ02", "KTZ03"), 
-#'                     station_z = c(30, 28, 29), 
-#'                     station_d = rep(0.5, 3), 
-#'                     sensor_type = rep("TC120s", 3), 
-#'                     logger_type = rep("Cube3ext", 3), 
-#'                     unit = "utm", 
-#'                     n = 1, 
-#'                     cpu = 0.9,
-#'                     gipptools = "software/gipptools-2015.225", 
-#'                     write_raw = TRUE, 
+#' aux_stationinfofile(file = "stationinfo.txt", 
+#'                     input = "path/to/cube/dirs", 
+#'                     output = "path/to/stationfile/", 
+#'                     gipptools = "software/gipptools-2024.354",
+#'                     ID = c("STAN", "STAS"),
+#'                     name = c("Station North", "Station South"), 
+#'                     z = c(1000, 1100),
+#'                     d = c(0.5, 0.5),
+#'                     sensor_type = c("TC120s", "TC120s"), 
+#'                     logger_type = c("Cube3extBOB", "Centaur"), 
+#'                     sensor_ID = c("4711", "0815"), 
+#'                     logger_ID = c("A1A", "A1B"), 
+#'                     gain = c(32, 16), 
+#'                     dt = c(1/100, 1/200),
+#'                     n = 3, 
+#'                     order = "margin", 
+#'                     unit = "utm",
+#'                     cpu = 0.5, 
+#'                     write_raw = TRUE,
 #'                     write_data = TRUE)
-#' 
 #' }
 #' 
 #' @export aux_stationinfofile
+
 aux_stationinfofile <- function(
-  name,
-  input_dir,
-  output_dir,
-  station_ID,
-  station_name,
-  station_z,
-  station_d,
-  sensor_type,
-  logger_type,
-  sensor_ID,
-  logger_ID,
-  unit = "dd",
-  n,
-  quantile = 0.95,
-  random = TRUE,
-  cpu,
-  gipptools,
-  write_file = TRUE,
-  write_raw = FALSE,
-  write_data = FALSE
+    file,
+    input,
+    output,
+    gipptools,
+    ID,
+    name,
+    z,
+    d,
+    sensor_type,
+    logger_type,
+    sensor_ID,
+    logger_ID,
+    gain,
+    dt,
+    start,
+    stop,
+    n,
+    order = "margin",
+    unit = "dd",
+    quantile = 0.95,
+    cpu,
+    write_file = TRUE,
+    write_raw = FALSE,
+    write_data = FALSE
 ){
   
   ## Part 1 - checks, tests, adjustments --------------------------------------
@@ -158,27 +202,28 @@ aux_stationinfofile <- function(
   t_1 <- Sys.time()
   
   ## check/set file name
-  if(missing(name) == TRUE) {
+  if(missing(file) == TRUE) {
     
-    name <- "station_info.txt"
+    file <- "station_info.txt"
   }
   
   ## check/set output directory
-  if(missing(output_dir) == TRUE) {
+  if(missing(output) == TRUE) {
     
-    output_dir <- file.path(tempdir(), "output")
-    print(paste("Output will be written to", output_dir))
+    output <- file.path(tempdir(), "output")
+    print(paste("Output will be written to", output))
   }
   
   ## set/correct path definitions
-  input_dir <- paste0(dirname(input_dir), "/", basename(input_dir), "/")
-  output_dir <- paste0(dirname(output_dir), "/", basename(output_dir), "/")
-  gipptools <- paste0(dirname(gipptools), "/", basename(gipptools), "/")
+  input <- paste0(dirname(input), "/", basename(input), "/")
+  output <- paste0(dirname(output), "/", basename(output), "/")
+  gipptools <- paste0(dirname(gipptools), "/", 
+                      basename(gipptools), "/")
   
   ## check if output directory exists and, if necessary create it
-  if(dir.exists(paths = output_dir) == FALSE) {
+  if(dir.exists(paths = output) == FALSE) {
     
-    dir.create(path = output_dir)
+    dir.create(path = output)
     print("[aux_stationinfofile]: Output directory did not exist, created.")
   }
   
@@ -195,13 +240,12 @@ aux_stationinfofile <- function(
   }
   
   ## get cube directories
-  input_dir_exist <- list.files(path = input_dir, 
-                                full.names = TRUE)
+  input_exist <- list.files(path = input, full.names = TRUE)
   
   ## check/set cube ID
   if(missing(logger_ID) == TRUE) {
     
-    logger_ID <- list.files(path = input_dir)
+    logger_ID <- list.files(path = input)
   }
   
   ## check cube ID for consistency
@@ -213,7 +257,7 @@ aux_stationinfofile <- function(
   ## compare cube_ID with cube directories
   for(i in 1:length(logger_ID)) {
     
-    if(sum(logger_ID[i] == list.files(path = input_dir)) < 1) {
+    if(sum(logger_ID[i] == list.files(path = input)) < 1) {
       warning(paste("[aux_stationinfofile]: Cube ID", 
                     logger_ID[i],
                     "not found in input directory!"))
@@ -221,72 +265,138 @@ aux_stationinfofile <- function(
   }
   
   ## check/set station ID
-  if(missing(station_ID) == TRUE) {
+  if(missing(ID) == TRUE) {
     
-    station_ID <- paste("STA", 1:length(logger_ID), sep = "")
+    ID <- paste("STA", 1:length(logger_ID), sep = "")
   }
   
   ## check/set station name
-  if(missing(station_name) == TRUE) {
+  if(missing(name) == TRUE) {
     
-    station_name <- station_ID
+    name <- ID
   }
   
   ## check/set station elevation
-  if(missing(station_z) == TRUE) {
+  if(missing(z) == TRUE) {
     
-    station_z <- rep(x = NA, times = length(station_ID))
+    z <- rep(x = NA, times = length(ID))
   }
   
   ## check/set station depth
-  if(missing(station_d) == TRUE) {
+  if(missing(d) == TRUE) {
     
-    station_d <- rep(x = NA, times = length(station_ID))
+    d <- rep(x = NA, times = length(ID))
   }
-
+  
   ## check/set sensor type
   if(missing(sensor_type) == TRUE) {
     
-    sensor_type <- rep(x = NA, times = length(station_ID))
+    sensor_type <- rep(x = NA, times = length(ID))
   }
   
   ## check/set logger type
   if(missing(logger_type) == TRUE) {
     
-    logger_type <- rep(x = NA, times = length(station_ID))
+    logger_type <- rep(x = NA, times = length(ID))
   }
   
   ## check/set sensor ID
   if(missing(sensor_ID) == TRUE) {
     
-    sensor_ID <- rep(x = NA, times = length(station_ID))
+    sensor_ID <- rep(x = NA, times = length(ID))
   }
-
+  
+  ## check keyword for file order
+  if(order %in% c("margin", "random", "ascending") == FALSE) {
+    
+    stop("Keyword for argument order is not supported!")
+  }
+  
+  ## check/set order and n consistence
+  if(order == "margin" & n < 2) {
+    
+    n <- 2
+    warning("Order type margin needs at least two files, n set to 2!")
+  }
+  
+  ## check/get options for gain, dt, start, end
+  if(missing(gain) == TRUE) {
+    
+    get_gain <- TRUE
+    gain <- rep(NA, length(ID))
+  } else {
+    
+    get_gain <- FALSE
+    if(length(gain) != length(ID)) {
+      stop("Gain vector length does not match number of stations!")
+    }
+  }
+  
+  if(missing(dt) == TRUE) {
+    
+    get_dt <- TRUE
+    dt <- rep(NA, length(ID))
+  } else {
+    
+    get_dt <- FALSE
+    if(length(dt) != length(ID)) {
+      stop("Sample interval vector length does not match number of stations!")
+    }
+  }
+  
+  if(missing(start) == TRUE) {
+    
+    get_start <- TRUE
+    start <- rep(NA, length(ID))
+  } else {
+    
+    get_start <- FALSE
+    if(length(start) != length(ID)) {
+      stop("Start time vector length does not match number of stations!")
+    }
+  }
+  
+  if(missing(stop) == TRUE) {
+    
+    get_stop <- TRUE
+    stop <- rep(NA, length(ID))
+  } else {
+    
+    get_stop <- FALSE
+    if(length(stop) != length(ID)) {
+      stop("Stop time vector length does not match number of stations!")
+    }
+  }
+  
   ## build preliminary station info file
-  station_info <- data.frame(ID = station_ID,
-                             name = station_name,
-                             x = numeric(length = length(station_ID)),
-                             y = numeric(length = length(station_ID)),
-                             station_z = station_z,
-                             station_d = station_d,
+  station_info <- data.frame(ID = ID,
+                             name = name,
+                             x = numeric(length = length(ID)),
+                             y = numeric(length = length(ID)),
+                             z = z,
+                             d = d,
                              sensor_type = sensor_type,
                              logger_type = logger_type,
                              sensor_ID = sensor_ID,
-                             logger_ID = logger_ID)
+                             logger_ID = logger_ID,
+                             gain = gain,
+                             dt = dt,
+                             start = start,
+                             stop = stop)
   
   ## convert data frame row-wise to list
-  station_info <- apply(X = station_info, MARGIN = 1, FUN = list)
-  station_info <- lapply(X = station_info, FUN = function(x) {x[[1]]})
+  station_info <- lapply(X = 1:nrow(station_info), FUN = function(i, x){x[i,]}, 
+                         x = station_info)
   
   ## Part 2 - preparation steps -----------------------------------------------
   
   ## get files to read GPS data from
   files_cube <- lapply(X = station_info, 
-                       FUN = function(x, input_dir, n, random) {
+                       FUN = function(x, input, n, order) {
                          
                          ## get all files in respective cube directory
-                         files_i <- list.files(path = paste(input_dir, 
-                                                            x[10], 
+                         files_i <- list.files(path = paste(input, 
+                                                            x$logger_ID, 
                                                             sep = "/"), 
                                                full.names = TRUE)
                          
@@ -294,38 +404,39 @@ aux_stationinfofile <- function(
                          files_i <- files_i[substr(x = files_i, 
                                                    start = nchar(files_i) - 2, 
                                                    stop = nchar(files_i)) == 
-                                              x[10]]
+                                              x$logger_ID]
                          
                          ## keep only specified number of files
                          if(n != "all" & n <= length(files_i)) {
                            
-                           if(random == FALSE) {
+                           if(order == "ascending") {
                              
                              files_i <- files_i[1:n]
-                           } else {
+                           } else if(order == "random") {
                              
                              files_i <- files_i[sample(x = 1:length(files_i), 
                                                        size = n, 
                                                        replace = FALSE)]
+                           } else if(order == "margin") {
+                             
+                             files_i <- c(files_i[1], tail(files_i, 1))
                            }
                          }
                          
                          ## return output
                          return(files_i)
                        },
-                       input_dir = input_dir,
-                       n = n,
-                       random = random)
+                       input = input, n = n, order = order)
   
   ## convert list content to vector
-  files_cube <- unlist(files_cube)
+  files_cube <- do.call(c, files_cube)
   
   ## create raw gps file output directory
-  if(dir.exists(paths = paste(output_dir, 
+  if(dir.exists(paths = paste(output, 
                               "/gps_raw", 
                               sep = "")) == FALSE) {
     
-    dir.create(path = paste(output_dir, "/gps_raw", sep = ""), 
+    dir.create(path = paste(output, "/gps_raw", sep = ""), 
                showWarnings = FALSE)
   }
   
@@ -345,34 +456,26 @@ aux_stationinfofile <- function(
   t_0 <- 150 / 3600 * 1.1 # i.e. 150 s per file + 10 % extra time
   t_duration_estimate <- t_0 * length(files_cube)
   
-  ## generate notification
-  note_1 <- paste("[eseis::aux_stationinfofile]: ",
-                  "Started create station info file.\n",
-                  "   Job started:", Sys.time(), ".\n", 
-                  "   ", length(station_ID), "loggers to process.\n",
-                  "   ", length(files_cube), "files to process.\n",
-                  "   ", round(x = t_duration_estimate, 
-                               digits = 2), "h estimated duration.",
-                collapse = "")
-  
   ## print notification
-  cat(note_1)
-
+  print(paste0("[eseis::aux_stationinfofile]: ", length(ID), 
+               " loggers and ", length(files_cube), " files to process"))
+  
   ## Part 3 - extraction of GPS data ------------------------------------------
-
+  
   ## initiate cluster
   cl <- parallel::makeCluster(getOption("mc.cores", cores))
   
   ## extract GPS data
-  invisible(parallel::parLapply(cl = cl, X = files_cube, 
-                                fun = function(X, gipptools, output_dir) {
+  invisible(parallel::parLapply(
+    cl = cl, X = files_cube, 
+    fun = function(X, gipptools, output) {
       
       system(command = paste(gipptools, "/bin/cubeinfo", 
                              " --format=GPS --output-dir=",
-                             output_dir, "/gps_raw ",
+                             output, "/gps_raw ",
                              X,
                              sep = ""))
-      }, gipptools = gipptools, output_dir = output_dir))
+    }, gipptools = gipptools, output = output))
   
   ## stop cluster
   parallel::stopCluster(cl = cl)
@@ -380,7 +483,7 @@ aux_stationinfofile <- function(
   ## Part 4 - calculations of GPS data ----------------------------------------
   
   ## get all gps raw files
-  gps_files <- list.files(path = paste(output_dir, "/gps_raw", sep = ""), 
+  gps_files <- list.files(path = paste(output, "/gps_raw", sep = ""), 
                           full.names = TRUE)
   
   ## assign gps files to cubes
@@ -403,9 +506,9 @@ aux_stationinfofile <- function(
       
       ## read each file
       data_i <- try(utils::read.delim(file = x[i],
-                               sep = " ", 
-                               header = FALSE, 
-                               stringsAsFactors = FALSE), 
+                                      sep = " ", 
+                                      header = FALSE, 
+                                      stringsAsFactors = FALSE), 
                     silent = TRUE)
       
       ## append successfully extracted data
@@ -486,16 +589,109 @@ aux_stationinfofile <- function(
   if(write_raw == FALSE) {
     
     unlink(gps_files, recursive = TRUE)
-    unlink(paste(output_dir, "gps_raw", sep = "/"), recursive = TRUE)
+    unlink(paste(output, "gps_raw", sep = "/"), recursive = TRUE)
   }
   
-  ## Part 5 - export output data ----------------------------------------------
+  ## Part 5 - get gain, dt, start, and end times ------------------------------
+  
+  ## check if any data is requested
+  if(any(c(get_gain, get_dt, get_start, get_stop)) == TRUE) {
+    
+    ## extract cube meta information
+    cubedata <- lapply(X = files_cube, FUN = function(x) {
+      
+      y <- try(eseis::aux_cubeinfo(file = x, gipptools = gipptools), 
+               silent = TRUE)
+      
+      ## extract ID from file name
+      ID_get <- try(strsplit(x = y$`file name`, 
+                             split = ".", 
+                             fixed = TRUE)[[1]][2], silent = TRUE)
+      if(inherits(ID_get, "try-error")) {ID_get <- NA}
+      
+      ## extract gain
+      gain <- try(strsplit(x = y$`amplification factor`, 
+                           split = " ", 
+                           fixed = TRUE)[[1]][1], silent = TRUE)
+      if(inherits(gain, "try-error")) {gain <- NA}
+      
+      ## extract dt
+      dt <- try(1 / as.numeric(strsplit(x = y$`sample rate`, 
+                                        split = " ", 
+                                        fixed = TRUE)[[1]][1]), silent = TRUE)
+      if(inherits(dt, "try-error")) {dt <- NA}
+      
+      ## extract start time
+      start <- try(as.POSIXct(y$`approx. recorder start`, tz = "UTC"), 
+                   silent = TRUE)
+      if(length(start) < 1) {start <- try(1/"x", silent = TRUE)}
+      if(inherits(start, "try-error")) {start <- as.POSIXct(NA)}
+      
+      ## extract stop time
+      stop <- try(as.POSIXct(y$`approx. recorder stop`, tz = "UTC"), 
+                  silent = TRUE)
+      if(length(stop) < 1) {stop <- try(1/"x", silent = TRUE)}
+      if(inherits(stop, "try-error")) {stop <- as.POSIXct(NA)}
+      
+      ## build output data set
+      z <- data.frame(ID = ID_get, 
+                      gain = as.numeric(gain), 
+                      dt = as.numeric(dt), 
+                      start = start, 
+                      stop = stop)
+      
+      return(z)
+    })
+    
+    ## convert list to data frame
+    cubedata <- try(do.call(rbind, cubedata), silent = TRUE)
+    
+    ## replace NA values in stop times by start times
+    stop_tmp <- cubedata$start
+    i_ok <- which(!is.na(cubedata$stop))
+    stop_tmp[i_ok] <- cubedata$stop[i_ok]
+    cubedata$stop <- stop_tmp
+    
+    ## organise by Cube ID
+    id_unique <- unique(x = cubedata$ID)
+    
+    ## get statistics by ID
+    cubedata_grp <- lapply(X = id_unique, FUN = function(x, cubedata) {
+      
+      y <- cubedata[cubedata$ID %in% x,]
+      
+      z <- data.frame(ID = x, 
+                      gain = median(y$gain, na.rm = TRUE),
+                      dt = median(y$dt, na.rm = TRUE), 
+                      start = min(y$start, na.rm = TRUE), 
+                      stop = max(y$stop, na.rm = TRUE))
+      
+      return(z)
+    }, cubedata = cubedata)
+    
+    ## convert list to data frame
+    cubedata_grp <- do.call(rbind, cubedata_grp)
+    
+    ## sort by output ID order
+    cubedata_grp <- cubedata_grp[order(station_info$logger_ID),]
+    
+    ## replace dummy stop times by NA
+    cubedata_grp$stop[cubedata_grp$start == cubedata_grp$stop] <- NA
+    
+    ## assign meta data
+    station_info$gain <- cubedata_grp$gain
+    station_info$dt <- cubedata_grp$dt
+    station_info$start <- cubedata_grp$start
+    station_info$stop <- cubedata_grp$stop
+  }
+  
+  ## Part 6 - export output data ----------------------------------------------
   
   ## optionally save station info file
   if(write_file == TRUE) {
     
     utils::write.table(station_info, 
-                       file = paste0(output_dir, "/", name), 
+                       file = paste0(output, "/", file), 
                        col.names = TRUE, 
                        row.names = FALSE, 
                        quote = TRUE,
@@ -506,18 +702,18 @@ aux_stationinfofile <- function(
   if(write_data == TRUE) {
     
     trysave <- try(save(gps_cube, 
-                        file = paste(output_dir, 
+                        file = paste(output, 
                                      "/",
-                                     name,
+                                     file,
                                      ".rda",
                                      sep = "")), silent = TRUE)
     
     if(class(trysave)[1] == "try-error") {
       
-      warning("Was not able to wave raw gps data file!")
+      warning("Unable to save raw gps data file!")
     }
   }
-
+  
   ## get end time
   t_2 <- Sys.time()
   
@@ -527,15 +723,12 @@ aux_stationinfofile <- function(
                                   units = "hours")
   
   ## generate notification
-  note_2 <- paste("[eseis::aux_stationinfofile]: ",
-                  "Finished create station info file.\n",
-                  "   Job done: ", Sys.time(), ".\n", 
-                  "   Duration: ", round(x = duration_processing, 
-                                         digits = 2), " h.",
-                  collapse = "")
+  note_2 <- paste0("[eseis::aux_stationinfofile]: ",
+                   "Finished station info file in ", 
+                   round(x = duration_processing, digits = 2), " h.")
   
   ## print notification
-  cat(note_2)
+  print(note_2)
   
   ## return result
   return(station_info)

@@ -61,15 +61,6 @@ ms_recsrcname (char *record, char *srcname, flag quality)
   ms_strncpclean (location, fsdh->location, 2);
   ms_strncpclean (channel, fsdh->channel, 3);
 
-  /* Build the source name string including the quality indicator*/
-  if (quality)
-    sprintf (srcname, "%s_%s_%s_%s_%c",
-             network, station, location, channel, fsdh->dataquality);
-
-  /* Build the source name string without the quality indicator*/
-  else
-    sprintf (srcname, "%s_%s_%s_%s", network, station, location, channel);
-
   return srcname;
 } /* End of ms_recsrcname() */
 
@@ -1768,11 +1759,6 @@ int64_t scan_d64(char *str, int offset, char **endptr) {
     /* conversion to unsigned long long */
     errno = 0;
     val = strtoull(str+offset, endptr, base);
-
-    if (errno != 0 && val == 0) {
-        perror("strtoull");
-        exit(EXIT_FAILURE);
-    }
 
     return val;
 }

@@ -1,6 +1,6 @@
 # eseis
 
-The R package 'eseis' v. 0.8.0 provides a collection of R functions for environmental seismology data processing. While there are numerous other packages and software collections for basic, state-of-the-art seismic data processing, the functions of 'eseis' are tailored to environmental-seismological problems.
+The R package 'eseis' v. 0.8.1 provides a collection of R functions for environmental seismology data processing. While there are numerous other packages and software collections for basic, state-of-the-art seismic data processing, the functions of 'eseis' are tailored to environmental-seismological problems.
 
 For further details, visit the  [official website](http://playgroundearth.de/pages/eseis.html).
 

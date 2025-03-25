@@ -1,5 +1,13 @@
 Changes for R-package eseis
 
+Version 0.9.0 (t.b.d)
+  - libmseed pruned and cleared from unconform code due to CRAN policy
+  - function refurbished, aux_stationinfofile(), e.g. dt, gain, time stamps added
+  - function added, model_rainfall()
+  - function changed, model_turbulence(), parameter list name corrected k_S to k_s
+  - function changed, model_bedload(), parameter renamed x_0 to p_0
+  - feature added, signal_snr(), arguments added
+
 Version 0.8.0 (2024-11-24)
   - abandoned functions removed, aux_getIRISdata(), aux_getIRISstation()
   - function re-defined, read_mseed(), IRISSeismic dependency removed

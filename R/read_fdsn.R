@@ -2,7 +2,7 @@
 #' 
 #' The function implements download and import of seismic data from FDSN data
 #' providers via the fdsnws-dataselect service (see 
-#' \url{https://www.fdsn.org/webservices/}). It is basically a wrapper for 
+#' \code{https://www.fdsn.org/webservices/}). It is basically a wrapper for 
 #' the query approach. 
 #' 
 #' The FDSN (International Federation of Digital Seismograph Networks) 
@@ -10,7 +10,7 @@
 #' are organised by network, station, component and further arguments. In 
 #' order to use the eseis function \code{read_fdsn}, one must know at least 
 #' the former three criteria for the data of interest. A list of networks is 
-#' available here: \url{https://www.fdsn.org/networks/}. The function expects 
+#' available here: \code{https://www.fdsn.org/networks/}. The function expects 
 #' the 2-digit network code, the 3- or 4-digit station code, a single seismic 
 #' component ID, and the URL to the data archive. Additional query arguments 
 #' can be added (and must be added to point at a single seismic trace to 
@@ -19,7 +19,7 @@
 #' 
 #' For each network listed there, one can find the URL that gives access to 
 #' the data (if existing) under "Data Access". Note that the function only 
-#' requires the first URL part, e.g., \url{https://geofon.gfz-potsdam.de}. 
+#' requires the first URL part, e.g., \code{https://geofon.gfz-potsdam.de}. 
 #' 
 #' @param start \code{POSIXct} value, start time of the data to import. If
 #' lazy users only submit a text string instead of a POSIXct object, the 
@@ -73,7 +73,7 @@
 #'                duration = 360, 
 #'                station = "RGN", 
 #'                network = "GE", 
-#'                url = "http://geofon.gfz-potsdam.de")
+#'                url = "https://geofon.gfz-potsdam.de")
 #' plot(s)
 #' 
 #' }
