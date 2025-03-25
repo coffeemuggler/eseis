@@ -60,6 +60,10 @@
 #' displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 
 #' al. (2014) 
 #' 
+#' @param depth \code{Numeric} value, sensor depth below surface (m),
+#' if omitted, default value is \code{0}. Used to account for Rayleigh wave 
+#' amplitude attenuation with depth.
+#' 
 #' @param eseis \code{Logical} value, option to return an eseis object 
 #' instead of a data frame. Default is \code{FALSE}.
 #' 
@@ -109,8 +113,9 @@ model_turbulence <- function(
   v_0,
   p_0,
   n_0,
-  res = 1000,
-  eseis = FALSE,
+  depth = 0,
+  res = 100,
+  eseis = TRUE,
   ...
 ) {
   
@@ -144,15 +149,28 @@ model_turbulence <- function(
               yes = extraArgs$e_0,
               no = 0)
 
-  ## assign flud density
+  ## assign fluid density
   r_w <- ifelse(test = "r_w" %in% names(extraArgs),
               yes = extraArgs$r_w,
               no = 1000)
   
-  ## assign friction coefficiant
+  ## assign friction coefficient
   c_w <- ifelse(test = "c_w" %in% names(extraArgs),
               yes = extraArgs$c_w,
               no = 0.5)
+  
+  ## alpha value used for depth effect estimation
+  alpha_val <- ifelse(test = "alpha" %in% names(extraArgs),
+                  yes = extraArgs$alpha,
+                  no = -0.85)
+  
+  ## beta value used for depth effect estimation
+  beta_val <- ifelse(test = "beta" %in% names(extraArgs),
+                 yes = extraArgs$beta,
+                 no = -0.39)
+  
+  ## correct distance to sensor by deployment depth
+  r_0 <- sqrt(r_0^2 + depth^2)
   
   ## ORGANISE ESEIS DATA ------------------------------------------------------
   
@@ -173,6 +191,7 @@ model_turbulence <- function(
                           v_0 = v_0,
                           p_0 = p_0,
                           n_0 = n_0,
+                          depth = depth,
                           res = res,
                           g = g,
                           k = k,
@@ -198,10 +217,10 @@ model_turbulence <- function(
   ## calculate frequency dependent quality factor  
   q_seq <- q_0 * (f_seq / f_0)^e_0
   
-  ## calculate frequency dependent wave phase velocity 
+  ## calculate frequency dependent Rayleigh wave phase velocity 
   v_seq <- v_0 * (f_seq / f_0)^-p_0
   
-  ## calculate frequency dependent wave group velocity 
+  ## calculate frequency dependent group velocity 
   v_u_seq <- v_seq / (1 + p_0)
   
   ## calculate beta
@@ -261,6 +280,17 @@ model_turbulence <- function(
     (g^(7/3)) * 
     (sin(a_w)^(7/3)) * 
     (c_w^2)*(h_w^(7/3))
+  
+  ## Correction for Rayleigh wave particle motion attenuation with depth
+  k_val <- 2 * pi * f_seq / v_seq
+  
+  d_val <- ((147 * exp(beta_val * k_val * depth)) / 100 +  
+              alpha_val * exp(alpha_val * k_val * depth)) /
+    ((147 * exp(beta_val * k_val * 0)) / 100 + 
+       alpha_val * exp(alpha_val * k_val * 0))
+  
+  p <- p * d_val^2
+  ## Correction for Rayleigh wave particle motion attenuation with depth - end
   
   ## create output data frame
   P <- data.frame(frequency = f_seq, 

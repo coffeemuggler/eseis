@@ -93,6 +93,10 @@
 #' displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 
 #' al. (2014) 
 #' 
+#' @param depth \code{Numeric} value, sensor depth below surface (m),
+#' if omitted, default value is \code{0}. Used to account for Rayleigh wave 
+#' amplitude attenuation with depth.
+#' 
 #' @param n_c \code{Numeric} value, option to include single particle hops 
 #' coherent in time, causing spectrum modulation due to secondary effects. 
 #' Omitted is no value is specified, here. Usual values may be between 2 and 
@@ -134,7 +138,7 @@
 #'                            q_0 = 20,
 #'                            e_0 = 0,
 #'                            v_0 = 1295,
-#'                            x_0 = 0.374,
+#'                            p_0 = 0.374,
 #'                            n_0 = 1,
 #'                            res = 100,
 #'                            eseis = TRUE)
@@ -160,7 +164,7 @@
 #'                            q_0 = 20,
 #'                            e_0 = 0,
 #'                            v_0 = 1295,
-#'                            x_0 = 0.374,
+#'                            p_0 = 0.374,
 #'                            n_0 = 1,
 #'                            res = 100,
 #'                            eseis = TRUE)
@@ -209,6 +213,7 @@ model_bedload <- function(
   v_0,
   p_0,
   n_0,
+  depth = 0,
   n_c,
   res = 100,
   adjust = TRUE,
@@ -372,6 +377,19 @@ model_bedload <- function(
     n_c <- NA
   }
   
+  ## alpha value used for depth effect estimation
+  alpha_val <- ifelse(test = "alpha" %in% names(extraArgs),
+                  yes = extraArgs$alpha,
+                  no = -0.85)
+  
+  ## beta value used for depth effect estimation
+  beta_val <- ifelse(test = "beta" %in% names(extraArgs),
+                 yes = extraArgs$beta,
+                 no = -0.39)
+  
+  ## correct distance to sensor by deployment depth
+  r_0 <- sqrt(r_0^2 + depth^2)
+  
   ## ORGANISE ESEIS DATA ------------------------------------------------------
   
   ## get start time
@@ -406,6 +424,7 @@ model_bedload <- function(
                           s_p = s_p,
                           c_1 = c_1,
                           n_c = n_c,
+                          depth = depth,
                           res = 100,
                           eseis = FALSE)
   
@@ -438,7 +457,7 @@ model_bedload <- function(
   ## calculate frequency specific Rayleigh wave velocity
   v_c <- v_0 * (f_i / f_0)^(-p_0)
   
-  ## calculate frequency specific group velovity
+  ## calculate frequency specific group velocity
   v_u <- v_c / (1 + p_0)
   
   ## calculate beta term
@@ -485,7 +504,7 @@ model_bedload <- function(
   ## calculate depth-averaged bed load velocity, Sklar and Dietrich (2004)
   u_b <- 1.56 * sqrt(r_b * g * x_log) * (t_s / t_s_c)^0.56
   
-  ## account for bed load velocities higher than fluid velcoties
+  ## account for bed load velocities higher than fluid velocities
   u_b[u_b > u_m] <- u_m
   
   ## calculate sperical particle volume
@@ -561,6 +580,17 @@ model_bedload <- function(
 
   ## convert list to vector
   z <- do.call(base::c, z)
+
+  ## Correction for Rayleigh wave particle motion attenuation with depth 
+  k_val <- 2 * pi * f_i / v_c
+  
+  d_val <- ((147 * exp(beta_val * k_val * depth)) / 100 +  
+          alpha_val * exp(alpha_val * k_val * depth)) /
+    ((147 * exp(beta_val * k_val * 0)) / 100 + 
+       alpha_val * exp(alpha_val * k_val * 0))
+  
+   z <- z * d_val^2
+   ## Correction for Rayleigh wave particle motion attenuation with depth - end
   
   ## assign data to output object
   P <- data.frame(frequency = f_i,

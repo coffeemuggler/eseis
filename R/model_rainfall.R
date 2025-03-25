@@ -242,13 +242,13 @@ model_rainfall <- function(
     D_velo <- NULL
   }
   
-  ## water density
-  alpha <- ifelse(test = "alpha" %in% names(args),
+  ## alpha value used for depth effect estimation
+  alpha_val <- ifelse(test = "alpha" %in% names(args),
                 yes = args$alpha,
                 no = -0.85)
   
-  ## water density
-  beta <- ifelse(test = "beta" %in% names(args),
+  ## beta value used for depth effect estimation
+  beta_val <- ifelse(test = "beta" %in% names(args),
                 yes = args$beta,
                 no = -0.39)
   
@@ -264,8 +264,6 @@ model_rainfall <- function(
                           p_0 = p_0,
                           e_0 = e_0,
                           n_0 = n_0,
-                          alpha = alpha,
-                          beta = beta,
                           r_s = r_s,
                           f = f,
                           res = res,
@@ -362,8 +360,8 @@ model_rainfall <- function(
                v_0 = v_0,
                r_s = r_s,
                depth = depth,
-               alpha = alpha,
-               beta = beta)
+               alpha_val = alpha_val,
+               beta_val = beta_val)
   
   ## calculate frequency-wise seismic power values
   P <- sapply(X = f_seq, FUN = function(f, pars) {
@@ -391,15 +389,15 @@ model_rainfall <- function(
     G_f <- stats::integrate(f = G, lower = 0, upper = Inf)$value
     
     ### CORRECTED FOR RAYLEIGH WAVE PARTICLE MOTION ATTENUATION WITH DEPTH
-    k <- 2 * pi * f / v_phase
+    k_val <- 2 * pi * f / v_phase
     
-    d <- ((147 * exp(pars$beta * k * pars$depth)) / 100 +  
-            pars$alpha * exp(pars$alpha * k * pars$depth)) /
-      ((147 * exp(pars$beta * k * 0)) / 100 + 
-         pars$alpha * exp(pars$alpha * k * 0))
+    d_val <- ((147 * exp(pars$beta_val * k_val * pars$depth)) / 100 +  
+            pars$alpha_val * exp(pars$alpha_val * k_val * pars$depth)) /
+      ((147 * exp(pars$beta_val * k_val * 0)) / 100 + 
+         pars$alpha_val * exp(pars$alpha * k_val * 0))
     ### CORRECTED FOR RAYLEIGH WAVE PARTICLE MOTION ATTENUATION WITH DEPTH
     
-    P_f <- 8 *pi^3 * f^2 * G_f * d^2
+    P_f <- 8 *pi^3 * f^2 * G_f * d_val^2
     
     ## return frequency-wise seismic power
     return(P_f)
