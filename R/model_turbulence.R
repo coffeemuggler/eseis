@@ -284,10 +284,12 @@ model_turbulence <- function(
   ## Correction for Rayleigh wave particle motion attenuation with depth
   k_val <- 2 * pi * f_seq / v_seq
   
+  depth_ref <- 0 # reference depth, i.e. depth where v_c refers to
+  
   d_val <- ((147 * exp(beta_val * k_val * depth)) / 100 +  
               alpha_val * exp(alpha_val * k_val * depth)) /
-    ((147 * exp(beta_val * k_val * 0)) / 100 + 
-       alpha_val * exp(alpha_val * k_val * 0))
+    ((147 * exp(beta_val * k_val * depth_ref)) / 100 + 
+       alpha_val * exp(alpha_val * k_val * depth_ref))
   
   p <- p * d_val^2
   ## Correction for Rayleigh wave particle motion attenuation with depth - end

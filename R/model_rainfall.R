@@ -391,10 +391,12 @@ model_rainfall <- function(
     ### CORRECTED FOR RAYLEIGH WAVE PARTICLE MOTION ATTENUATION WITH DEPTH
     k_val <- 2 * pi * f / v_phase
     
+    depth_ref <- 0 # reference depth, i.e. depth where v_c refers to
+    
     d_val <- ((147 * exp(pars$beta_val * k_val * pars$depth)) / 100 +  
             pars$alpha_val * exp(pars$alpha_val * k_val * pars$depth)) /
-      ((147 * exp(pars$beta_val * k_val * 0)) / 100 + 
-         pars$alpha_val * exp(pars$alpha * k_val * 0))
+      ((147 * exp(pars$beta_val * k_val * depth_ref)) / 100 + 
+         pars$alpha_val * exp(pars$alpha * k_val * depth_ref))
     ### CORRECTED FOR RAYLEIGH WAVE PARTICLE MOTION ATTENUATION WITH DEPTH
     
     P_f <- 8 *pi^3 * f^2 * G_f * d_val^2
