@@ -21,6 +21,7 @@ model_bedload(
   v_0,
   p_0,
   n_0,
+  depth = 0,
   n_c,
   res = 100,
   adjust = TRUE,
@@ -80,6 +81,10 @@ supported for compatibility reasons, only giving a warning.}
 \item{n_0}{\code{Numeric} vector of length two, Greens function 
 displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 
 al. (2014)}
+
+\item{depth}{\code{Numeric} value, sensor depth below surface (m),
+if omitted, default value is \code{0}. Used to account for Rayleigh wave 
+amplitude attenuation with depth.}
 
 \item{n_c}{\code{Numeric} value, option to include single particle hops 
 coherent in time, causing spectrum modulation due to secondary effects. 
@@ -157,7 +162,7 @@ p_bedload <- model_bedload(d_s = 0.7,
                            q_0 = 20,
                            e_0 = 0,
                            v_0 = 1295,
-                           x_0 = 0.374,
+                           p_0 = 0.374,
                            n_0 = 1,
                            res = 100,
                            eseis = TRUE)
@@ -183,7 +188,7 @@ p_bedload <- model_bedload(gsd = gsd_empiric,
                            q_0 = 20,
                            e_0 = 0,
                            v_0 = 1295,
-                           x_0 = 0.374,
+                           p_0 = 0.374,
                            n_0 = 1,
                            res = 100,
                            eseis = TRUE)

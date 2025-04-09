@@ -18,8 +18,9 @@ model_turbulence(
   v_0,
   p_0,
   n_0,
-  res = 1000,
-  eseis = FALSE,
+  depth = 0,
+  res = 100,
+  eseis = TRUE,
   ...
 )
 }
@@ -59,6 +60,10 @@ velocities with frequency (dimensionless)}
 \item{n_0}{\code{Numeric} vector of length two, Greens function 
 displacement amplitude coefficients. Cf. N_ij in eq. 36 in Gimbert et 
 al. (2014)}
+
+\item{depth}{\code{Numeric} value, sensor depth below surface (m),
+if omitted, default value is \code{0}. Used to account for Rayleigh wave 
+amplitude attenuation with depth.}
 
 \item{res}{\code{Numeric} value, output resolution, i.e. length of the 
 spectrum vector. Default is 1000.}
