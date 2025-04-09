@@ -18,8 +18,8 @@
 #' files to be processed are stored.
 #' 
 #' @param output \code{Character} value, path to directory where output data is 
-#' written. It is not recommended to use the same directory for output and 
-#' input, as files may be overwritten unintentionally.
+#' written. This should be the same as input when files are to be replaced, 
+#' i.e. overwritten or deleted (see argument \code{delete_input}).
 #' 
 #' @param ID_in \code{Character} vector with the IDs of the stations that 
 #' will be changed. Note that for every channel of the input data, the 
@@ -34,6 +34,9 @@
 #' 
 #' @param component_out \code{Character} vector with the components of the 
 #' output stations.
+#' 
+#' @param delete_input \code{Logical} value, option to delete input files 
+#' after successful conversion. Default is \code{TRUE}.
 #' 
 #' @param gipptools \code{Character} value, path to gipptools or 
 #' cubetools directory. Only needed when mseed files are processed
@@ -71,6 +74,7 @@ aux_splitcubechannels <- function(
   component_in,
   ID_out,
   component_out,
+  delete_input = TRUE,
   gipptools
   
 ) {
@@ -250,5 +254,12 @@ aux_splitcubechannels <- function(
                                 " > ", paste0(output, file_out_i))))
       }
     }
+    
+    ## optionally delete input file
+    if(delete_input == TRUE & file_out_i != files_in[i]) {
+      
+      invisible(unlink(paste0(input, files_in[i]), recursive = TRUE))
+    }
+    
   }
 }

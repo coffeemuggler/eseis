@@ -11,6 +11,7 @@ aux_splitcubechannels(
   component_in,
   ID_out,
   component_out,
+  delete_input = TRUE,
   gipptools
 )
 }
@@ -19,8 +20,8 @@ aux_splitcubechannels(
 files to be processed are stored.}
 
 \item{output}{\code{Character} value, path to directory where output data is 
-written. It is not recommended to use the same directory for output and 
-input, as files may be overwritten unintentionally.}
+written. This should be the same as input when files are to be replaced, 
+i.e. overwritten or deleted (see argument \code{delete_input}).}
 
 \item{ID_in}{\code{Character} vector with the IDs of the stations that 
 will be changed. Note that for every channel of the input data, the 
@@ -35,6 +36,9 @@ corresponding to the input stations and components.}
 
 \item{component_out}{\code{Character} vector with the components of the 
 output stations.}
+
+\item{delete_input}{\code{Logical} value, option to delete input files 
+after successful conversion. Default is \code{TRUE}.}
 
 \item{gipptools}{\code{Character} value, path to gipptools or 
 cubetools directory. Only needed when mseed files are processed}
