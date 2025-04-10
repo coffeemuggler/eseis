@@ -253,13 +253,13 @@ aux_splitcubechannels <- function(
                                 " ", paste0(input, files_in[i]),
                                 " > ", paste0(output, file_out_i))))
       }
-    }
-    
-    ## optionally delete input file
-    if(delete_input == TRUE & file_out_i != files_in[i]) {
       
-      invisible(unlink(paste0(input, files_in[i]), recursive = TRUE))
+      ## optionally delete input file
+      if(delete_input == TRUE & file_out_i != files_in[i]) {
+        
+        try(invisible(unlink(paste0(input, files_in[i]), recursive = TRUE)),
+            silent = TRUE)
+      }
     }
-    
   }
 }
