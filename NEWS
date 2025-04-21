@@ -1,6 +1,8 @@
 Changes for R-package eseis
 
 Version 0.9.0 (t.b.d)
+  - read_fdsn(), error handling added for case that no file is downloaded
+  - read_fdsn(), option added to return only download link
   - aux_splitcubechannels(), option added to delete source files after conversion
   - functions enhanced, model_bedload(), model_trubulence(), depth parameter added
   - libmseed pruned and cleared from unconform code due to CRAN policy

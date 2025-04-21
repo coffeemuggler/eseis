@@ -42,6 +42,10 @@
 #' \code{url = c("http://service.iris.edu", "http://eida-federator.ethz.ch")}. 
 #' See details for further information.
 #' 
+#' @param link \code{Logical} value, option to only print the FDSN file link
+#' string instead of downloading and importing the mseed data file. Default 
+#' is \code{FALSE}.
+#' 
 #' @param eseis \code{Logical} value, option to read data to an \code{eseis}
 #' object (recommended, see documentation of 
 #' \code{aux_initiateeseis}), default is \code{TRUE}
@@ -88,6 +92,7 @@ read_fdsn <- function(
   network,
   component = "BHZ",
   url,
+  link = FALSE,
   eseis = TRUE,
   ...
   
@@ -156,6 +161,12 @@ read_fdsn <- function(
     url <- c("http://service.iris.edu", "http://eida-federator.ethz.ch")
   }
   
+  ## check/set eseis flag
+  if(link == TRUE) {
+    
+    eseis <- FALSE
+  }
+  
   ## make parameter list
   pars <- list(network = network, 
                station = station, 
@@ -194,28 +205,58 @@ read_fdsn <- function(
                       "endtime=", format(stop, "%Y-%m-%dT%H:%M:%S"), "&",
                       "channel=", component, "&")
     
-    ## create temporary file name
-    f_temp <- paste0(tempdir(), "/", 
-                     "temp_eseis_", 
-                     format(Sys.time(), "%Y-%m-%d-%H-%M-%S_"), 
-                     round(x = runif(n = 1, min = 1000000, max = 9999999), 
-                           digits = 0), 
-                     ".mseed")
+    ## check url for validity
+    url_get <- gsub(x = url_get,
+                    pattern = "://", 
+                    replacement = "HALLOBALLO",
+                    fixed = TRUE)
+    url_get <- gsub(x = url_get,
+                    pattern = "//", 
+                    replacement = "/", 
+                    fixed = TRUE)
+    url_get <- gsub(x = url_get,
+                    pattern = "HALLOBALLO", 
+                    replacement = "://", 
+                    fixed = TRUE)
     
-    ## download file
-    s_tmp <- try(utils::download.file(url = url_get, quiet = TRUE, 
-                                      destfile = f_temp), 
-                 silent = TRUE)
-    
-    ## read downloaded file
-    s <- suppressWarnings(try(eseis::read_mseed(file = f_temp), 
-                              silent = TRUE))
-    
-    ## remove temporary file
-    try(if(file.exists(f_temp) == TRUE) {
+        
+    ## optionally return link
+    if(link == TRUE) {
       
-      invisible(unlink(f_temp))
-    }, silent = TRUE)
+      return(url_get)
+    } else {
+      
+      ## create temporary file name
+      f_temp <- paste0(tempdir(), "/", 
+                       "temp_eseis_", 
+                       format(Sys.time(), "%Y-%m-%d-%H-%M-%S_"), 
+                       round(x = runif(n = 1, min = 1000000, max = 9999999), 
+                             digits = 0), 
+                       ".mseed")
+      
+      ## download file
+      s_tmp <- try(utils::download.file(url = url_get, quiet = TRUE, 
+                                        destfile = f_temp), 
+                   silent = TRUE)
+      
+      ## check if file is not empty
+      try(if(file.exists(f_temp) == TRUE) {
+        
+        ## read downloaded file
+        s <- suppressWarnings(try(eseis::read_mseed(file = f_temp), 
+                                  silent = TRUE))
+      } else {
+        
+        ## assign NA value
+        s <- NA
+      }, silent = TRUE)
+      
+      ## remove temporary file
+      try(if(file.exists(f_temp) == TRUE) {
+        
+        invisible(unlink(f_temp))
+      }, silent = TRUE)
+    }
     
     ## return output
     return(s)
@@ -224,13 +265,13 @@ read_fdsn <- function(
   ## remove empty list elements
   i_ok <- do.call(c, lapply(X = s, FUN = function(s) {
     
-    class(s)[1] == "eseis"
+    class(s)[1] == "eseis" | class(s)[1] == "character"
   }))
   s <- s[i_ok]
   s <- s[[1]]
   
   ## optionally remove eseis object structure
-  if(eseis == FALSE) {
+  if(eseis == FALSE & link == FALSE) {
     
     s <- list(signal = s$signal, 
               time = seq(from = s$meta$starttime, 

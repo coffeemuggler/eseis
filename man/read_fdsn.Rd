@@ -11,6 +11,7 @@ read_fdsn(
   network,
   component = "BHZ",
   url,
+  link = FALSE,
   eseis = TRUE,
   ...
 )
@@ -36,6 +37,10 @@ parts. URLs can be submitted as a vector. If omitted, the function will
 look in the two most comprehensive providers, i.e. 
 \code{url = c("http://service.iris.edu", "http://eida-federator.ethz.ch")}. 
 See details for further information.}
+
+\item{link}{\code{Logical} value, option to only print the FDSN file link
+string instead of downloading and importing the mseed data file. Default 
+is \code{FALSE}.}
 
 \item{eseis}{\code{Logical} value, option to read data to an \code{eseis}
 object (recommended, see documentation of 
