@@ -48,6 +48,12 @@ aux_eseisobspy <- function(
   
 ) {
   
+  ## check if reticulate is installed
+  if (requireNamespace("reticulate", quietly = TRUE) == FALSE) {
+    
+    stop("Package reticulate is not installed, function not available!")
+  }
+  
   ## check if input data is obspy stream object
   if(class(data)[1] != "eseis") {
     

@@ -57,6 +57,12 @@ aux_obspyeseis <- function(
   
 ) {
   
+  ## check if reticulate is installed
+  if (requireNamespace("reticulate", quietly = TRUE) == FALSE) {
+    
+    stop("Package reticulate is not installed, function not available!")
+  }
+  
   ## collect function arguments
   eseis_arguments <- list(data = data)
   
