@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.9.0 (t.b.d)
+  - aux_picknetwork(), bug fixed, freeze-option provided with default value
   - read_fdsn(), error handling added for case that no file is downloaded
   - read_fdsn(), option added to return only download link
   - aux_splitcubechannels(), option added to delete source files after conversion

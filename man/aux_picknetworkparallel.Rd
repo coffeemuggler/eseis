@@ -18,7 +18,7 @@ aux_picknetworkparallel(
   lta,
   on,
   off,
-  freeze,
+  freeze = TRUE,
   dur_min,
   dur_max,
   n_common,

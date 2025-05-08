@@ -203,7 +203,7 @@ aux_picknetworkparallel <- function(
   lta,
   on,
   off,
-  freeze,
+  freeze = TRUE,
   dur_min,
   dur_max,
   n_common,
