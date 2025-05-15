@@ -1,10 +1,20 @@
 #' Plot a correlogram from noise cross correlation analysis
 #' 
-#' The function uses the output of \code{ncc_correlate()} to show an  
-#' image plot of a noise cross correlation analysis.
+#' The function uses the output of \code{ncc_correlate()} to show a 
+#' compound plot with a time averaged correlation function and its 
+#' inter-quartile range polygon next to an image plot of a noise cross 
+#' correlation functions resolved by time. The geometric ratio of the two
+#' plots can be controlled, and each plot can also be omitted entirely. 
 #' 
 #' @param data \code{List} object, spectrogram to be plotted. Must be output
 #' of \code{ncc_correlate()} or of equivalent structure.
+#' 
+#' @param ratio \code{Numeric} value, ratio of the space that is taken by 
+#' the averaged correlation function in favour of the correlogram. Default
+#' is \code{0.3} (30 percent width allocated to averaged correlation 
+#' function, and 70 % allocated to the correlogram). If set to \cdoe{0}, 
+#' only the correlogram is plotted. If set to \code{1}, only the correlation
+#' function is plotted.
 #' 
 #' @param agg \code{Integer} vector of length two, factors of image 
 #' aggregation, i.e. in time and lag dimension. Useful to decrease 
@@ -52,12 +62,19 @@
 #'    
 #'    ## simple function call with user-defined colour scale
 #'    plot(cc, col = cls(100))
+#'    
+#'    ## show plot without time averaged correlation data
+#'    plot(cc, ratio = 0)
+#'    
+#'    ## show plot without time resolved correlation data
+#'    plot(cc, ratio = 1)
 #' }
 #'
 #' @export plot_correlogram
 
 plot_correlogram <- function(
     data,
+    ratio = 0.3, 
     agg = c(1, 1),
     legend = TRUE,
     keep_par = FALSE,
@@ -174,6 +191,7 @@ plot_correlogram <- function(
     }
   }
   
+  ## replace values beyond limits by limit values
   data$CC$CC[data$CC$CC < zlim_cc[1]] <- zlim_cc[1]
   data$CC$CC[data$CC$CC > zlim_cc[2]] <- zlim_cc[2]
   
@@ -190,34 +208,112 @@ plot_correlogram <- function(
                  to = length(data$CC$lag),
                  by = agg[2])
   
+  ## calculate correlation function quantiles
+  cf_q1 <- apply(X = data$CC$CC, 1, FUN = quantile, p = 0.25)
+  cf_q2 <- apply(X = data$CC$CC, 1, FUN = quantile, p = 0.50)
+  cf_q3 <- apply(X = data$CC$CC, 1, FUN = quantile, p = 0.75)
+  
+  ## get old plot margins
+  mai_in <- graphics::par()$mai
+  
   if(legend == FALSE) {
     
-    ## plot image map of PSD
-    do.call(what = graphics::image, 
-            args = c(list(x = data$CC$t[t_out], 
-                          y = data$CC$lag[lag_out], 
-                          z = t(data$CC$CC[lag_out, t_out]), 
-                          col = col,
-                          axes = FALSE,
-                          main = main,
-                          xlab = xlab,
-                          ylab = ylab,
-                          zlim = zlim_cc), 
-                     args))
-    
-    ## optionally add axes
-    if(axes == TRUE) {
+    if(ratio == 0) {
       
-      graphics::axis.POSIXct(side = 1, 
-                             x = data$CC$t[t_out], 
-                             format = format)
+      ## plot image map of PSD
+      do.call(what = graphics::image, 
+              args = c(list(x = data$CC$t[t_out], 
+                            y = data$CC$lag[lag_out], 
+                            z = t(data$CC$CC[lag_out, t_out]), 
+                            col = col,
+                            axes = FALSE,
+                            main = main,
+                            xlab = xlab,
+                            ylab = ylab,
+                            zlim = zlim_cc), 
+                       args))
       
-      graphics::axis(side = 2)
+      ## optionally add axes
+      if(axes == TRUE) {
+        
+        graphics::axis.POSIXct(side = 1, 
+                               x = data$CC$t[t_out], 
+                               format = format)
+        
+        graphics::axis(side = 2)
+      }
+      
+      ## add box
+      box(which = "plot")
+      
+    } else if(ratio == 1) {
+      
+      ## plot average correlation function with quantile range polygon
+      par(yaxs = "i")
+      plot(NA, xlim = zlim_cc, ylim = ylim, xlab = zlab, ylab = ylab)
+      polygon(x = c(cf_q1, rev(cf_q3)), 
+              y = c(data$CC$lag[lag_out], 
+                    rev(data$CC$lag[lag_out])), 
+              border = NA, 
+              col = "grey70")
+      lines(x = cf_q2, y = data$CC$lag[lag_out])
+      
+    } else {
+      
+      ## save and set plot margins
+      mar_old <- par()$mar
+      mar_a <- mar_old
+      mar_a[4] <- 0.25
+      mar_b <- mar_old
+      mar_b[2] <- 0.25
+      
+      layout(mat = rbind(c(rep(1, round(ratio * 100)),
+                         rep(2, round(100 - ratio * 100)))))
+      par(mar = mar_a)
+
+      ## plot average correlation function with quantile range polygon
+      par(yaxs = "i")
+      plot(NA, xlim = zlim_cc, ylim = ylim, xlab = zlab, ylab = ylab)
+      polygon(x = c(cf_q1, rev(cf_q3)), 
+              y = c(data$CC$lag[lag_out], 
+                    rev(data$CC$lag[lag_out])), 
+              border = NA, 
+              col = "grey70")
+      lines(x = cf_q2, y = data$CC$lag[lag_out])
+      
+      par(mar = mar_b)
+      
+      ## plot image map of PSD
+      do.call(what = graphics::image, 
+              args = c(list(x = data$CC$t[t_out], 
+                            y = data$CC$lag[lag_out], 
+                            z = t(data$CC$CC[lag_out, t_out]), 
+                            col = col,
+                            axes = FALSE,
+                            ann = FALSE,
+                            main = main,
+                            xlab = xlab,
+                            zlim = zlim_cc), 
+                       args))
+      
+      ## optionally add axes
+      if(axes == TRUE) {
+        
+        graphics::axis.POSIXct(side = 1, 
+                               x = data$CC$t[t_out], 
+                               format = format)
+        mtext(text = xlab, side = 1, line = 3, cex = par()$cex * 1)
+      }
+      
+      ## add box
+      box(which = "plot")
+      
+      ## reset plot layout
+      layout(mat = cbind(1))
+      par(new = TRUE, mar = mar_old)
+      plot(NA, xlim = c(0, 1), ylim = c(0,1), axes = FALSE, ann = FALSE)
+      title(main = main, line = 2)
     }
-    
-    ## add box
-    box(which = "plot")
-    
   } else {
     
     ## get maximum number of characters
@@ -232,110 +328,246 @@ plot_correlogram <- function(
     ## calculate space needed for legend
     legend_space <- 4 * line_height + legend_width
     
-    ## get old plot margins
-    mai_in <- graphics::par()$mai
+    ## assign new plot margins
     mai_new <- mai_in
     
     ## adjust plot margins
     mai_new[4] <- legend_space
     graphics::par(mai = mai_new)
     
-    ## plot image map of PSD
-    do.call(what = graphics::image, 
-            args = c(list(x = data$CC$t[t_out], 
-                          y = data$CC$lag[lag_out], 
-                          z = t(data$CC$CC[lag_out, t_out]), 
-                          axes = FALSE,
-                          col = col,
-                          main = main,
-                          xlab = xlab,
-                          ylab = ylab,
-                          zlim = zlim_cc), 
-                     args))
-    
-    ## add box
-    box(which = "plot")
-    
-    ## optionally add axes
-    if(axes == TRUE) {
+    if(ratio == 0) {
       
-      graphics::axis.POSIXct(side = 1, 
-                             x = data$CC$t[t_out], 
-                             format = format)
+      ## plot image map of PSD
+      do.call(what = graphics::image, 
+              args = c(list(x = data$CC$t[t_out], 
+                            y = data$CC$lag[lag_out], 
+                            z = t(data$CC$CC[lag_out, t_out]), 
+                            axes = FALSE,
+                            col = col,
+                            xlab = xlab,
+                            ylab = ylab,
+                            zlim = zlim_cc), 
+                       args))
       
-      graphics::axis(side = 2)
+      ## add box
+      box(which = "plot")
+      
+      ## optionally add axes
+      if(axes == TRUE) {
+        
+        graphics::axis.POSIXct(side = 1, 
+                               x = data$CC$t[t_out], 
+                               format = format)
+      }
+      
+      ## allow overplotting
+      xpd_in <- graphics::par()$xpd
+      graphics::par(xpd = TRUE)
+      
+      ## add empty dummy plot for legend placement
+      par(new = TRUE)
+      image(x = data$CC$t[t_out], 
+            y = data$CC$lag[lag_out], 
+            z = t(data$CC$CC[lag_out, t_out]), 
+            axes = FALSE, ann = FALSE, col = NA)
+      
+      ## define coordinates for colour scale bar
+      x_0 <- graphics::par()$usr[2] + 0.5 * graphics::par()$cxy[1]
+      x_1 <- graphics::par()$usr[2] + 1.5 * graphics::par()$cxy[1]
+      y_0 <- graphics::par()$usr[3]
+      y_1 <- graphics::par()$usr[4]
+      
+      ## define colour scale bar increment
+      d_y <- (y_1 - y_0) / length(col)
+      
+      ## define colour scale bar polygons
+      polygons <- matrix(nrow = length(col), ncol = 8)
+      polygons <- cbind(rep(x = x_0, times = length(col)),
+                        rep(x = x_0, times = length(col)),
+                        rep(x = x_1, times = length(col)),
+                        rep(x = x_1, times = length(col)),
+                        seq(from = y_0, to = y_1 - d_y, by = d_y),
+                        seq(from = y_0 + d_y, to = y_1, by = d_y),
+                        seq(from = y_0 + d_y, to = y_1, by = d_y),
+                        seq(from = y_0, to = y_1 - d_y, by = d_y))
+      
+      ## convert to y-scale
+      y_ticks <- approx(x = range(zlim_cc), 
+                        y = c(y_0, y_1), 
+                        xout = legend_values)$y
+      
+      ## draw legend bar
+      for(i in 1:nrow(polygons)) {
+        graphics::polygon(x = polygons[i,1:4], 
+                          y = polygons[i,5:8], 
+                          border = NA, 
+                          col = col[i])
+      }
+      
+      ## draw polygon around colour scale bar
+      graphics::polygon(x = c(x_0, x_0, x_1, x_1),
+                        y = c(y_0, y_1, y_1, y_0))
+      
+      ## draw z-axis
+      graphics::lines(x = c(x_1, x_1), 
+                      y = c(y_0, y_1))
+      
+      ## draw z-axis ticks and labels
+      for(i in 1:length(legend_values)) {
+        
+        graphics::lines(x = c(x_1,
+                              x_1 + 0.7 * graphics::par()$cxy[1]), 
+                        y = rep(y_ticks[i], 2))
+        
+        graphics::text(x = x_1 + 1.5 * graphics::par()$cxy[1], 
+                       y = y_ticks[i], 
+                       adj = c(0, 0.5), 
+                       labels = legend_values[i])
+      }
+      
+      ## add z-axis label
+      graphics::mtext(side = 4, line = 5, text = zlab)
+      
+      ## restore overplotting option
+      graphics::par(xpd = xpd_in)
+      
+    } else if(ratio == 1) {
+      
+      ## plot average correlation function with quantile range polygon
+      par(yaxs = "i")
+      plot(NA, xlim = zlim_cc, ylim = ylim, xlab = zlab, ylab = ylab)
+      polygon(x = c(cf_q1, rev(cf_q3)), 
+              y = c(data$CC$lag[lag_out], 
+                    rev(data$CC$lag[lag_out])), 
+              border = NA, 
+              col = "grey70")
+      lines(x = cf_q2, y = data$CC$lag[lag_out])
+      
+    } else {
+      
+      ## save and set plot margins
+      mar_old <- par()$mar
+      mar_a <- mar_old
+      mar_a[4] <- 0.25
+      mar_b <- mar_old
+      mar_b[2] <- 0.25
+      
+      layout(mat = rbind(c(rep(1, round(ratio * 100)),
+                           rep(2, round(100 - ratio * 100)))))
+      par(mar = mar_a)
+      
+      ## plot average correlation function with quantile range polygon
+      par(yaxs = "i")
+      plot(NA, xlim = zlim_cc, ylim = ylim, xlab = zlab, ylab = ylab)
+      polygon(x = c(cf_q1, rev(cf_q3)), 
+              y = c(data$CC$lag[lag_out], 
+                    rev(data$CC$lag[lag_out])), 
+              border = NA, 
+              col = "grey70")
+      lines(x = cf_q2, y = data$CC$lag[lag_out])
+      
+      par(mar = mar_b)
+      
+      ## plot image map of PSD
+      do.call(what = graphics::image, 
+              args = c(list(x = data$CC$t[t_out], 
+                            y = data$CC$lag[lag_out], 
+                            z = t(data$CC$CC[lag_out, t_out]), 
+                            axes = FALSE,
+                            col = col,
+                            xlab = xlab,
+                            ylab = ylab,
+                            zlim = zlim_cc), 
+                       args))
+      
+      ## add box
+      box(which = "plot")
+      
+      ## optionally add axes
+      if(axes == TRUE) {
+        
+        graphics::axis.POSIXct(side = 1, 
+                               x = data$CC$t[t_out], 
+                               format = format)
+      }
+      
+      ## allow overplotting
+      xpd_in <- graphics::par()$xpd
+      graphics::par(xpd = TRUE)
+      
+      ## add empty dummy plot for legend placement
+      par(new = TRUE)
+      image(x = data$CC$t[t_out], 
+            y = data$CC$lag[lag_out], 
+            z = t(data$CC$CC[lag_out, t_out]), 
+            axes = FALSE, ann = FALSE, col = NA)
+      
+      ## define coordinates for colour scale bar
+      x_0 <- graphics::par()$usr[2] + 0.5 * graphics::par()$cxy[1]
+      x_1 <- graphics::par()$usr[2] + 1.5 * graphics::par()$cxy[1]
+      y_0 <- graphics::par()$usr[3]
+      y_1 <- graphics::par()$usr[4]
+      
+      ## define colour scale bar increment
+      d_y <- (y_1 - y_0) / length(col)
+      
+      ## define colour scale bar polygons
+      polygons <- matrix(nrow = length(col), ncol = 8)
+      polygons <- cbind(rep(x = x_0, times = length(col)),
+                        rep(x = x_0, times = length(col)),
+                        rep(x = x_1, times = length(col)),
+                        rep(x = x_1, times = length(col)),
+                        seq(from = y_0, to = y_1 - d_y, by = d_y),
+                        seq(from = y_0 + d_y, to = y_1, by = d_y),
+                        seq(from = y_0 + d_y, to = y_1, by = d_y),
+                        seq(from = y_0, to = y_1 - d_y, by = d_y))
+      
+      ## convert to y-scale
+      y_ticks <- approx(x = range(zlim_cc), 
+                        y = c(y_0, y_1), 
+                        xout = legend_values)$y
+      
+      ## draw legend bar
+      for(i in 1:nrow(polygons)) {
+        graphics::polygon(x = polygons[i,1:4], 
+                          y = polygons[i,5:8], 
+                          border = NA, 
+                          col = col[i])
+      }
+      
+      ## draw polygon around colour scale bar
+      graphics::polygon(x = c(x_0, x_0, x_1, x_1),
+                        y = c(y_0, y_1, y_1, y_0))
+      
+      ## draw z-axis
+      graphics::lines(x = c(x_1, x_1), 
+                      y = c(y_0, y_1))
+      
+      ## draw z-axis ticks and labels
+      for(i in 1:length(legend_values)) {
+        
+        graphics::lines(x = c(x_1,
+                              x_1 + 0.7 * graphics::par()$cxy[1]), 
+                        y = rep(y_ticks[i], 2))
+        
+        graphics::text(x = x_1 + 1.5 * graphics::par()$cxy[1], 
+                       y = y_ticks[i], 
+                       adj = c(0, 0.5), 
+                       labels = legend_values[i])
+      }
+      
+      ## add z-axis label
+      graphics::mtext(side = 4, line = 5, text = zlab)
+      
+      ## restore overplotting option
+      graphics::par(xpd = xpd_in)
+      
+      ## reset plot layout
+      layout(mat = cbind(1))
+      par(new = TRUE, mar = mar_old)
+      plot(NA, xlim = c(0, 1), ylim = c(0,1), axes = FALSE, ann = FALSE)
+      title(main = main, line = 2)
     }
-    
-    ## allow overplotting
-    xpd_in <- graphics::par()$xpd
-    graphics::par(xpd = TRUE)
-    
-    ## add empty dummy plot for legend placement
-    par(new = TRUE)
-    image(x = data$CC$t[t_out], 
-          y = data$CC$lag[lag_out], 
-          z = t(data$CC$CC[lag_out, t_out]), 
-          axes = FALSE, ann = FALSE, col = NA)
-    
-    ## define coordinates for colour scale bar
-    x_0 <- graphics::par()$usr[2] + 0.5 * graphics::par()$cxy[1]
-    x_1 <- graphics::par()$usr[2] + 1.5 * graphics::par()$cxy[1]
-    y_0 <- graphics::par()$usr[3]
-    y_1 <- graphics::par()$usr[4]
-    
-    ## define colour scale bar increment
-    d_y <- (y_1 - y_0) / length(col)
-    
-    ## define colour scale bar polygons
-    polygons <- matrix(nrow = length(col), ncol = 8)
-    polygons <- cbind(rep(x = x_0, times = length(col)),
-                      rep(x = x_0, times = length(col)),
-                      rep(x = x_1, times = length(col)),
-                      rep(x = x_1, times = length(col)),
-                      seq(from = y_0, to = y_1 - d_y, by = d_y),
-                      seq(from = y_0 + d_y, to = y_1, by = d_y),
-                      seq(from = y_0 + d_y, to = y_1, by = d_y),
-                      seq(from = y_0, to = y_1 - d_y, by = d_y))
-    
-    ## convert to y-scale
-    y_ticks <- approx(x = range(zlim_cc), 
-                      y = c(y_0, y_1), 
-                      xout = legend_values)$y
-    
-    ## draw legend bar
-    for(i in 1:nrow(polygons)) {
-      graphics::polygon(x = polygons[i,1:4], 
-                        y = polygons[i,5:8], 
-                        border = NA, 
-                        col = col[i])
-    }
-    
-    ## draw polygon around colour scale bar
-    graphics::polygon(x = c(x_0, x_0, x_1, x_1),
-                      y = c(y_0, y_1, y_1, y_0))
-    
-    ## draw z-axis
-    graphics::lines(x = c(x_1, x_1), 
-                    y = c(y_0, y_1))
-    
-    ## draw z-axis ticks and labels
-    for(i in 1:length(legend_values)) {
-      
-      graphics::lines(x = c(x_1,
-                            x_1 + 0.7 * graphics::par()$cxy[1]), 
-                      y = rep(y_ticks[i], 2))
-      
-      graphics::text(x = x_1 + 1.5 * graphics::par()$cxy[1], 
-                     y = y_ticks[i], 
-                     adj = c(0, 0.5), 
-                     labels = legend_values[i])
-    }
-    
-    ## add z-axis label
-    graphics::mtext(side = 4, line = 5, text = zlab)
-    
-    ## restore overplotting option
-    graphics::par(xpd = xpd_in)
     
     ## optionally restore initial plot parameters
     if(keep_par == FALSE) {

@@ -4,11 +4,25 @@
 \alias{plot_correlogram}
 \title{Plot a correlogram from noise cross correlation analysis}
 \usage{
-plot_correlogram(data, agg = c(1, 1), legend = TRUE, keep_par = FALSE, ...)
+plot_correlogram(
+  data,
+  ratio = 0.3,
+  agg = c(1, 1),
+  legend = TRUE,
+  keep_par = FALSE,
+  ...
+)
 }
 \arguments{
 \item{data}{\code{List} object, spectrogram to be plotted. Must be output
 of \code{ncc_correlate()} or of equivalent structure.}
+
+\item{ratio}{\code{Numeric} value, ratio of the space that is taken by 
+the averaged correlation function in favour of the correlogram. Default
+is \code{0.3} (30 percent width allocated to averaged correlation 
+function, and 70 % allocated to the correlogram). If set to \cdoe{0}, 
+only the correlogram is plotted. If set to \code{1}, only the correlation
+function is plotted.}
 
 \item{agg}{\code{Integer} vector of length two, factors of image 
 aggregation, i.e. in time and lag dimension. Useful to decrease 
@@ -27,8 +41,11 @@ plot. Default is \code{FALSE} (parameters are reset to original values).}
 Graphic output of a correlogram.
 }
 \description{
-The function uses the output of \code{ncc_correlate()} to show an  
-image plot of a noise cross correlation analysis.
+The function uses the output of \code{ncc_correlate()} to show a 
+compound plot with a time averaged correlation function and its 
+inter-quartile range polygon next to an image plot of a noise cross 
+correlation functions resolved by time. The geometric ratio of the two
+plots can be controlled, and each plot can also be omitted entirely.
 }
 \examples{
 
@@ -55,6 +72,12 @@ image plot of a noise cross correlation analysis.
    
    ## simple function call with user-defined colour scale
    plot(cc, col = cls(100))
+   
+   ## show plot without time averaged correlation data
+   plot(cc, ratio = 0)
+   
+   ## show plot without time resolved correlation data
+   plot(cc, ratio = 1)
 }
 
 }
