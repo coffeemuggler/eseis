@@ -1,7 +1,10 @@
 Changes for R-package eseis
 
 Version 0.9.0 (t.b.d)
-  - plot_correlogram(), feature added, compount plot with average ccf
+  - documentation updated, ncc_correlate(), ncc_stretch(), plot_correlogram()
+  - ncc_stretch(), overhaul and bugfixes
+  - function added, plot_dvv()
+  - plot_correlogram(), feature added, compound plot with average ccf
   - aux_picknetwork(), bug fixed, freeze-option provided with default value
   - read_fdsn(), error handling added for case that no file is downloaded
   - read_fdsn(), option added to return only download link

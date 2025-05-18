@@ -79,7 +79,7 @@ signal_spectrum <- function(
     dt <- NULL
   }
   
-  ## check/set dt
+  ## check/set n
   if(missing(n) == TRUE) {
     
     n <- NULL

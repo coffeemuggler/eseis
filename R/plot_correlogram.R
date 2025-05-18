@@ -12,13 +12,13 @@
 #' @param ratio \code{Numeric} value, ratio of the space that is taken by 
 #' the averaged correlation function in favour of the correlogram. Default
 #' is \code{0.3} (30 percent width allocated to averaged correlation 
-#' function, and 70 % allocated to the correlogram). If set to \cdoe{0}, 
+#' function, and 70 percent allocated to the correlogram). If set to \code{0}, 
 #' only the correlogram is plotted. If set to \code{1}, only the correlation
 #' function is plotted.
 #' 
-#' @param agg \code{Integer} vector of length two, factors of image 
-#' aggregation, i.e. in time and lag dimension. Useful to decrease 
-#' image size. Default is \code{c(1, 1)} (no aggregation).
+#' @param agg \code{Integer} value, factor of image aggregation in time.
+#' Useful to decrease image size and increase plotting speed especially for 
+#' long data sets. Default is \code{1} (no aggregation).
 #' 
 #' @param legend \code{Logical} value, option to add colour bar legend. Legend
 #' label can be changed by \code{zlab}.
@@ -45,6 +45,7 @@
 #'   cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
 #'                        stop = "2017-04-09 01:30:00", 
 #'                        ID = c("RUEG1", "RUEG2"), 
+#'                        dt = 1/10,
 #'                        component = c("Z", "Z"), 
 #'                        dir = paste0(system.file("extdata", 
 #'                                     package = "eseis"), "/"), 
@@ -54,8 +55,8 @@
 #'                        f = c(0.05, 0.1), 
 #'                        sd = 1)
 #'                        
-#'    ## explicit plot function call with adjusted resolution
-#'    plot_correlogram(data = cc, agg = c(2, 5))
+#'    ## explicit plot function call with adjusted time resolution
+#'    plot_correlogram(data = cc, agg = 2)
 #'    
 #'    ## define plot colour scale
 #'    cls <- colorRampPalette(colors = c("brown", "white", "green"))
@@ -75,7 +76,7 @@
 plot_correlogram <- function(
     data,
     ratio = 0.3, 
-    agg = c(1, 1),
+    agg = 1,
     legend = TRUE,
     keep_par = FALSE,
     ...
@@ -123,7 +124,6 @@ plot_correlogram <- function(
   } else {
     
     col_pal <- colorRampPalette(colors = c("blue", "grey", "orange"))
-    
     col <- col_pal(200)
   }
   
@@ -153,7 +153,6 @@ plot_correlogram <- function(
   } else {
     
     zlim_cc <- c(-1, 1)
-    
     legend_values <- pretty(zlim_cc, na.rm = TRUE)
     
   }
@@ -198,15 +197,14 @@ plot_correlogram <- function(
   ## optionally decrease image quality
   t_out <- seq(from = 1, 
                to = length(data$CC$t),
-               by = agg[1])
+               by = agg)
   
   t_plot <- as.POSIXct(x = data$CC$t[t_out], 
                        tz = format(data$CC$t[1], 
                                    format="%Z"))
   
   lag_out <- seq(from = 1, 
-                 to = length(data$CC$lag),
-                 by = agg[2])
+                 to = length(data$CC$lag))
   
   ## calculate correlation function quantiles
   cf_q1 <- apply(X = data$CC$CC, 1, FUN = quantile, p = 0.25)

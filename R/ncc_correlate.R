@@ -119,7 +119,9 @@
 #' @param \dots Further arguments passed to the functions 
 #' \code{signal_deconvolve}, \code{signal_filter}
 #' 
-#' @return \code{List} with spectrogram matrix, time and frequency vectors.
+#' @return An \code{eseis} object, hence a \code{list} with the correlogram 
+#' matrix, time and frequency vectors, as well as meta data and the object's
+#' processing history.
 #'  
 #' @author Michael Dietze
 #' 
@@ -131,24 +133,20 @@
 #' 
 #' ## calculate correlogram
 #' cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
-#'                      stop = "2017-04-09 01:30:00", 
-#'                      ID = c("RUEG1", "RUEG2"), 
-#'                      dt = 1/10,
-#'                      component = c("Z", "Z"), 
-#'                      dir = paste0(system.file("extdata", 
-#'                                               package = "eseis"), "/"), 
-#'                      window = 600, 
-#'                      overlap = 0, 
-#'                      lag = 20, 
-#'                      deconvolve = TRUE, 
-#'                      sensor = "TC120s",
-#'                      logger = "Cube3extBOB",
-#'                      gain = 1,
-#'                      f = c(0.05, 0.1), 
-#'                      sd = 1)
+#'                     stop = "2017-04-09 01:30:00", 
+#'                     ID = c("RUEG1", "RUEG2"), 
+#'                     dt = 1/10,
+#'                     component = c("Z", "Z"), 
+#'                     dir = paste0(system.file("extdata", 
+#'                                  package = "eseis"), "/"), 
+#'                     window = 600, 
+#'                     overlap = 0, 
+#'                     lag = 20, 
+#'                     f = c(0.05, 0.1), 
+#'                     sd = 1)
 #' 
 #' ## plot output
-#' plot_correlogram(cc)
+#' plot(cc)
 #' 
 #' }
 #' 
