@@ -16,7 +16,7 @@
 #' @importFrom methods as new
 #' @importFrom minpack.lm nlsLM
 #' @importFrom Rcpp evalCpp
-#' @importFrom grDevices colorRampPalette dev.off jpeg
+#' @importFrom grDevices adjustcolor colorRampPalette dev.off jpeg
 #' @importFrom rmarkdown render
 #' @importFrom utils combn read.delim write.table read.table sessionInfo download.file browseURL tail
 #' @importFrom XML xmlParse xmlToList

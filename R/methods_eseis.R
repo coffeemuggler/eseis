@@ -22,6 +22,9 @@ plot.eseis <- function(x, y, ...) {
     } else if(x$meta$type == "correlogram") {
       
       eseis::plot_correlogram(x, ...)
+    } else if(x$meta$type == "velocity") {
+      
+      eseis::plot_dvv(x, ...)
     } else {
       
       graphics::plot(x, ...)
