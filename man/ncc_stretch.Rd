@@ -6,14 +6,16 @@
 \usage{
 ncc_stretch(
   data,
-  lag,
-  master = "mean",
-  normalise = TRUE,
-  sides = "both",
   range = 0.01,
   steps = 100,
+  lag,
+  sides = "both",
+  master = "mean",
+  normalise = TRUE,
   method = "r",
+  min = 0,
   reject = 0,
+  eseis = TRUE,
   ...
 )
 }
@@ -21,9 +23,21 @@ ncc_stretch(
 \item{data}{\code{eseis} object of type \code{correlation}, output 
 of \code{aux_correlate}.}
 
+\item{range}{\code{Numeric} value, relative range of the stretch. Default is 
+\code{0.01} (1 percent).}
+
+\item{steps}{\code{Numeric} value, number of stretch steps (step 
+resolution). Default is \code{100}.}
+
 \item{lag}{\code{Numeric} vector of length two, range of the time lage
 to analyse. If omitted, the time lag of the input data 
 (\code{x$CC$lag}) is used.}
+
+\item{sides}{\code{Character} value. One out of \code{"both"} (both sides
+of the input data), \code{"left"} (only negative time lags), \code{"right"} 
+(only positive time lags) and \code{single} (only right side is used,  
+expecting data from a single source and direction). Default is 
+\code{"both"}.}
 
 \item{master}{\code{Character} vector or value, either a user defined 
 master correlation function or a keyword denoting the  method used to 
@@ -35,35 +49,32 @@ well, e.g., \code{"probs = 0.5"}.}
 \item{normalise}{\code{Logical} value, option to normalise the data set 
 before calculating the master trace. Default is \code{TRUE}.}
 
-\item{sides}{\code{Character} value. One out of \code{"both"} (both sides
-of the input data), \code{"left"} (only negative time lags), \code{"right"} 
-(only positive time lags) and \code{single} (only right side is used,  
-expecting data from a single source and direction). Default is 
-\code{"both"}.}
-
-\item{range}{\code{Numeric} value, relative range of the stretch. Default is 
-\code{0.01} (1 percent).}
-
-\item{steps}{\code{Numeric} value, number of stretch steps (step 
-resolution). Default is \code{100}.}
-
 \item{method}{\code{Charcter} value, method used to identify best match of 
 cross correlation time slices with stretched master data set. One out of 
-\code{"rmse"} (minimum root mean square error) and \code{"r"} (maximum 
+\code{"rms"} (inverse root mean square difference) and \code{"r"} (maximum 
 R^2). Default is \code{"r"}.}
+
+\item{min}{\code{Numeric} value, minimum R^2 value between a correlation 
+function and the master function to yield a valid dv/v output. Cases with 
+smaller R^2 values are set to \code{NA}. Default is \code{0} (no threshold 
+applied). A meaningful threshold might be \code{0.5}.}
 
 \item{reject}{\code{Numeric} value, rejection threshold for stretch values.
 This value defines up to which quantile matching stretch solutions will 
-be treated as valid solutions. Default is \code{0} (Only the minimum RMSE
+be treated as valid solutions. Default is \code{0} (Only the minimum RMS
 value or the maximum R^2 value is returned, and the returned standard 
 deviation will be NA). A change to \code{0.05} will return mean and 
 standard deviation of the five best percent of the solutions.}
 
+\item{eseis}{\code{Logical} value, option to return data as \code{eseis}
+object, default is \code{TRUE}.}
+
 \item{\dots}{Further arguments passed to the function.}
 }
 \value{
-A \code{data.frame}, object with the time and relative wave 
-velocity change estimate.
+An \code{eseis} object, hence a \code{list} with the goodness-of-fit 
+matrix, best-matching dv/v estimate, time and tested dv/v vectors, as well 
+as meta data and the object's processing history.
 }
 \description{
 The function estimates the relative seismic wave velocity changes over 
@@ -74,27 +85,27 @@ previously calculated correlograms (cf. \code{ncc_correlate}).
 
 \dontrun{
 
-cc <- ncc_preprocess(start = "2017-04-09 00:30:00", 
-                     stop = "2017-04-09 01:30:00", 
-                     ID = c("RUEG1", "RUEG2"), 
-                     component = c("Z", "Z"), 
-                     dir = paste0(system.file("extdata", 
-                                              package = "eseis"), "/"), 
-                     window = 600, 
-                     overlap = 0, 
-                     lag = 20, 
-                     deconvolve = TRUE, 
-                     sensor = "TC120s",
-                     logger = "Cube3extBOB",
-                     gain = 1,
-                     f = c(0.05, 0.1), 
-                     sd = 1)
+  ## calculate correlogram
+  cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
+                      stop = "2017-04-09 01:30:00", 
+                      ID = c("RUEG1", "RUEG2"), 
+                      dt = 1/10,
+                      component = c("Z", "Z"), 
+                      dir = paste0(system.file("extdata", 
+                                   package = "eseis"), "/"), 
+                      window = 600, 
+                      overlap = 0, 
+                      lag = 20, 
+                      f = c(0.05, 0.1), 
+                      sd = 1)
    
    ## estimate dv/v
-   dv <- ncc_stretch(data = cc, range = 0.05)
+   dv <- ncc_stretch(data = cc, 
+                     lag = c(1, 10), 
+                     range = 0.4)
    
    ## plot result
-   plot(dv$time, dv$dvv, type = "l")
+   plot_dvv(data = dv)
                      
 }           
                                                               

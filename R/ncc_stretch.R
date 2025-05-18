@@ -7,9 +7,21 @@
 #' @param data \code{eseis} object of type \code{correlation}, output 
 #' of \code{aux_correlate}.
 #' 
+#' @param range \code{Numeric} value, relative range of the stretch. Default is 
+#' \code{0.01} (1 percent).
+#' 
+#' @param steps \code{Numeric} value, number of stretch steps (step 
+#' resolution). Default is \code{100}.
+#' 
 #' @param lag \code{Numeric} vector of length two, range of the time lage
 #' to analyse. If omitted, the time lag of the input data 
 #' (\code{x$CC$lag}) is used.
+#' 
+#' @param sides \code{Character} value. One out of \code{"both"} (both sides
+#' of the input data), \code{"left"} (only negative time lags), \code{"right"} 
+#' (only positive time lags) and \code{single} (only right side is used,  
+#' expecting data from a single source and direction). Default is 
+#' \code{"both"}.
 #' 
 #' @param master \code{Character} vector or value, either a user defined 
 #' master correlation function or a keyword denoting the  method used to 
@@ -21,34 +33,31 @@
 #' @param normalise \code{Logical} value, option to normalise the data set 
 #' before calculating the master trace. Default is \code{TRUE}.
 #' 
-#' @param sides \code{Character} value. One out of \code{"both"} (both sides
-#' of the input data), \code{"left"} (only negative time lags), \code{"right"} 
-#' (only positive time lags) and \code{single} (only right side is used,  
-#' expecting data from a single source and direction). Default is 
-#' \code{"both"}.
-#' 
-#' @param range \code{Numeric} value, relative range of the stretch. Default is 
-#' \code{0.01} (1 percent).
-#' 
-#' @param steps \code{Numeric} value, number of stretch steps (step 
-#' resolution). Default is \code{100}.
-#' 
 #' @param method \code{Charcter} value, method used to identify best match of 
 #' cross correlation time slices with stretched master data set. One out of 
-#' \code{"rmse"} (minimum root mean square error) and \code{"r"} (maximum 
+#' \code{"rms"} (inverse root mean square difference) and \code{"r"} (maximum 
 #' R^2). Default is \code{"r"}.
+#' 
+#' @param min \code{Numeric} value, minimum R^2 value between a correlation 
+#' function and the master function to yield a valid dv/v output. Cases with 
+#' smaller R^2 values are set to \code{NA}. Default is \code{0} (no threshold 
+#' applied). A meaningful threshold might be \code{0.5}.
 #' 
 #' @param reject \code{Numeric} value, rejection threshold for stretch values.
 #' This value defines up to which quantile matching stretch solutions will 
-#' be treated as valid solutions. Default is \code{0} (Only the minimum RMSE
+#' be treated as valid solutions. Default is \code{0} (Only the minimum RMS
 #' value or the maximum R^2 value is returned, and the returned standard 
 #' deviation will be NA). A change to \code{0.05} will return mean and 
 #' standard deviation of the five best percent of the solutions.
 #' 
+#' @param eseis \code{Logical} value, option to return data as \code{eseis}
+#' object, default is \code{TRUE}.
+#' 
 #' @param \dots Further arguments passed to the function.
 #' 
-#' @return A \code{data.frame}, object with the time and relative wave 
-#' velocity change estimate.  
+#' @return An \code{eseis} object, hence a \code{list} with the goodness-of-fit 
+#' matrix, best-matching dv/v estimate, time and tested dv/v vectors, as well 
+#' as meta data and the object's processing history.
 #' 
 #' @author Michael Dietze
 #' 
@@ -58,27 +67,27 @@
 #' 
 #' \dontrun{
 #' 
-#' cc <- ncc_preprocess(start = "2017-04-09 00:30:00", 
-#'                      stop = "2017-04-09 01:30:00", 
-#'                      ID = c("RUEG1", "RUEG2"), 
-#'                      component = c("Z", "Z"), 
-#'                      dir = paste0(system.file("extdata", 
-#'                                               package = "eseis"), "/"), 
-#'                      window = 600, 
-#'                      overlap = 0, 
-#'                      lag = 20, 
-#'                      deconvolve = TRUE, 
-#'                      sensor = "TC120s",
-#'                      logger = "Cube3extBOB",
-#'                      gain = 1,
-#'                      f = c(0.05, 0.1), 
-#'                      sd = 1)
+#'   ## calculate correlogram
+#'   cc <- ncc_correlate(start = "2017-04-09 00:30:00", 
+#'                       stop = "2017-04-09 01:30:00", 
+#'                       ID = c("RUEG1", "RUEG2"), 
+#'                       dt = 1/10,
+#'                       component = c("Z", "Z"), 
+#'                       dir = paste0(system.file("extdata", 
+#'                                    package = "eseis"), "/"), 
+#'                       window = 600, 
+#'                       overlap = 0, 
+#'                       lag = 20, 
+#'                       f = c(0.05, 0.1), 
+#'                       sd = 1)
 #'    
 #'    ## estimate dv/v
-#'    dv <- ncc_stretch(data = cc, range = 0.05)
+#'    dv <- ncc_stretch(data = cc, 
+#'                      lag = c(1, 10), 
+#'                      range = 0.4)
 #'    
 #'    ## plot result
-#'    plot(dv$time, dv$dvv, type = "l")
+#'    plot_dvv(data = dv)
 #'                      
 #' }           
 #'                                                               
@@ -86,16 +95,36 @@
 
 ncc_stretch <- function(
     data,
-    lag,
-    master = "mean",
-    normalise = TRUE,
-    sides = "both",
     range = 0.01,
     steps = 100,
+    lag,
+    sides = "both",
+    master = "mean",
+    normalise = TRUE,
     method = "r",
+    min = 0,
     reject = 0,
+    eseis = TRUE,
     ...
 ) {
+  
+  ## get start time
+  eseis_t_0 <- Sys.time()
+  
+  ## collect function arguments
+  eseis_arguments <- list(data = "",
+                          lag = lag,
+                          sides = sides, 
+                          master = master,
+                          normalise = normalise, 
+                          range = range, 
+                          steps = steps,
+                          method = method,
+                          min = min, 
+                          reject = 0)
+  
+  ## store initial object
+  eseis_data <- data[-1]
   
   ## check/set arguments ------------------------------------------------------
   
@@ -120,14 +149,8 @@ ncc_stretch <- function(
     }
   }
   
-  ## check keywords for sides argument
-  if(sides %in% c("both", "left", "right", "single") == FALSE) {
-    
-    stop("Keyword for sides not supported!")
-  }
-  
   ## check method argument
-  if(method %in% c("rmse", "r") == FALSE) {
+  if(method %in% c("rms", "r") == FALSE) {
     
     "Method for finding best stretch match not supported!"
   }
@@ -141,30 +164,85 @@ ncc_stretch <- function(
   ## extract additional arguments
   args <- list(...)
   
+  ################################################################################
+  #data_save <- data
+  
   ## generate master trace ----------------------------------------------------
   
   ## optionally clip correlogram to lag of interest
   if(missing(lag) == FALSE) {
     
-    ## check that user define lag is not larger than data lag
-    if(lag[1] < min(data$CC$lag) | lag[2] > max(data$CC$lag)) {
+    ## handle left/right case
+    if(sides == "left") {
       
-      stop("Lag is smaller or larger than available from data!")
+      ## check that user define lag is not larger than data lag
+      if(-lag[2] < min(data$CC$lag) | -lag[1] > max(data$CC$lag)) {
+        
+        stop("Lag is smaller or larger than available from data!")
+      } else {
+        
+        ## get desired lag indices
+        i_ok <- data$CC$lag >= -lag[2] & data$CC$lag <= 0
+        
+        ## remove lag values out of range
+        data$CC$lag <- data$CC$lag[i_ok]
+        data$CC$CC <- data$CC$CC[i_ok,]
+        
+        ## identify suitable lag values
+        lag_ok <- data$CC$lag <= -lag[1]
+      }
+      
+    } else if(sides == "right") {
+      
+      ## check that user define lag is not larger than data lag
+      if(lag[1] < min(data$CC$lag) | lag[2] > max(data$CC$lag)) {
+        
+        stop("Lag is smaller or larger than available from data!")
+      } else {
+        
+        ## get desired lag indices
+        i_ok <- data$CC$lag >= 0 & data$CC$lag <= lag[2]
+        
+        ## remove lag values out of range
+        data$CC$lag <- data$CC$lag[i_ok]
+        data$CC$CC <- data$CC$CC[i_ok,]
+        
+        ## identify suitable lag values
+        lag_ok <- data$CC$lag >= lag[1]
+      }
+    } else if(sides == "both") {
+      
+      ## check that user define lag is not larger than data lag
+      if(-lag[2] < min(data$CC$lag) | -lag[1] > max(data$CC$lag) | 
+         lag[1] < min(data$CC$lag) | lag[2] > max(data$CC$lag)) {
+        
+        stop("Lag is smaller or larger than available from data!")
+      } else {
+        
+        ## get desired lag indices
+        i_ok <- data$CC$lag >= -lag[2] & data$CC$lag <= 0 | 
+          data$CC$lag >= 0 & data$CC$lag <= lag[2]
+        
+        ## remove lag values out of range
+        data$CC$lag <- data$CC$lag[i_ok]
+        data$CC$CC <- data$CC$CC[i_ok,]
+        
+        ## identify suitable lag values
+        lag_ok <- data$CC$lag <= -lag[1] | data$CC$lag >= lag[1]
+      }
     } else {
       
-      ## identify suitable lag values
-      lag_ok <- data$CC$lag >= lag[1] & data$CC$lag <= lag[2]
-      
-      ## remove lag values out of range
-      data$CC$lag <- data$CC$lag[lag_ok]
-      data$CC$CC <- data$CC$CC[lag_ok,]
+      stop("Keyword for sides not supported!")
     }
   }
+  
+  ## set unsuitable values to NA
+  data$CC$CC[!lag_ok,] <- NA
   
   ## calculate normalised correlation data set
   if(normalise == TRUE) {
     
-    data_norm <-  2 * (apply(X = data$CC$CC, 
+    data$CC$CC <-  2 * (apply(X = data$CC$CC, 
                               MARGIN = 2, 
                               FUN = function(data) {
                                 
@@ -172,9 +250,6 @@ ncc_stretch <- function(
                                   (max(data, na.rm = TRUE) - 
                                      min(data, na.rm = TRUE))
                               })) - 1
-  } else {
-    
-    data_norm <- data$CC$CC
   }
   
   ## calculate master correlation
@@ -184,11 +259,11 @@ ncc_stretch <- function(
     
   } else if(master[1] == "mean") {
     
-    data_master <- rowMeans(data_norm, na.rm = TRUE)
+    data_master <- rowMeans(data$CC$CC, na.rm = TRUE)
     
   } else if(master[2] == "median") {
     
-    data_master <- apply(X = data_norm, 
+    data_master <- apply(X = data$CC$CC, 
                          MARGIN = 1,
                          FUN = quantile, 
                          probs = 0.5, 
@@ -206,149 +281,186 @@ ncc_stretch <- function(
       warning("No probs value given, set to 0.5 automatically!")
     }
     
-    data_master <- apply(X = data_norm, 
+    data_master <- apply(X = data$CC$CC, 
                          MARGIN = 1,
                          FUN = quantile, 
                          probs = quantile_probs, 
                          na.rm = TRUE)
   }
   
+  ## identify NA values
+  i_na <- is.na(data_master)
+  
   ## replace NA by zero values
-  data_norm[is.na(data_norm)] <- 0
-  data_master[is.na(data_master)] <- 0
+  data$CC$CC[i_na,] <- 0
+  data_master[i_na] <- 0
   
-  ## extend master correlation to avoid interpolation artefacts
-  n_add <- round(length(data_master) * 0.05, 0)
+  ## extend master correlation to avoid interpolation artefacts, get extent
+  n <- round(length(data_master) * 0.1, 0)
   
-  data_master_ext <- caTools::runmean(x = c(rep(NA, n_add), 
-                                            data_master, 
-                                            rep(NA, n_add)), 
-                                      k = n_add, 
+  ## add n NA values on both sides
+  data_master_ext <- c(rep(NA, n), data_master, rep(NA, n))
+  
+  ## interpolate added sides by running mean
+  data_master_ext <- caTools::runmean(x = data_master_ext, 
+                                      k = n, 
                                       endrule = "mean")
   
-  data_master_ext[(n_add + 1):(length(data_master_ext) - n_add)] <- 
-    data_master
+  ## re-insert original data in non-padded part
+  data_master_ext[(n + 1):(length(data_master_ext) - n)] <- data_master
   
-  ## generate stretch vector
-  stretches <- seq(from = -range, 
-                  to = range, 
-                  length.out = steps)
+  ## generate dvv stretch vector
+  dvv <- seq(from = -range, to = range, length.out = steps)
   
   ## generate stretching factors for time lag vector
-  k <- exp(-stretches)
+  k <- exp(-dvv)
   
-  ## generate time index vector
-  if(sides == "single") {
+  ## generate time index vector for spline interpolation
+  if(sides == "left") {
     
-    time_idx <- seq(from = 1, 
-                    to = length(data_master_ext))
+    time_idx <- seq(from = -length(data_master_ext), to = -1)
+  } else if(sides == "right") {
+    
+    
+    time_idx <- seq(from = 1, to = length(data_master_ext))
   } else {
     
-    time_idx <- seq(from = 1, 
-                    to = length(data_master_ext)) - 
-      length(data_master_ext) / 2
+    time_idx <- seq(from = 1, to = length(data_master_ext)) - 
+      (length(data_master_ext) / 2)
   }
   
-  ## create spline interpolator for reference trace
-  spln <- splinefun(x = time_idx,
-                    y = data_master_ext, 
-                    method = "fmm")
+  ## re-insert NA values
+  data$CC$CC[i_na,] <- NA
+  data_master[i_na] <- NA
+  
+  ## create spline interpolator for master correlation
+  spln <- splinefun(x = time_idx, y = data_master_ext, method = "fmm")
   
   ## apply spline
-  data_master_stretch <- lapply(X = k, FUN = function(k, time_idx){
+  stretches <- lapply(X = k, FUN = function(k, time_idx) {
     
     spln(x = time_idx * k)
   }, time_idx)
   
   ## convert list to matrix
-  data_master_stretch <- do.call(rbind, 
-                                 data_master_stretch)
+  stretches <- do.call(rbind, stretches)
   
   ## remove extended parts
-  data_master_stretch <- 
-    data_master_stretch[,(n_add + 1):(ncol(data_master_stretch) - n_add)]
+  stretches <- stretches[,(n + 1):(ncol(stretches) - n)]
+  
+  ## re-insert NA values
+  stretches[,i_na] <- NA
   
   ## convert input data row-wise to list
-  data_norm_list <- as.list(as.data.frame((data_norm)))
+  data_list <- as.list(as.data.frame(data$CC$CC))
   
+  ## compare empirical correlations against stretched master correlations
   if(method == "r") {
     
-    ## calculate max R^2 between stretched master traces and data
-    delta <- 
-      lapply(X = data_norm_list, FUN = function(x, 
-                                                data_master_stretch,
-                                                reject) {
-        
-        r <- apply(X = data_master_stretch, 
-                   MARGIN = 1, 
-                   FUN = function(data_master_stretch) {
-                     
-                     cor(x = x, y = data_master_stretch)^2
-                   })
-        
-        i_get <- seq(from = 1, 
-                     to = length(r))[r >= quantile(x = r, 
-                                                   probs = 1 - reject, 
-                                                   na.rm = TRUE)]
-        
-        return(list(i_get = i_get,
-                    r_all = r))
-        
-      }, data_master_stretch, reject)
+    ## R^2 case
+    D <- lapply(X = data_list, FUN = function(x, stretches, reject) {
+      
+      ## calculate R^2 for each stretched master correlation function 
+      r <- apply(X = stretches, MARGIN = 1, FUN = function(y, x) {
+        cor(x = x, y = y, use = "na.or.complete")^2
+      }, x = x)
+      
+      ## get quantile threshold below which to reject 
+      q_rej <- quantile(x = r, probs = 1 - reject, na.rm = TRUE)
+      
+      ## isolate stretched master correlations above rejection threshold
+      i_ok <- seq(from = 1, to = length(r))[r >= q_rej]
+      
+      ## return output
+      return(list(i_ok = i_ok,
+                  r_all = r,
+                  r_max = max(r, na.rm = TRUE)))
+      
+    }, stretches, reject)
     
-  } else if(method == "rmse") {
+  } else if(method == "rms") {
     
-    ## calculate RMS differences between stretched master traces and data
-    delta <- 
-      lapply(X = data_norm_list, FUN = function(x, 
-                                                data_master_stretch,
-                                                reject) {
+    ## RMS difference case
+    D <- lapply(X = data_list, FUN = function(x, stretches, reject) {
         
-        diff <- apply(X = data_master_stretch, 
-                      MARGIN = 1, 
-                      FUN = function(data_master_stretch) {
-                        
-                        sqrt(mean((data_master_stretch - x)^2, 
-                                  na.rm = TRUE))
-                      })
+      ## calculate RMS for each stretched master correlation function 
+      rms <- apply(X = stretches, MARGIN = 1, FUN = function(y, x) {
         
-        i_get <- seq(from = 1, 
-                     to = length(diff))[diff <= quantile(x = diff, 
-                                                         probs = reject, 
-                                                         na.rm = TRUE)]
+        sqrt(mean((y - x)^2, na.rm = TRUE))
+      }, x = x)
+      
+      ## normalise and invert rms
+      i_rms <- (max(rms) - rms)^2
+      
+      ## get quantile threshold below which to reject 
+      q_rej <- quantile(x = i_rms, probs = 1 - reject, na.rm = TRUE)
         
-        return(list(i_get = i_get,
-                    r_all = diff))
+      ## isolate stretched master correlations below rejection threshold
+      i_ok <- seq(from = 1, to = length(i_rms))[i_rms >= q_rej]
         
-      }, data_master_stretch, reject)
+      ## return output
+      return(list(i_ok = i_ok,
+                  r_all = i_rms,
+                  r_max = max(i_rms, na.rm = TRUE)))
+      
+      }, stretches, reject)
   }
   
-  ## separate outputs
-  delta_r <- lapply(X = delta, FUN = function(x) {
-    
-    x$r_all
-  })
+  ## extract goodness of fit values and build to matrix
+  D_r <- do.call(cbind, lapply(X = D, FUN = function(x) {x$r_all}))
   
-  delta_max <- lapply(X = delta, FUN = function(x) {
-    
-    x$i_get
-  })
+  ## extract dvv indices of appropriate goodness of fit values 
+  i_ok <- lapply(X = D, FUN = function(x, min) {
   
-  ## convert correlation coefficients to matrix
-  delta_r <- do.call(cbind, delta_r)
-  delta_r <- delta_r[nrow(delta_r):1,]
+    r_i <- ifelse(test = x$r_max >= min, yes = x$i_ok, no = NA)
+  }, min)
   
-  ## get mean delta
-  delta_mean <- lapply(X = delta_max, FUN = function(delta_max, stretches) {
-    
-    -mean(stretches[delta_max], 
-          na.rm = TRUE)
-    
-  }, stretches)
+  ## calculate average best fit dvv values
+  D_mean <- do.call(c, lapply(X = i_ok, FUN = function(i_ok, dvv) {
+    mean(dvv[i_ok], na.rm = TRUE)
+  }, dvv))
   
-  delta_mean <- do.call(c, delta_mean)
+  ## flip output to get correct velocity change direction
+  D_mean <- -D_mean
+  D_r <- D_r[nrow(D_r):1,]
+    
+  ## build output object
+  DVV <- list(t = data$CC$t, 
+              dvv = as.numeric(D_mean),
+              range = dvv,
+              gof = D_r)
+  
+  ## optionally rebuild eseis object
+  if(eseis == TRUE) {
+    
+    ## assign cross correlation data set
+    eseis_data$DVV <- DVV
+    eseis_data <- eseis_data[c(length(eseis_data), 1:(length(eseis_data)-1))]
+    
+    ## calculate function call duration
+    eseis_duration <- as.numeric(difftime(time1 = Sys.time(), 
+                                          time2 = eseis_t_0, 
+                                          units = "secs"))
+    
+    ## update object history
+    eseis_data$history[[length(eseis_data$history) + 1]] <- 
+      list(time = Sys.time(),
+           call = "ncc_stretch()",
+           arguments = par,
+           duration = eseis_duration)
+    names(eseis_data$history)[length(eseis_data$history)] <- 
+      as.character(length(eseis_data$history))
+    
+    ## update data type
+    eseis_data$meta$type = "velocity"
+    
+    ## set S3 class name
+    class(eseis_data)[1] <- "eseis"
+    
+    ## assign eseis object to output data set
+    DVV <- eseis_data
+  }
   
   ## return output
-  return(data.frame(time = data$CC$t, 
-                    dvv = delta_mean))
+  return(DVV)
 }
