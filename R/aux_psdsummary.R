@@ -29,6 +29,10 @@
 #' calculation. Should be appropriately large to avoid extensive calculation
 #' times, usually at the order of 0.1 percent of the total PSD duration.
 #' 
+#' @param xml \code{Character} value, path to station-XML file used for data 
+#' deconvolution. If omitted and no other information on \code{sensor} and 
+#' \code{logger} is given, no deconvolution is performed.
+#' 
 #' @param sensor \code{Character} value, sensor keyword for the deconvolution 
 #' step (see \code{signal_deconvolve} for details and keywords). If omitted, 
 #' no deconvolution will be attempted.
@@ -90,9 +94,10 @@ aux_psdsummary <- function(
     start,
     stop,
     ID,
-    component = "BHZ",
+    component = "Z",
     dir,
     window,
+    xml,
     sensor,
     logger,
     gain = 1,
