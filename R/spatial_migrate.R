@@ -114,17 +114,35 @@ spatial_migrate <- function(
     
     if(class(data)[1] == "list") {
       
-      ## extract sampling period from first eseis object
-      dt <- try(data[[1]]$meta$dt)
+      ## extract sampling period from input data
+      dt <- try(do.call(c, lapply(X = data, FUN = function(x) {
+        x$meta$dt
+      })))
       
       ## check if dt can be extracted, otherwise stop function
       if(class(dt)[1] == "try-error") {
         
         stop("Signal object seems to contain no eseis objects!")
+      } else if(any(dt != mean(dt))){
+        
+        stop("Signals do not have the same sampling interval!")
+      } else {
+        
+        dt <- mean(dt)
+      }
+      
+      ## extract number of samples from input data
+      n <- try(do.call(c, lapply(X = data, FUN = function(x) {
+        x$meta$n
+      })))
+      
+      ## check that signals are of the same length
+      if(any(n != mean(n))){
+        
+        stop("Signals do not have the same number of samples!")
       }
       
       ## strip and organise signal vectors in matrix
-      
       data <- do.call(rbind, lapply(X = data, FUN = function(data) {
         
         data$signal
@@ -135,24 +153,21 @@ spatial_migrate <- function(
     }
   }
   
+  ## check that station distance matrix is a symmetric matrix
   if(is.matrix(d_stations) == FALSE) {
     
     stop("Station distance matrix must be symmetric matrix!")
   }
-  
+
   if(nrow(d_stations) != ncol(d_stations)) {
     
     stop("Station distance matrix must be symmetric matrix!")
   }
   
+  ## check that distance maps are lists of spatial information
   if(is.list(d_map) == FALSE) {
     
-    stop("Distance maps must be list objects with SpatRasters!")
-  }
-  
-  if(is.numeric(v) == FALSE & class(v)[1] != "SpatRaster") {
-    
-    stop("Velocity must be numeric value of SpatRaster!")
+    stop("Distance maps must be in a list object!")
   }
   
   ## assign snr values for normalisation
