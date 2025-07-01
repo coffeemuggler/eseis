@@ -98,7 +98,8 @@
 #' files, if possible.
 #' 
 #' @param n \code{Numeric} value, number of cube file to process for GPS 
-#' coordinate extraction. If omitted, all files are processed.
+#' coordinate extraction. If omitted, all files are processed. To omit GPS
+#' coordinate extraction set \code{get_gps = FALSE}.
 #' 
 #' @param order \code{Character} value, keyword indicating how files will be 
 #' chosen to extract meta data. One out of \code{"margin"} (first and last 
@@ -117,6 +118,9 @@
 #' 
 #' @param cpu \code{Numeric} value, fraction of CPUs to use for parallel 
 #' processing. If omitted, one CPU is used.
+#' 
+#' @param get_gps \code{Logical} value, option to include or omit GPS 
+#' coordinate extraction. Default is \code{TRUE}.
 #' 
 #' @param write_file \code{Logical} value, option to write station info file 
 #' to disk. Default is \code{TRUE}. 
@@ -191,6 +195,7 @@ aux_stationinfofile <- function(
     unit = "dd",
     quantile = 0.95,
     cpu,
+    get_gps = TRUE,
     write_file = TRUE,
     write_raw = FALSE,
     write_data = FALSE
@@ -369,10 +374,10 @@ aux_stationinfofile <- function(
   }
   
   ## build preliminary station info file
-  station_info <- data.frame(ID = ID,
+  station_info_df <- data.frame(ID = ID,
                              name = name,
-                             x = numeric(length = length(ID)),
-                             y = numeric(length = length(ID)),
+                             x = rep(NA, length(ID)),
+                             y = rep(NA, length(ID)),
                              z = z,
                              d = d,
                              sensor_type = sensor_type,
@@ -385,8 +390,8 @@ aux_stationinfofile <- function(
                              stop = stop)
   
   ## convert data frame row-wise to list
-  station_info <- lapply(X = 1:nrow(station_info), FUN = function(i, x){x[i,]}, 
-                         x = station_info)
+  station_info <- lapply(X = 1:nrow(station_info_df), FUN = function(i, x){
+    x[i,]}, x = station_info_df)
   
   ## Part 2 - preparation steps -----------------------------------------------
   
@@ -431,165 +436,158 @@ aux_stationinfofile <- function(
   ## convert list content to vector
   files_cube <- do.call(c, files_cube)
   
-  ## create raw gps file output directory
-  if(dir.exists(paths = paste(output, 
-                              "/gps_raw", 
-                              sep = "")) == FALSE) {
+  ## check if coordinates shall be extracted
+  if(get_gps == TRUE) {
     
-    dir.create(path = paste(output, "/gps_raw", sep = ""), 
-               showWarnings = FALSE)
-  }
-  
-  ## detect and adjust number of cores to use
-  cores <- parallel::detectCores()
-  
-  if(is.na(cpu) == FALSE) {
-    
-    n_cpu <- floor(cores * cpu)
-    cores <- ifelse(cores < n_cpu, cores, n_cpu)
-  } else {
-    
-    cores <- 1
-  }
-  
-  ## estimate process duration, based on a Lenovo X260 Intel I7 2.6 GHz CPU
-  t_0 <- 150 / 3600 * 1.1 # i.e. 150 s per file + 10 % extra time
-  t_duration_estimate <- t_0 * length(files_cube)
-  
-  ## print notification
-  print(paste0("[eseis::aux_stationinfofile]: ", length(ID), 
-               " loggers and ", length(files_cube), " files to process"))
-  
-  ## Part 3 - extraction of GPS data ------------------------------------------
-  
-  ## initiate cluster
-  cl <- parallel::makeCluster(getOption("mc.cores", cores))
-  
-  ## extract GPS data
-  invisible(parallel::parLapply(
-    cl = cl, X = files_cube, 
-    fun = function(X, gipptools, output) {
+    ## create raw gps file output directory
+    if(dir.exists(paths = paste(output, 
+                                "/gps_raw", 
+                                sep = "")) == FALSE) {
       
-      system(command = paste(gipptools, "/bin/cubeinfo", 
-                             " --format=GPS --output-dir=",
-                             output, "/gps_raw ",
-                             X,
-                             sep = ""))
-    }, gipptools = gipptools, output = output))
-  
-  ## stop cluster
-  parallel::stopCluster(cl = cl)
-  
-  ## Part 4 - calculations of GPS data ----------------------------------------
-  
-  ## get all gps raw files
-  gps_files <- list.files(path = paste(output, "/gps_raw", sep = ""), 
-                          full.names = TRUE)
-  
-  ## assign gps files to cubes
-  gps_files_cube <- lapply(X = station_info, FUN = function(x, gps_files) {
-    
-    gps_files[grepl(x = gps_files, 
-                    pattern = x[10])]
-  }, 
-  gps_files = gps_files)
-  
-  ## extract GPS data
-  gps_cube <- lapply(X = gps_files_cube, FUN = function(x) {
-    
-    ## create coordinate list
-    lat <- numeric(length = 0)
-    lon <- numeric(length = 0)
-    
-    ## append coordinates for all files
-    for(i in 1:length(x)) {
-      
-      ## read each file
-      data_i <- try(utils::read.delim(file = x[i],
-                                      sep = " ", 
-                                      header = FALSE, 
-                                      stringsAsFactors = FALSE), 
-                    silent = TRUE)
-      
-      ## append successfully extracted data
-      if(class(data_i)[1] != "try-error") {
-        
-        ## identify required fields
-        v_lat <- which(grepl(x = data_i[1,], pattern = "lat="))
-        v_lon <- which(grepl(x = data_i[1,], pattern = "lon="))
-        
-        ## extract latitude
-        lat <- c(lat, as.numeric(substr(x = data_i[,v_lat], 
-                                        start = 5, 
-                                        stop = nchar(data_i[,v_lat][1]))))
-        
-        ## extract longitude
-        lon <- c(lon, as.numeric(substr(x = data_i[,v_lon], 
-                                        start = 5, 
-                                        stop = nchar(data_i[,v_lon][1]))))
-      }
+      dir.create(path = paste(output, "/gps_raw", sep = ""), 
+                 showWarnings = FALSE)
     }
     
-    ## return output
-    return(cbind(lat, lon))
-  })
-  
-  ## remove outliers
-  gps_cube <- lapply(X = gps_cube, FUN = function(gps_cube, qt) {
+    ## detect and adjust number of cores to use
+    cores <- parallel::detectCores()
     
-    lat_median_diff <- abs(median(x = gps_cube[,1]) - gps_cube[,1])
-    lon_median_diff <- abs(median(x = gps_cube[,2]) - gps_cube[,2])
-    
-    lat_diff_quantile <- stats::quantile(x = lat_median_diff, qt)
-    lon_diff_quantile <- stats::quantile(x = lon_median_diff, qt)
-    
-    gps_cube[lat_median_diff > lat_diff_quantile,1] <- NA
-    gps_cube[lon_median_diff > lon_diff_quantile,1] <- NA
-    
-    gps_cube <- gps_cube[stats::complete.cases(gps_cube),]
-    
-    return(gps_cube)
-  }, qt = quantile)
-  
-  ## optionally convert decimal degrees to UTM coordinates
-  if(unit == "utm") {
-    
-    gps_cube <- lapply(X = gps_cube, FUN = function(x) {
+    if(is.na(cpu) == FALSE) {
       
-      ## infer UTM zone
-      utm_zone <- (floor((x[,2] + 180)/6) %% 60) + 1
+      n_cpu <- floor(cores * cpu)
+      cores <- ifelse(cores < n_cpu, cores, n_cpu)
+    } else {
       
-      ## estimate UTM coordinates
-      proj_utm <- paste("+proj=utm +zone=", 
-                        floor(median(utm_zone, na.rm = TRUE)), 
-                        " ellps=WGS84", 
-                        sep = "")
+      cores <- 1
+    }
+    
+    ## estimate process duration, based on a Lenovo X260 Intel I7 2.6 GHz CPU
+    t_0 <- 150 / 3600 * 1.1 # i.e. 150 s per file + 10 % extra time
+    t_duration_estimate <- t_0 * length(files_cube)
+    
+    ## print notification
+    print(paste0("[eseis::aux_stationinfofile]: ", length(ID), 
+                 " loggers and ", length(files_cube), " files to process"))
+    
+    ## Part 3 - extraction of GPS data ------------------------------------------
+    
+    ## initiate cluster
+    cl <- parallel::makeCluster(getOption("mc.cores", cores))
+    
+    ## extract GPS data
+    invisible(parallel::parLapply(
+      cl = cl, X = files_cube, 
+      fun = function(X, gipptools, output) {
+        
+        system(command = paste(gipptools, "/bin/cubeinfo", 
+                               " --format=GPS --output-dir=",
+                               output, "/gps_raw ",
+                               X,
+                               sep = ""))
+      }, gipptools = gipptools, output = output))
+    
+    ## stop cluster
+    parallel::stopCluster(cl = cl)
+    
+    ## Part 4 - calculations of GPS data ----------------------------------------
+    
+    ## get all gps raw files
+    gps_files <- list.files(path = paste(output, "/gps_raw", sep = ""), 
+                            full.names = TRUE)
+    
+    ## assign gps files to cubes
+    gps_files_cube <- lapply(X = station_info, FUN = function(x, gps_files) {
       
-      ## convert coordinates
-      eseis::spatial_convert(data = x, 
-                             from = "+proj=longlat +datum=WGS84",
-                             to = proj_utm)
+      gps_files[grepl(x = gps_files, 
+                      pattern = x[10])]
+    }, 
+    gps_files = gps_files)
+    
+    ## extract GPS data
+    gps_cube <- lapply(X = gps_files_cube, FUN = function(x) {
+      
+      ## read all GPS text files linewise
+      data_i <- do.call(c, lapply(X = x, readLines))
+      
+      ## find and isolate lat and lon tags, return them as data frame
+      v_lat_lon <- do.call(rbind, lapply(X = data_i, FUN = function(data_i) {
+        
+        lat <- strsplit(x = data_i, split = "lat=", fixed = TRUE)[[1]][2]
+        lat <- strsplit(x = lat, split = " ", fixed = TRUE)[[1]][1]
+        
+        lon <- strsplit(x = data_i, split = "lon=", fixed = TRUE)[[1]][2]
+        lon <- strsplit(x = lon, split = " ", fixed = TRUE)[[1]][1]
+        
+        return(data.frame(lat = as.numeric(lat), 
+                          lon = as.numeric(lon)))
+      }))
+      rownames(v_lat_lon) <- NULL
+      
+      return(v_lat_lon)
     })
-  }
-  
-  ## calculate average coordinates
-  gps_cube_mean <- lapply(X = gps_cube,
-                          FUN = colMeans)
-  
-  ## convert station info file and average gps data to data frames
-  station_info <- as.data.frame(do.call(rbind, station_info), 
-                                stringsAsFactors = FALSE)
-  gps_cube_mean <- do.call(rbind, gps_cube_mean)
-  
-  ## add coordinates to station info file
-  station_info$x <- gps_cube_mean[,2]
-  station_info$y <- gps_cube_mean[,1]
-  
-  ## optionally remove raw gps data
-  if(write_raw == FALSE) {
     
-    unlink(gps_files, recursive = TRUE)
-    unlink(paste(output, "gps_raw", sep = "/"), recursive = TRUE)
+    ## remove outliers
+    gps_cube <- lapply(X = gps_cube, FUN = function(gps_cube, qt) {
+      
+      lat_median_diff <- abs(median(x = gps_cube[,1], na.rm = TRUE) - 
+                               gps_cube[,1])
+      lon_median_diff <- abs(median(x = gps_cube[,2], na.rm = TRUE) - 
+                               gps_cube[,2])
+      
+      lat_diff_quantile <- stats::quantile(x = lat_median_diff, qt)
+      lon_diff_quantile <- stats::quantile(x = lon_median_diff, qt)
+      
+      gps_cube[lat_median_diff > lat_diff_quantile,1] <- NA
+      gps_cube[lon_median_diff > lon_diff_quantile,1] <- NA
+      
+      gps_cube <- gps_cube[stats::complete.cases(gps_cube),]
+      
+      return(gps_cube)
+    }, qt = quantile)
+    
+    ## optionally convert decimal degrees to UTM coordinates
+    if(unit == "utm") {
+      
+      gps_cube <- lapply(X = gps_cube, FUN = function(x) {
+        
+        ## infer UTM zone
+        utm_zone <- (floor((x[,2] + 180)/6) %% 60) + 1
+        
+        ## estimate UTM coordinates
+        proj_utm <- paste("+proj=utm +zone=", 
+                          floor(median(utm_zone, na.rm = TRUE)), 
+                          " ellps=WGS84", 
+                          sep = "")
+        
+        ## convert coordinates
+        xy_utm <- eseis::spatial_convert(data = x[,2:1], 
+                                         from = "+proj=longlat +datum=WGS84",
+                                         to = proj_utm)
+        
+        ## round to full metre
+        xy_utm <- round(xy_utm)
+        
+        return(xy_utm[,2:1])
+      })
+    }
+    
+    ## calculate average coordinates
+    gps_cube_mean <- do.call(rbind, lapply(X = gps_cube, FUN = colMeans))
+    
+    ## rename station info file add coordinates to station info file
+    station_info <- station_info_df
+    station_info$x <- gps_cube_mean[,2]
+    station_info$y <- gps_cube_mean[,1]
+    
+    ## optionally remove raw gps data
+    if(write_raw == FALSE) {
+      
+      unlink(gps_files, recursive = TRUE)
+      unlink(paste(output, "gps_raw", sep = "/"), recursive = TRUE)
+    }
+  } else {
+    
+    ## only re-assign station info as data frame
+    station_info <- station_info_df
   }
   
   ## Part 5 - get gain, dt, start, and end times ------------------------------
@@ -699,7 +697,7 @@ aux_stationinfofile <- function(
   }
   
   ## optionally save GPS data set
-  if(write_data == TRUE) {
+  if(get_gps == TRUE & write_data == TRUE) {
     
     trysave <- try(save(gps_cube, 
                         file = paste(output, 

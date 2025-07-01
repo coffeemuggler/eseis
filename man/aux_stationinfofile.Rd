@@ -26,6 +26,7 @@ aux_stationinfofile(
   unit = "dd",
   quantile = 0.95,
   cpu,
+  get_gps = TRUE,
   write_file = TRUE,
   write_raw = FALSE,
   write_data = FALSE
@@ -80,7 +81,8 @@ stopped operating. If omitted, the information will be extracted from Cube
 files, if possible.}
 
 \item{n}{\code{Numeric} value, number of cube file to process for GPS 
-coordinate extraction. If omitted, all files are processed.}
+coordinate extraction. If omitted, all files are processed. To omit GPS
+coordinate extraction set \code{get_gps = FALSE}.}
 
 \item{order}{\code{Character} value, keyword indicating how files will be 
 chosen to extract meta data. One out of \code{"margin"} (first and last 
@@ -99,6 +101,9 @@ coordinate outliers, due to spurious GPS signals. Default is
 
 \item{cpu}{\code{Numeric} value, fraction of CPUs to use for parallel 
 processing. If omitted, one CPU is used.}
+
+\item{get_gps}{\code{Logical} value, option to include or omit GPS 
+coordinate extraction. Default is \code{TRUE}.}
 
 \item{write_file}{\code{Logical} value, option to write station info file 
 to disk. Default is \code{TRUE}.}
