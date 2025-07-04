@@ -1,6 +1,8 @@
 Changes for R-package eseis
 
 Version 0.9.0 (t.b.d)
+  - function added, aux_clipspectrogram()
+  - aux_stationinfofile(), bug fixed
   - documentation updated, ncc_correlate(), ncc_stretch(), plot_correlogram()
   - ncc_stretch(), overhaul and bugfixes
   - function added, plot_dvv()

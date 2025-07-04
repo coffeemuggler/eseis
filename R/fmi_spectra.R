@@ -90,7 +90,7 @@ fmi_spectra <- function (
                                       q_0 = parameters$q_0,
                                       e_0 = parameters$e_0,
                                       v_0 = parameters$v_0,
-                                      x_0 = parameters$p_0,
+                                      p_0 = parameters$p_0,
                                       n_0 = parameters$n_0_a,
                                       res = parameters$res,
                                       eseis = FALSE)

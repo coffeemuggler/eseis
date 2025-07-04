@@ -9,6 +9,11 @@
 #' of length two. This vector defines the range within which uniformly 
 #' distributed random values will be generated and assigned.
 #' 
+#' Note that the frequency range defined by \code{f_min} and \code{f_max} 
+#' as well as the resolution \code{res} has to match the values of the 
+#' empirical data set (i.e. the spectrogram to be inverted) when using the 
+#' inversion function \code{fmi_inversion()}.
+#' 
 #' @param n \code{Numeric} value, number of output reference spectra.
 #' 
 #' @param d_s \code{Numeric} value, mean sediment grain diameter (m). 

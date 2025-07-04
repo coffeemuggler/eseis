@@ -93,6 +93,11 @@ All parameters must be provided as single values, except for those
 parameters that shall be randomised, which must be provided as a vector
 of length two. This vector defines the range within which uniformly 
 distributed random values will be generated and assigned.
+
+Note that the frequency range defined by \code{f_min} and \code{f_max} 
+as well as the resolution \code{res} has to match the values of the 
+empirical data set (i.e. the spectrogram to be inverted) when using the 
+inversion function \code{fmi_inversion()}.
 }
 \examples{
 
