@@ -14,7 +14,7 @@ output of \code{signal_spectrogram} or of an equivalent structure.}
 the PSD will be clipped. Alternatively, an empirical frequency vector can 
 be submitted, too (e.g., when non-uniformly spaced frequencies are used).}
 
-\item{res}{\code{Numeric} value, number of frequencie values used as output 
+\item{res}{\code{Numeric} value, number of frequency values used as output 
 of the frequency interpolation. If set to \code{1}, 
 the input frequency range (\code{f}) will be averaged and a 
 \code{data frame} with the elements \code{time} and \code{power} will 
