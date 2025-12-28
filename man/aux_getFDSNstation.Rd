@@ -2,9 +2,18 @@
 % Please edit documentation in R/aux_getFDSNstation.R
 \name{aux_getFDSNstation}
 \alias{aux_getFDSNstation}
-\title{Query FDSN data base for stations}
+\title{Query FDSN data bases for station information}
 \usage{
-aux_getFDSNstation(centre, radius, start, access, url)
+aux_getFDSNstation(
+  centre,
+  radius,
+  bbox,
+  start,
+  stop,
+  url,
+  level = "station",
+  component
+)
 }
 \arguments{
 \item{centre}{\code{Numeric} vector of length two, center coordinates 
@@ -14,30 +23,63 @@ Units must be decimal degrees.}
 \item{radius}{\code{Numeric} value, radius within which to search for 
 seismic stations. Unit must be decimal degrees.}
 
-\item{start}{\code{POSIXct} value, start time of the data to query. If 
-omitted, stations are queried for the full time available.}
+\item{bbox}{\code{Numeric} vector of length four, bounding box for the 
+rectangular search area, containing the four limiting values for 
+\code{xmin, xmax, ymin, ymax}. Note that here, the order is not latitude 
+and longitude, but x-values and y-values. The argument is only used if no
+information is given for \code{centre} and \code{radius}.}
 
-\item{access}{\code{Logical} value, access type of the data. If omitted,
-all data sets are returned, if set \code{TRUE}, only data with access 
-flag \code{"open"} are returned.}
+\item{start}{\code{POSIXct} value, start time of the data to query. If 
+omitted, time limits are not applied.}
+
+\item{stop}{\code{POSICct} value, stop time of the data to query. If 
+omitted, time limits are not applied.}
 
 \item{url}{\code{Character} vector, optional other FDSN base web 
 addresses to search for stations. See details for default addresses and 
 their format.}
+
+\item{level}{\code{Character} value, keyword defining at which level the 
+information about the stations of interest will be collected. Either 
+\code{"station"} (identification at station level) or \code{"channel"} (
+identification at channel level). Instead of \code{"channel"}, one can also 
+use the keyword \code{"component"}. Note that any channel exclusion options 
+require to use \code{"channel"}. See details for further information. 
+Default is \code{"station"}.}
+
+\item{component}{\code{Character} vector, keyword(s) indicating the spatial 
+component (or channel) of the data to retrieve. Wildcards can be defined as
+asterisk (\code{"*"}) or period (\code{"."}), e.g. \code{"*H."}. If more 
+than one value is provided, the sequence of expressions is used like a 
+logical OR-case, e.g \code{c("BHE", "BHN")} for both horizontal components.}
 }
 \value{
 \code{Data frame} with query results. The data frame contains 
-information for all seismic stations fulfilling the defined criteria.
+information for all seismic stations fulfilling the defined criteria. 
+Information provided at channel level will only be gathered when the 
+argument \code{level} is set accordingly. The specific URL that leads to 
+the data for later download, is also appended to the data frame.
 }
 \description{
-This function queries as series of data bases for seismic stations that 
-match a set of criteria for seismic data. The criteria include signal time 
-stamp and location, and component. The returned data can be used to 
-download data using the function \code{aux_FDSNdata}.
+The function queries as series of data bases for seismic stations that 
+match a set of criteria for seismic data. Criteria include time interval,
+location, and component. The returned data can be used to download data 
+using the function \code{aux_FDSNdata}.
 }
 \details{
-The function requires a working internet connection to perform the query.
-It uses the following FDSN data bases by default: 
+The function is a wrapper for FDSN Web Services, explicitly making 
+fdsnws-station available to R. The XML query and wrangling part of the 
+function is based on handy suggestions by Copilot.
+
+Definition of the search area can be done either by perimeter around a 
+central coordinate or rectangular bounding box. In the latter case, make 
+sure to notice that the box coordinates are not provided as min and max
+latitude, followed by longitude, but the other way around, implying the 
+definition of xmin, xmax, ymin, ymax coordinates. All coordinates are 
+considered to be in decimal degree units.
+
+The function uses the following FDSN data bases by default (i.e., without 
+explicitly providing any URLs manually): 
 
 \itemize{
   \item \code{orfeus} \code{"http://www.orfeus-eu.org"}
@@ -46,42 +88,50 @@ It uses the following FDSN data bases by default:
   \item \code{sss} \code{"http://eida.ethz.ch"}
 }
 
-Other FDSN data base addresses can be provided in the same way as the 
+Other FDSN data base addresses can be provided in the same format as the 
 addresses in the above list. They need to be provided as character 
-vector. For a list of addresses see 
-\code{"http://www.fdsn.org/webservices/datacenters/"} and 
+vector. For lists of addresses see 
+\code{"http://www.fdsn.org/webservices/datacenters/"},
+\code{"https://www.orfeus-eu.org/data/eida/webservices/"} and 
 \code{"http://docs.obspy.org/packages/obspy.clients.fdsn.html#module-obspy.clients.fdsn"}.
+
+Empty query returns will be indicated on the screen 
+(\code{Document is empty}). If no data at all matches the query, an 
+empty data frame is returend.
 }
 \examples{
 
 \dontrun{
 
-x <- aux_getFDSNstation(start = as.POSIXct(x = "2010-01-01 22:22:22", 
-                                           tz = "UTC"), 
-                        centre = c(45, 10), 
-                        radius = 1)
-                           
-## optionally plot station locations on a map (requires RgoogleMaps)
-center <- c(mean(x$station_latitude), 
-            mean(x$station_longitude))
+## get all stations within 1 degree perimeter around Piz Chengalo
+x <- aux_getFDSNstation(centre = c(46.3, 9.6), radius = 1)
 
-zoom <- min(RgoogleMaps::MaxZoom(range(x$station_latitude), 
-                                 range(x$station_longitude)))
-                                 
-Map <- RgoogleMaps::GetMap(center = center,
-                           zoom = zoom, 
-                           maptype = "terrain")
-                           
-RgoogleMaps::PlotOnStaticMap(MyMap = Map, 
-                             lat = x$station_latitude, 
-                             lon = x$station_longitude, 
-                             pch = 15, 
-                             col = 4)
+## sort the stations by distance
+x <- x[order(x$distance),]
+
+## plot distance
+plot(1:nrow(x), x$distance)
+
+## get all stations within bounding box
+x <- aux_getFDSNstation(bbox = c(9, 11, 45, 47))
+
+## get all stations in operation during the Piz Chengalo failure
+x <- aux_getFDSNstation(bbox = c(9, 11, 45, 47), start = "2017-09-23")
+range(x$stop)
+
+## manually define FDSN URL
+x <- aux_getFDSNstation(bbox = c(9, 11, 45, 47), 
+                        url = "http://service.iris.edu")
+
+x <- aux_getFDSNstation(bbox = c(9, 10, 45, 46), 
+                        level = "component", 
+                        component = c("BH*", "HH*"))
+
 }
                      
 }
 \seealso{
-aux_get_FDSNdata, aux_getIRISstation
+aux_get_FDSNdata, aux_organisefdsnfiles
 }
 \author{
 Michael Dietze
