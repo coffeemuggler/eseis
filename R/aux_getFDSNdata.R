@@ -1,6 +1,6 @@
 #' Download seismic data from FDSN data base
 #' 
-#' The function accesses the specified FDSN internet data base(s) and 
+#' The function accesses the specified FDSN internet data base and 
 #' downloads seismic data based on the network and station IDs and time
 #' constraints.
 #' 
@@ -8,27 +8,25 @@
 #' function \code{aux_getFDSNstation} before. It will return all the 
 #' information in a structured way.
 #' 
-#' It is possible to use the function to process more than one data set. In 
-#' this case, the arguments \code{network}, \code{station} and \code{url} 
-#' must match pairwise. The arguments \code{start}, \code{duration} and 
-#' \code{channel} will be treated as constants if not also provided as 
-#' vectors. 
+#' The FDSN web service URL must be provided only with its base path, e.g.
+#' \code{"http://service.iris.edu"}.
 #' 
 #' @param start \code{POSIXct} value, start time of the data to query. 
 #' 
 #' @param duration \code{Numeric} value, length of the data to query, in 
 #' seconds.
 #' 
-#' @param channel \code{Character} value, seismic channel to get. Default is
-#' \code{"BHZ"}.
+#' @param network \code{Character} value, two-character FDSN network ID.
 #' 
-#' @param network \code{Character} vector, two-character FDSN network ID.
+#' @param station \code{Character} value, FDSN station ID.
 #' 
-#' @param station \code{Character} vector, FDSN station ID.
+#' @param component \code{Character} value, seismic component or channel to 
+#' get.
 #' 
-#' @param url \code{Character} vector, FDSN URL.
+#' @param url \code{Character} value, FDSN URL. See details for further 
+#' information.
 #' 
-#' @param link_only \code{Logical} vector, return only FDSN link instead of
+#' @param link_only \code{Logical} value, return only FDSN link instead of
 #' downloading and importing the data.
 #' 
 #' @param eseis \code{Logical} scalar, option to read data to an \code{eseis}
@@ -57,12 +55,12 @@
 #' x <- x[order(x$distance),]
 #' 
 #' ## download available data
-#' d <- aux_getFDSNdata(start = as.POSIXct(x = "2017-08-23 07:30:00", 
-#'                                         tz = "UTC"),
+#' d <- aux_getFDSNdata(start = "2017-08-23 07:30:00",
 #'                      duration = 180, 
-#'                      network = x$network_ID, 
-#'                      station = x$station_code, 
-#'                      url = x$network_url)
+#'                      component = "BHZ",
+#'                      network = x$network, 
+#'                      station = x$station, 
+#'                      url = x$url)
 #' 
 #' ## remove stations without available data
 #' x <- x[!unlist(lapply(d, is.null)),]
@@ -82,12 +80,12 @@
 #' }
 #'                      
 #' @export aux_getFDSNdata
-#' 
+
 aux_getFDSNdata <- function(
-  
+    
   start,
   duration,
-  channel = "BHZ",
+  component,
   network,
   station,
   url,
@@ -96,157 +94,68 @@ aux_getFDSNdata <- function(
   
 ) {
   
-  ## check/set arguments
-  n <- length(station)
-  
-  if(length(n) > 1) {
+  ## optionally convert start time to POSIXct value
+  if(inherits(x = start, what = "POSIXct") == FALSE){
     
-    ## check if crucial arguments are of the same length
-    if(sd(c(length(network), 
-            length(station), 
-            length(url))) != 0) {
+    start <- try(as.POSIXct(start, tz = "UTC"))
+    
+    if(class(start)[1] != "POSIXct") {
       
-      stop("aux_getIRISdata: input vectors not of the same length!")
+      stop("Cannot convert start time to POSIXct!")
     }
-    
-    ## check/adjust length of other arguments
-    start <- rep(x = start,
-                 length.out = n)
-    
-    duration <- rep(x = duration, 
-                    length.out = n)
-    
-    channel <- rep(x = channel, 
-                   length.out = n)
-    eseis <- rep(x = eseis, 
-                 length.out = n)
   }
   
-  ## build input argument data frame
-  input_dataframe <- data.frame(start = start,
-                                duration = duration,
-                                channel = channel,
-                                network = network,
-                                station = station,
-                                url = url,
-                                eseis = eseis, 
-                                stringsAsFactors = FALSE)
+  ## remove accidentally appended URL parts
+  url <- gsub(x = url, pattern = "/fdsnws/station/1/query?", 
+              replacement = "")
+  url <- gsub(x = url, pattern = "/fdsnws/station/1/", replacement = "")
+  url <- gsub(x = url, pattern = "/fdsnws/station/1", replacement = "")
+  url <- gsub(x = url, pattern = "/fdsnws/station/", replacement = "")
+  url <- gsub(x = url, pattern = "/fdsnws/station", replacement = "")
+  url <- gsub(x = url, pattern = "/fdsnws/", replacement = "")
+  url <- gsub(x = url, pattern = "/fdsnws", replacement = "")
   
-  ## convert data frame to list
-  input_list <- vector(mode = "list", 
-                       length = nrow(input_dataframe))
+  ## append accidentally missing http:// parts
+  url <- ifelse(test = grepl(pattern = "http://", x = url, fixed = TRUE), 
+                yes = url, 
+                no = paste0("http://", url))
   
-  for(i in 1:length(input_list)) {
+  ## generate fdsnws-link
+  data <- paste0(url,
+                 "/fdsnws/dataselect/1/query?net=", 
+                 network, "&sta=",
+                 station, "&channel=",
+                 component, "&starttime=",
+                 format(x = start, 
+                        format = "%Y-%m-%dT%H:%M:%S", 
+                        tz = attr(x = start,  which = "tzone")), "&endtime=",
+                 format(x = start + duration, 
+                        format = "%Y-%m-%dT%H:%M:%S", 
+                        tz = attr(x = start, which = "tzone")))
+  
+  ## if desired, download and import the file
+  if(link_only == FALSE) {
     
-    input_list[[i]] <- input_dataframe[i,]
+    ## download seed file
+    
+    ## create temporary download file name
+    mseed_temp <- paste0(tempdir(), "/temp_mseed_", 
+                         format(Sys.time(), "%y%m%d%H%M%S"),
+                         round(runif(1, 1e8, 9e8)))
+    
+    ## download files in temporary directory
+    dump <- invisible(try(download.file(
+      url = data, destfile = mseed_temp), silent = TRUE))
+    
+    ## read mseed file
+    data <- try(eseis::read_mseed(file = mseed_temp, eseis = eseis), 
+                silent = TRUE)
+    
+    ## remove temporary mseed file
+    dump <- invisible(try(invisible(unlink(mseed_temp, recursive = TRUE)),
+                          silent = TRUE))
   }
   
-  if(link_only == TRUE) {
-    
-    data_out <- lapply(X = input_list, FUN = function(input) {
-      
-      ## generate FDSN link
-      link_data <- paste(input$url,
-                         "/fdsnws/dataselect/1/query?",
-                         "net=", 
-                         input$network,
-                         "&sta=",
-                         input$station,
-                         "&channel=",
-                         input$channel,
-                         "&starttime=",
-                         format(x = input$start, 
-                                format = "%Y-%m-%dT%H:%M:%S", 
-                                tz = attr(x = input$start, 
-                                          which = "tzone")),
-                         "&endtime=",
-                         format(x = input$start + input$duration, 
-                                format = "%Y-%m-%dT%H:%M:%S", 
-                                tz = attr(x = input$start, 
-                                          which = "tzone")), 
-                         sep = "")
-      })
-  } else {
-    
-    data_out <- lapply(X = input_list, FUN = function(input) {
-      
-      ## generate FDSN link
-      link_data <- paste(input$url,
-                         "/fdsnws/dataselect/1/query?",
-                         "net=", 
-                         input$network,
-                         "&sta=",
-                         input$station,
-                         "&channel=",
-                         input$channel,
-                         "&starttime=",
-                         format(x = input$start, 
-                                format = "%Y-%m-%dT%H:%M:%S", 
-                                tz = attr(x = input$start, 
-                                          which = "tzone")),
-                         "&endtime=",
-                         format(x = input$start + input$duration, 
-                                format = "%Y-%m-%dT%H:%M:%S", 
-                                tz = attr(x = input$start, 
-                                          which = "tzone")), 
-                         sep = "")
-      
-      ## generate station meta data link
-      link_meta <- paste(input$url,
-                         "/fdsnws/station/1/query?",
-                         "net=", 
-                         input$network,
-                         "&sta=",
-                         input$station,
-                         "&channel=",
-                         input$channel,
-                         sep = "")
-      
-      ## get station meta data
-      s_meta <- try(XML::xmlToList(XML::xmlParse(link_meta, 
-                                                 error = ""))[-(1:3)], 
-                    silent = TRUE)
-      
-      ## create temporary download file name
-      mseed_temp <- paste("temp_mseed_", 
-                          round(x = runif(n = 1, 
-                                          min = 10000000, 
-                                          max = 99999999), 
-                                digits = 0),
-                          sep = "")
-      
-      ## download files in temporary directory
-      dump <- invisible(try(download.file(url = link_data, 
-                                          destfile = mseed_temp), 
-                            silent = TRUE))
-      
-      ## read mseed file
-      s <- try(eseis::read_mseed(file = mseed_temp, 
-                                 eseis = eseis), 
-               silent = TRUE)
-      
-      ## remove temporary mseed file
-      dump <- invisible(try(file.remove(mseed_temp),
-                            silent = TRUE))
-      
-      ## fill meta information and return data
-      if(class(s)[1] != "try-error") {
-        
-        s$meta$latitude <- as.numeric(s_meta$Network$Station$Latitude)
-        s$meta$longitude <- as.numeric(s_meta$Network$Station$Longitude)
-        s$meta$elevation <- as.numeric(s_meta$Network$Station$Elevation)
-        
-        return(s)
-      }
-    
-    })
-    
-    ## assign data set names
-    names(data_out) <- paste(input_dataframe$network, 
-                             input_dataframe$station, 
-                             sep = "-")
-  }
-  
-  ## return output
-  return(data_out)
+  ## return output (either link or data set)
+  return(data)
 }

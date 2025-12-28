@@ -7,7 +7,7 @@
 aux_getFDSNdata(
   start,
   duration,
-  channel = "BHZ",
+  component,
   network,
   station,
   url,
@@ -21,16 +21,17 @@ aux_getFDSNdata(
 \item{duration}{\code{Numeric} value, length of the data to query, in 
 seconds.}
 
-\item{channel}{\code{Character} value, seismic channel to get. Default is
-\code{"BHZ"}.}
+\item{component}{\code{Character} value, seismic component or channel to 
+get.}
 
-\item{network}{\code{Character} vector, two-character FDSN network ID.}
+\item{network}{\code{Character} value, two-character FDSN network ID.}
 
-\item{station}{\code{Character} vector, FDSN station ID.}
+\item{station}{\code{Character} value, FDSN station ID.}
 
-\item{url}{\code{Character} vector, FDSN URL.}
+\item{url}{\code{Character} value, FDSN URL. See details for further 
+information.}
 
-\item{link_only}{\code{Logical} vector, return only FDSN link instead of
+\item{link_only}{\code{Logical} value, return only FDSN link instead of
 downloading and importing the data.}
 
 \item{eseis}{\code{Logical} scalar, option to read data to an \code{eseis}
@@ -42,7 +43,7 @@ object (recommended, see documentation of
 set of input arguments.
 }
 \description{
-The function accesses the specified FDSN internet data base(s) and 
+The function accesses the specified FDSN internet data base and 
 downloads seismic data based on the network and station IDs and time
 constraints.
 }
@@ -51,11 +52,8 @@ A convenient way to get all the required input data is using the
 function \code{aux_getFDSNstation} before. It will return all the 
 information in a structured way.
 
-It is possible to use the function to process more than one data set. In 
-this case, the arguments \code{network}, \code{station} and \code{url} 
-must match pairwise. The arguments \code{start}, \code{duration} and 
-\code{channel} will be treated as constants if not also provided as 
-vectors.
+The FDSN web service URL must be provided only with its base path, e.g.
+\code{"http://service.iris.edu"}.
 }
 \examples{
 
@@ -70,12 +68,12 @@ x <- aux_getFDSNstation(centre = c(46.3, 9.6),
 x <- x[order(x$distance),]
 
 ## download available data
-d <- aux_getFDSNdata(start = as.POSIXct(x = "2017-08-23 07:30:00", 
-                                        tz = "UTC"),
+d <- aux_getFDSNdata(start = "2017-08-23 07:30:00",
                      duration = 180, 
-                     network = x$network_ID, 
-                     station = x$station_code, 
-                     url = x$network_url)
+                     component = "BHZ",
+                     network = x$network, 
+                     station = x$station, 
+                     url = x$url)
 
 ## remove stations without available data
 x <- x[!unlist(lapply(d, is.null)),]
