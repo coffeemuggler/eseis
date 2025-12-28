@@ -2,7 +2,7 @@
 % Please edit documentation in R/ncc_stretch.R
 \name{ncc_stretch}
 \alias{ncc_stretch}
-\title{Estimate relativ wave velocity change (dv/v) by correlation stretching}
+\title{Estimate relative wave velocity change (dv/v) by correlation stretching}
 \usage{
 ncc_stretch(
   data,
@@ -20,7 +20,7 @@ ncc_stretch(
 )
 }
 \arguments{
-\item{data}{\code{eseis} object of type \code{correlation}, output 
+\item{data}{\code{eseis} object of type \code{correlogram}, output 
 of \code{aux_correlate}.}
 
 \item{range}{\code{Numeric} value, relative range of the stretch. Default is 

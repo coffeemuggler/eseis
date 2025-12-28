@@ -120,8 +120,8 @@
 #' \code{signal_deconvolve}, \code{signal_filter}
 #' 
 #' @return An \code{eseis} object, hence a \code{list} with the correlogram 
-#' matrix, time and frequency vectors, as well as meta data and the object's
-#' processing history.
+#' matrix, time and frequency vectors, the input station IDs and components, 
+#' as well as meta data and the object's processing history.
 #'  
 #' @author Michael Dietze
 #' 
@@ -550,8 +550,8 @@ ncc_correlate <- function(
     
     ## remove large temporary objects and collect garbage
     s_ok <- NULL
-    rm(s_1, s_2, s_ok)
-    gc()
+    try(rm(s_1, s_2, s_ok))
+    try(gc())
     
     return(corr_sub)
     
@@ -570,7 +570,9 @@ ncc_correlate <- function(
     eseis_data <- list(CC = list(CC = CC,
                                  t = t,
                                  lag = seq(from = -lag, to = lag, 
-                                           length.out = nrow(CC))),
+                                           length.out = nrow(CC)),
+                                 ID = ID,
+                                 component = component),
                        history = eseis::aux_initiateeseis()$history)
     
     ## calculate function call duration

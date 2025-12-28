@@ -108,8 +108,8 @@ object, default is \code{TRUE}.}
 }
 \value{
 An \code{eseis} object, hence a \code{list} with the correlogram 
-matrix, time and frequency vectors, as well as meta data and the object's
-processing history.
+matrix, time and frequency vectors, the input station IDs and components, 
+as well as meta data and the object's processing history.
 }
 \description{
 The function creates a cross correlation time series of two input data 

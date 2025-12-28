@@ -182,8 +182,10 @@ plot_correlogram <- function(
     
     if(class(data)[1] != "list" | 
        length(data) != 3 | 
-       class(data[[1]])[1] != "matrix" |
+       class(data[[1]])[1] != "matrix" | 
        class(data[[2]])[1] != "POSIXct" | 
+       class(data[[3]])[1] != "numeric" | 
+       class(data[[3]])[1] != "numeric" | 
        class(data[[3]])[1] != "numeric") {
       
       stop("Input data is not appropriate!")

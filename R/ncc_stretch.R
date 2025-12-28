@@ -1,10 +1,10 @@
-#' Estimate relativ wave velocity change (dv/v) by correlation stretching
+#' Estimate relative wave velocity change (dv/v) by correlation stretching
 #' 
 #' The function estimates the relative seismic wave velocity changes over 
 #' time based on matching iteratively stretched master correlations to 
 #' previously calculated correlograms (cf. \code{ncc_correlate}).
 #'
-#' @param data \code{eseis} object of type \code{correlation}, output 
+#' @param data \code{eseis} object of type \code{correlogram}, output 
 #' of \code{aux_correlate}.
 #' 
 #' @param range \code{Numeric} value, relative range of the stretch. Default is 
