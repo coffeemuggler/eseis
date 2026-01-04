@@ -94,6 +94,14 @@
 #' ## get all stations within 1 degree perimeter around Piz Chengalo
 #' x <- aux_getFDSNstation(centre = c(46.3, 9.6), radius = 1)
 #' 
+#' ## plot output with leaflet (requires prior installation)
+#' library(leaflet)
+#' leaflet() %>% 
+#'   addTiles() %>% 
+#'   addMarkers(lng = x$longitude, 
+#'              lat = x$latitude, 
+#'              popup = x$station)
+#' 
 #' ## sort the stations by distance
 #' x <- x[order(x$distance),]
 #' 
@@ -142,12 +150,6 @@ aux_getFDSNstation <- function (
   
   if(missing(centre) == FALSE & missing(radius) & missing(bbox)) {
     stop("No search radius or bbox defined!")
-  }
-  
-  if(missing(bbox) == FALSE) {
-    if(bbox[1] > bbox[2] | bbox[3] > bbox[4]) {
-      stop("Order of bbox values according to xmin, xmax, ymin, ymax!")
-    }
   }
   
   ## assign search option

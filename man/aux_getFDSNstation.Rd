@@ -106,6 +106,14 @@ empty data frame is returend.
 ## get all stations within 1 degree perimeter around Piz Chengalo
 x <- aux_getFDSNstation(centre = c(46.3, 9.6), radius = 1)
 
+## plot output with leaflet (requires prior installation)
+library(leaflet)
+leaflet() \%>\% 
+  addTiles() \%>\% 
+  addMarkers(lng = x$longitude, 
+             lat = x$latitude, 
+             popup = x$station)
+
 ## sort the stations by distance
 x <- x[order(x$distance),]
 
