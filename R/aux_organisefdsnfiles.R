@@ -61,6 +61,8 @@
 #'                       url = url, 
 #'                       dir = "~/Downloads/", 
 #'                       verbose = TRUE)
+#'                       
+#' }
 #'                         
 #' @export aux_organisefdsnfiles
 

@@ -65,6 +65,23 @@ Set of seismic files organised for seamless use by eseis functions
 This function downloads and organises seismic files provided by FDSN 
 data services.
 }
+\examples{
+
+\dontrun{
+
+## example to download and organise 3 hours of data into eseis scheme
+aux_organisefdsnfiles(start = start, 
+                      stop = stop, 
+                      network = "CH", 
+                      station = "FUORN",
+                      component = c("BHE", "BHN"), 
+                      url = url, 
+                      dir = "~/Downloads/", 
+                      verbose = TRUE)
+                      
+}
+                        
+}
 \author{
 Michael Dietze
 }
