@@ -1,7 +1,7 @@
 # #############################################################################
 # methods for generic: plot()
 # #############################################################################
-#' @rdname methods_eseis
+#' @name methods_eseis
 #' @method plot eseis
 #' @export
 plot.eseis <- function(x, y, ...) {
