@@ -1,14 +1,46 @@
-# See Section 1.2.1 "Using 'Makevars'" of Writing R Extensions
-# cran.r-project.org/doc/manuals/R-exts.pdf
+# libmseed sources
+LIBMSEED_SRCS = \
+    libmseed/fileutils.c \
+    libmseed/genutils.c \
+    libmseed/msio.c \
+    libmseed/lookup.c \
+    libmseed/yyjson.c \
+    libmseed/msrutils.c \
+    libmseed/extraheaders.c \
+    libmseed/pack.c \
+    libmseed/packdata.c \
+    libmseed/tracelist.c \
+    libmseed/gmtime64.c \
+    libmseed/crc32c.c \
+    libmseed/parseutils.c \
+    libmseed/unpack.c \
+    libmseed/unpackdata.c \
+    libmseed/selection.c \
+    libmseed/logging.c
 
-PKG_CFLAGS=
-PKG_CPPFLAGS=-Ilibmseed
-PKG_LIBS=-Llibmseed -lmseed
+LIBMSEED_OBJS = $(LIBMSEED_SRCS:.c=.o)
 
-$(SHLIB): libmseed/libmseed.a
+# your own C and C++ sources (explicit list, no wildcard)
+PKG_C_SRCS = \
+    eseis_init.c \
+    parseMiniSEED_v3.c
 
-libmseed/libmseed.a:
-	@(cd libmseed && $(MAKE) static CC="$(CC)" CFLAGS="$(CFLAGS)" AR="$(AR)")
+PKG_CPP_SRCS = \
+    RcppExports.cpp \
+    correlation_event.cpp \
+    kurtosis_event.cpp \
+    run_cor.cpp \
+    stalta_event_freeze.cpp \
+    stalta_event_nofreeze.cpp
 
-clean:
-	@(cd libmseed && $(MAKE) clean )
+PKG_C_OBJS   = $(PKG_C_SRCS:.c=.o)
+PKG_CPP_OBJS = $(PKG_CPP_SRCS:.cpp=.o)
+
+# include vendored libmseed headers
+PKG_CPPFLAGS = -I$(srcdir)/libmseed
+
+# nothing special to link
+PKG_LIBS =
+
+# final object list
+OBJECTS = $(LIBMSEED_OBJS) $(PKG_C_OBJS) $(PKG_CPP_OBJS)
