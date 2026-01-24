@@ -1,27 +1,18 @@
-#' Read mseed files.
+#' Read mseed file.
 #'
-#' This function reads mseed files. If \code{append = TRUE}, all
-#' files will be appended to the first one in the order as they are provided.
-#' In the append-case the function returns a either a list with the elements
-#' \code{signal}, \code{time}, \code{meta} and \code{header} or a list of the
-#' class \code{eseis} (see documentation of
-#' \code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file
-#' is provided, the function returns a list of the length of the input files,
-#' each containing the above elements. 
+#' The function reads mseed files.
 #' 
-#' The mseed data format is read based on C code that was part of the now 
-#' CRAN-archived package \code{IRISSeismic} v. 1.6.6 
-#' (https://cran.r-project.org/src/contrib/Archive/IRISSeismic/). The C code 
-#' and wrapper are a simplified version of the material from IRISSeismic 
-#' written by Jonathan Callahan. A future version of \code{read_mseed} may 
-#' use a further simplified version, restricting the header information to 
-#' the pure information, required by eseis to build its meta information.
+#' When a file contains more than one trace per channel, the function assumes
+#' the sampling rate is identical and only extracts the sampling rate of the 
+#' first trace as output sampling rate. In that case, the output is not one 
+#' \code{eseis} object (or list object in case option \code{eseis = FALSE}), 
+#' but a list of \code{eseis} objects named by their component code.  
+#' 
+#' The mseed data format is read using the C library libmseed v.3.2.3
+#' (https://github.com/earthscope/libmseed). The C wrapper for R has been 
+#' build with the help of ChatGPT. 
 #'
-#' @param file \code{Character} vector, input file name(s), with extension.
-#'
-#' @param append \code{Logical} value, option to append single files to one
-#' continuous file, keeping only the header information of the first file,
-#' default is \code{TRUE}.
+#' @param file \code{Character} value, input file name, with extension.
 #'
 #' @param signal \code{Logical} value, option to import the signal vector,
 #' default is \code{TRUE}.
@@ -61,16 +52,13 @@
 #'                 meta = FALSE,
 #'                 header = FALSE,
 #'                 eseis = FALSE)
-#'
-#' ## read more than one mseed files and append traces
-#' x <- read_mseed(file = c("input_1.miniseed", "input_2.miniseed"))
+#'                 
 #' }
 #'
 #' @export read_mseed
 
 read_mseed <- function(
     file,
-    append = TRUE,
     signal = TRUE,
     time = TRUE,
     meta = TRUE,
@@ -78,277 +66,190 @@ read_mseed <- function(
     eseis = TRUE,
     type = "waveform"
 ) {
-
+  
   ## collect function arguments
   eseis_arguments <- list(file = file,
-                          append = append,
                           signal = signal,
                           time = time,
                           meta = meta,
                           header = header,
                           eseis = eseis,
                           type = type)
-
+  
   ## get start time
   t_0 <- Sys.time()
-
-  ## check/select files
-  if(sum(grepl(pattern = "[*]", x = file)) > 0) {
-
-    file <- list.files(pattern = file)
+  
+  ## check if file exists
+  if(file.exists(file) == FALSE) {
+    
+    stop("File does not exist!")
+  } else {
+    
+    ## expand file path
+    file <- paste0(dirname(file), "/", basename(file))
   }
-
-  ## convert files to list
-  file <- as.list(file)
-
-  ## read all mseed files
-  data <- lapply(X = file, FUN = function(file) {
-
-    ## try to read binary data stream
-    miniseed <- try(readBin(file, "raw", n = file.info(file)$size),
-                    silent = TRUE)
-
-    ## try to parse mseed file
-    data <- try(.Call("parseMiniSEED", miniseed, PACKAGE = "eseis"),
-                silent = TRUE)
-
-    ## restructure parsed mseed file to traces object
-    traces <- try(lapply(X = data, FUN = function(data) {
-
-      trace <- list(
-
-        stats = list(network = data$network,
-                     station = data$station,
-                     location = data$location,
-                     channel = data$channel,
-                     quality = data$quality,
-                     starttime = as.POSIXct(data$starttime,
-                                            origin = "1970-01-01 00:00:00",
-                                            tz = "GMT"),
-                     endtime = as.POSIXct(data$endtime,
-                                          origin = "1970-01-01 00:00:00",
-                                          tz = "GMT"),
-                     npts = data$npts,
-                     sampling_rate = data$sampling_rate),
-        data = data$data)
-
-      return(trace)
-    }), silent = TRUE)
-
-    ## create stream object
-    stream <- try(list(url = file,
-                       requestedStarttime = data[[1]]$stats$starttime,
-                       requestedEndtime = data[[1]]$stats$endtime,
-                       act_flags = data[[1]]$act_flags,
-                       io_flags = data[[1]]$io_flags,
-                       dq_flags = data[[1]]$dq_flags,
-                       timing_qual = data[[1]]$timing_qual,
-                       traces = traces), silent = TRUE)
-
-    ## check/document error
-    if(inherits(stream, "try-error") == TRUE) {
-
-      stream <- paste0("Error, could not read or parse file ", file)
-
-      warning(stream)
-    }
-
-    ## return output
-    return(stream)
-  })
-
-  ## extract sampling period of first trace element
-  dt <- lapply(X = data, FUN = function(x) {
-
-    1 / x$traces[[1]]$stats$sampling_rate
-  })
-
-  ## extract number of samples
-  n <- lapply(X = data, FUN = function(x) {
-
-    unlist(lapply(X = x$traces, FUN = function(y) {
-
-      y$stats$npts
-    }))
-  })
-
-  ## extract global start and end times per trace
-  time_limits <- lapply(X = data, FUN = function(x) {
-
-    lapply(X = x$traces, FUN = function(y) {
-
-      list(start = as.POSIXct(as.numeric(y$stats$starttime),
-                              origin = "1970-01-01",
+  
+  ## try to parse mseed file
+  mseed <- try(.Call("parseMiniSEED_v3", file, PACKAGE = "eseis"),
+               silent = TRUE)
+  
+  ## restructure parsed mseed object by channels
+  data <- try(lapply(X = mseed, FUN = function(msd) {
+    
+    ## separate data and meta data part
+    dta <- msd[[2]]
+    
+    ## collect all information by segment for trace list
+    trc <- try(lapply(X = dta, FUN = function(sgm) {
+      
+      list(start = as.POSIXct(sgm$start / 1e9,
+                              origin = "1970-01-01", 
                               tz = "UTC"),
-           stop = as.POSIXct(as.numeric(y$stats$endtime),
-                             origin = "1970-01-01",
-                             tz = "UTC"))
-    })
-  })
-
-  ## convert time data back to POSIXct with UTC time zone
-  time_limits_global <- lapply(X = time_limits, FUN = function(x) {
-    as.POSIXct(range(unlist(x),
-                     na.rm = TRUE),
-               origin = "1970-01-01",
-               tz = "UTC")
-  })
-
-  ## create time vectors
-  time_list <- vector(mode = "list", length = length(data))
-
-  for(i in 1:length(time_list)) {
-
-    if(length(time_limits[[i]]) == 1) {
-
-      time_list[[i]] <- seq(from = time_limits[[i]][[1]]$start,
-                            by = dt[[i]],
-                            length.out = n[[i]])
+           stop = as.POSIXct(sgm$end / 1e9,
+                             origin = "1970-01-01", 
+                             tz = "UTC"),
+           n = sgm$npts,
+           dt = 1 / sgm$samprate,
+           data = sgm$data)
+    }))
+    
+    ## extract station information
+    si <- msd$sid
+    
+    ## remove FDSN part
+    si <- gsub(x = si, pattern = "FDSN:", replacement = "", fixed = TRUE)
+    
+    ## split into individual information but paste together channel info
+    si <- strsplit(x = si, split = "_", fixed = TRUE)[[1]]
+    si <- c(si[1:3], paste(si[4:length(si)], collapse = ""))
+    
+    ## extract sampling period from segments
+    dt <- do.call(c, lapply(X = trc, FUN = function(trc) {trc$dt}))
+    
+    ## handle case of several segments per trace
+    if(length(dt) > 1) {
+      
+      ## issue warning if dt values are not identical
+      if(sd(dt, na.rm = TRUE) > 0) {
+        
+        warning("Sample interval not constant!")
+      }
+      
+      ## use sampling interval of the first segment 
+      dt <- dt[1]
+    }
+    
+    ## extract number of samples
+    n <- do.call(c, lapply(X = trc, FUN = function(trc) {trc$n}))
+    
+    ## get start and end times for each trace
+    tme_sgm <- do.call(rbind, lapply(X = trc, FUN = function(trc) {
+      
+      data.frame(start = trc$start,stop = trc$stop)
+    }))
+    
+    ## get global start and end time for channel
+    tme_glob <- data.frame(start = min(tme_sgm$start, na.rm = TRUE),
+                           stop = max(tme_sgm$stop, na.rm = TRUE))
+    
+    ## build time and signal vector for segment pasting
+    tme <- seq(from = tme_glob$start, to = tme_glob$stop, by = dt)
+    sgn <- rep(NA, length(tme))
+    
+    ## paste segments into signal vector
+    for(i in 1:length(trc)) {
+      
+      ## build indices for pasting
+      i_ok <- which(tme >= tme_sgm$start[i] & tme <= tme_sgm$stop[i])
+      
+      ## paste in signal segments
+      sgn[i_ok] <- trc[[i]]$data
+    }
+    
+    ## optionally replace time vector
+    if(time == FALSE) {
+      tme <- NA
+    }
+    
+    ## create header part, nothing to put but kept for consistency
+    if(header == TRUE) {
+      
+      hdr <- list(NA)
     } else {
-
-      warning(paste("Trace of file", file[i], "may contain NA-values!"))
-      time_list[[i]] <- seq(from = time_limits_global[[i]][1],
-                            to = time_limits_global[[i]][2],
-                            by = dt[[i]])
+      
+      hdr <- list(NA)
     }
-  }
-
-  ## create empty signal vectors
-  signal_list <- lapply(X = time_list, FUN = function(x) {
-
-    rep(NA, length(x))
-  })
-
-  ## paste signal parts into signal vectors
-  for(i in 1:length(signal_list)) {
-
-    for(j in 1:length(time_limits[[i]])) {
-
-      i_time_ok <- time_list[[i]] >= time_limits[[i]][[j]]$start &
-        time_list[[i]] <= time_limits[[i]][[j]]$stop
-
-      if(sum(i_time_ok) != length(data[[i]]$traces[[j]]$data)) {
-
-        print("read_mseed: possible mismatch of time and data length.")
-      }
-
-      signal_list[[i]][i_time_ok] <-
-        data[[i]]$traces[[j]]$data[1:sum(i_time_ok)]
+    
+    ## create meta information object
+    if(meta == TRUE & eseis == TRUE) {
+      
+      mta <- list(station = si[2],
+                  network = si[1],
+                  component = si[4],
+                  n = length(sgn),
+                  sensor = NA,
+                  logger = NA,
+                  gain = NA,
+                  starttime = tme_glob[1,1],
+                  dt = dt,
+                  latitude = NA,
+                  longitude = NA,
+                  elevation = NA,
+                  depth = NA,
+                  filename = file,
+                  type = eseis_arguments$type)
+    } else {
+      
+      mta <- NA
     }
-  }
-
-  ## optionally assign header part
-  if(header == TRUE) {
-
-    header_list <- data
-
-    for(i in 1:length(header_list)) {
-
-      for(j in 1:length(header_list[[i]]$traces)) {
-
-        header_list[[i]]$traces[[j]]$data <- 0
-      }
-    }
-  } else {
-
-    header_list <- vector(mode = "list", length = length(data))
-  }
-
-  ## optionally extract meta information
-  meta_list <- vector(mode = "list", length = length(data))
-
-  if(meta == TRUE) {
-
-    for(i in 1:length(meta_list)) {
-
-      meta_list[[i]] <- list(
-        station = data[[i]]$traces[[1]]$stats$station,
-        network = data[[i]]$traces[[1]]$stats$network,
-        component = data[[i]]$traces[[1]]$stats$channel,
-        n = length(signal_list[[i]]),
-        sensor = data[[i]]$traces[[1]]$Sensor,
-        logger = NULL,
-        starttime = data[[i]]$traces[[1]]$stats$starttime,
-        dt = 1/data[[i]]$traces[[1]]$stats$sampling_rate,
-        latitude = data[[i]]$traces[[1]]$stats$latitude,
-        longitude = data[[i]]$traces[[1]]$stats$longitude,
-        elevation = data[[i]]$traces[[1]]$stats$elevation,
-        depth = data[[i]]$traces[[1]]$stats$depth,
-        filename = data[[i]]$url,
-        type = eseis_arguments$type)
-    }
-  }
-
-  ## create output object
-  if(eseis == TRUE) {
-
-    data_out <- lapply(X = 1:length(file),
-                       FUN = function(X) {
-                         eseis::aux_initiateeseis()
-                       })
-  } else {
-
-    data_out <- vector(mode = "list",
-                       length = length(file))
-  }
-
-  for(i in 1:length(data_out)) {
-
+    
+    ## build output object
     if(eseis == TRUE) {
-
+      
       ## calculate function call duration
       eseis_duration <- as.numeric(difftime(time1 = Sys.time(),
                                             time2 = t_0,
                                             units = "secs"))
-
+      
       ## fill eseis object
-      data_out[[i]]$signal <- signal_list[[i]]
-      data_out[[i]]$meta <- meta_list[[i]]
-      data_out[[i]]$header <- header_list[[i]]
-      data_out[[i]]$history[[length(data_out[[j]]$history) + 1]] <-
+      data_out <- eseis::aux_initiateeseis()
+      data_out$signal <- sgn
+      data_out$meta <- mta
+      data_out$header <- hdr
+      data_out$history[[length(data_out$history) + 1]] <-
         list(time = Sys.time(),
              call = "read_mseed()",
              arguments = eseis_arguments,
              duration = eseis_duration)
-      names(data_out[[i]]$history)[length(data_out[[i]]$history)] <-
-        as.character(length(data_out[[i]]$history))
-
+      names(data_out$history)[length(data_out$history)] <-
+        as.character(length(data_out$history))
+      
     } else {
-
+      
       ## fill data object
-      data_out[[i]] <- list(signal = signal_list[[i]],
-                            time = time_list[[i]],
-                            meta = meta_list[[i]],
-                            header = header_list[[i]])    }
-  }
-
-  ## optionally append data
-  if(append == TRUE) {
-
-    data_append <- as.numeric(unlist(signal_list))
-
-    time_append <- as.POSIXct(unlist(time_list),
-                              origin = "1970-01-01",
-                              tz = "UTC")
-
-    filenames_append <- unlist(lapply(X = meta_list, FUN = function(x) {
-      x$filename
-    }))
-
-    data_out <- data_out[[1]]
-
-    data_out$signal <- data_append
-
-    if(eseis == FALSE) {
-
-      data_out$time <- time_append
+      data_out <- list(signal = sgn,
+                       time = tme,
+                       meta = mta,
+                       header = hdr)    
     }
-
-    data_out$meta$n <- length(data_append)
-
-    data_out$meta$filename <- filenames_append
+    
+    ## return data set
+    return(data_out)
+  }))
+  
+  ## extract channel names
+  if(eseis == TRUE) {
+    
+    names(data) <- do.call(c, lapply(X = data, FUN = function(x) {
+      x$meta$component
+    }))
   }
-
-  ## return data set
-  return(data_out)
+  
+  ## in case that only one channel is imported, reduce list hierarchy
+  if(length(data) == 1) {
+    data <- data[[1]]
+  }
+  
+  ## return output
+  return(data)
 }

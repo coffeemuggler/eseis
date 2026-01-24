@@ -2,11 +2,10 @@
 % Please edit documentation in R/read_mseed.R
 \name{read_mseed}
 \alias{read_mseed}
-\title{Read mseed files.}
+\title{Read mseed file.}
 \usage{
 read_mseed(
   file,
-  append = TRUE,
   signal = TRUE,
   time = TRUE,
   meta = TRUE,
@@ -16,11 +15,7 @@ read_mseed(
 )
 }
 \arguments{
-\item{file}{\code{Character} vector, input file name(s), with extension.}
-
-\item{append}{\code{Logical} value, option to append single files to one
-continuous file, keeping only the header information of the first file,
-default is \code{TRUE}.}
+\item{file}{\code{Character} value, input file name, with extension.}
 
 \item{signal}{\code{Logical} value, option to import the signal vector,
 default is \code{TRUE}.}
@@ -47,23 +42,18 @@ Default is \code{"waveform"}.}
 \code{List} object, optionally of class \code{eseis}
 }
 \description{
-This function reads mseed files. If \code{append = TRUE}, all
-files will be appended to the first one in the order as they are provided.
-In the append-case the function returns a either a list with the elements
-\code{signal}, \code{time}, \code{meta} and \code{header} or a list of the
-class \code{eseis} (see documentation of
-\code{aux_initiateeseis()}). If \code{append = FALSE} and more than one file
-is provided, the function returns a list of the length of the input files,
-each containing the above elements.
+The function reads mseed files.
 }
 \details{
-The mseed data format is read based on C code that was part of the now 
-CRAN-archived package \code{IRISSeismic} v. 1.6.6 
-(https://cran.r-project.org/src/contrib/Archive/IRISSeismic/). The C code 
-and wrapper are a simplified version of the material from IRISSeismic 
-written by Jonathan Callahan. A future version of \code{read_mseed} may 
-use a further simplified version, restricting the header information to 
-the pure information, required by eseis to build its meta information.
+When a file contains more than one trace per channel, the function assumes
+the sampling rate is identical and only extracts the sampling rate of the 
+first trace as output sampling rate. In that case, the output is not one 
+\code{eseis} object (or list object in case option \code{eseis = FALSE}), 
+but a list of \code{eseis} objects named by their component code.  
+
+The mseed data format is read using the C library libmseed v.3.2.3
+(https://github.com/earthscope/libmseed). The C wrapper for R has been 
+build with the help of ChatGPT.
 }
 \examples{
 
@@ -78,9 +68,7 @@ x <- read_mseed(file = "input.miniseed",
                 meta = FALSE,
                 header = FALSE,
                 eseis = FALSE)
-
-## read more than one mseed files and append traces
-x <- read_mseed(file = c("input_1.miniseed", "input_2.miniseed"))
+                
 }
 
 }
