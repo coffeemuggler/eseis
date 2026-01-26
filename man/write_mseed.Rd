@@ -2,48 +2,105 @@
 % Please edit documentation in R/write_mseed.R
 \name{write_mseed}
 \alias{write_mseed}
-\title{Write seismic traces as mseed file to disk.}
+\title{Write MiniSEED files to disk}
 \usage{
-write_mseed(data, file, time, component, station, location, network, dt)
+write_mseed(
+  data,
+  file,
+  encoding = "STEIM2",
+  size = 512,
+  version = 2,
+  dt,
+  starttime,
+  station,
+  network,
+  location,
+  component,
+  overwrite = TRUE
+)
 }
 \arguments{
-\item{data}{\code{eseis} object or \code{numeric} vector, data set to 
-be processed. Most other arguments can be omitted if \code{data} is an
-\code{eseis} object.}
+\item{data}{\code{eseis} object, \code{numeric} vector or list of 
+objects, data set to be processed. See details for further information on 
+writing multiple datasets into one MiniSEED file.}
 
-\item{file}{\code{Character} scalar, mseed file name with extension.}
+\item{file}{\code{Character} value, file name of the mseed file}
 
-\item{time}{\code{POSIXct} vector, time vector corresponding to the 
-seismic trace. Alternatively, the start time stamp can be provided as
-\code{POSIXct} value and a value for \code{dt} must be given.}
+\item{encoding}{\code{Character} value, encoding type for the data set. 
+One out of \code{"STEIM2"}, \code{"STEIM1"}, \code{"INT32"}, 
+\code{"INT16"}, \code{"FLOAT32"}. Default is \code{"STEIM2"}. Note that the 
+default encoding assumes interge values as data. Hence, velocity values in 
+m/s would be converted to integers. See details for further information.}
 
-\item{component}{\code{Character} value, component ID, optional.}
+\item{size}{\code{Numeric} value, binary record length in bytes. Default is 
+\code{512}.}
 
-\item{station}{\code{Character} value, station ID, optional.}
+\item{version}{\code{Numeric} or \code{character} value, version of the 
+mseed file to write. Default (and still widely supported) is mseed v2 
+(\code{2} or \code{"2"}). It is also possible to write mseed v3 files by
+setting \code{version = 2}.}
 
-\item{location}{\code{Character} vector of length four, station location 
-data (latitude, longitude, elevation, depth), optional.}
+\item{dt}{\code{Numeric} value, sampling period. Only needed if \code{data} 
+is no \code{eseis} object or list of \code{eseis} objects.}
 
-\item{network}{\code{Character} value, network ID, optional.}
+\item{starttime}{\code{POSIXct} value, start time of the data set. Only 
+needed if \code{data} is no \code{eseis} object or list of \code{eseis} 
+objects.}
 
-\item{dt}{\code{Numeric} value, sampling period. Only needed if no time
-vector is provided.}
+\item{station}{\code{Character} value, seismic station ID. Only needed 
+if \code{data} is no \code{eseis} object or list of \code{eseis} objects. 
+If omitted, no station information will be added to the MiniSEED file.}
+
+\item{network}{\code{Character} value, seismic station ID. Must be a 
+two-character ID. Only needed if \code{data} is no \code{eseis} object or 
+list of \code{eseis} objects. If  omitted, no network information will be 
+added to the MiniSEED file.}
+
+\item{location}{\code{Character} value, location information. Only needed 
+if \code{data} is no \code{eseis} object or list of \code{eseis} objects. 
+If omitted, no location information will be added to the MiniSEED file.}
+
+\item{component}{\code{Character} value, seismic component code. Should be a 
+three characters long. Only needed if \code{data} is no \code{eseis} object
+or list of \code{eseis} objects. If  omitted, no component information 
+will be added to the MiniSEED file.}
+
+\item{overwrite}{\code{Logical} value, option to overwrite an existing 
+MiniSEED file if it exists. If set to \code{FALSE}, the exported data set 
+will be appended to an existing MinISEED file. Default is \code{TRUE}.}
 }
 \value{
-A binary file written to disk.
+A binary MiniSEED file written to disk.
 }
 \description{
-This function converts seismic traces to mseed files and writes them to 
-disk. It makes use of the Python library 'ObsPy'. Thus, this software 
-must be installed, to make use of this function.
+The function converts \code{eseis} objects or numeric vectors to MiniSEED 
+format and writes the file to disk.
 }
 \details{
-The ObsPy Python library can be installed following the information 
-provided here: \code{"https://github.com/obspy/obspy/wiki"}.
+The function was written to use the libmseed software v3.2.3. For 
+information see https://earthscope.github.io/libmseed/index.html and 
+https://github.com/EarthScope/libmseed. In essence, only the required C
+code files were used (see src/libmseed directory of the R package eseis). 
+The function allows to save mseed v2 and mseed v3 files. Currently, mseed 
+v3 is rarely used and is not supported by software like snuffler or obspy.
+The c wrappers were created with the help of ChatGPT based on the examples
+on the libmseed tutorial website. 
 
-Since the ObsPy functionality through R is not able to interpret path 
-definitions using the tilde symbol, e.g. \code{"~/Downloads"}, this 
-Linux type definition must be avoided.
+Most conveniently, the function is used with eseis objects as input data. In
+that case, all relevant meta data is extracted from the eseis objects. 
+However, one can also save any numeric vector as mseed file (or trace of 
+a mseed file). In that case, all meta information needs to be provided 
+explicitly. Relevant meta data are sampling interval (dt), station code 
+(station), network code (network), seismic component ID (component). In 
+essence, only dt is required, while the other meta information can be left 
+out and will be set to blank when writing the mseed file. In addition, the 
+meta information location can be added, too.
+
+Instead of writing a single data set (trace) to mseed, it is also possible 
+to save multiple channels to one mseed file, by providing a list of eseis 
+objects. When providing a list of numeric vectors instead, also the meta 
+information must be provided for each data vector, by defining for example 
+dt as a numeric vector of the sampling intervals of all data vectors.
 }
 \examples{
 
