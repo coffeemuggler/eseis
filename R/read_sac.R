@@ -341,7 +341,7 @@ read_sac <- function(
       x$signal
     })))
     
-    ## concatanate time vectors
+    ## concatenate time vectors
     time_append <- do.call(rbind, lapply(X = data_list, FUN = function(x) {
       x$time
     }))
