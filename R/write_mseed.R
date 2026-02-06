@@ -126,6 +126,9 @@ write_mseed <- function(
   ## expand file path
   file <- paste0(dirname(file), "/", basename(file))
   
+  ## remove double slashes
+  file <- gsub(x = file, pattern = "//", replacement = "/", fixed = TRUE)
+  
   ## Normalize input into a list of traces
   if (inherits(data, "eseis")) {
     data_list <- list(data)
@@ -171,7 +174,9 @@ write_mseed <- function(
   }
   
   ## check/set consistent location place holder for mseed v2
-  if(version == 2 && location[i] == "") {location[i] <- "00"}
+  if(version == 2) {
+    location <- ifelse(nchar(location) == 0, "00", location)
+  }
   
   ## component information
   if(missing(component) == FALSE) {
