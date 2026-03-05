@@ -49,3 +49,4 @@ PKG_LIBS =
 
 $(SHLIB): $(OBJECTS)
 	$(CXX) -shared -o $@ $(OBJECTS) $(PKG_LIBS)
+
