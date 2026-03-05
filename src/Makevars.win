@@ -1,4 +1,3 @@
-# libmseed sources
 LIBMSEED_SRCS = \
     libmseed/fileutils.c \
     libmseed/genutils.c \
@@ -20,10 +19,12 @@ LIBMSEED_SRCS = \
 
 LIBMSEED_OBJS = $(LIBMSEED_SRCS:.c=.o)
 
-# your own C and C++ sources (explicit list, no wildcard)
+# eseis C and C++ sources
 PKG_C_SRCS = \
     eseis_init.c \
-    parseMiniSEED_v3.c
+    parseMiniSEED_v3.c \
+    writeMiniSEED_v3_v3.c \
+    writeMiniSEED_v3_v2.c
 
 PKG_CPP_SRCS = \
     RcppExports.cpp \
@@ -36,11 +37,15 @@ PKG_CPP_SRCS = \
 PKG_C_OBJS   = $(PKG_C_SRCS:.c=.o)
 PKG_CPP_OBJS = $(PKG_CPP_SRCS:.cpp=.o)
 
-# include vendored libmseed headers
-PKG_CPPFLAGS = -I$(srcdir)/libmseed
+OBJECTS = $(LIBMSEED_OBJS) $(PKG_C_OBJS) $(PKG_CPP_OBJS)
 
-# nothing special to link
+PKG_CPPFLAGS = -I$(srcdir)/libmseed \
+    -DWIN32 \
+    -D_CRT_SECURE_NO_WARNINGS \
+    -D__USE_MINGW_ANSI_STDIO=1 \
+    -D_FORTIFY_SOURCE=0
+
 PKG_LIBS =
 
-# final object list
-OBJECTS = $(LIBMSEED_OBJS) $(PKG_C_OBJS) $(PKG_CPP_OBJS)
+$(SHLIB): $(OBJECTS)
+	$(CXX) -shared -o $@ $(OBJECTS) $(PKG_LIBS)
