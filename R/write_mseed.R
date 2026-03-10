@@ -49,7 +49,7 @@
 #' setting \code{version = 2}.
 #' 
 #' @param dt \code{Numeric} value, sampling period. Only needed if \code{data} 
-#' is no \code{eseis} object or list of \code{eseis} objects.
+#' is no \code{eseis} object or list of \code{eseis} objects. 
 #' 
 #' @param starttime \code{POSIXct} value, start time of the data set. Only 
 #' needed if \code{data} is no \code{eseis} object or list of \code{eseis} 
