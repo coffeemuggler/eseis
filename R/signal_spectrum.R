@@ -15,8 +15,8 @@
 #' is set to 1/200. Only needed if \code{data} is no \code{eseis} object.
 #' 
 #' @param method \code{Character} value, calculation method. One out of 
-#' \code{"periodogram"} and \code{"autoregressive"}. 
-#' default is \code{"periodogram"}.
+#' \code{"periodogram"}, \code{"autoregressive"} and \code{"fft"}. 
+#' default is \code{"fft"}.
 #' 
 #' @param n \code{Numeric} value, optional number of samples in 
 #' running window used for smoothing the spectrogram. Only applied if a 
@@ -53,7 +53,7 @@
 signal_spectrum <- function(
   data,
   dt,
-  method = "periodogram",
+  method = "fft",
   n,
   res,
   log = FALSE,
@@ -170,6 +170,38 @@ signal_spectrum <- function(
       ## recompose data set
       data_out <- data.frame(frequency = s$freq,
                              power = s$spec)
+      
+    } else if(method == "fft") {
+      
+      ## get frequency vector length
+      n_s <- length(data)
+      n_f <- floor(n_s / 2)
+      
+      ## define Hanning window and window normalisation factor
+      n_h <- seq(from = 0, to = (n_s - 1))
+      w_h <- 0.5 * (1 - cos(2 * pi * n_h / (n_s - 1)))
+      u_h <- mean(w_h^2)
+      
+      ## apply Hanning window
+      data <- data * w_h
+      
+      ## calculate FFT and clip to positive frequency values
+      data_fft <- fftw::FFT(x = data)
+      data_fft <- data_fft[1:(n_f + 1)]
+      
+      ## normalise spectrum
+      p <- (2 / (1/dt * u_h * n_s)) * abs(data_fft)^2
+      
+      ## account for first and last power value
+      p[1] <- p[1] / 2
+      if(n_s %% 2 == 0) {p[n_f + 1] <- p[n_f + 1] / 2}
+      
+      ## recalculate frequency vector
+      f <- seq(from = 0, to = 1 / dt / 2, length.out = length(p))
+      
+      ## recompose data set
+      data_out <- data.frame(frequency = f,
+                             power = p)
       
     } else {
       

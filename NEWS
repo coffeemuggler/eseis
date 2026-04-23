@@ -1,6 +1,7 @@
 Changes for R-package eseis
 
 Version 0.9.0 (t.b.d)
+  - feature added, signal_spectrum(), SciPy-like FFT spectrum method
   - function re-defined, write_mseed(), using libmseed v3
   - function re-defined, read_mseed(), using libmseed v3
   - orphaned dependency removed (extraDistr)

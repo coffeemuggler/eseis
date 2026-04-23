@@ -4,7 +4,7 @@
 \alias{signal_spectrum}
 \title{Calculate the spectrum of a time series}
 \usage{
-signal_spectrum(data, dt, method = "periodogram", n, res, log = FALSE, ...)
+signal_spectrum(data, dt, method = "fft", n, res, log = FALSE, ...)
 }
 \arguments{
 \item{data}{\code{eseis} object, \code{numeric} vector or list of 
@@ -14,8 +14,8 @@ objects, data set to be processed.}
 is set to 1/200. Only needed if \code{data} is no \code{eseis} object.}
 
 \item{method}{\code{Character} value, calculation method. One out of 
-\code{"periodogram"} and \code{"autoregressive"}. 
-default is \code{"periodogram"}.}
+\code{"periodogram"}, \code{"autoregressive"} and \code{"fft"}. 
+default is \code{"fft"}.}
 
 \item{n}{\code{Numeric} value, optional number of samples in 
 running window used for smoothing the spectrogram. Only applied if a 
